@@ -55,28 +55,28 @@ export default function ContactModal({
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:justify-end p-0 sm:p-4">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={handleClose} />
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={handleClose} />
 
       {/* Panel */}
-      <div className="relative bg-white w-full sm:w-[420px] sm:rounded-2xl shadow-2xl flex flex-col max-h-[90vh] sm:max-h-[85vh] rounded-t-2xl">
+      <div className="relative bg-white w-full sm:w-[560px] sm:rounded-3xl shadow-2xl flex flex-col max-h-[92vh] sm:max-h-[90vh] rounded-t-3xl">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
           <div>
-            <h2 className="font-bold text-slate-900">Chat & Support</h2>
-            <p className="text-xs text-slate-400 mt-0.5">We reply within 1 business day</p>
+            <h2 className="font-bold text-lg text-slate-900">Chat & Support</h2>
+            <p className="text-sm text-slate-400 mt-0.5">We reply within 1 business day</p>
           </div>
           <button
             onClick={handleClose}
-            className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+            className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto p-5">
+        <div className="flex-1 overflow-y-auto p-6">
           {status === 'success' ? (
             <div className="text-center py-10">
               <div className="w-14 h-14 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -94,19 +94,19 @@ export default function ContactModal({
               </button>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Name *</label>
+                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Name *</label>
                   <input
                     name="name"
                     required
                     placeholder="Your name"
-                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 placeholder:text-slate-300"
+                    className="w-full px-4 py-3.5 rounded-xl border border-slate-200 text-slate-900 text-[16px] focus:outline-none focus:ring-2 focus:ring-teal-500 placeholder:text-slate-300 bg-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Email *</label>
+                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Email *</label>
                   <input
                     name="email"
                     type="email"
@@ -114,17 +114,17 @@ export default function ContactModal({
                     defaultValue={prefill?.email || ''}
                     inputMode="email"
                     placeholder="you@email.com"
-                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 placeholder:text-slate-300"
+                    className="w-full px-4 py-3.5 rounded-xl border border-slate-200 text-slate-900 text-[16px] focus:outline-none focus:ring-2 focus:ring-teal-500 placeholder:text-slate-300 bg-white"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Topic *</label>
+                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Topic *</label>
                 <select
                   name="subject"
                   required
-                  className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
+                  className="w-full px-4 py-3.5 rounded-xl border border-slate-200 text-slate-900 text-[16px] focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
                 >
                   <option value="">Select a topic…</option>
                   <option>General question</option>
@@ -136,24 +136,24 @@ export default function ContactModal({
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Message *</label>
+                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Message *</label>
                 <textarea
                   name="message"
                   required
-                  rows={4}
+                  rows={5}
                   placeholder="How can we help?"
-                  className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 placeholder:text-slate-300 resize-none"
+                  className="w-full px-4 py-3.5 rounded-xl border border-slate-200 text-slate-900 text-[16px] focus:outline-none focus:ring-2 focus:ring-teal-500 placeholder:text-slate-300 resize-none bg-white"
                 />
               </div>
 
               {status === 'error' && (
-                <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-xl">{errorMsg}</p>
+                <p className="text-sm text-red-600 bg-red-50 px-4 py-3 rounded-xl">{errorMsg}</p>
               )}
 
               <button
                 type="submit"
                 disabled={status === 'sending'}
-                className="w-full text-white font-bold py-3 rounded-xl text-sm transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+                className="w-full text-white font-bold py-4 rounded-2xl text-base transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
                 style={{ background: 'var(--primary)' }}
               >
                 {status === 'sending' ? (
