@@ -26,7 +26,7 @@ function StatusBadge({ status }: { status: QuoteStatus }) {
   )
 }
 
-const avatarColors = ['#0d9488', '#7c3aed', '#2563eb', '#d97706', '#dc2626', '#16a34a', '#0891b2', '#9333ea']
+const avatarColor = '#1c1c1e'
 
 export default function QuotesTable({ quotes }: QuotesTableProps) {
   const router = useRouter()
@@ -123,7 +123,7 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-                      style={{ background: avatarColors[idx % avatarColors.length] }}>
+                      style={{ background: avatarColor }}>
                       {(q.customer_name || '?').split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2)}
                     </div>
                     <div>
@@ -186,7 +186,7 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
             >
               <div className="flex items-start gap-3 mb-3">
                 <div className="w-11 h-11 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
-                  style={{ background: avatarColors[idx % avatarColors.length] }}>
+                  style={{ background: avatarColor }}>
                   {(q.customer_name || '?').split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2)}
                 </div>
                 <div className="flex-1 min-w-0">

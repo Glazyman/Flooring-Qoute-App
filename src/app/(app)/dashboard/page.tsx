@@ -5,12 +5,6 @@ import { fmt } from '@/lib/calculations'
 
 export const dynamic = 'force-dynamic'
 
-function greeting() {
-  const h = new Date().getHours()
-  if (h < 12) return { text: 'Good Morning', emoji: '☀️' }
-  if (h < 17) return { text: 'Good Afternoon', emoji: '👋' }
-  return { text: 'Good Evening', emoji: '🌙' }
-}
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { bg: string; color: string; label: string }> = {
@@ -52,8 +46,6 @@ export default async function DashboardPage() {
   const winRate = total > 0 ? Math.round((accepted.length / total) * 100) : 0
 
   const recentQuotes = allQuotes.slice(0, 8)
-  const companyName = settingsResult.data?.company_name || 'there'
-  const { text: greetText, emoji } = greeting()
 
   return (
     <div className="space-y-5">
@@ -61,9 +53,8 @@ export default async function DashboardPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight" style={{ color: 'var(--text)' }}>
-            {emoji} {greetText}
+            Dashboard
           </h1>
-          <p className="text-sm mt-0.5 font-medium" style={{ color: 'var(--text-2)' }}>{companyName}</p>
         </div>
         <Link
           href="/quotes/new"
@@ -141,7 +132,6 @@ export default async function DashboardPage() {
         ) : (
           recentQuotes.map((q, i) => {
             const date = new Date(q.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-            const avatarColors = ['#0d9488', '#7c3aed', '#2563eb', '#d97706', '#dc2626', '#16a34a', '#0891b2', '#9333ea']
             const initials = (q.customer_name || '?').split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2)
             return (
               <Link
@@ -151,7 +141,7 @@ export default async function DashboardPage() {
                 style={{ borderBottom: i < recentQuotes.length - 1 ? '1px solid var(--border)' : 'none' }}
               >
                 <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-white text-xs font-bold"
-                  style={{ background: avatarColors[i % avatarColors.length] }}>
+                  style={{ background: '#1c1c1e' }}>
                   {initials}
                 </div>
                 <div className="flex-1 min-w-0">
