@@ -32,6 +32,8 @@ function StatusBadge({ status }: { status: QuoteStatus }) {
 export default function QuotesTable({ quotes }: QuotesTableProps) {
   const router = useRouter()
   const [updating, setUpdating] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState<string | null>(null)
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
   const [localQuotes, setLocalQuotes] = useState(quotes)
 
   async function updateStatus(quoteId: string, status: QuoteStatus) {
@@ -45,6 +47,17 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
       setLocalQuotes((prev) => prev.map((q) => (q.id === quoteId ? { ...q, status } : q)))
     }
     setUpdating(null)
+  }
+
+  async function deleteQuote(quoteId: string) {
+    setDeleting(quoteId)
+    const res = await fetch(`/api/quotes/${quoteId}`, { method: 'DELETE' })
+    if (res.ok) {
+      setLocalQuotes((prev) => prev.filter((q) => q.id !== quoteId))
+    }
+    setDeleting(null)
+    setConfirmDelete(null)
+    router.refresh()
   }
 
   if (localQuotes.length === 0) {
@@ -63,6 +76,31 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
 
   return (
     <>
+      {/* Confirm delete dialog */}
+      {confirmDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.4)' }}>
+          <div className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full">
+            <h3 className="font-bold text-gray-900 text-lg mb-2">Delete quote?</h3>
+            <p className="text-gray-500 text-sm mb-5">This cannot be undone. The quote will be permanently removed.</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmDelete(null)}
+                className="flex-1 border border-gray-200 text-gray-700 font-semibold text-sm py-2.5 rounded-xl hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => deleteQuote(confirmDelete)}
+                disabled={deleting === confirmDelete}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold text-sm py-2.5 rounded-xl transition-colors disabled:opacity-50"
+              >
+                {deleting === confirmDelete ? 'Deleting…' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Desktop table */}
       <div className="hidden md:block bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <table className="w-full text-sm">
@@ -120,12 +158,23 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
                   {new Date(q.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                 </td>
                 <td className="px-5 py-4">
-                  <button
-                    onClick={() => router.push(`/quotes/${q.id}`)}
-                    className="text-blue-600 hover:text-blue-700 text-xs font-semibold"
-                  >
-                    View →
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => router.push(`/quotes/${q.id}`)}
+                      className="text-blue-600 hover:text-blue-700 text-xs font-semibold"
+                    >
+                      View →
+                    </button>
+                    <button
+                      onClick={() => setConfirmDelete(q.id)}
+                      className="text-red-400 hover:text-red-600 transition-colors"
+                      title="Delete quote"
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -165,7 +214,16 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
                 onClick={() => router.push(`/quotes/${q.id}`)}
                 className="flex-1 text-center bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold py-2 rounded-xl transition-colors"
               >
-                View Details →
+                View →
+              </button>
+              <button
+                onClick={() => setConfirmDelete(q.id)}
+                className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                title="Delete quote"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
               </button>
             </div>
           </div>
