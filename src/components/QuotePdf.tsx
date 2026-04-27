@@ -5,6 +5,7 @@ import {
   View,
   StyleSheet,
   Font,
+  Image,
 } from '@react-pdf/renderer'
 import type { Quote, QuoteRoom, CompanySettings } from '@/lib/types'
 
@@ -209,16 +210,27 @@ export function QuotePdfDocument({ quote: q, rooms, settings }: QuotePdfDocument
       <Page size="LETTER" style={styles.page}>
         {/* Header */}
         <View style={styles.header}>
-          <View>
-            <Text style={styles.companyName}>
-              {settings?.company_name || 'Flooring Company'}
-            </Text>
-            {settings?.phone && (
-              <Text style={styles.companyDetail}>{settings.phone}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10 }}>
+            {settings?.logo_url && (
+              <Image
+                src={settings.logo_url}
+                style={{ width: 48, height: 48, borderRadius: 6, objectFit: 'cover' }}
+              />
             )}
-            {settings?.email && (
-              <Text style={styles.companyDetail}>{settings.email}</Text>
-            )}
+            <View>
+              <Text style={styles.companyName}>
+                {settings?.company_name || 'Flooring Company'}
+              </Text>
+              {settings?.phone && (
+                <Text style={styles.companyDetail}>{settings.phone}</Text>
+              )}
+              {settings?.email && (
+                <Text style={styles.companyDetail}>{settings.email}</Text>
+              )}
+              {settings?.website && (
+                <Text style={styles.companyDetail}>{settings.website}</Text>
+              )}
+            </View>
           </View>
           <View>
             <Text style={styles.estimateTitle}>ESTIMATE</Text>
@@ -403,7 +415,8 @@ export function QuotePdfDocument({ quote: q, rooms, settings }: QuotePdfDocument
             This estimate is valid for {q.valid_days} days from the date issued.
           </Text>
           <Text style={styles.footerText}>
-            {settings?.company_name || 'Flooring Company'} — Thank you for your business!
+            {settings?.company_name || 'Flooring Company'}
+            {settings?.website ? ` · ${settings.website}` : ''} — Thank you for your business!
           </Text>
         </View>
       </Page>
