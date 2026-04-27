@@ -4,6 +4,10 @@ import './globals.css'
 export const metadata: Metadata = {
   title: 'FloorQuote Pro',
   description: 'Professional flooring estimates in under 2 minutes',
+  icons: {
+    icon: '/favicon.png',
+    apple: '/favicon.png',
+  },
 }
 
 export default function RootLayout({

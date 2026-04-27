@@ -188,13 +188,13 @@ export default function AppNavigation({
     <>
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex flex-col w-64 min-h-screen bg-white border-r border-gray-100 fixed left-0 top-0" style={{ boxShadow: '1px 0 0 #f0f0f5' }}>
-        <div className="flex items-center gap-3 px-5 pt-6 pb-2">
-          <div className="w-9 h-9 rounded-xl overflow-hidden flex-shrink-0 shadow-sm">
-            <Image src="/logo.png" alt="FloorQuote Pro" width={36} height={36} className="w-full h-full object-cover" />
+        <div className="flex items-center gap-3 px-5 pt-6 pb-3">
+          <div className="w-12 h-12 rounded-2xl overflow-hidden flex-shrink-0 shadow-sm">
+            <Image src="/logo.png" alt="FloorQuote Pro" width={48} height={48} className="w-full h-full object-cover" />
           </div>
           <div>
-            <span className="font-bold text-gray-900 text-[15px] tracking-tight leading-none block">FloorQuote Pro</span>
-            <span className="text-[11px] text-gray-400 font-medium">Flooring Estimates</span>
+            <span className="font-extrabold text-gray-900 text-[17px] tracking-tight leading-tight block">FloorQuote Pro</span>
+            <span className="text-[12px] text-gray-400 font-medium">Flooring Estimates</span>
           </div>
         </div>
         {sidebarContent}
@@ -208,9 +208,9 @@ export default function AppNavigation({
         >
           <Menu className="w-5 h-5" />
         </button>
-        <div className="flex items-center gap-2">
-          <Image src="/logo.png" alt="FloorQuote Pro" width={26} height={26} className="rounded-lg" />
-          <span className="font-bold text-gray-900 text-sm tracking-tight">FloorQuote Pro</span>
+        <div className="flex items-center gap-2.5">
+          <Image src="/logo.png" alt="FloorQuote Pro" width={30} height={30} className="rounded-xl" />
+          <span className="font-extrabold text-gray-900 text-[15px] tracking-tight">FloorQuote Pro</span>
         </div>
         <div className="w-9" />
       </header>
