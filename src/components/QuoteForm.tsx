@@ -1,10 +1,18 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { calculateQuote, fmt } from '@/lib/calculations'
 import type { CompanySettings, FlooringType, MeasurementType } from '@/lib/types'
-import { PlusCircle, Trash2, Upload, Loader2, ChevronDown, ChevronRight } from 'lucide-react'
+import { PlusCircle, Trash2, Upload, Loader2, ChevronDown, ChevronRight, Users, X } from 'lucide-react'
+
+interface CustomerContact {
+  id: string
+  name: string
+  phone: string | null
+  email: string | null
+  address: string | null
+}
 
 const FLOORING_TYPES: { value: FlooringType; label: string }[] = [
   { value: 'hardwood', label: 'Hardwood' },
@@ -143,6 +151,38 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
   const [depositPct, setDepositPct] = useState(String(settings?.default_deposit_pct ?? 50))
   const [notes, setNotes] = useState('')
   const [validDays, setValidDays] = useState('30')
+
+  // Contacts picker
+  const [showContactPicker, setShowContactPicker] = useState(false)
+  const [contacts, setContacts] = useState<CustomerContact[]>([])
+  const [contactsLoading, setContactsLoading] = useState(false)
+  const [contactSearch, setContactSearch] = useState('')
+
+  const loadContacts = useCallback(async () => {
+    if (contacts.length > 0) return
+    setContactsLoading(true)
+    try {
+      const res = await fetch('/api/customers')
+      const data = await res.json()
+      setContacts(data.customers || [])
+    } finally {
+      setContactsLoading(false)
+    }
+  }, [contacts.length])
+
+  function openContactPicker() {
+    setShowContactPicker(true)
+    setContactSearch('')
+    loadContacts()
+  }
+
+  function pickContact(c: CustomerContact) {
+    setCustomerName(c.name)
+    setCustomerPhone(c.phone || '')
+    setCustomerEmail(c.email || '')
+    setJobAddress(c.address || '')
+    setShowContactPicker(false)
+  }
 
   // Blueprint
   const [blueprintLoading, setBlueprintLoading] = useState(false)
@@ -343,6 +383,63 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
 
           {/* Customer Info */}
           <Card title="Customer Info">
+            <div className="flex items-center justify-between mb-4 -mt-1">
+              <span />
+              <button
+                type="button"
+                onClick={openContactPicker}
+                className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl active:scale-95"
+                style={{ color: 'var(--primary)', background: 'var(--primary-light)' }}
+              >
+                <Users className="w-3.5 h-3.5" />
+                Load from Contacts
+              </button>
+            </div>
+
+            {/* Contact Picker Dropdown */}
+            {showContactPicker && (
+              <div className="mb-4 rounded-2xl border overflow-hidden" style={{ borderColor: 'var(--border)', boxShadow: 'var(--shadow-card)' }}>
+                <div className="flex items-center gap-2 px-3 py-2.5 border-b" style={{ borderColor: 'var(--border)', background: '#f9f9fb' }}>
+                  <input
+                    type="text"
+                    value={contactSearch}
+                    onChange={e => setContactSearch(e.target.value)}
+                    placeholder="Search contacts…"
+                    className="flex-1 text-sm focus:outline-none bg-transparent"
+                    style={{ color: 'var(--text)' }}
+                    autoFocus
+                  />
+                  <button type="button" onClick={() => setShowContactPicker(false)} className="text-gray-400 hover:text-gray-600 p-0.5">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="max-h-48 overflow-y-auto bg-white">
+                  {contactsLoading ? (
+                    <p className="text-sm text-center py-4" style={{ color: 'var(--text-3)' }}>Loading…</p>
+                  ) : contacts.length === 0 ? (
+                    <p className="text-sm text-center py-4" style={{ color: 'var(--text-3)' }}>No contacts saved yet</p>
+                  ) : (
+                    contacts
+                      .filter(c => !contactSearch || c.name.toLowerCase().includes(contactSearch.toLowerCase()))
+                      .map(c => (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => pickContact(c)}
+                          className="w-full text-left px-4 py-3 hover:bg-gray-50 active:bg-gray-100 border-b last:border-0 transition-colors"
+                          style={{ borderColor: 'var(--border)' }}
+                        >
+                          <p className="text-sm font-semibold" style={{ color: 'var(--text)' }}>{c.name}</p>
+                          <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>
+                            {[c.phone, c.email].filter(Boolean).join(' · ')}
+                          </p>
+                        </button>
+                      ))
+                  )}
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input label="Customer Name" value={customerName} onChange={setCustomerName} placeholder="John Smith" required />
               <Input label="Phone" value={customerPhone} onChange={setCustomerPhone} type="tel" placeholder="(555) 000-0000" />
