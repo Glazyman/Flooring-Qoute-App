@@ -14,6 +14,7 @@ function Input({
   prefix,
   suffix,
   hint,
+  disabled,
 }: {
   label: string
   value: string
@@ -23,15 +24,20 @@ function Input({
   prefix?: string
   suffix?: string
   hint?: string
+  disabled?: boolean
 }) {
   return (
     <div>
       <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
         {label}
       </label>
-      <div className="flex items-center rounded-xl border border-gray-200 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent bg-white overflow-hidden transition-shadow">
+      <div className={`flex items-center rounded-xl border overflow-hidden transition-all ${
+        disabled
+          ? 'border-gray-100 bg-gray-50'
+          : 'border-gray-200 bg-white focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent'
+      }`}>
         {prefix && (
-          <span className="px-3 py-2.5 bg-gray-50 text-gray-400 text-sm border-r border-gray-200 font-medium">
+          <span className={`px-3 py-2.5 text-sm border-r font-medium ${disabled ? 'bg-gray-50 text-gray-300 border-gray-100' : 'bg-gray-50 text-gray-400 border-gray-200'}`}>
             {prefix}
           </span>
         )}
@@ -41,10 +47,13 @@ function Input({
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           inputMode={type === 'number' ? 'decimal' : undefined}
-          className="flex-1 px-3.5 py-3 text-base text-gray-900 placeholder:text-gray-300 focus:outline-none bg-white"
+          disabled={disabled}
+          className={`flex-1 px-3.5 py-3 text-base placeholder:text-gray-300 focus:outline-none transition-colors ${
+            disabled ? 'bg-gray-50 text-gray-400 cursor-default' : 'bg-white text-gray-900'
+          }`}
         />
         {suffix && (
-          <span className="px-3 py-2.5 bg-gray-50 text-gray-400 text-sm border-l border-gray-200 font-medium">
+          <span className={`px-3 py-2.5 text-sm border-l font-medium ${disabled ? 'bg-gray-50 text-gray-300 border-gray-100' : 'bg-gray-50 text-gray-400 border-gray-200'}`}>
             {suffix}
           </span>
         )}
@@ -83,6 +92,7 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
     default_markup_pct: String(initial.default_markup_pct ?? 0),
     default_deposit_pct: String(initial.default_deposit_pct ?? 50),
   })
+  const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
@@ -140,7 +150,8 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
 
     if (res.ok) {
       setSuccess(true)
-      router.refresh() // Refresh server components so nav updates instantly
+      setEditing(false)
+      router.refresh()
     } else {
       const data = await res.json()
       setError(data.error || 'Failed to save')
@@ -149,43 +160,91 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
     setSaving(false)
   }
 
+  const ro = !editing // read-only shorthand
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4 max-w-2xl">
+      {/* Header row with Edit / Save / Cancel */}
+      <div className="flex items-center justify-between">
+        <div>
+          {success && !editing && (
+            <span className="inline-flex items-center gap-1.5 text-green-700 text-sm font-medium">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+              </svg>
+              Saved
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          {editing ? (
+            <>
+              <button
+                type="button"
+                onClick={() => {
+                  setForm({
+                    company_name: initial.company_name || '',
+                    phone: initial.phone || '',
+                    email: initial.email || '',
+                    logo_url: initial.logo_url || '',
+                    website: initial.website || '',
+                    default_material_cost: String(initial.default_material_cost ?? 5),
+                    default_labor_cost: String(initial.default_labor_cost ?? 3),
+                    default_waste_pct: String(initial.default_waste_pct ?? 10),
+                    default_markup_pct: String(initial.default_markup_pct ?? 0),
+                    default_deposit_pct: String(initial.default_deposit_pct ?? 50),
+                  })
+                  setEditing(false)
+                  setError('')
+                }}
+                className="px-4 py-2 text-sm font-semibold text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={saving}
+                className="px-5 py-2 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-xl transition-colors shadow-sm"
+              >
+                {saving ? 'Saving…' : 'Save Changes'}
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              onClick={() => { setEditing(true); setSuccess(false) }}
+              className="flex items-center gap-2 px-5 py-2 text-sm font-semibold text-gray-700 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              Edit
+            </button>
+          )}
+        </div>
+      </div>
+
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl text-sm font-medium">
           {error}
-        </div>
-      )}
-      {success && (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-2xl text-sm font-medium flex items-center gap-2">
-          <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-          </svg>
-          Settings saved successfully.
         </div>
       )}
 
       <Card title="Company Info">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="sm:col-span-2">
-            <Input
-              label="Company Name"
-              value={form.company_name}
-              onChange={(v) => set('company_name', v)}
-              placeholder="Smith Flooring LLC"
-            />
+            <Input label="Company Name" value={form.company_name} onChange={(v) => set('company_name', v)} placeholder="Smith Flooring LLC" disabled={ro} />
           </div>
-          <Input label="Phone" value={form.phone} onChange={(v) => set('phone', v)} type="tel" placeholder="(555) 000-0000" />
-          <Input label="Email" value={form.email} onChange={(v) => set('email', v)} type="email" placeholder="contact@company.com" />
+          <Input label="Phone" value={form.phone} onChange={(v) => set('phone', v)} type="tel" placeholder="(555) 000-0000" disabled={ro} />
+          <Input label="Email" value={form.email} onChange={(v) => set('email', v)} type="email" placeholder="contact@company.com" disabled={ro} />
           <div className="sm:col-span-2">
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
-              Logo
-            </label>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Logo</label>
             <div className="flex gap-3 items-start">
-              {/* Preview */}
               <div
-                className="w-16 h-16 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center flex-shrink-0 overflow-hidden bg-gray-50 cursor-pointer hover:border-blue-400 transition-colors"
-                onClick={() => logoInputRef.current?.click()}
+                className={`w-16 h-16 rounded-2xl border-2 border-dashed flex items-center justify-center flex-shrink-0 overflow-hidden transition-colors ${
+                  ro ? 'border-gray-100 bg-gray-50 cursor-default' : 'border-gray-200 bg-gray-50 cursor-pointer hover:border-blue-400'
+                }`}
+                onClick={() => !ro && logoInputRef.current?.click()}
               >
                 {logoUploading ? (
                   <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
@@ -199,54 +258,45 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
                 )}
               </div>
               <div className="flex-1 space-y-2">
-                <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
-                <button
-                  type="button"
-                  onClick={() => logoInputRef.current?.click()}
-                  className="w-full text-sm font-semibold text-blue-600 border border-blue-200 bg-blue-50 hover:bg-blue-100 py-2 px-3 rounded-xl transition-colors"
-                >
-                  {logoUploading ? 'Uploading…' : form.logo_url ? 'Replace logo' : 'Upload logo'}
-                </button>
+                <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} disabled={ro} />
+                {!ro && (
+                  <button
+                    type="button"
+                    onClick={() => logoInputRef.current?.click()}
+                    className="w-full text-sm font-semibold text-blue-600 border border-blue-200 bg-blue-50 hover:bg-blue-100 py-2 px-3 rounded-xl transition-colors"
+                  >
+                    {logoUploading ? 'Uploading…' : form.logo_url ? 'Replace logo' : 'Upload logo'}
+                  </button>
+                )}
                 <input
                   type="url"
                   value={form.logo_url}
                   onChange={(e) => set('logo_url', e.target.value)}
                   placeholder="or paste image URL…"
-                  className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 text-gray-700 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  disabled={ro}
+                  className={`w-full px-3 py-2 text-sm rounded-xl border placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
+                    ro ? 'border-gray-100 bg-gray-50 text-gray-400 cursor-default' : 'border-gray-200 text-gray-700'
+                  }`}
                 />
                 {logoUploadError && <p className="text-xs text-red-500">{logoUploadError}</p>}
               </div>
             </div>
           </div>
           <div className="sm:col-span-2">
-            <Input
-              label="Website"
-              value={form.website}
-              onChange={(v) => set('website', v)}
-              placeholder="yourcompany.com"
-              hint="Shown in the sidebar under your company name"
-            />
+            <Input label="Website" value={form.website} onChange={(v) => set('website', v)} placeholder="yourcompany.com" hint="Shown in the sidebar under your company name" disabled={ro} />
           </div>
         </div>
       </Card>
 
       <Card title="Default Quote Values" description="These values pre-fill when creating a new quote.">
         <div className="grid grid-cols-2 gap-4">
-          <Input label="Material Cost / SqFt" value={form.default_material_cost} onChange={(v) => set('default_material_cost', v)} type="number" prefix="$" placeholder="5.00" />
-          <Input label="Labor Cost / SqFt" value={form.default_labor_cost} onChange={(v) => set('default_labor_cost', v)} type="number" prefix="$" placeholder="3.00" />
-          <Input label="Waste %" value={form.default_waste_pct} onChange={(v) => set('default_waste_pct', v)} type="number" suffix="%" placeholder="10" />
-          <Input label="Markup %" value={form.default_markup_pct} onChange={(v) => set('default_markup_pct', v)} type="number" suffix="%" placeholder="0" />
-          <Input label="Deposit %" value={form.default_deposit_pct} onChange={(v) => set('default_deposit_pct', v)} type="number" suffix="%" placeholder="50" />
+          <Input label="Material Cost / SqFt" value={form.default_material_cost} onChange={(v) => set('default_material_cost', v)} type="number" prefix="$" placeholder="5.00" disabled={ro} />
+          <Input label="Labor Cost / SqFt" value={form.default_labor_cost} onChange={(v) => set('default_labor_cost', v)} type="number" prefix="$" placeholder="3.00" disabled={ro} />
+          <Input label="Waste %" value={form.default_waste_pct} onChange={(v) => set('default_waste_pct', v)} type="number" suffix="%" placeholder="10" disabled={ro} />
+          <Input label="Markup %" value={form.default_markup_pct} onChange={(v) => set('default_markup_pct', v)} type="number" suffix="%" placeholder="0" disabled={ro} />
+          <Input label="Deposit %" value={form.default_deposit_pct} onChange={(v) => set('default_deposit_pct', v)} type="number" suffix="%" placeholder="50" disabled={ro} />
         </div>
       </Card>
-
-      <button
-        type="submit"
-        disabled={saving}
-        className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-bold px-6 py-3 rounded-2xl text-sm transition-colors shadow-sm"
-      >
-        {saving ? 'Saving…' : 'Save Settings'}
-      </button>
     </form>
   )
 }
