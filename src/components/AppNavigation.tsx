@@ -99,17 +99,6 @@ export default function AppNavigation({
 
   const sidebarContent = (
     <div className="flex flex-col h-full py-5">
-      {/* Logo */}
-      <div className="flex items-center gap-3 px-5 mb-7">
-        <div className="w-9 h-9 rounded-xl overflow-hidden flex-shrink-0 shadow-sm">
-          <Image src="/logo.png" alt="FloorQuote Pro" width={36} height={36} className="w-full h-full object-cover" />
-        </div>
-        <div>
-          <span className="font-bold text-gray-900 text-[15px] tracking-tight leading-none block">FloorQuote Pro</span>
-          <span className="text-[11px] text-gray-400 font-medium">Flooring Estimates</span>
-        </div>
-      </div>
-
       {/* Main nav */}
       <div className="px-3 space-y-1">
         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-4 pb-1.5">Menu</p>
@@ -199,6 +188,15 @@ export default function AppNavigation({
     <>
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex flex-col w-64 min-h-screen bg-white border-r border-gray-100 fixed left-0 top-0" style={{ boxShadow: '1px 0 0 #f0f0f5' }}>
+        <div className="flex items-center gap-3 px-5 pt-6 pb-2">
+          <div className="w-9 h-9 rounded-xl overflow-hidden flex-shrink-0 shadow-sm">
+            <Image src="/logo.png" alt="FloorQuote Pro" width={36} height={36} className="w-full h-full object-cover" />
+          </div>
+          <div>
+            <span className="font-bold text-gray-900 text-[15px] tracking-tight leading-none block">FloorQuote Pro</span>
+            <span className="text-[11px] text-gray-400 font-medium">Flooring Estimates</span>
+          </div>
+        </div>
         {sidebarContent}
       </aside>
 
