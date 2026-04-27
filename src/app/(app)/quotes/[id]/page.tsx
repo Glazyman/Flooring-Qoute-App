@@ -82,7 +82,7 @@ export default async function QuoteDetailPage({
         <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 mt-4">
           <Link
             href={`/quotes/${id}/edit`}
-            className="flex items-center justify-center gap-1.5 font-semibold px-4 py-3 sm:py-2.5 rounded-2xl text-sm active:scale-95 transition-transform"
+            className="flex items-center justify-center gap-1.5 font-semibold px-4 py-3 sm:py-2.5 rounded-2xl text-sm active:scale-95 transition-transform focus:outline-none focus:ring-0"
             style={{ background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text)' }}
           >
             <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">

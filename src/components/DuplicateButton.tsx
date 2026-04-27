@@ -24,7 +24,7 @@ export default function DuplicateButton({ quoteId }: { quoteId: string }) {
     <button
       onClick={handleDuplicate}
       disabled={loading}
-      className="flex items-center justify-center gap-2 text-white font-semibold px-4 py-3 sm:py-2.5 rounded-2xl text-sm active:scale-95 disabled:opacity-60"
+      className="flex items-center justify-center gap-2 text-white font-semibold px-4 py-3 sm:py-2.5 rounded-2xl text-sm active:scale-95 disabled:opacity-60 focus:outline-none"
       style={{ background: 'var(--primary)', boxShadow: '0 2px 8px rgba(13,148,136,0.25)' }}
     >
       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
