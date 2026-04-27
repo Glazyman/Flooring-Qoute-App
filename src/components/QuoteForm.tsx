@@ -186,46 +186,63 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
   }
 
   async function handleBlueprintUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const files = Array.from(e.target.files || [])
+    if (!files.length) return
 
     setBlueprintLoading(true)
     setBlueprintError('')
 
-    const fd = new FormData()
-    fd.append('image', file)
+    const allExtracted: Room[] = []
+    const allNotes: string[] = []
+    const errors: string[] = []
 
-    try {
-      const res = await fetch('/api/quotes/blueprint', { method: 'POST', body: fd })
-      const data = await res.json()
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i]
+      const fd = new FormData()
+      fd.append('image', file)
 
-      if (!res.ok) {
-        setBlueprintError(data.error || 'Failed to analyze image')
-        return
+      try {
+        const res = await fetch('/api/quotes/blueprint', { method: 'POST', body: fd })
+        const data = await res.json()
+
+        if (!res.ok) {
+          errors.push(`${file.name}: ${data.error || 'Failed'}`)
+          continue
+        }
+
+        const extracted: Room[] = (data.rooms || []).map((r: {
+          name: string; section: string; lengthFt: number; lengthIn: number
+          widthFt: number; widthIn: number
+        }) => ({
+          id: crypto.randomUUID(),
+          name: r.name,
+          section: (SECTIONS.includes(r.section as Section) ? r.section : 'Other') as Section,
+          lengthFt: String(r.lengthFt),
+          lengthIn: String(r.lengthIn || 0),
+          widthFt: String(r.widthFt),
+          widthIn: String(r.widthIn || 0),
+        }))
+        allExtracted.push(...extracted)
+        if (data.notes) allNotes.push(data.notes)
+      } catch {
+        errors.push(`${file.name}: Failed to analyze`)
       }
-
-      // Switch to rooms mode and populate
-      setMeasurementType('rooms')
-      const extracted: Room[] = data.rooms.map((r: {
-        name: string; section: string; lengthFt: number; lengthIn: number
-        widthFt: number; widthIn: number
-      }) => ({
-        id: crypto.randomUUID(),
-        name: r.name,
-        section: (SECTIONS.includes(r.section as Section) ? r.section : 'Other') as Section,
-        lengthFt: String(r.lengthFt),
-        lengthIn: String(r.lengthIn || 0),
-        widthFt: String(r.widthFt),
-        widthIn: String(r.widthIn || 0),
-      }))
-      setRooms(extracted)
-      if (data.notes) setBlueprintNotes(data.notes)
-    } catch {
-      setBlueprintError('Failed to analyze image. Please try again.')
-    } finally {
-      setBlueprintLoading(false)
-      if (fileRef.current) fileRef.current.value = ''
     }
+
+    if (errors.length) setBlueprintError(errors.join(' | '))
+
+    if (allExtracted.length > 0) {
+      setMeasurementType('rooms')
+      // Append to existing rooms (don't wipe manually added ones)
+      setRooms(prev => {
+        const hasEmpty = prev.length === 1 && !prev[0].lengthFt && !prev[0].widthFt
+        return hasEmpty ? allExtracted : [...prev, ...allExtracted]
+      })
+      if (allNotes.length) setBlueprintNotes(prev => [prev, ...allNotes].filter(Boolean).join('\n'))
+    }
+
+    setBlueprintLoading(false)
+    if (fileRef.current) fileRef.current.value = ''
   }
 
   const sectionGroups = SECTIONS.map(section => ({
@@ -361,12 +378,12 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
               <div className="space-y-4">
                 {/* Blueprint upload */}
                 <div className={`border-2 border-dashed rounded-2xl p-4 text-center transition-colors ${blueprintLoading ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50/50'}`}>
-                  <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleBlueprintUpload} />
+                  <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleBlueprintUpload} />
                   {blueprintLoading ? (
                     <div className="flex flex-col items-center gap-2 py-2">
                       <Loader2 className="w-6 h-6 text-blue-500 animate-spin" />
-                      <p className="text-sm font-medium text-blue-700">Analyzing your blueprint with AI…</p>
-                      <p className="text-xs text-blue-500">This takes about 10–20 seconds</p>
+                      <p className="text-sm font-medium text-blue-700">Analyzing with AI…</p>
+                      <p className="text-xs text-blue-500">~10–20 seconds per image</p>
                     </div>
                   ) : (
                     <button type="button" onClick={() => fileRef.current?.click()} className="flex flex-col items-center gap-2 w-full py-2">
@@ -375,7 +392,7 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
                       </div>
                       <div>
                         <p className="text-sm font-semibold text-gray-900">Upload Blueprint or Measurement Sheet</p>
-                        <p className="text-xs text-gray-400 mt-0.5">AI will extract all room dimensions automatically</p>
+                        <p className="text-xs text-gray-400 mt-0.5">Select multiple images — one per floor is fine</p>
                       </div>
                     </button>
                   )}
