@@ -60,12 +60,17 @@ export default function ContactModal({
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={handleClose} />
 
       {/* Panel */}
-      <div className="relative bg-white w-full sm:w-[560px] sm:rounded-3xl shadow-2xl flex flex-col max-h-[92vh] sm:max-h-[90vh] rounded-t-3xl">
+      <div className="relative bg-white w-full sm:w-[560px] sm:rounded-3xl shadow-2xl flex flex-col rounded-t-3xl" style={{ maxHeight: '92dvh' }}>
+        {/* Drag handle (mobile) */}
+        <div className="flex justify-center pt-3 pb-1 sm:hidden">
+          <div className="w-10 h-1 rounded-full bg-gray-200" />
+        </div>
+
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
+        <div className="flex items-center justify-between px-5 sm:px-6 py-4 sm:py-5 border-b border-slate-100">
           <div>
-            <h2 className="font-bold text-lg text-slate-900">Chat & Support</h2>
-            <p className="text-sm text-slate-400 mt-0.5">We reply within 1 business day</p>
+            <h2 className="font-bold text-base sm:text-lg text-slate-900">Chat & Support</h2>
+            <p className="text-xs sm:text-sm text-slate-400 mt-0.5">We reply within 1 business day</p>
           </div>
           <button
             onClick={handleClose}
@@ -76,7 +81,7 @@ export default function ContactModal({
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-5 sm:p-6 pb-8">
           {status === 'success' ? (
             <div className="text-center py-10">
               <div className="w-14 h-14 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -94,8 +99,8 @@ export default function ContactModal({
               </button>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="grid grid-cols-2 gap-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Name *</label>
                   <input
@@ -140,7 +145,7 @@ export default function ContactModal({
                 <textarea
                   name="message"
                   required
-                  rows={5}
+                  rows={4}
                   placeholder="How can we help?"
                   className="w-full px-4 py-3.5 rounded-xl border border-slate-200 text-slate-900 text-[16px] focus:outline-none focus:ring-2 focus:ring-teal-500 placeholder:text-slate-300 resize-none bg-white"
                 />
