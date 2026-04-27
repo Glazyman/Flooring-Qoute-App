@@ -28,6 +28,8 @@
 
 * { box-sizing: border-box; }
 
+.quote-row:hover { background: var(--card-alt); }
+
 body {
   background: var(--bg);
   color: var(--text);

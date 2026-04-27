@@ -229,10 +229,8 @@ export default async function DashboardPage() {
                 <Link
                   key={q.id}
                   href={`/quotes/${q.id}`}
-                  className="flex items-center gap-3 px-5 py-3.5 transition-all"
+                  className="quote-row flex items-center gap-3 px-5 py-3.5 transition-all"
                   style={{ borderBottom: i < recentQuotes.length - 1 ? '1px solid var(--border)' : 'none' }}
-                  onMouseEnter={e => (e.currentTarget.style.background = 'var(--card-alt)')}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                 >
                   <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-white text-xs font-bold"
                     style={{ background: avatarColors[i % avatarColors.length] }}>
