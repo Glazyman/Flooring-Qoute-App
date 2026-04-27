@@ -5,21 +5,6 @@ import { fmt } from '@/lib/calculations'
 
 export const dynamic = 'force-dynamic'
 
-
-function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, { bg: string; color: string; label: string }> = {
-    accepted: { bg: '#f0fdf4', color: '#16a34a', label: 'Accepted' },
-    pending: { bg: '#fffbeb', color: '#d97706', label: 'Pending' },
-    lost: { bg: '#fff1f0', color: '#ff3b30', label: 'Lost' },
-  }
-  const s = map[status] || { bg: '#f2f2f7', color: '#6d6d72', label: status }
-  return (
-    <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: s.bg, color: s.color }}>
-      {s.label}
-    </span>
-  )
-}
-
 export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -28,12 +13,11 @@ export default async function DashboardPage() {
   const { data: membership } = await supabase.from('company_members').select('company_id').eq('user_id', user.id).single()
   if (!membership) redirect('/billing/setup')
 
-  const [quotesResult, settingsResult] = await Promise.all([
+  const [quotesResult] = await Promise.all([
     supabase.from('quotes')
       .select('id, status, final_total, created_at, customer_name, job_address, flooring_type')
       .eq('company_id', membership.company_id)
       .order('created_at', { ascending: false }),
-    supabase.from('company_settings').select('company_name').eq('company_id', membership.company_id).single(),
   ])
 
   const allQuotes = quotesResult.data || []
@@ -44,22 +28,17 @@ export default async function DashboardPage() {
   const totalRevenue = allQuotes.reduce((s, q) => s + (q.final_total || 0), 0)
   const acceptedRevenue = accepted.reduce((s, q) => s + (q.final_total || 0), 0)
   const winRate = total > 0 ? Math.round((accepted.length / total) * 100) : 0
-
   const recentQuotes = allQuotes.slice(0, 8)
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-extrabold tracking-tight" style={{ color: 'var(--text)' }}>
-            Dashboard
-          </h1>
-        </div>
+        <h1 className="text-2xl font-extrabold tracking-tight" style={{ color: 'var(--text)' }}>Dashboard</h1>
         <Link
           href="/quotes/new"
-          className="flex items-center gap-2 text-white font-semibold px-4 py-2.5 rounded-2xl text-sm shadow-md active:scale-95"
-          style={{ background: 'linear-gradient(135deg, var(--primary) 0%, #0f766e 100%)', boxShadow: '0 4px 12px rgba(13,148,136,0.3)' }}
+          className="flex items-center gap-2 text-white font-semibold px-4 py-2.5 rounded-2xl text-sm active:scale-95"
+          style={{ background: 'var(--primary)', boxShadow: '0 2px 8px rgba(13,148,136,0.25)' }}
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
@@ -68,62 +47,61 @@ export default async function DashboardPage() {
         </Link>
       </div>
 
-      {/* Stats hero card */}
-      <div className="bg-white rounded-3xl p-5" style={{ boxShadow: 'var(--shadow-card)', border: '1px solid var(--border)' }}>
-        <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: 'var(--text-3)' }}>Total Pipeline</p>
-        <p className="text-4xl font-extrabold tracking-tight mb-0.5" style={{ color: 'var(--text)' }}>{fmt(totalRevenue)}</p>
-        <p className="text-sm mb-5" style={{ color: 'var(--text-2)' }}>{total} quote{total !== 1 ? 's' : ''} · {winRate}% win rate</p>
-        <div className="grid grid-cols-3 gap-3">
-          {[
-            { label: 'Accepted', value: accepted.length, color: '#16a34a', bg: '#f0fdf4' },
-            { label: 'Pending',  value: pending.length,  color: '#d97706', bg: '#fffbeb' },
-            { label: 'Lost',     value: lost.length,     color: '#ff3b30', bg: '#fff1f0' },
-          ].map(({ label, value, color, bg }) => (
-            <div key={label} className="rounded-2xl px-3 py-3 text-center" style={{ background: bg }}>
-              <p className="text-2xl font-bold" style={{ color }}>{value}</p>
-              <p className="text-xs font-medium mt-0.5" style={{ color }}>{label}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Stats row */}
+      {/* Top stats row */}
       <div className="grid grid-cols-2 gap-3">
-        {[
-          { label: 'Accepted Revenue', value: fmt(acceptedRevenue), icon: '✓', bg: '#f0fdf4', color: '#16a34a', iconBg: '#bbf7d0' },
-          { label: 'Pending Jobs', value: String(pending.length), icon: '⏳', bg: '#fffbeb', color: '#d97706', iconBg: '#fde68a' },
-        ].map(({ label, value, icon, bg, color, iconBg }) => (
-          <div key={label} className="rounded-2xl p-4" style={{ background: bg, border: `1px solid ${iconBg}` }}>
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center text-base mb-3" style={{ background: iconBg }}>
-              {icon}
-            </div>
-            <p className="text-xl font-extrabold" style={{ color }}>{value}</p>
-            <p className="text-xs font-medium mt-0.5" style={{ color }}>{label}</p>
+        {/* Total pipeline */}
+        <div className="col-span-2 bg-white rounded-3xl p-5" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
+          <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: 'var(--text-3)' }}>Total Pipeline</p>
+          <p className="text-4xl font-extrabold tracking-tight" style={{ color: 'var(--text)' }}>{fmt(totalRevenue)}</p>
+          <p className="text-sm mt-1" style={{ color: 'var(--text-2)' }}>{total} quote{total !== 1 ? 's' : ''} · {winRate}% win rate</p>
+          <div className="mt-4 h-px" style={{ background: 'var(--border)' }} />
+          <div className="grid grid-cols-3 mt-4 gap-0">
+            {[
+              { label: 'Accepted', value: accepted.length },
+              { label: 'Pending',  value: pending.length },
+              { label: 'Lost',     value: lost.length },
+            ].map(({ label, value }, i) => (
+              <div key={label} className={`text-center ${i > 0 ? 'border-l' : ''}`} style={{ borderColor: 'var(--border)' }}>
+                <p className="text-2xl font-bold" style={{ color: 'var(--text)' }}>{value}</p>
+                <p className="text-xs font-medium mt-0.5" style={{ color: 'var(--text-3)' }}>{label}</p>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
+
+        {/* Accepted revenue */}
+        <div className="bg-white rounded-3xl p-4" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
+          <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: 'var(--text-3)' }}>Accepted</p>
+          <p className="text-xl font-extrabold tracking-tight" style={{ color: 'var(--text)' }}>{fmt(acceptedRevenue)}</p>
+          <p className="text-xs mt-1" style={{ color: 'var(--text-2)' }}>{accepted.length} job{accepted.length !== 1 ? 's' : ''}</p>
+        </div>
+
+        {/* Pending */}
+        <div className="bg-white rounded-3xl p-4" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
+          <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: 'var(--text-3)' }}>Pending</p>
+          <p className="text-xl font-extrabold tracking-tight" style={{ color: 'var(--text)' }}>{pending.length}</p>
+          <p className="text-xs mt-1" style={{ color: 'var(--text-2)' }}>{lost.length} lost</p>
+        </div>
       </div>
 
       {/* Recent Quotes */}
-      <div className="bg-white rounded-3xl overflow-hidden" style={{ boxShadow: 'var(--shadow-card)' }}>
+      <div className="bg-white rounded-3xl overflow-hidden" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
         <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
-          <p className="font-bold text-base" style={{ color: 'var(--text)' }}>Recent Quotes</p>
-          <Link href="/quotes" className="text-sm font-semibold" style={{ color: 'var(--primary)' }}>See all →</Link>
+          <p className="font-semibold text-sm" style={{ color: 'var(--text)' }}>Recent Quotes</p>
+          <Link href="/quotes" className="text-sm font-medium" style={{ color: 'var(--primary)' }}>See all</Link>
         </div>
 
         {recentQuotes.length === 0 ? (
-          <div className="text-center py-14">
-            <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <svg className="w-7 h-7 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            </div>
-            <p className="font-semibold text-gray-500 mb-1">No quotes yet</p>
+          <div className="text-center py-12">
+            <p className="text-sm font-medium mb-1" style={{ color: 'var(--text-2)' }}>No quotes yet</p>
             <Link href="/quotes/new" className="text-sm font-semibold" style={{ color: 'var(--primary)' }}>Create your first →</Link>
           </div>
         ) : (
           recentQuotes.map((q, i) => {
             const date = new Date(q.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
             const initials = (q.customer_name || '?').split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2)
+            const statusLabel: Record<string, string> = { accepted: 'Accepted', pending: 'Pending', lost: 'Lost' }
+            const statusColor: Record<string, string> = { accepted: '#16a34a', pending: '#d97706', lost: '#ff3b30' }
             return (
               <Link
                 key={q.id}
@@ -131,17 +109,18 @@ export default async function DashboardPage() {
                 className="quote-row flex items-center gap-3.5 px-5 py-3.5 active:bg-gray-50"
                 style={{ borderBottom: i < recentQuotes.length - 1 ? '1px solid var(--border)' : 'none' }}
               >
-                <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-white text-xs font-bold"
-                  style={{ background: '#1c1c1e' }}>
+                <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-white text-xs font-bold" style={{ background: '#1c1c1e' }}>
                   {initials}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold truncate" style={{ color: 'var(--text)' }}>{q.customer_name}</p>
                   <p className="text-xs truncate capitalize" style={{ color: 'var(--text-2)' }}>{q.flooring_type} · {q.job_address || date}</p>
                 </div>
-                <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+                <div className="flex flex-col items-end gap-1 flex-shrink-0">
                   <span className="text-sm font-bold" style={{ color: 'var(--text)' }}>{fmt(q.final_total)}</span>
-                  <StatusBadge status={q.status} />
+                  <span className="text-xs font-medium" style={{ color: statusColor[q.status] || 'var(--text-3)' }}>
+                    {statusLabel[q.status] || q.status}
+                  </span>
                 </div>
               </Link>
             )
