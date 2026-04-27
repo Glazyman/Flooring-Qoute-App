@@ -9,6 +9,7 @@ const DEFAULT_SETTINGS: CompanySettings = {
   phone: null,
   email: null,
   logo_url: null,
+  website: null,
   default_material_cost: 5,
   default_labor_cost: 3,
   default_waste_pct: 10,

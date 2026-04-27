@@ -72,6 +72,7 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
     phone: initial.phone || '',
     email: initial.email || '',
     logo_url: initial.logo_url || '',
+    website: initial.website || '',
     default_material_cost: String(initial.default_material_cost ?? 5),
     default_labor_cost: String(initial.default_labor_cost ?? 3),
     default_waste_pct: String(initial.default_waste_pct ?? 10),
@@ -151,7 +152,28 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
               value={form.logo_url}
               onChange={(v) => set('logo_url', v)}
               placeholder="https://..."
-              hint="Public image URL shown on PDF estimates (optional)"
+              hint="Public image URL — shown in sidebar and on PDF estimates"
+            />
+            {form.logo_url && (
+              <div className="mt-2 flex items-center gap-3">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={form.logo_url}
+                  alt="Logo preview"
+                  className="w-10 h-10 rounded-xl object-cover border border-gray-200"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                />
+                <span className="text-xs text-gray-400">Logo preview</span>
+              </div>
+            )}
+          </div>
+          <div className="sm:col-span-2">
+            <Input
+              label="Website"
+              value={form.website}
+              onChange={(v) => set('website', v)}
+              placeholder="yourcompany.com"
+              hint="Shown in the sidebar under your company name"
             />
           </div>
         </div>

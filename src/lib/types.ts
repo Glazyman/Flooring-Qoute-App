@@ -32,6 +32,7 @@ export interface CompanySettings {
   phone: string | null
   email: string | null
   logo_url: string | null
+  website: string | null
   default_material_cost: number
   default_labor_cost: number
   default_waste_pct: number

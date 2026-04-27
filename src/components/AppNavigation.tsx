@@ -70,7 +70,15 @@ function NavLink({ item, onClick }: { item: NavItem; onClick?: () => void }) {
   )
 }
 
-export default function AppNavigation({ companyName }: { companyName: string }) {
+export default function AppNavigation({
+  companyName,
+  logoUrl,
+  website,
+}: {
+  companyName: string
+  logoUrl?: string | null
+  website?: string | null
+}) {
   const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
 
@@ -135,10 +143,27 @@ export default function AppNavigation({ companyName }: { companyName: string }) 
 
         {/* Company badge */}
         <div className="flex items-center gap-3 px-4 py-3 mt-2">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-            {initials}
+          <div className="w-8 h-8 rounded-xl overflow-hidden flex-shrink-0 bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
+            {logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={logoUrl} alt={companyName} className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-white text-xs font-bold">{initials}</span>
+            )}
           </div>
-          <p className="text-xs font-medium text-gray-600 truncate">{companyName}</p>
+          <div className="min-w-0">
+            <p className="text-xs font-semibold text-gray-700 truncate">{companyName}</p>
+            {website && (
+              <a
+                href={website.startsWith('http') ? website : `https://${website}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-gray-400 hover:text-blue-600 truncate block transition-colors"
+              >
+                {website.replace(/^https?:\/\//, '')}
+              </a>
+            )}
+          </div>
         </div>
       </div>
     </div>

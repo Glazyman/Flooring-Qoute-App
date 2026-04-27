@@ -21,7 +21,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   // Run company lookup and quote count in parallel
   const companyId = membership.company_id
-  const [companyResult, countResult] = await Promise.all([
+  const [companyResult, countResult, settingsResult] = await Promise.all([
     supabase
       .from('companies')
       .select('id, name, subscription_status')
@@ -31,6 +31,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       .from('quotes')
       .select('*', { count: 'exact', head: true })
       .eq('company_id', companyId),
+    supabase
+      .from('company_settings')
+      .select('logo_url, website')
+      .eq('company_id', companyId)
+      .single(),
   ])
 
   const company = companyResult.data
@@ -50,7 +55,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--bg)' }}>
-      <AppNavigation companyName={company.name} />
+      <AppNavigation
+        companyName={company.name}
+        logoUrl={settingsResult.data?.logo_url ?? null}
+        website={settingsResult.data?.website ?? null}
+      />
       <main className="lg:ml-60 pt-14 lg:pt-0">
         {freeQuotesRemaining !== null && (
           <TrialBanner remaining={freeQuotesRemaining} />

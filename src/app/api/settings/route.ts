@@ -28,6 +28,7 @@ export async function PUT(request: NextRequest) {
         phone: body.phone || null,
         email: body.email || null,
         logo_url: body.logo_url || null,
+        website: body.website || null,
         default_material_cost: body.default_material_cost,
         default_labor_cost: body.default_labor_cost,
         default_waste_pct: body.default_waste_pct,
