@@ -89,8 +89,7 @@ function NavLink({
       style={isActive ? { background: 'var(--primary-light)', color: 'var(--primary)' } : {}}
     >
       <item.icon
-        className="w-4 h-4 flex-shrink-0"
-        style={isActive ? { color: 'var(--primary)' } : {}}
+        className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-teal-600' : ''}`}
       />
       {item.label}
     </Link>
