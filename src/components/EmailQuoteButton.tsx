@@ -38,7 +38,7 @@ export default function EmailQuoteButton({
     return (
       <button
         disabled
-        className="flex items-center gap-1.5 font-semibold px-4 py-2.5 rounded-2xl text-sm flex-shrink-0 cursor-not-allowed"
+        className="flex items-center justify-center gap-1.5 font-semibold px-4 py-3 sm:py-2.5 rounded-2xl text-sm cursor-not-allowed"
         style={{ background: '#e5e7eb', color: '#9ca3af' }}
         title="No email address on file for this customer"
       >
@@ -75,7 +75,7 @@ export default function EmailQuoteButton({
   return (
     <a
       href={href}
-      className="flex items-center gap-1.5 text-white font-semibold px-4 py-2.5 rounded-2xl text-sm flex-shrink-0 active:scale-95 transition-transform"
+      className="flex items-center justify-center gap-1.5 text-white font-semibold px-4 py-3 sm:py-2.5 rounded-2xl text-sm active:scale-95 transition-transform"
       style={{ background: 'var(--primary)', boxShadow: '0 2px 8px rgba(13,148,136,0.25)' }}
     >
       {emailIcon}

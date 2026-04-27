@@ -61,45 +61,31 @@ export default async function QuoteDetailPage({
         >
           ← Back to Quotes
         </Link>
-        <div className="flex items-start justify-between gap-3 mt-1">
-          <div className="min-w-0">
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 break-words">{q.customer_name}</h1>
-            <div className="flex items-center gap-2.5 mt-2 flex-wrap">
-              <span
-                className="text-xs font-semibold px-2.5 py-1 rounded-full flex-shrink-0"
-                style={{ background: statusCfg.bg, color: statusCfg.text }}
-              >
-                {statusCfg.label}
-              </span>
-              <span className="text-sm text-gray-400">
-                {new Date(q.created_at).toLocaleDateString('en-US', {
-                  year: 'numeric', month: 'long', day: 'numeric',
-                })}
-              </span>
-            </div>
+        <div className="mt-1">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 break-words">{q.customer_name}</h1>
+          <div className="flex items-center gap-2.5 mt-2 flex-wrap">
+            <span
+              className="text-xs font-semibold px-2.5 py-1 rounded-full flex-shrink-0"
+              style={{ background: statusCfg.bg, color: statusCfg.text }}
+            >
+              {statusCfg.label}
+            </span>
+            <span className="text-sm text-gray-400">
+              {new Date(q.created_at).toLocaleDateString('en-US', {
+                year: 'numeric', month: 'long', day: 'numeric',
+              })}
+            </span>
           </div>
-          {/* Primary action: Edit (desktop only inline) */}
-          <Link
-            href={`/quotes/${id}/edit`}
-            className="hidden sm:flex items-center gap-1.5 font-semibold px-4 py-2.5 rounded-2xl text-sm flex-shrink-0 active:scale-95 transition-transform"
-            style={{ background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text)' }}
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-            Edit
-          </Link>
         </div>
 
-        {/* Action buttons row */}
-        <div className="flex flex-wrap gap-2 mt-4">
-          {/* Edit — mobile only */}
+        {/* Action buttons — 2-col grid on mobile, row on desktop */}
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 mt-4">
           <Link
             href={`/quotes/${id}/edit`}
-            className="sm:hidden flex items-center gap-1.5 font-semibold px-4 py-2.5 rounded-2xl text-sm flex-shrink-0 active:scale-95"
+            className="flex items-center justify-center gap-1.5 font-semibold px-4 py-3 sm:py-2.5 rounded-2xl text-sm active:scale-95 transition-transform"
             style={{ background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text)' }}
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
             </svg>
             Edit
@@ -118,13 +104,13 @@ export default async function QuoteDetailPage({
           <a
             href={`/api/quotes/${id}/pdf`}
             target="_blank"
-            className="flex items-center gap-1.5 text-white font-semibold px-4 py-2.5 rounded-2xl text-sm flex-shrink-0 active:scale-95"
+            className="flex items-center justify-center gap-1.5 text-white font-semibold px-4 py-3 sm:py-2.5 rounded-2xl text-sm active:scale-95"
             style={{ background: 'var(--primary)', boxShadow: '0 2px 8px rgba(13,148,136,0.25)' }}
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            PDF
+            Download PDF
           </a>
         </div>
       </div>
