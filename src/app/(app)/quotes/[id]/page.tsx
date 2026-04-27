@@ -91,16 +91,7 @@ export default async function QuoteDetailPage({
             Edit
           </Link>
           <DuplicateButton quoteId={id} />
-          <EmailQuoteButton
-            quoteId={id}
-            customerEmail={q.customer_email}
-            customerName={q.customer_name}
-            finalTotal={fmt(q.final_total)}
-            depositPct={q.deposit_pct}
-            depositAmount={fmt(q.deposit_amount)}
-            remainingBalance={fmt(remainingBalance)}
-            validDays={q.valid_days}
-          />
+          <EmailQuoteButton quoteId={id} customerEmail={q.customer_email} />
           <a
             href={`/api/quotes/${id}/pdf`}
             target="_blank"
