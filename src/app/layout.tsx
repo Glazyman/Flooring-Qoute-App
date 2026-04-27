@@ -5,8 +5,8 @@ export const metadata: Metadata = {
   title: 'FloorQuote Pro',
   description: 'Professional flooring estimates in under 2 minutes',
   icons: {
-    icon: '/favicon.png',
-    apple: '/favicon.png',
+    icon: '/logo.png',
+    apple: '/logo.png',
   },
 }
 
