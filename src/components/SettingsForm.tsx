@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import type { CompanySettings } from '@/lib/types'
 
 function Input({
@@ -67,6 +68,9 @@ function Card({ title, description, children }: { title: string; description?: s
 
 export default function SettingsForm({ settings: initial }: { settings: CompanySettings }) {
   const router = useRouter()
+  const logoInputRef = useRef<HTMLInputElement>(null)
+  const [logoUploading, setLogoUploading] = useState(false)
+  const [logoUploadError, setLogoUploadError] = useState('')
   const [form, setForm] = useState({
     company_name: initial.company_name || '',
     phone: initial.phone || '',
@@ -86,6 +90,33 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
   function set(field: string, value: string) {
     setForm((f) => ({ ...f, [field]: value }))
     setSuccess(false)
+  }
+
+  async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setLogoUploading(true)
+    setLogoUploadError('')
+
+    const supabase = createClient()
+    const ext = file.name.split('.').pop()
+    const path = `logo-${Date.now()}.${ext}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('logos')
+      .upload(path, file, { upsert: true, contentType: file.type })
+
+    if (uploadError) {
+      setLogoUploadError('Upload failed: ' + uploadError.message)
+      setLogoUploading(false)
+      return
+    }
+
+    const { data } = supabase.storage.from('logos').getPublicUrl(path)
+    set('logo_url', data.publicUrl)
+    setLogoUploading(false)
+    if (logoInputRef.current) logoInputRef.current.value = ''
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -147,25 +178,45 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
           <Input label="Phone" value={form.phone} onChange={(v) => set('phone', v)} type="tel" placeholder="(555) 000-0000" />
           <Input label="Email" value={form.email} onChange={(v) => set('email', v)} type="email" placeholder="contact@company.com" />
           <div className="sm:col-span-2">
-            <Input
-              label="Logo URL"
-              value={form.logo_url}
-              onChange={(v) => set('logo_url', v)}
-              placeholder="https://..."
-              hint="Public image URL — shown in sidebar and on PDF estimates"
-            />
-            {form.logo_url && (
-              <div className="mt-2 flex items-center gap-3">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={form.logo_url}
-                  alt="Logo preview"
-                  className="w-10 h-10 rounded-xl object-cover border border-gray-200"
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-                />
-                <span className="text-xs text-gray-400">Logo preview</span>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+              Logo
+            </label>
+            <div className="flex gap-3 items-start">
+              {/* Preview */}
+              <div
+                className="w-16 h-16 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center flex-shrink-0 overflow-hidden bg-gray-50 cursor-pointer hover:border-blue-400 transition-colors"
+                onClick={() => logoInputRef.current?.click()}
+              >
+                {logoUploading ? (
+                  <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                ) : form.logo_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={form.logo_url} alt="Logo" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
+                ) : (
+                  <svg className="w-6 h-6 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                )}
               </div>
-            )}
+              <div className="flex-1 space-y-2">
+                <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
+                <button
+                  type="button"
+                  onClick={() => logoInputRef.current?.click()}
+                  className="w-full text-sm font-semibold text-blue-600 border border-blue-200 bg-blue-50 hover:bg-blue-100 py-2 px-3 rounded-xl transition-colors"
+                >
+                  {logoUploading ? 'Uploading…' : form.logo_url ? 'Replace logo' : 'Upload logo'}
+                </button>
+                <input
+                  type="url"
+                  value={form.logo_url}
+                  onChange={(e) => set('logo_url', e.target.value)}
+                  placeholder="or paste image URL…"
+                  className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 text-gray-700 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                {logoUploadError && <p className="text-xs text-red-500">{logoUploadError}</p>}
+              </div>
+            </div>
           </div>
           <div className="sm:col-span-2">
             <Input
