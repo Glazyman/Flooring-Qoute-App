@@ -65,3 +65,9 @@ a, button { transition: opacity 0.15s ease, background 0.15s ease, color 0.15s e
 
 /* Active press state for cards */
 .press-card:active { transform: scale(0.98); }
+
+/* Quote row hover */
+.quote-row:hover { background: var(--card-alt); }
+
+/* Marketing pages — white background */
+.marketing-page { background: #ffffff; color: #1c1c1e; }
