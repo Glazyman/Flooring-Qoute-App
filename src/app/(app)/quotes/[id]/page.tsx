@@ -62,7 +62,7 @@ export default async function QuoteDetailPage({
         </Link>
         <div className="flex items-start justify-between gap-3 mt-1">
           <div className="min-w-0">
-            <h1 className="text-2xl font-bold text-gray-900 truncate">{q.customer_name}</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 break-words">{q.customer_name}</h1>
             <div className="flex items-center gap-2.5 mt-2 flex-wrap">
               <span
                 className="text-xs font-semibold px-2.5 py-1 rounded-full flex-shrink-0"
@@ -131,9 +131,9 @@ export default async function QuoteDetailPage({
       </div>
 
       {/* Customer & Job */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5">
         <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-4">Customer & Job</h2>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Detail label="Name" value={q.customer_name} />
           {q.customer_phone && <Detail label="Phone" value={q.customer_phone} />}
           {q.customer_email && <Detail label="Email" value={q.customer_email} />}
@@ -144,9 +144,9 @@ export default async function QuoteDetailPage({
       </div>
 
       {/* Measurements */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5">
         <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-4">Measurements</h2>
-        <div className="grid grid-cols-3 gap-4 mb-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
           <Detail label="Base SqFt" value={`${q.base_sqft.toLocaleString()} sqft`} />
           <Detail label="Waste" value={`${q.waste_pct}%`} />
           <Detail label="Adjusted SqFt" value={`${q.adjusted_sqft.toLocaleString()} sqft`} accent />
@@ -171,9 +171,9 @@ export default async function QuoteDetailPage({
                       const lStr = lin > 0 ? `${lft}'${lin}"` : `${lft}'`
                       const wStr = win > 0 ? `${wft}'${win}"` : `${wft}'`
                       return (
-                        <div key={room.id} className="flex justify-between text-sm bg-gray-50 rounded-xl px-3 py-2">
+                        <div key={room.id} className="flex flex-col sm:flex-row sm:justify-between text-sm bg-gray-50 rounded-xl px-3 py-2 gap-0.5">
                           <span className="text-gray-700 font-medium">{room.name || `Room ${i + 1}`}</span>
-                          <span className="text-gray-400 text-xs self-center">
+                          <span className="text-gray-400 text-xs sm:self-center">
                             {lStr} × {wStr} = <span className="font-semibold text-gray-600">{room.sqft.toFixed(0)} sqft</span>
                           </span>
                         </div>
@@ -188,7 +188,7 @@ export default async function QuoteDetailPage({
       </div>
 
       {/* Estimate Breakdown */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5">
         <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-4">Estimate Breakdown</h2>
         <div className="space-y-2.5">
           <LineItem
@@ -236,7 +236,7 @@ export default async function QuoteDetailPage({
 
       {/* Notes */}
       {q.notes && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5">
           <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Notes</h2>
           <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{q.notes}</p>
         </div>
@@ -264,9 +264,9 @@ function LineItem({
   bold?: boolean
 }) {
   return (
-    <div className={`flex justify-between text-sm ${bold ? 'font-semibold text-gray-900' : 'text-gray-600'}`}>
-      <span>{label}</span>
-      <span className="font-semibold ml-4 flex-shrink-0">{fmt(value)}</span>
+    <div className={`flex justify-between items-start gap-2 text-sm ${bold ? 'font-semibold text-gray-900' : 'text-gray-600'}`}>
+      <span className="min-w-0 break-words">{label}</span>
+      <span className="font-semibold flex-shrink-0">{fmt(value)}</span>
     </div>
   )
 }
