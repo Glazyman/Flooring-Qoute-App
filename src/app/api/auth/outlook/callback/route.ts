@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
 
   const clientId = process.env.MICROSOFT_CLIENT_ID!
   const clientSecret = process.env.MICROSOFT_CLIENT_SECRET!
-  const redirectUri = 'https://flooring-qoute-app.vercel.app/api/auth/outlook/callback'
+  const redirectUri = 'https://floorquote-pro-git-main-daniels-projects-dce54a5d.vercel.app/api/auth/outlook/callback'
 
   // Exchange code for tokens
   const tokenRes = await fetch('https://login.microsoftonline.com/common/oauth2/v2.0/token', {
