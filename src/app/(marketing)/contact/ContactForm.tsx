@@ -69,20 +69,6 @@ export default function ContactForm({ prefill }: { prefill: Prefill }) {
 
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8 space-y-5">
-      {/* Show account badge if signed in */}
-      {prefill.accountId && (
-        <div className="flex items-center gap-2.5 bg-blue-50 border border-blue-100 rounded-xl px-4 py-3">
-          <div className="w-7 h-7 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-            <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-          </div>
-          <div>
-            <p className="text-xs font-semibold text-blue-800">Sending as your account</p>
-            <p className="text-xs text-blue-600">{prefill.email}{prefill.company ? ` · ${prefill.company}` : ''}</p>
-          </div>
-        </div>
-      )}
 
       <div className="grid sm:grid-cols-2 gap-5">
         <div>
