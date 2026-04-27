@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { calculateQuote, fmt } from '@/lib/calculations'
 import type { CompanySettings, FlooringType, MeasurementType } from '@/lib/types'
-import { PlusCircle, Trash2 } from 'lucide-react'
+import { PlusCircle, Trash2, Upload, Loader2, ChevronDown, ChevronRight } from 'lucide-react'
 
 const FLOORING_TYPES: { value: FlooringType; label: string }[] = [
   { value: 'hardwood', label: 'Hardwood' },
@@ -14,66 +14,64 @@ const FLOORING_TYPES: { value: FlooringType; label: string }[] = [
   { value: 'laminate', label: 'Laminate' },
 ]
 
+const SECTIONS = ['Upstairs', 'Downstairs', 'Kitchen', 'Foyer', 'Other'] as const
+type Section = typeof SECTIONS[number]
+
 interface Room {
   id: string
   name: string
-  length: string
-  width: string
+  section: Section
+  // feet + inches
+  lengthFt: string
+  lengthIn: string
+  widthFt: string
+  widthIn: string
 }
 
-function newRoom(): Room {
-  return { id: crypto.randomUUID(), name: '', length: '', width: '' }
+function newRoom(section: Section = 'Upstairs'): Room {
+  return { id: crypto.randomUUID(), name: '', section, lengthFt: '', lengthIn: '', widthFt: '', widthIn: '' }
 }
 
 function n(v: string): number {
-  const parsed = parseFloat(v)
-  return isNaN(parsed) ? 0 : parsed
+  const p = parseFloat(v)
+  return isNaN(p) ? 0 : p
+}
+
+// Convert ft+in room to decimal feet sqft
+function roomSqft(r: Room): number {
+  const l = n(r.lengthFt) + n(r.lengthIn) / 12
+  const w = n(r.widthFt) + n(r.widthIn) / 12
+  return l * w
+}
+
+function fmtDim(r: Room): string {
+  const lft = n(r.lengthFt), lin = n(r.lengthIn)
+  const wft = n(r.widthFt), win = n(r.widthIn)
+  if (!lft && !wft) return '—'
+  const L = lin > 0 ? `${lft}'${lin}"` : `${lft}'`
+  const W = win > 0 ? `${wft}'${win}"` : `${wft}'`
+  return `${L} × ${W}`
 }
 
 function Input({
-  label,
-  value,
-  onChange,
-  type = 'text',
-  placeholder = '',
-  prefix,
-  suffix,
-  required,
+  label, value, onChange, type = 'text', placeholder = '', prefix, suffix, required,
 }: {
-  label: string
-  value: string
-  onChange: (v: string) => void
-  type?: string
-  placeholder?: string
-  prefix?: string
-  suffix?: string
-  required?: boolean
+  label: string; value: string; onChange: (v: string) => void
+  type?: string; placeholder?: string; prefix?: string; suffix?: string; required?: boolean
 }) {
   return (
     <div>
       <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
-        {label}
-        {required && <span className="text-red-500 ml-0.5">*</span>}
+        {label}{required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
-      <div className="flex items-center rounded-xl border border-gray-200 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent bg-white overflow-hidden transition-shadow">
-        {prefix && (
-          <span className="px-3 py-2.5 bg-gray-50 text-gray-400 text-sm border-r border-gray-200 font-medium">
-            {prefix}
-          </span>
-        )}
+      <div className="flex items-center rounded-xl border border-gray-200 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent bg-white overflow-hidden">
+        {prefix && <span className="px-3 py-2.5 bg-gray-50 text-gray-400 text-sm border-r border-gray-200 font-medium">{prefix}</span>}
         <input
-          type={type}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
-          required={required}
+          type={type} value={value} onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder} required={required}
           className="flex-1 px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-300 focus:outline-none bg-white"
         />
-        {suffix && (
-          <span className="px-3 py-2.5 bg-gray-50 text-gray-400 text-sm border-l border-gray-200 font-medium">
-            {suffix}
-          </span>
-        )}
+        {suffix && <span className="px-3 py-2.5 bg-gray-50 text-gray-400 text-sm border-l border-gray-200 font-medium">{suffix}</span>}
       </div>
     </div>
   )
@@ -88,25 +86,21 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
   )
 }
 
-function LineItem({
-  label,
-  value,
-  bold,
-  large,
-  muted,
-}: {
-  label: string
-  value: number
-  bold?: boolean
-  large?: boolean
-  muted?: boolean
-}) {
+function LineItem({ label, value, bold, muted }: { label: string; value: number; bold?: boolean; muted?: boolean }) {
   return (
-    <div className={`flex justify-between ${large ? 'text-base' : 'text-sm'} ${muted ? 'text-gray-400' : 'text-gray-700'}`}>
-      <span className={bold || large ? 'font-semibold' : ''}>{label}</span>
-      <span className={bold || large ? 'font-bold text-gray-900' : 'font-medium'}>{fmt(value)}</span>
+    <div className={`flex justify-between text-sm ${muted ? 'text-gray-400' : 'text-gray-700'}`}>
+      <span className={bold ? 'font-semibold' : ''}>{label}</span>
+      <span className={bold ? 'font-bold text-gray-900' : 'font-medium'}>{fmt(value)}</span>
     </div>
   )
+}
+
+const SECTION_COLORS: Record<Section, string> = {
+  Upstairs: 'bg-blue-50 text-blue-700 border-blue-200',
+  Downstairs: 'bg-purple-50 text-purple-700 border-purple-200',
+  Kitchen: 'bg-orange-50 text-orange-700 border-orange-200',
+  Foyer: 'bg-green-50 text-green-700 border-green-200',
+  Other: 'bg-gray-50 text-gray-600 border-gray-200',
 }
 
 export default function QuoteForm({ settings }: { settings: CompanySettings | null }) {
@@ -120,9 +114,9 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
   const [jobAddress, setJobAddress] = useState('')
 
   const [flooringType, setFlooringType] = useState<FlooringType>('hardwood')
-  const [measurementType, setMeasurementType] = useState<MeasurementType>('manual')
+  const [measurementType, setMeasurementType] = useState<MeasurementType>('rooms')
   const [manualSqft, setManualSqft] = useState('')
-  const [rooms, setRooms] = useState<Room[]>([newRoom()])
+  const [rooms, setRooms] = useState<Room[]>([newRoom('Upstairs')])
   const [wastePct, setWastePct] = useState(String(settings?.default_waste_pct ?? 10))
 
   const [materialCost, setMaterialCost] = useState(String(settings?.default_material_cost ?? 5))
@@ -137,14 +131,19 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
 
   const [taxEnabled, setTaxEnabled] = useState(false)
   const [taxPct, setTaxPct] = useState('')
-
   const [markupPct, setMarkupPct] = useState(String(settings?.default_markup_pct ?? 0))
   const [depositPct, setDepositPct] = useState(String(settings?.default_deposit_pct ?? 50))
-
   const [notes, setNotes] = useState('')
   const [validDays, setValidDays] = useState('30')
 
-  const roomsSqft = rooms.reduce((sum, r) => sum + n(r.length) * n(r.width), 0)
+  // Blueprint
+  const [blueprintLoading, setBlueprintLoading] = useState(false)
+  const [blueprintError, setBlueprintError] = useState('')
+  const [blueprintNotes, setBlueprintNotes] = useState('')
+  const [collapsedSections, setCollapsedSections] = useState<Set<Section>>(new Set())
+  const fileRef = useRef<HTMLInputElement>(null)
+
+  const roomsSqft = rooms.reduce((sum, r) => sum + roomSqft(r), 0)
   const baseSqft = measurementType === 'manual' ? n(manualSqft) : roomsSqft
 
   const calcs = calculateQuote({
@@ -163,31 +162,96 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
     deposit_pct: n(depositPct),
   })
 
-  function addRoom() {
-    setRooms((r) => [...r, newRoom()])
+  function addRoom(section: Section) {
+    setRooms(r => [...r, newRoom(section)])
   }
 
   function removeRoom(id: string) {
-    setRooms((r) => r.filter((room) => room.id !== id))
+    setRooms(r => r.filter(room => room.id !== id))
   }
 
   function updateRoom(id: string, field: keyof Room, value: string) {
-    setRooms((r) => r.map((room) => (room.id === id ? { ...room, [field]: value } : room)))
+    setRooms(r => r.map(room => room.id === id ? { ...room, [field]: value } : room))
   }
+
+  function toggleSection(section: Section) {
+    setCollapsedSections(prev => {
+      const next = new Set(prev)
+      if (next.has(section)) next.delete(section)
+      else next.add(section)
+      return next
+    })
+  }
+
+  async function handleBlueprintUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setBlueprintLoading(true)
+    setBlueprintError('')
+
+    const fd = new FormData()
+    fd.append('image', file)
+
+    try {
+      const res = await fetch('/api/quotes/blueprint', { method: 'POST', body: fd })
+      const data = await res.json()
+
+      if (!res.ok) {
+        setBlueprintError(data.error || 'Failed to analyze image')
+        return
+      }
+
+      // Switch to rooms mode and populate
+      setMeasurementType('rooms')
+      const extracted: Room[] = data.rooms.map((r: {
+        name: string; section: string; lengthFt: number; lengthIn: number
+        widthFt: number; widthIn: number
+      }) => ({
+        id: crypto.randomUUID(),
+        name: r.name,
+        section: (SECTIONS.includes(r.section as Section) ? r.section : 'Other') as Section,
+        lengthFt: String(r.lengthFt),
+        lengthIn: String(r.lengthIn || 0),
+        widthFt: String(r.widthFt),
+        widthIn: String(r.widthIn || 0),
+      }))
+      setRooms(extracted)
+      if (data.notes) setBlueprintNotes(data.notes)
+    } catch {
+      setBlueprintError('Failed to analyze image. Please try again.')
+    } finally {
+      setBlueprintLoading(false)
+      if (fileRef.current) fileRef.current.value = ''
+    }
+  }
+
+  const sectionGroups = SECTIONS.map(section => ({
+    section,
+    rooms: rooms.filter(r => r.section === section),
+  })).filter(g => g.rooms.length > 0 || measurementType === 'rooms')
+
+  const activeSections = SECTIONS.filter(s => rooms.some(r => r.section === s))
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!customerName.trim()) {
-      setError('Customer name is required')
-      return
-    }
-    if (baseSqft <= 0) {
-      setError('Please enter square footage')
-      return
-    }
+    if (!customerName.trim()) { setError('Customer name is required'); return }
+    if (baseSqft <= 0) { setError('Please enter square footage'); return }
 
     setSaving(true)
     setError('')
+
+    const roomsForApi = measurementType === 'rooms'
+      ? rooms
+          .filter(r => roomSqft(r) > 0)
+          .map(r => ({
+            name: r.name || null,
+            section: r.section,
+            length: n(r.lengthFt) + n(r.lengthIn) / 12,
+            width: n(r.widthFt) + n(r.widthIn) / 12,
+            sqft: roomSqft(r),
+          }))
+      : []
 
     const payload = {
       customer_name: customerName.trim(),
@@ -220,19 +284,9 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
       final_total: calcs.final_total,
       deposit_amount: calcs.deposit_amount,
       status: 'pending',
-      notes: notes || null,
+      notes: [notes, blueprintNotes].filter(Boolean).join('\n\n') || null,
       valid_days: n(validDays) || 30,
-      rooms:
-        measurementType === 'rooms'
-          ? rooms
-              .filter((r) => n(r.length) > 0 && n(r.width) > 0)
-              .map((r) => ({
-                name: r.name || null,
-                length: n(r.length),
-                width: n(r.width),
-                sqft: n(r.length) * n(r.width),
-              }))
-          : [],
+      rooms: roomsForApi,
     }
 
     const res = await fetch('/api/quotes', {
@@ -242,26 +296,17 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
     })
 
     const data = await res.json()
-
-    if (!res.ok) {
-      setError(data.error || 'Failed to save quote')
-      setSaving(false)
-      return
-    }
-
+    if (!res.ok) { setError(data.error || 'Failed to save quote'); setSaving(false); return }
     router.push(`/quotes/${data.id}`)
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl text-sm font-medium">
-          {error}
-        </div>
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl text-sm font-medium">{error}</div>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {/* Left — form */}
         <div className="lg:col-span-2 space-y-4">
 
           {/* Customer Info */}
@@ -286,112 +331,219 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
                   onChange={(e) => setFlooringType(e.target.value as FlooringType)}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                 >
-                  {FLOORING_TYPES.map((t) => (
-                    <option key={t.value} value={t.value}>{t.label}</option>
-                  ))}
+                  {FLOORING_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                 </select>
               </div>
               <Input label="Waste %" value={wastePct} onChange={setWastePct} type="number" suffix="%" placeholder="10" />
             </div>
 
-            {/* Measurement toggle */}
+            {/* Method toggle */}
             <div className="mb-5">
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                Measurement Method
-              </label>
+              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Measurement Method</label>
               <div className="flex rounded-xl border border-gray-200 overflow-hidden p-1 bg-gray-50 gap-1">
-                <button
-                  type="button"
-                  onClick={() => setMeasurementType('manual')}
-                  className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
-                    measurementType === 'manual'
-                      ? 'bg-white text-blue-700 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-700'
-                  }`}
-                >
-                  Total SqFt
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setMeasurementType('rooms')}
-                  className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
-                    measurementType === 'rooms'
-                      ? 'bg-white text-blue-700 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-700'
-                  }`}
-                >
-                  By Rooms
-                </button>
+                {(['rooms', 'manual'] as MeasurementType[]).map(m => (
+                  <button key={m} type="button" onClick={() => setMeasurementType(m)}
+                    className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
+                      measurementType === m ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    {m === 'rooms' ? 'By Rooms' : 'Total SqFt'}
+                  </button>
+                ))}
               </div>
             </div>
 
             {measurementType === 'manual' ? (
               <Input label="Total Square Footage" value={manualSqft} onChange={setManualSqft} type="number" suffix="sqft" placeholder="500" />
             ) : (
-              <div>
-                <div className="space-y-2.5 mb-3">
-                  {rooms.map((room, idx) => (
-                    <div key={room.id} className="bg-gray-50 rounded-xl p-3 border border-gray-100">
-                      <div className="grid grid-cols-7 gap-2 items-end">
-                        <div className="col-span-3">
-                          <label className="block text-xs text-gray-400 mb-1">Room Name</label>
-                          <input
-                            type="text"
-                            value={room.name}
-                            onChange={(e) => updateRoom(room.id, 'name', e.target.value)}
-                            placeholder={`Room ${idx + 1}`}
-                            className="w-full px-2.5 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs text-gray-400 mb-1">L</label>
-                          <input
-                            type="number"
-                            value={room.length}
-                            onChange={(e) => updateRoom(room.id, 'length', e.target.value)}
-                            placeholder="0"
-                            className="w-full px-2 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-center"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs text-gray-400 mb-1">W</label>
-                          <input
-                            type="number"
-                            value={room.width}
-                            onChange={(e) => updateRoom(room.id, 'width', e.target.value)}
-                            placeholder="0"
-                            className="w-full px-2 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-center"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs text-gray-400 mb-1">SqFt</label>
-                          <div className="px-2 py-2 rounded-lg border border-gray-100 text-sm bg-gray-100 text-gray-500 text-center">
-                            {(n(room.length) * n(room.width)).toFixed(0)}
-                          </div>
-                        </div>
-                        <div className="flex items-end pb-0.5">
-                          <button
-                            type="button"
-                            onClick={() => removeRoom(room.id)}
-                            disabled={rooms.length === 1}
-                            className="p-1.5 text-gray-300 hover:text-red-500 disabled:opacity-20 transition-colors rounded-lg hover:bg-red-50"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
+              <div className="space-y-4">
+                {/* Blueprint upload */}
+                <div className={`border-2 border-dashed rounded-2xl p-4 text-center transition-colors ${blueprintLoading ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50/50'}`}>
+                  <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleBlueprintUpload} />
+                  {blueprintLoading ? (
+                    <div className="flex flex-col items-center gap-2 py-2">
+                      <Loader2 className="w-6 h-6 text-blue-500 animate-spin" />
+                      <p className="text-sm font-medium text-blue-700">Analyzing your blueprint with AI…</p>
+                      <p className="text-xs text-blue-500">This takes about 10–20 seconds</p>
                     </div>
-                  ))}
+                  ) : (
+                    <button type="button" onClick={() => fileRef.current?.click()} className="flex flex-col items-center gap-2 w-full py-2">
+                      <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                        <Upload className="w-5 h-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">Upload Blueprint or Measurement Sheet</p>
+                        <p className="text-xs text-gray-400 mt-0.5">AI will extract all room dimensions automatically</p>
+                      </div>
+                    </button>
+                  )}
                 </div>
-                <button
-                  type="button"
-                  onClick={addRoom}
-                  className="flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 font-semibold"
-                >
-                  <PlusCircle className="w-4 h-4" />
-                  Add Room
-                </button>
-                <p className="text-xs text-gray-400 mt-2">Total: {roomsSqft.toFixed(0)} sqft</p>
+
+                {blueprintError && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-xl text-xs font-medium">
+                    {blueprintError}
+                  </div>
+                )}
+
+                {blueprintNotes && (
+                  <div className="bg-amber-50 border border-amber-200 text-amber-800 px-3 py-2.5 rounded-xl text-xs">
+                    <p className="font-semibold mb-0.5">Notes extracted from image:</p>
+                    <p>{blueprintNotes}</p>
+                  </div>
+                )}
+
+                {/* Rooms grouped by section */}
+                <div className="space-y-3">
+                  {activeSections.map(section => {
+                    const sectionRooms = rooms.filter(r => r.section === section)
+                    const collapsed = collapsedSections.has(section)
+                    const sectionTotal = sectionRooms.reduce((s, r) => s + roomSqft(r), 0)
+
+                    return (
+                      <div key={section} className="border border-gray-100 rounded-xl overflow-hidden">
+                        {/* Section header */}
+                        <button
+                          type="button"
+                          onClick={() => toggleSection(section)}
+                          className="w-full flex items-center justify-between px-4 py-2.5 bg-gray-50 hover:bg-gray-100 transition-colors"
+                        >
+                          <div className="flex items-center gap-2">
+                            {collapsed ? <ChevronRight className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+                            <span className={`text-xs font-bold uppercase tracking-wide px-2 py-0.5 rounded-full border ${SECTION_COLORS[section]}`}>
+                              {section}
+                            </span>
+                            <span className="text-xs text-gray-400">{sectionRooms.length} room{sectionRooms.length !== 1 ? 's' : ''}</span>
+                          </div>
+                          <span className="text-xs font-semibold text-gray-600">{sectionTotal.toFixed(0)} sqft</span>
+                        </button>
+
+                        {!collapsed && (
+                          <div className="p-3 space-y-2">
+                            {sectionRooms.map((room, idx) => (
+                              <div key={room.id} className="bg-gray-50 rounded-xl p-3 border border-gray-100">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <input
+                                    type="text"
+                                    value={room.name}
+                                    onChange={(e) => updateRoom(room.id, 'name', e.target.value)}
+                                    placeholder={`Room ${idx + 1}`}
+                                    className="flex-1 px-2.5 py-1.5 rounded-lg border border-gray-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                                  />
+                                  <select
+                                    value={room.section}
+                                    onChange={(e) => updateRoom(room.id, 'section', e.target.value)}
+                                    className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-600"
+                                  >
+                                    {SECTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                                  </select>
+                                  <button
+                                    type="button"
+                                    onClick={() => removeRoom(room.id)}
+                                    disabled={rooms.length === 1}
+                                    className="p-1.5 text-gray-300 hover:text-red-500 disabled:opacity-20 transition-colors rounded-lg hover:bg-red-50"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+
+                                {/* Ft + In inputs */}
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div>
+                                    <label className="block text-xs text-gray-400 mb-1">Length</label>
+                                    <div className="flex gap-1">
+                                      <div className="flex items-center flex-1 rounded-lg border border-gray-200 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-blue-500">
+                                        <input
+                                          type="number" value={room.lengthFt}
+                                          onChange={(e) => updateRoom(room.id, 'lengthFt', e.target.value)}
+                                          placeholder="0" className="w-full px-2 py-1.5 text-sm focus:outline-none bg-transparent text-center"
+                                        />
+                                        <span className="pr-1.5 text-xs text-gray-400 font-medium">ft</span>
+                                      </div>
+                                      <div className="flex items-center w-16 rounded-lg border border-gray-200 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-blue-500">
+                                        <input
+                                          type="number" value={room.lengthIn}
+                                          onChange={(e) => updateRoom(room.id, 'lengthIn', e.target.value)}
+                                          placeholder="0" min="0" max="11"
+                                          className="w-full px-2 py-1.5 text-sm focus:outline-none bg-transparent text-center"
+                                        />
+                                        <span className="pr-1.5 text-xs text-gray-400 font-medium">in</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs text-gray-400 mb-1">Width</label>
+                                    <div className="flex gap-1">
+                                      <div className="flex items-center flex-1 rounded-lg border border-gray-200 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-blue-500">
+                                        <input
+                                          type="number" value={room.widthFt}
+                                          onChange={(e) => updateRoom(room.id, 'widthFt', e.target.value)}
+                                          placeholder="0" className="w-full px-2 py-1.5 text-sm focus:outline-none bg-transparent text-center"
+                                        />
+                                        <span className="pr-1.5 text-xs text-gray-400 font-medium">ft</span>
+                                      </div>
+                                      <div className="flex items-center w-16 rounded-lg border border-gray-200 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-blue-500">
+                                        <input
+                                          type="number" value={room.widthIn}
+                                          onChange={(e) => updateRoom(room.id, 'widthIn', e.target.value)}
+                                          placeholder="0" min="0" max="11"
+                                          className="w-full px-2 py-1.5 text-sm focus:outline-none bg-transparent text-center"
+                                        />
+                                        <span className="pr-1.5 text-xs text-gray-400 font-medium">in</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Calculated sqft */}
+                                {roomSqft(room) > 0 && (
+                                  <div className="mt-2 text-right">
+                                    <span className="text-xs text-gray-500">{fmtDim(room)} = </span>
+                                    <span className="text-xs font-bold text-gray-900">{roomSqft(room).toFixed(1)} sqft</span>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+
+                            <button
+                              type="button"
+                              onClick={() => addRoom(section)}
+                              className="flex items-center gap-1.5 text-xs text-blue-600 hover:text-blue-700 font-semibold px-1"
+                            >
+                              <PlusCircle className="w-3.5 h-3.5" />
+                              Add room to {section}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+
+                  {/* Add to new section */}
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {SECTIONS.filter(s => !activeSections.includes(s)).map(section => (
+                      <button
+                        key={section}
+                        type="button"
+                        onClick={() => addRoom(section)}
+                        className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors hover:shadow-sm ${SECTION_COLORS[section]}`}
+                      >
+                        <PlusCircle className="w-3 h-3" />
+                        + {section}
+                      </button>
+                    ))}
+                    {activeSections.length > 0 && SECTIONS.filter(s => !activeSections.includes(s)).length > 0 && (
+                      <span className="text-xs text-gray-400 self-center">Add section</span>
+                    )}
+                  </div>
+
+                  {/* Total bar */}
+                  {roomsSqft > 0 && (
+                    <div className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-2.5 border border-gray-100">
+                      <span className="text-sm text-gray-500">Total measured</span>
+                      <span className="text-sm font-bold text-gray-900">{roomsSqft.toFixed(1)} sqft</span>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </Card>
@@ -421,18 +573,13 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
           {/* Tax */}
           <Card title="Tax">
             <div className="flex items-center gap-3 mb-4">
-              <button
-                type="button"
-                onClick={() => setTaxEnabled((v) => !v)}
-                className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${taxEnabled ? 'bg-blue-600' : 'bg-gray-200'}`}
-              >
+              <button type="button" onClick={() => setTaxEnabled(v => !v)}
+                className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${taxEnabled ? 'bg-blue-600' : 'bg-gray-200'}`}>
                 <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${taxEnabled ? 'translate-x-5' : ''}`} />
               </button>
               <span className="text-sm font-medium text-gray-700">Apply sales tax</span>
             </div>
-            {taxEnabled && (
-              <Input label="Tax Rate" value={taxPct} onChange={setTaxPct} type="number" suffix="%" placeholder="8.5" />
-            )}
+            {taxEnabled && <Input label="Tax Rate" value={taxPct} onChange={setTaxPct} type="number" suffix="%" placeholder="8.5" />}
           </Card>
 
           {/* Markup & Deposit */}
@@ -449,10 +596,8 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
               <div className="sm:col-span-2">
                 <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Notes</label>
                 <textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  rows={3}
-                  placeholder="Any additional notes for the customer…"
+                  value={notes} onChange={(e) => setNotes(e.target.value)}
+                  rows={3} placeholder="Any additional notes for the customer…"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none placeholder:text-gray-300"
                 />
               </div>
@@ -467,7 +612,24 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
               <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-4">Live Estimate</h2>
 
-              {/* Sqft bar */}
+              {/* Section breakdown */}
+              {measurementType === 'rooms' && activeSections.length > 0 && (
+                <div className="mb-4 space-y-1.5">
+                  {activeSections.map(section => {
+                    const s = rooms.filter(r => r.section === section)
+                    const sqft = s.reduce((sum, r) => sum + roomSqft(r), 0)
+                    if (sqft === 0) return null
+                    return (
+                      <div key={section} className="flex justify-between text-xs">
+                        <span className={`font-semibold px-2 py-0.5 rounded-full border ${SECTION_COLORS[section]}`}>{section}</span>
+                        <span className="text-gray-600 font-medium self-center">{sqft.toFixed(0)} sqft</span>
+                      </div>
+                    )
+                  })}
+                  <div className="border-t border-gray-100 pt-1.5" />
+                </div>
+              )}
+
               <div className="bg-gray-50 rounded-xl p-3 mb-4 text-center">
                 <p className="text-2xl font-bold text-gray-900">{calcs.adjusted_sqft.toFixed(0)}</p>
                 <p className="text-xs text-gray-400 mt-0.5">adjusted sqft (incl. {n(wastePct)}% waste)</p>
@@ -480,12 +642,8 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
                 <div className="border-t border-gray-100 pt-2.5">
                   <LineItem label="Subtotal" value={calcs.subtotal} bold />
                 </div>
-                {taxEnabled && calcs.tax_amount > 0 && (
-                  <LineItem label={`Tax (${n(taxPct)}%)`} value={calcs.tax_amount} />
-                )}
-                {calcs.markup_amount > 0 && (
-                  <LineItem label={`Markup (${n(markupPct)}%)`} value={calcs.markup_amount} />
-                )}
+                {taxEnabled && calcs.tax_amount > 0 && <LineItem label={`Tax (${n(taxPct)}%)`} value={calcs.tax_amount} />}
+                {calcs.markup_amount > 0 && <LineItem label={`Markup (${n(markupPct)}%)`} value={calcs.markup_amount} />}
               </div>
 
               <div className="border-t-2 border-gray-900 mt-3 pt-3">
@@ -508,8 +666,7 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
             </div>
 
             <button
-              type="submit"
-              disabled={saving}
+              type="submit" disabled={saving}
               className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-bold py-3.5 px-4 rounded-2xl text-sm transition-colors shadow-sm"
             >
               {saving ? 'Saving…' : 'Save Quote →'}

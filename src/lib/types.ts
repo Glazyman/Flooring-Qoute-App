@@ -43,6 +43,7 @@ export interface QuoteRoom {
   id: string
   quote_id: string
   name: string | null
+  section: string | null
   length: number
   width: number
   sqft: number

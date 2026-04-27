@@ -111,20 +111,35 @@ export default async function QuoteDetailPage({
         {rooms && rooms.length > 0 && (
           <div className="border-t border-gray-100 pt-4">
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Rooms</p>
-            <div className="space-y-2">
-              {(rooms as QuoteRoom[]).map((room, i) => (
-                <div
-                  key={room.id}
-                  className="flex justify-between text-sm bg-gray-50 rounded-xl px-3 py-2"
-                >
-                  <span className="text-gray-700 font-medium">{room.name || `Room ${i + 1}`}</span>
-                  <span className="text-gray-400">
-                    {room.length} × {room.width} ={' '}
-                    <span className="font-semibold text-gray-600">{room.sqft.toFixed(0)} sqft</span>
-                  </span>
+            {(() => {
+              const typedRooms = rooms as QuoteRoom[]
+              const sections = Array.from(new Set(typedRooms.map(r => r.section || 'Other')))
+              return sections.map(section => (
+                <div key={section} className="mb-3">
+                  {sections.length > 1 && (
+                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">{section}</p>
+                  )}
+                  <div className="space-y-1.5">
+                    {typedRooms.filter(r => (r.section || 'Other') === section).map((room, i) => {
+                      const lft = Math.floor(room.length)
+                      const lin = Math.round((room.length - lft) * 12)
+                      const wft = Math.floor(room.width)
+                      const win = Math.round((room.width - wft) * 12)
+                      const lStr = lin > 0 ? `${lft}'${lin}"` : `${lft}'`
+                      const wStr = win > 0 ? `${wft}'${win}"` : `${wft}'`
+                      return (
+                        <div key={room.id} className="flex justify-between text-sm bg-gray-50 rounded-xl px-3 py-2">
+                          <span className="text-gray-700 font-medium">{room.name || `Room ${i + 1}`}</span>
+                          <span className="text-gray-400 text-xs self-center">
+                            {lStr} × {wStr} = <span className="font-semibold text-gray-600">{room.sqft.toFixed(0)} sqft</span>
+                          </span>
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
-              ))}
-            </div>
+              ))
+            })()}
           </div>
         )}
       </div>
