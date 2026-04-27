@@ -38,7 +38,8 @@ function Input({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="flex-1 px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-300 focus:outline-none bg-white"
+          inputMode={type === 'number' ? 'decimal' : undefined}
+          className="flex-1 px-3.5 py-3 text-base text-gray-900 placeholder:text-gray-300 focus:outline-none bg-white"
         />
         {suffix && (
           <span className="px-3 py-2.5 bg-gray-50 text-gray-400 text-sm border-l border-gray-200 font-medium">

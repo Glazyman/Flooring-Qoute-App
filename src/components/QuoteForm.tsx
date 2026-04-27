@@ -54,24 +54,26 @@ function fmtDim(r: Room): string {
 }
 
 function Input({
-  label, value, onChange, type = 'text', placeholder = '', prefix, suffix, required,
+  label, value, onChange, type = 'text', placeholder = '', prefix, suffix, required, decimal,
 }: {
   label: string; value: string; onChange: (v: string) => void
-  type?: string; placeholder?: string; prefix?: string; suffix?: string; required?: boolean
+  type?: string; placeholder?: string; prefix?: string; suffix?: string; required?: boolean; decimal?: boolean
 }) {
+  const inputMode = type === 'number' ? (decimal ? 'decimal' : 'numeric') : undefined
   return (
     <div>
       <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
         {label}{required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
       <div className="flex items-center rounded-xl border border-gray-200 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent bg-white overflow-hidden">
-        {prefix && <span className="px-3 py-2.5 bg-gray-50 text-gray-400 text-sm border-r border-gray-200 font-medium">{prefix}</span>}
+        {prefix && <span className="px-3 py-3 bg-gray-50 text-gray-400 text-sm border-r border-gray-200 font-medium">{prefix}</span>}
         <input
           type={type} value={value} onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder} required={required}
-          className="flex-1 px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-300 focus:outline-none bg-white"
+          inputMode={inputMode}
+          className="flex-1 px-3.5 py-3 text-base text-gray-900 placeholder:text-gray-300 focus:outline-none bg-white"
         />
-        {suffix && <span className="px-3 py-2.5 bg-gray-50 text-gray-400 text-sm border-l border-gray-200 font-medium">{suffix}</span>}
+        {suffix && <span className="px-3 py-3 bg-gray-50 text-gray-400 text-sm border-l border-gray-200 font-medium">{suffix}</span>}
       </div>
     </div>
   )
@@ -334,7 +336,7 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
                   {FLOORING_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                 </select>
               </div>
-              <Input label="Waste %" value={wastePct} onChange={setWastePct} type="number" suffix="%" placeholder="10" />
+              <Input label="Waste %" value={wastePct} onChange={setWastePct} type="number" suffix="%" placeholder="10" decimal />
             </div>
 
             {/* Method toggle */}
@@ -354,7 +356,7 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
             </div>
 
             {measurementType === 'manual' ? (
-              <Input label="Total Square Footage" value={manualSqft} onChange={setManualSqft} type="number" suffix="sqft" placeholder="500" />
+              <Input label="Total Square Footage" value={manualSqft} onChange={setManualSqft} type="number" suffix="sqft" placeholder="500" decimal />
             ) : (
               <div className="space-y-4">
                 {/* Blueprint upload */}
@@ -427,12 +429,12 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
                                     value={room.name}
                                     onChange={(e) => updateRoom(room.id, 'name', e.target.value)}
                                     placeholder={`Room ${idx + 1}`}
-                                    className="flex-1 px-2.5 py-1.5 rounded-lg border border-gray-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                                    className="flex-1 min-w-0 px-2.5 py-2 rounded-lg border border-gray-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                                   />
                                   <select
                                     value={room.section}
                                     onChange={(e) => updateRoom(room.id, 'section', e.target.value)}
-                                    className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-600"
+                                    className="text-xs border border-gray-200 rounded-lg px-2 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-600 flex-shrink-0"
                                   >
                                     {SECTIONS.map(s => <option key={s} value={s}>{s}</option>)}
                                   </select>
@@ -440,58 +442,43 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
                                     type="button"
                                     onClick={() => removeRoom(room.id)}
                                     disabled={rooms.length === 1}
-                                    className="p-1.5 text-gray-300 hover:text-red-500 disabled:opacity-20 transition-colors rounded-lg hover:bg-red-50"
+                                    className="p-2 text-gray-300 hover:text-red-500 disabled:opacity-20 transition-colors rounded-lg hover:bg-red-50 flex-shrink-0"
                                   >
-                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <Trash2 className="w-4 h-4" />
                                   </button>
                                 </div>
 
-                                {/* Ft + In inputs */}
+                                {/* Ft + In inputs — mobile optimized */}
                                 <div className="grid grid-cols-2 gap-2">
-                                  <div>
-                                    <label className="block text-xs text-gray-400 mb-1">Length</label>
-                                    <div className="flex gap-1">
-                                      <div className="flex items-center flex-1 rounded-lg border border-gray-200 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-blue-500">
-                                        <input
-                                          type="number" value={room.lengthFt}
-                                          onChange={(e) => updateRoom(room.id, 'lengthFt', e.target.value)}
-                                          placeholder="0" className="w-full px-2 py-1.5 text-sm focus:outline-none bg-transparent text-center"
-                                        />
-                                        <span className="pr-1.5 text-xs text-gray-400 font-medium">ft</span>
-                                      </div>
-                                      <div className="flex items-center w-16 rounded-lg border border-gray-200 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-blue-500">
-                                        <input
-                                          type="number" value={room.lengthIn}
-                                          onChange={(e) => updateRoom(room.id, 'lengthIn', e.target.value)}
-                                          placeholder="0" min="0" max="11"
-                                          className="w-full px-2 py-1.5 text-sm focus:outline-none bg-transparent text-center"
-                                        />
-                                        <span className="pr-1.5 text-xs text-gray-400 font-medium">in</span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div>
-                                    <label className="block text-xs text-gray-400 mb-1">Width</label>
-                                    <div className="flex gap-1">
-                                      <div className="flex items-center flex-1 rounded-lg border border-gray-200 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-blue-500">
-                                        <input
-                                          type="number" value={room.widthFt}
-                                          onChange={(e) => updateRoom(room.id, 'widthFt', e.target.value)}
-                                          placeholder="0" className="w-full px-2 py-1.5 text-sm focus:outline-none bg-transparent text-center"
-                                        />
-                                        <span className="pr-1.5 text-xs text-gray-400 font-medium">ft</span>
-                                      </div>
-                                      <div className="flex items-center w-16 rounded-lg border border-gray-200 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-blue-500">
-                                        <input
-                                          type="number" value={room.widthIn}
-                                          onChange={(e) => updateRoom(room.id, 'widthIn', e.target.value)}
-                                          placeholder="0" min="0" max="11"
-                                          className="w-full px-2 py-1.5 text-sm focus:outline-none bg-transparent text-center"
-                                        />
-                                        <span className="pr-1.5 text-xs text-gray-400 font-medium">in</span>
+                                  {(['length', 'width'] as const).map(dim => (
+                                    <div key={dim}>
+                                      <label className="block text-xs text-gray-400 mb-1 capitalize">{dim}</label>
+                                      <div className="flex gap-1">
+                                        <div className="flex items-center flex-1 rounded-lg border border-gray-200 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-blue-500">
+                                          <input
+                                            type="number"
+                                            inputMode="numeric"
+                                            value={dim === 'length' ? room.lengthFt : room.widthFt}
+                                            onChange={(e) => updateRoom(room.id, dim === 'length' ? 'lengthFt' : 'widthFt', e.target.value)}
+                                            placeholder="0"
+                                            className="w-full px-2 py-2.5 text-base font-semibold focus:outline-none bg-transparent text-center"
+                                          />
+                                          <span className="pr-2 text-xs text-gray-400 font-medium">ft</span>
+                                        </div>
+                                        <div className="flex items-center w-14 rounded-lg border border-gray-200 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-blue-500">
+                                          <input
+                                            type="number"
+                                            inputMode="numeric"
+                                            value={dim === 'length' ? room.lengthIn : room.widthIn}
+                                            onChange={(e) => updateRoom(room.id, dim === 'length' ? 'lengthIn' : 'widthIn', e.target.value)}
+                                            placeholder="0" min="0" max="11"
+                                            className="w-full px-1.5 py-2.5 text-base font-semibold focus:outline-none bg-transparent text-center"
+                                          />
+                                          <span className="pr-1.5 text-xs text-gray-400 font-medium">in</span>
+                                        </div>
                                       </div>
                                     </div>
-                                  </div>
+                                  ))}
                                 </div>
 
                                 {/* Calculated sqft */}
@@ -551,22 +538,22 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
           {/* Pricing */}
           <Card title="Pricing">
             <div className="grid grid-cols-2 gap-4">
-              <Input label="Material Cost / SqFt" value={materialCost} onChange={setMaterialCost} type="number" prefix="$" placeholder="5.00" />
-              <Input label="Labor Cost / SqFt" value={laborCost} onChange={setLaborCost} type="number" prefix="$" placeholder="3.00" />
+              <Input label="Material Cost / SqFt" value={materialCost} onChange={setMaterialCost} type="number" prefix="$" placeholder="5.00" decimal />
+              <Input label="Labor Cost / SqFt" value={laborCost} onChange={setLaborCost} type="number" prefix="$" placeholder="3.00" decimal />
             </div>
           </Card>
 
           {/* Extras */}
           <Card title="Extras & Add-ons">
             <div className="grid grid-cols-2 gap-4">
-              <Input label="Removal Fee" value={removalFee} onChange={setRemovalFee} type="number" prefix="$" placeholder="0" />
-              <Input label="Furniture Moving" value={furnitureFee} onChange={setFurnitureFee} type="number" prefix="$" placeholder="0" />
-              <Input label="Stairs Fee" value={stairsFee} onChange={setStairsFee} type="number" prefix="$" placeholder="0" />
-              <Input label="Delivery Fee" value={deliveryFee} onChange={setDeliveryFee} type="number" prefix="$" placeholder="0" />
+              <Input label="Removal Fee" value={removalFee} onChange={setRemovalFee} type="number" prefix="$" placeholder="0" decimal />
+              <Input label="Furniture Moving" value={furnitureFee} onChange={setFurnitureFee} type="number" prefix="$" placeholder="0" decimal />
+              <Input label="Stairs Fee" value={stairsFee} onChange={setStairsFee} type="number" prefix="$" placeholder="0" decimal />
+              <Input label="Delivery Fee" value={deliveryFee} onChange={setDeliveryFee} type="number" prefix="$" placeholder="0" decimal />
             </div>
             <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-2 gap-4">
               <Input label="Custom Fee Label" value={customFeeLabel} onChange={setCustomFeeLabel} placeholder="Other" />
-              <Input label="Custom Fee Amount" value={customFeeAmount} onChange={setCustomFeeAmount} type="number" prefix="$" placeholder="0" />
+              <Input label="Custom Fee Amount" value={customFeeAmount} onChange={setCustomFeeAmount} type="number" prefix="$" placeholder="0" decimal />
             </div>
           </Card>
 
@@ -579,14 +566,14 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
               </button>
               <span className="text-sm font-medium text-gray-700">Apply sales tax</span>
             </div>
-            {taxEnabled && <Input label="Tax Rate" value={taxPct} onChange={setTaxPct} type="number" suffix="%" placeholder="8.5" />}
+            {taxEnabled && <Input label="Tax Rate" value={taxPct} onChange={setTaxPct} type="number" suffix="%" placeholder="8.5" decimal />}
           </Card>
 
           {/* Markup & Deposit */}
           <Card title="Markup & Deposit">
             <div className="grid grid-cols-2 gap-4">
-              <Input label="Markup %" value={markupPct} onChange={setMarkupPct} type="number" suffix="%" placeholder="0" />
-              <Input label="Deposit %" value={depositPct} onChange={setDepositPct} type="number" suffix="%" placeholder="50" />
+              <Input label="Markup %" value={markupPct} onChange={setMarkupPct} type="number" suffix="%" placeholder="0" decimal />
+              <Input label="Deposit %" value={depositPct} onChange={setDepositPct} type="number" suffix="%" placeholder="50" decimal />
             </div>
           </Card>
 
@@ -606,8 +593,8 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
           </Card>
         </div>
 
-        {/* Right — live totals */}
-        <div className="lg:col-span-1">
+        {/* Right — live totals (desktop only) */}
+        <div className="hidden lg:block lg:col-span-1">
           <div className="sticky top-4 space-y-4">
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
               <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-4">Live Estimate</h2>
@@ -674,6 +661,27 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
           </div>
         </div>
       </div>
+
+      {/* Mobile sticky bottom bar */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-gray-100 shadow-lg px-4 py-3 flex items-center gap-3">
+        <div className="flex-1">
+          <p className="text-xs text-gray-400">
+            {calcs.adjusted_sqft > 0
+              ? `${calcs.adjusted_sqft.toFixed(0)} sqft (w/ ${n(wastePct)}% waste)`
+              : 'Enter measurements'}
+          </p>
+          <p className="text-xl font-bold text-gray-900">{fmt(calcs.final_total)}</p>
+        </div>
+        <button
+          type="submit" disabled={saving}
+          className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-bold py-3 px-6 rounded-2xl text-sm transition-colors shadow-sm flex-shrink-0"
+        >
+          {saving ? 'Saving…' : 'Save →'}
+        </button>
+      </div>
+
+      {/* Mobile bottom padding so content isn't hidden behind sticky bar */}
+      <div className="lg:hidden h-20" />
     </form>
   )
 }
