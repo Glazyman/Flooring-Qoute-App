@@ -68,13 +68,13 @@ export default function EmailQuoteButton({ quoteId, customerEmail }: Props) {
 
   if (status === 'error') {
     return (
-      <button onClick={handleSend}
+      <button
         className="flex items-center justify-center gap-1.5 font-semibold px-4 py-3 sm:py-2.5 rounded-2xl text-sm focus:outline-none active:scale-95"
         style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca' }}
-        title={errorMsg}
+        onClick={() => { alert('Email error: ' + errorMsg); handleSend() }}
       >
         {emailIcon}
-        {errorMsg.length > 20 ? 'Failed — tap to retry' : errorMsg}
+        Failed — tap to retry
       </button>
     )
   }
