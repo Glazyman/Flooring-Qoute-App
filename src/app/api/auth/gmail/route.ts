@@ -8,7 +8,8 @@ export async function GET() {
     return NextResponse.json({ error: 'Google OAuth not configured' }, { status: 503 })
   }
 
-  const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/gmail/callback`
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://flooring-qoute-app.vercel.app').replace(/\/$/, '')
+  const redirectUri = `${appUrl}/api/auth/gmail/callback`
 
   const params = new URLSearchParams({
     client_id: clientId,

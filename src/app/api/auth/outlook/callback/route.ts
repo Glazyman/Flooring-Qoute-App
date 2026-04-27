@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get('code')
   const error = searchParams.get('error')
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://flooring-qoute-app.vercel.app').replace(/\/$/, '')
 
   if (error || !code) {
     return NextResponse.redirect(`${appUrl}/settings?error=outlook_denied`)
