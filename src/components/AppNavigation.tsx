@@ -13,10 +13,10 @@ import {
   CreditCard,
   Menu,
   X,
-  Mail,
   HelpCircle,
 } from 'lucide-react'
 import { useState } from 'react'
+import ContactModal from './ContactModal'
 
 interface NavItem {
   href: string
@@ -34,7 +34,6 @@ const navItems: NavItem[] = [
 
 const toolItems: NavItem[] = [
   { href: '/settings', label: 'Settings', icon: Settings },
-  { href: '/contact', label: 'Chat & Support', icon: HelpCircle },
 ]
 
 function NavLink({
@@ -109,6 +108,7 @@ export default function AppNavigation({
 }) {
   const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [contactOpen, setContactOpen] = useState(false)
 
   async function handleLogout() {
     const supabase = createClient()
@@ -152,6 +152,13 @@ export default function AppNavigation({
           {toolItems.map((item) => (
             <NavLink key={item.href} item={item} onClick={() => setMobileOpen(false)} />
           ))}
+          <button
+            onClick={() => { setMobileOpen(false); setContactOpen(true) }}
+            className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-all"
+          >
+            <HelpCircle className="w-4 h-4 flex-shrink-0" />
+            Chat & Support
+          </button>
           <button
             onClick={handleBillingPortal}
             className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-all"
@@ -239,6 +246,9 @@ export default function AppNavigation({
         </div>
         <div className="w-9" />
       </header>
+
+      {/* Contact modal */}
+      <ContactModal open={contactOpen} onClose={() => setContactOpen(false)} />
 
       {/* Mobile drawer */}
       {mobileOpen && (
