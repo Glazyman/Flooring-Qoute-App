@@ -98,7 +98,7 @@ export default function SignupPage() {
               required
               minLength={field === 'password' ? 6 : undefined}
               autoComplete={autoComplete}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-300"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent placeholder:text-gray-300"
               placeholder={placeholder}
             />
           </div>
@@ -107,7 +107,7 @@ export default function SignupPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-bold py-3 px-4 rounded-2xl text-sm transition-colors shadow-sm mt-2"
+          className="w-full bg-teal-600 hover:bg-teal-700 disabled:bg-blue-300 text-white font-bold py-3 px-4 rounded-2xl text-sm transition-colors shadow-sm mt-2"
         >
           {loading ? 'Creating account…' : 'Create free account'}
         </button>
@@ -115,7 +115,7 @@ export default function SignupPage() {
 
       <p className="text-center text-sm text-gray-400 mt-6">
         Already have an account?{' '}
-        <Link href="/login" className="text-blue-600 hover:text-blue-700 font-semibold">
+        <Link href="/login" className="text-teal-600 hover:text-teal-700 font-semibold">
           Sign in
         </Link>
       </p>

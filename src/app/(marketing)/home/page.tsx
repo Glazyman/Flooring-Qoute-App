@@ -63,13 +63,13 @@ export default function HomePage() {
     <main>
       {/* Hero */}
       <section className="max-w-6xl mx-auto px-5 pt-20 pb-16 text-center">
-        <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-6">
-          <span className="w-1.5 h-1.5 bg-blue-500 rounded-full" />
+        <div className="inline-flex items-center gap-2 bg-teal-50 text-teal-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-6">
+          <span className="w-1.5 h-1.5 bg-teal-500 rounded-full" />
           3 free quotes — no credit card required
         </div>
         <h1 className="text-5xl sm:text-6xl font-extrabold text-gray-900 leading-tight tracking-tight mb-5">
           Floor estimates in<br />
-          <span className="text-blue-600">under 2 minutes.</span>
+          <span className="text-teal-600">under 2 minutes.</span>
         </h1>
         <p className="text-xl text-gray-500 max-w-2xl mx-auto mb-10 leading-relaxed">
           FloorQuote Pro is built for flooring contractors who need to quote fast, look professional, and win more jobs — from any phone or computer.
@@ -77,7 +77,7 @@ export default function HomePage() {
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link
             href="/signup"
-            className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-7 py-4 rounded-2xl text-base transition-colors shadow-lg shadow-blue-200"
+            className="inline-flex items-center justify-center gap-2 bg-teal-600 hover:bg-teal-700 text-white font-bold px-7 py-4 rounded-2xl text-base transition-colors shadow-lg shadow-teal-200"
           >
             Start for Free
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -125,9 +125,9 @@ export default function HomePage() {
             ))}
             <div className="border-t border-gray-100 pt-3 flex justify-between">
               <span className="font-bold text-gray-900">Total</span>
-              <span className="font-extrabold text-blue-600 text-lg">$6,871.40</span>
+              <span className="font-extrabold text-teal-600 text-lg">$6,871.40</span>
             </div>
-            <div className="bg-blue-600 text-white text-center text-sm font-semibold py-2.5 rounded-xl mt-2">
+            <div className="bg-teal-600 text-white text-center text-sm font-semibold py-2.5 rounded-xl mt-2">
               Download PDF Estimate
             </div>
           </div>
@@ -143,7 +143,7 @@ export default function HomePage() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {FEATURES.map((f) => (
             <div key={f.title} className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-11 h-11 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-4">
+              <div className="w-11 h-11 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center mb-4">
                 {f.icon}
               </div>
               <h3 className="font-bold text-gray-900 mb-2">{f.title}</h3>
@@ -179,22 +179,22 @@ export default function HomePage() {
               </Link>
             </div>
             {/* Pro */}
-            <div className="bg-blue-600 rounded-3xl p-8 text-left shadow-xl shadow-blue-200 relative overflow-hidden">
+            <div className="bg-teal-600 rounded-3xl p-8 text-left shadow-xl shadow-teal-200 relative overflow-hidden">
               <div className="absolute top-4 right-4 bg-white/20 text-white text-xs font-bold px-2.5 py-1 rounded-full">Popular</div>
-              <p className="text-sm font-semibold text-blue-200 uppercase tracking-wide mb-2">Pro</p>
-              <p className="text-4xl font-extrabold text-white mb-1">$29<span className="text-xl font-normal text-blue-200">/mo</span></p>
-              <p className="text-sm text-blue-200 mb-6">Billed monthly</p>
+              <p className="text-sm font-semibold text-teal-200 uppercase tracking-wide mb-2">Pro</p>
+              <p className="text-4xl font-extrabold text-white mb-1">$29<span className="text-xl font-normal text-teal-200">/mo</span></p>
+              <p className="text-sm text-teal-200 mb-6">Billed monthly</p>
               <ul className="space-y-3 mb-8">
                 {['Unlimited quotes', 'Everything in Starter', 'Company branding', 'Priority support'].map(i => (
                   <li key={i} className="flex items-center gap-2.5 text-sm text-white">
-                    <svg className="w-4 h-4 text-blue-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-4 h-4 text-teal-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                     </svg>
                     {i}
                   </li>
                 ))}
               </ul>
-              <Link href="/signup" className="block text-center bg-white hover:bg-blue-50 text-blue-600 font-bold py-3 rounded-xl transition-colors text-sm">
+              <Link href="/signup" className="block text-center bg-white hover:bg-teal-50 text-teal-600 font-bold py-3 rounded-xl transition-colors text-sm">
                 Start Free Trial
               </Link>
             </div>
@@ -208,7 +208,7 @@ export default function HomePage() {
         <p className="text-lg text-gray-500 mb-8">Join flooring contractors already using FloorQuote Pro to win more jobs.</p>
         <Link
           href="/signup"
-          className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-4 rounded-2xl text-base transition-colors shadow-lg shadow-blue-200"
+          className="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white font-bold px-8 py-4 rounded-2xl text-base transition-colors shadow-lg shadow-teal-200"
         >
           Create Your Free Account
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

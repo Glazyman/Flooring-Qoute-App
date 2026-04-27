@@ -52,7 +52,7 @@ export default function LoginPage() {
             onChange={(e) => setEmail(e.target.value)}
             required
             autoComplete="email"
-            className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-300"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent placeholder:text-gray-300"
             placeholder="you@example.com"
           />
         </div>
@@ -67,7 +67,7 @@ export default function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
             required
             autoComplete="current-password"
-            className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-300"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent placeholder:text-gray-300"
             placeholder="••••••••"
           />
         </div>
@@ -75,7 +75,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-bold py-3 px-4 rounded-2xl text-sm transition-colors shadow-sm mt-2"
+          className="w-full bg-teal-600 hover:bg-teal-700 disabled:bg-blue-300 text-white font-bold py-3 px-4 rounded-2xl text-sm transition-colors shadow-sm mt-2"
         >
           {loading ? 'Signing in…' : 'Sign in'}
         </button>
@@ -83,7 +83,7 @@ export default function LoginPage() {
 
       <p className="text-center text-sm text-gray-400 mt-6">
         Don&apos;t have an account?{' '}
-        <Link href="/signup" className="text-blue-600 hover:text-blue-700 font-semibold">
+        <Link href="/signup" className="text-teal-600 hover:text-teal-700 font-semibold">
           Sign up free
         </Link>
       </p>
