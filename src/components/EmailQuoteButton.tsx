@@ -40,7 +40,6 @@ export default function EmailQuoteButton({ quoteId, customerEmail }: Props) {
       if (!res.ok) {
         setErrorMsg(data.error || 'Failed to send')
         setStatus('error')
-        setTimeout(() => setStatus('idle'), 4000)
       } else {
         setStatus('sent')
         setTimeout(() => setStatus('idle'), 3000)
@@ -48,7 +47,6 @@ export default function EmailQuoteButton({ quoteId, customerEmail }: Props) {
     } catch {
       setErrorMsg('Network error')
       setStatus('error')
-      setTimeout(() => setStatus('idle'), 4000)
     }
   }
 
@@ -68,14 +66,20 @@ export default function EmailQuoteButton({ quoteId, customerEmail }: Props) {
 
   if (status === 'error') {
     return (
-      <button
-        className="flex items-center justify-center gap-1.5 font-semibold px-4 py-3 sm:py-2.5 rounded-2xl text-sm focus:outline-none active:scale-95"
-        style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca' }}
-        onClick={() => { alert('Email error: ' + errorMsg); handleSend() }}
-      >
-        {emailIcon}
-        Failed — tap to retry
-      </button>
+      <div className="col-span-2 space-y-2">
+        <button
+          type="button"
+          className="w-full flex items-center justify-center gap-1.5 font-semibold px-4 py-3 sm:py-2.5 rounded-2xl text-sm focus:outline-none active:scale-95"
+          style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca' }}
+          onClick={handleSend}
+        >
+          {emailIcon}
+          Retry email
+        </button>
+        <p className="text-xs text-red-600 leading-snug break-words">
+          {errorMsg}
+        </p>
+      </div>
     )
   }
 

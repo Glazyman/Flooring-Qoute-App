@@ -187,7 +187,14 @@ export async function POST(
     }
 
     const { error } = await resend.emails.send(payload)
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    if (error) {
+      let msg = error.message
+      if (/only send|testing emails|verify a domain/i.test(msg)) {
+        msg +=
+          ' Add a verified domain at resend.com/domains, then set RESEND_FROM_EMAIL in Vercel to an address on that domain (e.g. quotes@yourdomain.com).'
+      }
+      return NextResponse.json({ error: msg }, { status: 500 })
+    }
 
     return NextResponse.json({ ok: true, via: 'resend' })
   } catch (err) {
