@@ -114,43 +114,95 @@ const SECTION_COLORS: Record<Section, string> = {
   Other: 'bg-gray-50 text-gray-600 border-gray-200',
 }
 
-export default function QuoteForm({ settings }: { settings: CompanySettings | null }) {
+export interface QuoteInitialData {
+  customer_name: string
+  customer_phone?: string | null
+  customer_email?: string | null
+  job_address?: string | null
+  flooring_type: FlooringType
+  measurement_type: MeasurementType
+  base_sqft: number
+  waste_pct: number
+  rooms?: Array<{ name: string | null; section: string | null; length: number; width: number; sqft: number }>
+  material_cost_per_sqft: number
+  labor_cost_per_sqft: number
+  removal_fee?: number
+  furniture_fee?: number
+  stairs_fee?: number
+  stair_count?: number | null
+  delivery_fee?: number
+  quarter_round_fee?: number
+  reducers_fee?: number
+  finish_type?: string | null
+  wood_species?: string | null
+  custom_fee_label?: string | null
+  custom_fee_amount?: number
+  tax_enabled?: boolean
+  tax_pct?: number
+  markup_pct?: number
+  deposit_pct?: number
+  notes?: string | null
+  valid_days?: number
+}
+
+function initialRoomsFromData(data: QuoteInitialData): Room[] {
+  if (!data.rooms || data.rooms.length === 0) return [newRoom('Upstairs')]
+  return data.rooms.map(r => {
+    const lft = Math.floor(r.length)
+    const lin = Math.round((r.length - lft) * 12)
+    const wft = Math.floor(r.width)
+    const win = Math.round((r.width - wft) * 12)
+    const section = (SECTIONS.includes(r.section as Section) ? r.section : 'Other') as Section
+    return { id: crypto.randomUUID(), name: r.name || '', section, lengthFt: String(lft), lengthIn: String(lin), widthFt: String(wft), widthIn: String(win) }
+  })
+}
+
+export default function QuoteForm({
+  settings,
+  initialData,
+  quoteId,
+}: {
+  settings: CompanySettings | null
+  initialData?: QuoteInitialData
+  quoteId?: string
+}) {
+  const isEditing = !!quoteId
   const router = useRouter()
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
-  const [customerName, setCustomerName] = useState('')
-  const [customerPhone, setCustomerPhone] = useState('')
-  const [customerEmail, setCustomerEmail] = useState('')
-  const [jobAddress, setJobAddress] = useState('')
+  const [customerName, setCustomerName] = useState(initialData?.customer_name ?? '')
+  const [customerPhone, setCustomerPhone] = useState(initialData?.customer_phone ?? '')
+  const [customerEmail, setCustomerEmail] = useState(initialData?.customer_email ?? '')
+  const [jobAddress, setJobAddress] = useState(initialData?.job_address ?? '')
 
-  const [flooringType, setFlooringType] = useState<FlooringType>('hardwood')
-  const [measurementType, setMeasurementType] = useState<MeasurementType>('rooms')
-  const [manualSqft, setManualSqft] = useState('')
-  const [rooms, setRooms] = useState<Room[]>([newRoom('Upstairs')])
-  const [wastePct, setWastePct] = useState(String(settings?.default_waste_pct ?? 10))
+  const [flooringType, setFlooringType] = useState<FlooringType>(initialData?.flooring_type ?? 'hardwood')
+  const [measurementType, setMeasurementType] = useState<MeasurementType>(initialData?.measurement_type ?? 'rooms')
+  const [manualSqft, setManualSqft] = useState(initialData?.measurement_type === 'manual' ? String(initialData.base_sqft) : '')
+  const [rooms, setRooms] = useState<Room[]>(initialData ? initialRoomsFromData(initialData) : [newRoom('Upstairs')])
+  const [wastePct, setWastePct] = useState(String(initialData?.waste_pct ?? settings?.default_waste_pct ?? 10))
 
-  const [materialCost, setMaterialCost] = useState(String(settings?.default_material_cost ?? 5))
-  const [laborCost, setLaborCost] = useState(String(settings?.default_labor_cost ?? 3))
+  const [materialCost, setMaterialCost] = useState(String(initialData?.material_cost_per_sqft ?? settings?.default_material_cost ?? 5))
+  const [laborCost, setLaborCost] = useState(String(initialData?.labor_cost_per_sqft ?? settings?.default_labor_cost ?? 3))
 
-  const [removalFee, setRemovalFee] = useState('')
-  const [furnitureFee, setFurnitureFee] = useState('')
-  const [stairsFee, setStairsFee] = useState('')
-  const [stairCount, setStairCount] = useState('')
-  const [deliveryFee, setDeliveryFee] = useState('')
-  const [quarterRoundFee, setQuarterRoundFee] = useState('')
-  const [reducersFee, setReducersFee] = useState('')
-  const [finishType, setFinishType] = useState('')
-  const [woodSpecies, setWoodSpecies] = useState('')
-  const [customFeeLabel, setCustomFeeLabel] = useState('')
-  const [customFeeAmount, setCustomFeeAmount] = useState('')
+  const [removalFee, setRemovalFee] = useState(initialData?.removal_fee ? String(initialData.removal_fee) : '')
+  const [furnitureFee, setFurnitureFee] = useState(initialData?.furniture_fee ? String(initialData.furniture_fee) : '')
+  const [stairsFee, setStairsFee] = useState(initialData?.stairs_fee ? String(initialData.stairs_fee) : '')
+  const [stairCount, setStairCount] = useState(initialData?.stair_count ? String(initialData.stair_count) : '')
+  const [deliveryFee, setDeliveryFee] = useState(initialData?.delivery_fee ? String(initialData.delivery_fee) : '')
+  const [quarterRoundFee, setQuarterRoundFee] = useState(initialData?.quarter_round_fee ? String(initialData.quarter_round_fee) : '')
+  const [reducersFee, setReducersFee] = useState(initialData?.reducers_fee ? String(initialData.reducers_fee) : '')
+  const [finishType, setFinishType] = useState(initialData?.finish_type ?? '')
+  const [woodSpecies, setWoodSpecies] = useState(initialData?.wood_species ?? '')
+  const [customFeeLabel, setCustomFeeLabel] = useState(initialData?.custom_fee_label ?? '')
+  const [customFeeAmount, setCustomFeeAmount] = useState(initialData?.custom_fee_amount ? String(initialData.custom_fee_amount) : '')
 
-  const [taxEnabled, setTaxEnabled] = useState(false)
-  const [taxPct, setTaxPct] = useState('')
-  const [markupPct, setMarkupPct] = useState(String(settings?.default_markup_pct ?? 0))
-  const [depositPct, setDepositPct] = useState(String(settings?.default_deposit_pct ?? 50))
-  const [notes, setNotes] = useState('')
-  const [validDays, setValidDays] = useState('30')
+  const [taxEnabled, setTaxEnabled] = useState(initialData?.tax_enabled ?? false)
+  const [taxPct, setTaxPct] = useState(initialData?.tax_pct ? String(initialData.tax_pct) : '')
+  const [markupPct, setMarkupPct] = useState(String(initialData?.markup_pct ?? settings?.default_markup_pct ?? 0))
+  const [depositPct, setDepositPct] = useState(String(initialData?.deposit_pct ?? settings?.default_deposit_pct ?? 50))
+  const [notes, setNotes] = useState(initialData?.notes ?? '')
+  const [validDays, setValidDays] = useState(String(initialData?.valid_days ?? 30))
 
   // Contacts picker
   const [showContactPicker, setShowContactPicker] = useState(false)
@@ -355,21 +407,25 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
       markup_amount: calcs.markup_amount,
       final_total: calcs.final_total,
       deposit_amount: calcs.deposit_amount,
-      status: 'pending',
+      ...(isEditing ? {} : { status: 'pending' }),
       notes: [notes, blueprintNotes].filter(Boolean).join('\n\n') || null,
       valid_days: n(validDays) || 30,
       rooms: roomsForApi,
     }
 
-    const res = await fetch('/api/quotes', {
-      method: 'POST',
+    const url = isEditing ? `/api/quotes/${quoteId}` : '/api/quotes'
+    const method = isEditing ? 'PATCH' : 'POST'
+
+    const res = await fetch(url, {
+      method,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     })
 
     const data = await res.json()
     if (!res.ok) { setError(data.error || 'Failed to save quote'); setSaving(false); return }
-    router.push(`/quotes/${data.id}`)
+    router.push(`/quotes/${isEditing ? quoteId : data.id}`)
+    router.refresh()
   }
 
   return (
@@ -829,7 +885,7 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
               className="w-full text-white font-bold py-4 px-4 rounded-2xl text-sm transition-all active:scale-95 disabled:opacity-50"
               style={{ background: 'linear-gradient(135deg, var(--primary) 0%, #0f766e 100%)', boxShadow: '0 4px 14px rgba(13,148,136,0.4)' }}
             >
-              {saving ? 'Saving…' : 'Save Quote →'}
+              {saving ? 'Saving…' : isEditing ? 'Update Quote →' : 'Save Quote →'}
             </button>
           </div>
         </div>
@@ -842,7 +898,7 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
           className="w-full text-white font-bold py-4 px-4 rounded-2xl text-base transition-all active:scale-95 disabled:opacity-50"
           style={{ background: 'linear-gradient(135deg, var(--primary) 0%, #0f766e 100%)', boxShadow: '0 4px 14px rgba(13,148,136,0.4)' }}
         >
-          {saving ? 'Saving…' : 'Save Quote →'}
+          {saving ? 'Saving…' : isEditing ? 'Update Quote →' : 'Save Quote →'}
         </button>
       </div>
     </form>

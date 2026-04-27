@@ -5,6 +5,8 @@ import { fmt } from '@/lib/calculations'
 import type { Quote, QuoteRoom } from '@/lib/types'
 import DuplicateButton from '@/components/DuplicateButton'
 
+export const dynamic = 'force-dynamic'
+
 const STATUS_CONFIG: Record<string, { bg: string; text: string; label: string }> = {
   accepted: { bg: '#f0fdf4', text: '#16a34a', label: 'Accepted' },
   pending: { bg: '#fffbeb', text: '#d97706', label: 'Pending' },
@@ -51,66 +53,79 @@ export default async function QuoteDetailPage({
   return (
     <div className="max-w-3xl space-y-5">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <Link
-            href="/quotes"
-            className="text-xs font-medium text-gray-400 hover:text-gray-600 mb-2 inline-flex items-center gap-1"
-          >
-            ← Back to Quotes
-          </Link>
-          <h1 className="text-2xl font-bold text-gray-900 mt-1">{q.customer_name}</h1>
-          <div className="flex items-center gap-2.5 mt-2">
-            <span
-              className="text-xs font-semibold px-2.5 py-1 rounded-full"
-              style={{ background: statusCfg.bg, color: statusCfg.text }}
-            >
-              {statusCfg.label}
-            </span>
-            <span className="text-sm text-gray-400">
-              {new Date(q.created_at).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
-            </span>
+      <div>
+        <Link
+          href="/quotes"
+          className="text-xs font-medium text-gray-400 hover:text-gray-600 mb-2 inline-flex items-center gap-1"
+        >
+          ← Back to Quotes
+        </Link>
+        <div className="flex items-start justify-between gap-3 mt-1">
+          <div className="min-w-0">
+            <h1 className="text-2xl font-bold text-gray-900 truncate">{q.customer_name}</h1>
+            <div className="flex items-center gap-2.5 mt-2 flex-wrap">
+              <span
+                className="text-xs font-semibold px-2.5 py-1 rounded-full flex-shrink-0"
+                style={{ background: statusCfg.bg, color: statusCfg.text }}
+              >
+                {statusCfg.label}
+              </span>
+              <span className="text-sm text-gray-400">
+                {new Date(q.created_at).toLocaleDateString('en-US', {
+                  year: 'numeric', month: 'long', day: 'numeric',
+                })}
+              </span>
+            </div>
           </div>
+          {/* Primary action: Edit (desktop only inline) */}
+          <Link
+            href={`/quotes/${id}/edit`}
+            className="hidden sm:flex items-center gap-1.5 font-semibold px-4 py-2.5 rounded-2xl text-sm flex-shrink-0 active:scale-95 transition-transform"
+            style={{ background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text)' }}
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            Edit
+          </Link>
         </div>
-        <div className="flex items-center gap-2 flex-wrap justify-end">
+
+        {/* Action buttons row */}
+        <div className="flex flex-wrap gap-2 mt-4">
+          {/* Edit — mobile only */}
+          <Link
+            href={`/quotes/${id}/edit`}
+            className="sm:hidden flex items-center gap-1.5 font-semibold px-4 py-2.5 rounded-2xl text-sm flex-shrink-0 active:scale-95"
+            style={{ background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text)' }}
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            Edit
+          </Link>
           <DuplicateButton quoteId={id} />
           {q.customer_email ? (
             <a
               href={`mailto:${q.customer_email}?subject=${encodeURIComponent(`Your FloorQuote Pro Estimate – ${q.customer_name}`)}&body=${encodeURIComponent(`Hi ${q.customer_name},\n\nPlease find your flooring estimate attached.\n\nEstimate Total: ${fmt(q.final_total)}\nDeposit Required: ${fmt(q.deposit_amount)}\n\nThis estimate is valid for ${q.valid_days} days. Feel free to reach out with any questions.\n\nThank you for choosing us!`)}`}
-              className="flex items-center gap-2 text-white font-semibold px-4 py-2.5 rounded-2xl text-sm flex-shrink-0 active:scale-95"
+              className="flex items-center gap-1.5 text-white font-semibold px-4 py-2.5 rounded-2xl text-sm flex-shrink-0 active:scale-95"
               style={{ background: 'var(--primary)', boxShadow: '0 2px 8px rgba(13,148,136,0.25)' }}
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
-              Email Customer
+              Email
             </a>
-          ) : (
-            <span
-              className="flex items-center gap-2 font-semibold px-4 py-2.5 rounded-2xl text-sm flex-shrink-0 cursor-not-allowed"
-              style={{ background: 'var(--border)', color: 'var(--text-3)' }}
-              title="No email on file"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-              No Email on File
-            </span>
-          )}
+          ) : null}
           <a
             href={`/api/quotes/${id}/pdf`}
             target="_blank"
-            className="flex items-center gap-2 text-white font-semibold px-4 py-2.5 rounded-2xl text-sm flex-shrink-0 active:scale-95"
+            className="flex items-center gap-1.5 text-white font-semibold px-4 py-2.5 rounded-2xl text-sm flex-shrink-0 active:scale-95"
             style={{ background: 'var(--primary)', boxShadow: '0 2px 8px rgba(13,148,136,0.25)' }}
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            Download PDF
+            PDF
           </a>
         </div>
       </div>
