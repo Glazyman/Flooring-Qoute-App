@@ -1,25 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { openai } from '@ai-sdk/openai'
-import { generateObject } from 'ai'
-import { z } from 'zod'
-
-const RoomSchema = z.object({
-  rooms: z.array(
-    z.object({
-      name: z.string().describe('Room name, e.g. "Living Room", "Master Bedroom"'),
-      section: z.string().describe('Section of house: Upstairs, Downstairs, Kitchen, Foyer, or Other'),
-      lengthFt: z.number().describe('Length in whole feet'),
-      lengthIn: z.number().describe('Length remaining inches (0-11)'),
-      widthFt: z.number().describe('Width in whole feet'),
-      widthIn: z.number().describe('Width remaining inches (0-11)'),
-      sqft: z.number().describe('Calculated square footage'),
-      notes: z.string().optional().describe('Any notes about this room'),
-    })
-  ),
-  totalSqft: z.number().describe('Total square footage of all rooms'),
-  notes: z.string().optional().describe('Any general notes found on the blueprint or measurement sheet'),
-})
+import { generateText } from 'ai'
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
@@ -28,7 +10,7 @@ export async function POST(request: NextRequest) {
 
   if (!process.env.OPENAI_API_KEY) {
     return NextResponse.json(
-      { error: 'OpenAI API key not configured. Add OPENAI_API_KEY to your environment variables.' },
+      { error: 'OpenAI API key not configured.' },
       { status: 500 }
     )
   }
@@ -45,9 +27,8 @@ export async function POST(request: NextRequest) {
     const base64 = Buffer.from(bytes).toString('base64')
     const mimeType = file.type || 'image/jpeg'
 
-    const { object } = await generateObject({
+    const { text } = await generateText({
       model: openai('gpt-4o'),
-      schema: RoomSchema,
       messages: [
         {
           role: 'user',
@@ -58,29 +39,46 @@ export async function POST(request: NextRequest) {
             },
             {
               type: 'text',
-              text: `You are a flooring estimator assistant. Analyze this floor plan or measurement sheet and extract all room dimensions.
+              text: `You are a flooring estimator. Analyze this image (floor plan or measurement sheet) and extract all room dimensions.
 
-Rules:
-- Measurements are in feet and inches. Superscript numbers or numbers after a dash represent inches (e.g. "17³" or "17-3" means 17 feet 3 inches).
-- For each room, calculate sqft as: (lengthFt + lengthIn/12) × (widthFt + widthIn/12), rounded to nearest whole number.
-- Group rooms by section: Upstairs, Downstairs, Kitchen, Foyer, or Other.
-- If measurements are written as "LxW=sqft" (e.g. "17x17³=289"), use the sqft value shown.
-- If you see a hand-written measurement sheet with columns like "UPSTAIRS", "DOWNSTAIRS", "KITCHEN", organize accordingly.
-- Extract any notes (e.g. "2 back rooms not getting wood", stair count, special materials).
-- Sum all sqft for totalSqft.
+RULES:
+- Measurements are in feet and inches. Superscript/raised numbers are inches (e.g. "17³" = 17 ft 3 in, "7x4⁶" = 7 ft × 4 ft 6 in).
+- Calculate sqft as: (lengthFt + lengthIn/12) × (widthFt + widthIn/12), round to 1 decimal.
+- Group rooms by area: Upstairs, Downstairs, Kitchen, Foyer, or Other.
+- If you see column headers like UPSTAIRS, DOWNSTAIRS, KITCHEN on the sheet, use those.
 
-Be precise with the measurements you can read. If a number is unclear, make your best interpretation.`,
+Return ONLY valid JSON in this exact format (no markdown, no code block):
+{
+  "rooms": [
+    {
+      "name": "Room name or empty string",
+      "section": "Upstairs",
+      "lengthFt": 17,
+      "lengthIn": 3,
+      "widthFt": 17,
+      "widthIn": 3,
+      "sqft": 297.0
+    }
+  ],
+  "totalSqft": 297.0,
+  "notes": "Any notes from the sheet, or empty string"
+}`,
             },
           ],
         },
       ],
     })
 
-    return NextResponse.json(object)
+    // Parse the JSON response
+    const cleaned = text.trim().replace(/^```json\n?/, '').replace(/\n?```$/, '').trim()
+    const parsed = JSON.parse(cleaned)
+
+    return NextResponse.json(parsed)
   } catch (err) {
     console.error('Blueprint analysis error:', err)
+    const message = err instanceof Error ? err.message : 'Unknown error'
     return NextResponse.json(
-      { error: 'Failed to analyze image. Make sure it is a clear photo of a floor plan or measurement sheet.' },
+      { error: `Analysis failed: ${message}` },
       { status: 500 }
     )
   }
