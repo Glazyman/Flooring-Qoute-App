@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import SettingsForm from '@/components/SettingsForm'
+import EmailConnectionSection from '@/components/EmailConnectionSection'
 import type { CompanySettings } from '@/lib/types'
 
 const DEFAULT_SETTINGS: CompanySettings = {
@@ -40,7 +41,7 @@ export default async function SettingsPage() {
     .single()
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
         <p className="text-sm text-gray-400 mt-0.5">
@@ -50,6 +51,9 @@ export default async function SettingsPage() {
       <SettingsForm
         settings={(settings as CompanySettings) || { ...DEFAULT_SETTINGS, company_id: membership.company_id }}
       />
+      <div className="border-t border-gray-100 pt-6">
+        <EmailConnectionSection />
+      </div>
     </div>
   )
 }
