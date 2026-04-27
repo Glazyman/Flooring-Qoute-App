@@ -62,18 +62,19 @@ function Input({
   const inputMode = type === 'number' ? (decimal ? 'decimal' : 'numeric') : undefined
   return (
     <div>
-      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+      <label className="block text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: 'var(--text-2)' }}>
         {label}{required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
-      <div className="flex items-center rounded-xl border border-gray-200 focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-transparent bg-white overflow-hidden">
-        {prefix && <span className="px-3 py-3 bg-gray-50 text-gray-400 text-sm border-r border-gray-200 font-medium">{prefix}</span>}
+      <div className="flex items-center rounded-xl border focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-transparent overflow-hidden" style={{ background: 'var(--bg)', borderColor: 'var(--border)' }}>
+        {prefix && <span className="px-3.5 py-3.5 text-sm border-r font-semibold" style={{ color: 'var(--text-2)', borderColor: 'var(--border)', background: 'white' }}>{prefix}</span>}
         <input
           type={type} value={value} onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder} required={required}
           inputMode={inputMode}
-          className="flex-1 px-3.5 py-3 text-base text-gray-900 placeholder:text-gray-300 focus:outline-none bg-white"
+          className="flex-1 px-3.5 py-3.5 text-[16px] placeholder:text-gray-300 focus:outline-none"
+          style={{ background: 'transparent', color: 'var(--text)' }}
         />
-        {suffix && <span className="px-3 py-3 bg-gray-50 text-gray-400 text-sm border-l border-gray-200 font-medium">{suffix}</span>}
+        {suffix && <span className="px-3.5 py-3.5 text-sm border-l font-semibold" style={{ color: 'var(--text-2)', borderColor: 'var(--border)', background: 'white' }}>{suffix}</span>}
       </div>
     </div>
   )
@@ -81,8 +82,8 @@ function Input({
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 lg:p-6">
-      <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-4">{title}</h2>
+    <div className="bg-white rounded-3xl p-5 lg:p-6" style={{ boxShadow: 'var(--shadow-card)', border: '1px solid var(--border)' }}>
+      <h2 className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--text-2)' }}>{title}</h2>
       {children}
     </div>
   )
@@ -360,7 +361,7 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
                 <select
                   value={flooringType}
                   onChange={(e) => setFlooringType(e.target.value as FlooringType)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
+                  className="w-full px-3.5 py-3.5 rounded-xl border text-[16px] focus:outline-none focus:ring-2 focus:ring-teal-500"
                 >
                   {FLOORING_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                 </select>
@@ -592,7 +593,7 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
                   <select
                     value={finishType}
                     onChange={(e) => setFinishType(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
+                    className="w-full px-3.5 py-3.5 rounded-xl border text-[16px] focus:outline-none focus:ring-2 focus:ring-teal-500"
                   >
                     <option value="">Select finish…</option>
                     <option>Waterbase</option>
@@ -608,7 +609,7 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
                   <select
                     value={woodSpecies}
                     onChange={(e) => setWoodSpecies(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
+                    className="w-full px-3.5 py-3.5 rounded-xl border text-[16px] focus:outline-none focus:ring-2 focus:ring-teal-500"
                   >
                     <option value="">Select species…</option>
                     <option>Red Oak</option>
@@ -658,7 +659,8 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
                 <textarea
                   value={notes} onChange={(e) => setNotes(e.target.value)}
                   rows={3} placeholder="Any additional notes for the customer…"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none placeholder:text-gray-300"
+                  className="w-full px-3.5 py-3.5 rounded-xl border border-gray-200 text-[16px] focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none placeholder:text-gray-300"
+                  style={{ background: 'var(--bg)', color: 'var(--text)' }}
                 />
               </div>
               <Input label="Valid for (days)" value={validDays} onChange={setValidDays} type="number" placeholder="30" />
@@ -669,8 +671,8 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
         {/* Right — live totals (desktop only) */}
         <div className="hidden lg:block lg:col-span-1">
           <div className="sticky top-4 space-y-4">
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-              <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-4">Live Estimate</h2>
+            <div className="bg-white rounded-3xl p-5" style={{ boxShadow: 'var(--shadow-card)', border: '1px solid var(--border)' }}>
+              <h2 className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--text-2)' }}>Live Estimate</h2>
 
               {/* Section breakdown */}
               {measurementType === 'rooms' && activeSections.length > 0 && (
@@ -727,7 +729,8 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
 
             <button
               type="submit" disabled={saving}
-              className="w-full bg-teal-600 hover:bg-teal-700 disabled:bg-teal-300 text-white font-bold py-3.5 px-4 rounded-2xl text-sm transition-colors shadow-sm"
+              className="w-full text-white font-bold py-4 px-4 rounded-2xl text-sm transition-all active:scale-95 disabled:opacity-50"
+              style={{ background: 'linear-gradient(135deg, var(--primary) 0%, #0f766e 100%)', boxShadow: '0 4px 14px rgba(13,148,136,0.4)' }}
             >
               {saving ? 'Saving…' : 'Save Quote →'}
             </button>
@@ -735,11 +738,12 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
         </div>
       </div>
 
-      {/* Mobile save button — inline at bottom of form */}
-      <div className="lg:hidden">
+      {/* Mobile save button */}
+      <div className="lg:hidden pb-4">
         <button
           type="submit" disabled={saving}
-          className="w-full bg-teal-600 hover:bg-teal-700 disabled:bg-teal-300 text-white font-bold py-4 px-4 rounded-2xl text-sm transition-colors shadow-sm"
+          className="w-full text-white font-bold py-4 px-4 rounded-2xl text-base transition-all active:scale-95 disabled:opacity-50"
+          style={{ background: 'linear-gradient(135deg, var(--primary) 0%, #0f766e 100%)', boxShadow: '0 4px 14px rgba(13,148,136,0.4)' }}
         >
           {saving ? 'Saving…' : 'Save Quote →'}
         </button>
