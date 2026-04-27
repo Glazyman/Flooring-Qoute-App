@@ -1,6 +1,10 @@
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/server'
 
-export default function MarketingLayout({ children }: { children: React.ReactNode }) {
+export default async function MarketingLayout({ children }: { children: React.ReactNode }) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
   return (
     <div className="min-h-screen" style={{ background: '#ffffff' }}>
       {/* Nav */}
@@ -21,18 +25,29 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
             >
               Contact
             </Link>
-            <Link
-              href="/login"
-              className="text-sm font-semibold text-gray-700 hover:text-gray-900 px-4 py-2 rounded-xl hover:bg-gray-100 transition-colors"
-            >
-              Sign In
-            </Link>
-            <Link
-              href="/signup"
-              className="text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-xl transition-colors shadow-sm"
-            >
-              Get Started Free
-            </Link>
+            {user ? (
+              <Link
+                href="/dashboard"
+                className="text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-xl transition-colors shadow-sm"
+              >
+                Go to Dashboard →
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="text-sm font-semibold text-gray-700 hover:text-gray-900 px-4 py-2 rounded-xl hover:bg-gray-100 transition-colors"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/signup"
+                  className="text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-xl transition-colors shadow-sm"
+                >
+                  Get Started Free
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </nav>
@@ -52,8 +67,14 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
           </div>
           <div className="flex items-center gap-6 text-sm text-gray-400">
             <Link href="/contact" className="hover:text-gray-700 transition-colors">Contact</Link>
-            <Link href="/login" className="hover:text-gray-700 transition-colors">Sign In</Link>
-            <Link href="/signup" className="hover:text-gray-700 transition-colors">Sign Up</Link>
+            {user ? (
+              <Link href="/dashboard" className="hover:text-gray-700 transition-colors">Dashboard</Link>
+            ) : (
+              <>
+                <Link href="/login" className="hover:text-gray-700 transition-colors">Sign In</Link>
+                <Link href="/signup" className="hover:text-gray-700 transition-colors">Sign Up</Link>
+              </>
+            )}
           </div>
           <p className="text-sm text-gray-400">© {new Date().getFullYear()} FloorQuote Pro</p>
         </div>
