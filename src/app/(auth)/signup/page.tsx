@@ -30,6 +30,7 @@ export default function SignupPage() {
       email: form.email,
       password: form.password,
       options: {
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
         data: {
           full_name: form.fullName,
           company_name: form.companyName,
