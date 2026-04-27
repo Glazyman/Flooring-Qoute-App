@@ -68,5 +68,36 @@ export async function POST(request: NextRequest) {
     )
   }
 
+  // Auto-save customer to contacts (best-effort, never blocks quote creation)
+  try {
+    const customerEmail = quoteData.customer_email as string | null | undefined
+    const customerName = quoteData.customer_name as string
+
+    let existingQuery = supabase
+      .from('customers')
+      .select('id')
+      .eq('company_id', membership.company_id)
+
+    if (customerEmail) {
+      existingQuery = existingQuery.eq('email', customerEmail)
+    } else {
+      existingQuery = existingQuery.ilike('name', customerName)
+    }
+
+    const { data: existing } = await existingQuery.maybeSingle()
+
+    if (!existing) {
+      await supabase.from('customers').insert({
+        company_id: membership.company_id,
+        name: customerName,
+        phone: (quoteData.customer_phone as string | null) ?? null,
+        email: customerEmail ?? null,
+        address: (quoteData.job_address as string | null) ?? null,
+      })
+    }
+  } catch {
+    // Non-fatal — quote was already saved successfully
+  }
+
   return NextResponse.json({ id: quote.id })
 }
