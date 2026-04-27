@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
 
   const clientId = process.env.GOOGLE_CLIENT_ID!
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET!
-  const redirectUri = `${origin}/api/auth/gmail/callback`
+  const redirectUri = 'https://flooring-qoute-app.vercel.app/api/auth/gmail/callback'
 
   // Exchange code for tokens
   const tokenRes = await fetch('https://oauth2.googleapis.com/token', {

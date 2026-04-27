@@ -8,8 +8,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Microsoft OAuth not configured' }, { status: 503 })
   }
 
-  const origin = new URL(request.url).origin
-  const redirectUri = `${origin}/api/auth/outlook/callback`
+  const redirectUri = 'https://flooring-qoute-app.vercel.app/api/auth/outlook/callback'
 
   const params = new URLSearchParams({
     client_id: clientId,
