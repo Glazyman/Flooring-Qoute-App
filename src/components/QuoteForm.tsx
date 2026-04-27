@@ -65,16 +65,16 @@ function Input({
       <label className="block text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: 'var(--text-2)' }}>
         {label}{required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
-      <div className="flex items-center rounded-xl border focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-transparent overflow-hidden" style={{ background: 'var(--bg)', borderColor: 'var(--border)' }}>
-        {prefix && <span className="px-3.5 py-3.5 text-sm border-r font-semibold" style={{ color: 'var(--text-2)', borderColor: 'var(--border)', background: 'white' }}>{prefix}</span>}
+      <div className="flex items-center rounded-xl border focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-teal-400 overflow-hidden" style={{ background: 'white', borderColor: 'var(--border)' }}>
+        {prefix && <span className="px-3.5 py-3.5 text-sm border-r font-semibold" style={{ color: 'var(--text-2)', borderColor: 'var(--border)', background: '#f9f9fb' }}>{prefix}</span>}
         <input
           type={type} value={value} onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder} required={required}
           inputMode={inputMode}
           className="flex-1 px-3.5 py-3.5 text-[16px] placeholder:text-gray-300 focus:outline-none"
-          style={{ background: 'transparent', color: 'var(--text)' }}
+          style={{ background: 'white', color: 'var(--text)' }}
         />
-        {suffix && <span className="px-3.5 py-3.5 text-sm border-l font-semibold" style={{ color: 'var(--text-2)', borderColor: 'var(--border)', background: 'white' }}>{suffix}</span>}
+        {suffix && <span className="px-3.5 py-3.5 text-sm border-l font-semibold" style={{ color: 'var(--text-2)', borderColor: 'var(--border)', background: '#f9f9fb' }}>{suffix}</span>}
       </div>
     </div>
   )
@@ -361,7 +361,7 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
                 <select
                   value={flooringType}
                   onChange={(e) => setFlooringType(e.target.value as FlooringType)}
-                  className="w-full px-3.5 py-3.5 rounded-xl border text-[16px] focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="w-full px-3.5 py-3.5 rounded-xl border text-[16px] bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"
                 >
                   {FLOORING_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                 </select>
@@ -593,7 +593,7 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
                   <select
                     value={finishType}
                     onChange={(e) => setFinishType(e.target.value)}
-                    className="w-full px-3.5 py-3.5 rounded-xl border text-[16px] focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    className="w-full px-3.5 py-3.5 rounded-xl border text-[16px] bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"
                   >
                     <option value="">Select finish…</option>
                     <option>Waterbase</option>
@@ -609,7 +609,7 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
                   <select
                     value={woodSpecies}
                     onChange={(e) => setWoodSpecies(e.target.value)}
-                    className="w-full px-3.5 py-3.5 rounded-xl border text-[16px] focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    className="w-full px-3.5 py-3.5 rounded-xl border text-[16px] bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"
                   >
                     <option value="">Select species…</option>
                     <option>Red Oak</option>
@@ -659,8 +659,8 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
                 <textarea
                   value={notes} onChange={(e) => setNotes(e.target.value)}
                   rows={3} placeholder="Any additional notes for the customer…"
-                  className="w-full px-3.5 py-3.5 rounded-xl border border-gray-200 text-[16px] focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none placeholder:text-gray-300"
-                  style={{ background: 'var(--bg)', color: 'var(--text)' }}
+                  className="w-full px-3.5 py-3.5 rounded-xl border border-gray-200 text-[16px] focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none placeholder:text-gray-300 bg-white"
+                  style={{ color: 'var(--text)' }}
                 />
               </div>
               <Input label="Valid for (days)" value={validDays} onChange={setValidDays} type="number" placeholder="30" />
