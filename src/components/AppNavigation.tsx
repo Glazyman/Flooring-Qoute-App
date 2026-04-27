@@ -12,6 +12,7 @@ import {
   CreditCard,
   Menu,
   X,
+  Mail,
   ChevronRight,
 } from 'lucide-react'
 import { useState } from 'react'
@@ -28,6 +29,7 @@ const navItems: NavItem[] = [
   { href: '/quotes', label: 'All Quotes', icon: FileText },
   { href: '/quotes/new', label: 'New Quote', icon: PlusCircle, highlight: true },
   { href: '/settings', label: 'Settings', icon: Settings },
+  { href: '/contact', label: 'Contact', icon: Mail },
 ]
 
 function NavLink({ item, onClick }: { item: NavItem; onClick?: () => void }) {
