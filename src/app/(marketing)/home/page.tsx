@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import PricingSection from '@/components/PricingSection'
 
 const STEPS = [
   {
@@ -179,55 +180,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Pricing ── */}
-      <section className="max-w-5xl mx-auto px-5 mb-24">
-        <div className="text-center mb-14">
-          <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--primary)' }}>Pricing</p>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">Simple, honest pricing</h2>
-          <p className="text-lg text-gray-400 mt-3">Start free. Upgrade when you need more.</p>
-        </div>
-        <div className="grid sm:grid-cols-2 gap-5 max-w-2xl mx-auto">
-          {/* Free */}
-          <div className="bg-white rounded-3xl border border-gray-200 p-8" style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Starter</p>
-            <p className="text-4xl font-extrabold text-gray-900 mb-1">Free</p>
-            <p className="text-sm text-gray-400 mb-7">No card needed</p>
-            <ul className="space-y-3 mb-8">
-              {['3 quotes included', 'PDF export', 'AI blueprint reading', 'Mobile-friendly'].map(item => (
-                <li key={item} className="flex items-center gap-2.5 text-sm text-gray-700">
-                  <svg className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--primary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                  </svg>
-                  {item}
-                </li>
-              ))}
-            </ul>
-            <Link href="/signup" className="block text-center border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold py-3.5 rounded-2xl transition-colors text-sm">
-              Get Started Free
-            </Link>
-          </div>
-
-          {/* Pro */}
-          <div className="rounded-3xl p-8 text-white relative overflow-hidden" style={{ background: 'var(--primary)', boxShadow: '0 8px 30px rgba(13,148,136,0.3)' }}>
-            <div className="absolute top-5 right-5 bg-white/20 text-white text-xs font-bold px-2.5 py-1 rounded-full">Most Popular</div>
-            <p className="text-xs font-bold text-teal-200 uppercase tracking-widest mb-3">Pro</p>
-            <p className="text-4xl font-extrabold mb-1">$29<span className="text-xl font-normal text-teal-200">/mo</span></p>
-            <p className="text-sm text-teal-200 mb-7">Billed monthly</p>
-            <ul className="space-y-3 mb-8">
-              {['Unlimited quotes', 'Everything in Starter', 'Company branding', 'Priority support'].map(item => (
-                <li key={item} className="flex items-center gap-2.5 text-sm text-white">
-                  <svg className="w-4 h-4 flex-shrink-0 text-teal-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                  </svg>
-                  {item}
-                </li>
-              ))}
-            </ul>
-            <Link href="/signup" className="block text-center bg-white font-bold py-3.5 rounded-2xl text-sm transition-colors hover:bg-teal-50" style={{ color: 'var(--primary)' }}>
-              Start Free Trial
-            </Link>
-          </div>
-        </div>
-      </section>
+      <PricingSection />
 
       {/* ── CTA ── */}
       <section className="max-w-5xl mx-auto px-5 mb-24">

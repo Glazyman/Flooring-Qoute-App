@@ -17,10 +17,10 @@ export async function POST(request: NextRequest) {
 
   if (!membership) return NextResponse.json({ error: 'No company' }, { status: 404 })
 
-  // Check subscription or free trial limit
+  // Check subscription tier and enforce quote limits
   const { data: company } = await supabase
     .from('companies')
-    .select('subscription_status')
+    .select('subscription_status, stripe_price_id')
     .eq('id', membership.company_id)
     .single()
 
@@ -28,7 +28,22 @@ export async function POST(request: NextRequest) {
     company?.subscription_status === 'active' ||
     company?.subscription_status === 'trialing'
 
+  const starterPriceIds = new Set([
+    process.env.STRIPE_STARTER_MONTHLY_PRICE_ID,
+    process.env.STRIPE_STARTER_ANNUAL_PRICE_ID,
+  ].filter(Boolean))
+
+  const proPriceIds = new Set([
+    process.env.STRIPE_PRO_MONTHLY_PRICE_ID,
+    process.env.STRIPE_PRO_ANNUAL_PRICE_ID,
+  ].filter(Boolean))
+
+  const companyPriceId = company?.stripe_price_id ?? null
+  const isOnStarter = isSubscribed && companyPriceId !== null && starterPriceIds.has(companyPriceId)
+  const isOnPro = isSubscribed && companyPriceId !== null && proPriceIds.has(companyPriceId)
+
   if (!isSubscribed) {
+    // Free trial: 3 quotes total
     const { count } = await supabase
       .from('quotes')
       .select('*', { count: 'exact', head: true })
@@ -40,7 +55,26 @@ export async function POST(request: NextRequest) {
         { status: 403 }
       )
     }
+  } else if (isOnStarter) {
+    // Starter: 25 quotes per calendar month
+    const now = new Date()
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+
+    const { count } = await supabase
+      .from('quotes')
+      .select('*', { count: 'exact', head: true })
+      .eq('company_id', membership.company_id)
+      .gte('created_at', monthStart)
+
+    if ((count ?? 0) >= 25) {
+      return NextResponse.json(
+        { error: 'Monthly quote limit reached (25/month on Starter). Upgrade to Pro for unlimited quotes.', upgrade: true },
+        { status: 403 }
+      )
+    }
   }
+  // Pro or higher: unlimited — no check needed
+  void isOnPro
 
   const body = await request.json()
   const { rooms, ...quoteData } = body

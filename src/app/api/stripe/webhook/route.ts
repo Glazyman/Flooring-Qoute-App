@@ -36,9 +36,11 @@ export async function POST(request: NextRequest) {
       const session = event.data.object as Stripe.Checkout.Session
       if (session.mode === 'subscription' && session.subscription) {
         const sub = await stripe.subscriptions.retrieve(session.subscription as string)
+        const priceId = sub.items.data[0]?.price?.id ?? null
         await updateCompany(session.customer as string, {
           stripe_subscription_id: sub.id,
           subscription_status: sub.status,
+          stripe_price_id: priceId,
           current_period_end: sub.cancel_at
             ? new Date(sub.cancel_at * 1000).toISOString()
             : null,
@@ -50,9 +52,11 @@ export async function POST(request: NextRequest) {
     case 'customer.subscription.updated':
     case 'customer.subscription.created': {
       const sub = event.data.object as Stripe.Subscription
+      const priceId = sub.items.data[0]?.price?.id ?? null
       await updateCompany(sub.customer as string, {
         stripe_subscription_id: sub.id,
         subscription_status: sub.status,
+        stripe_price_id: priceId,
         current_period_end: sub.cancel_at
           ? new Date(sub.cancel_at * 1000).toISOString()
           : null,
@@ -65,6 +69,7 @@ export async function POST(request: NextRequest) {
       await updateCompany(sub.customer as string, {
         subscription_status: 'canceled',
         stripe_subscription_id: null,
+        stripe_price_id: null,
       })
       break
     }
