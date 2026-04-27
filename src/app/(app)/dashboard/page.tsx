@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { fmt } from '@/lib/calculations'
 
+export const dynamic = 'force-dynamic'
+
 function StatCard({
   label,
   value,
@@ -94,7 +96,7 @@ export default async function DashboardPage() {
 
   const { data: quotes } = await supabase
     .from('quotes')
-    .select('id, status, final_total, created_at, customer_name, project_address')
+    .select('id, status, final_total, created_at, customer_name, job_address')
     .eq('company_id', membership.company_id)
     .order('created_at', { ascending: false })
 
@@ -236,7 +238,7 @@ export default async function DashboardPage() {
                       <p className="text-sm font-medium text-gray-900 truncate">
                         {q.customer_name || 'Unnamed Customer'}
                       </p>
-                      <p className="text-xs text-gray-400 truncate">{q.project_address || date}</p>
+                      <p className="text-xs text-gray-400 truncate">{q.job_address || date}</p>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <span className="text-sm font-semibold text-gray-900">{fmt(q.final_total)}</span>

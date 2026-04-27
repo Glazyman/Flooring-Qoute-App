@@ -4,6 +4,8 @@ import Link from 'next/link'
 import QuotesTable from '@/components/QuotesTable'
 import type { Quote } from '@/lib/types'
 
+export const dynamic = 'force-dynamic'
+
 export default async function QuotesPage() {
   const supabase = await createClient()
   const {
