@@ -127,7 +127,12 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
   const [removalFee, setRemovalFee] = useState('')
   const [furnitureFee, setFurnitureFee] = useState('')
   const [stairsFee, setStairsFee] = useState('')
+  const [stairCount, setStairCount] = useState('')
   const [deliveryFee, setDeliveryFee] = useState('')
+  const [quarterRoundFee, setQuarterRoundFee] = useState('')
+  const [reducersFee, setReducersFee] = useState('')
+  const [finishType, setFinishType] = useState('')
+  const [woodSpecies, setWoodSpecies] = useState('')
   const [customFeeLabel, setCustomFeeLabel] = useState('')
   const [customFeeAmount, setCustomFeeAmount] = useState('')
 
@@ -157,6 +162,8 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
     furniture_fee: n(furnitureFee),
     stairs_fee: n(stairsFee),
     delivery_fee: n(deliveryFee),
+    quarter_round_fee: n(quarterRoundFee),
+    reducers_fee: n(reducersFee),
     custom_fee_amount: n(customFeeAmount),
     tax_enabled: taxEnabled,
     tax_pct: n(taxPct),
@@ -287,7 +294,12 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
       removal_fee: n(removalFee),
       furniture_fee: n(furnitureFee),
       stairs_fee: n(stairsFee),
+      stair_count: n(stairCount) || null,
       delivery_fee: n(deliveryFee),
+      quarter_round_fee: n(quarterRoundFee),
+      reducers_fee: n(reducersFee),
+      finish_type: finishType || null,
+      wood_species: woodSpecies || null,
       custom_fee_label: customFeeLabel || null,
       custom_fee_amount: n(customFeeAmount),
       tax_enabled: taxEnabled,
@@ -565,9 +577,53 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
             <div className="grid grid-cols-2 gap-4">
               <Input label="Removal Fee" value={removalFee} onChange={setRemovalFee} type="number" prefix="$" placeholder="0" decimal />
               <Input label="Furniture Moving" value={furnitureFee} onChange={setFurnitureFee} type="number" prefix="$" placeholder="0" decimal />
+              <Input label="Quarter Round / Moldings" value={quarterRoundFee} onChange={setQuarterRoundFee} type="number" prefix="$" placeholder="0" decimal />
+              <Input label="Reducers / Saddles" value={reducersFee} onChange={setReducersFee} type="number" prefix="$" placeholder="0" decimal />
               <Input label="Stairs Fee" value={stairsFee} onChange={setStairsFee} type="number" prefix="$" placeholder="0" decimal />
+              <Input label="# of Stairs" value={stairCount} onChange={setStairCount} type="number" placeholder="0" />
               <Input label="Delivery Fee" value={deliveryFee} onChange={setDeliveryFee} type="number" prefix="$" placeholder="0" decimal />
             </div>
+
+            {/* Hardwood-specific fields */}
+            {flooringType === 'hardwood' && (
+              <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Finish Type</label>
+                  <select
+                    value={finishType}
+                    onChange={(e) => setFinishType(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                  >
+                    <option value="">Select finish…</option>
+                    <option>Waterbase</option>
+                    <option>Oil-based Poly</option>
+                    <option>High Gloss</option>
+                    <option>Semi Gloss</option>
+                    <option>Satin</option>
+                    <option>Screen Coat</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Wood Species</label>
+                  <select
+                    value={woodSpecies}
+                    onChange={(e) => setWoodSpecies(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                  >
+                    <option value="">Select species…</option>
+                    <option>Red Oak</option>
+                    <option>White Oak</option>
+                    <option>Maple</option>
+                    <option>Hickory</option>
+                    <option>Pine</option>
+                    <option>Cherry</option>
+                    <option>Walnut</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+              </div>
+            )}
+
             <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-2 gap-4">
               <Input label="Custom Fee Label" value={customFeeLabel} onChange={setCustomFeeLabel} placeholder="Other" />
               <Input label="Custom Fee Amount" value={customFeeAmount} onChange={setCustomFeeAmount} type="number" prefix="$" placeholder="0" decimal />

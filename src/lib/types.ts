@@ -67,9 +67,14 @@ export interface Quote {
   removal_fee: number
   furniture_fee: number
   stairs_fee: number
+  stair_count: number | null
   delivery_fee: number
+  quarter_round_fee: number
+  reducers_fee: number
   custom_fee_label: string | null
   custom_fee_amount: number
+  finish_type: string | null
+  wood_species: string | null
   tax_enabled: boolean
   tax_pct: number
   markup_pct: number

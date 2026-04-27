@@ -7,6 +7,8 @@ export interface QuoteInputs {
   furniture_fee: number
   stairs_fee: number
   delivery_fee: number
+  quarter_round_fee: number
+  reducers_fee: number
   custom_fee_amount: number
   tax_enabled: boolean
   tax_pct: number
@@ -36,6 +38,8 @@ export function calculateQuote(inputs: QuoteInputs): QuoteCalculations {
     (inputs.furniture_fee || 0) +
     (inputs.stairs_fee || 0) +
     (inputs.delivery_fee || 0) +
+    (inputs.quarter_round_fee || 0) +
+    (inputs.reducers_fee || 0) +
     (inputs.custom_fee_amount || 0)
   const subtotal = material_total + labor_total + extras_total
   const tax_amount = inputs.tax_enabled ? subtotal * (inputs.tax_pct / 100) : 0

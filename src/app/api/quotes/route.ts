@@ -57,9 +57,10 @@ export async function POST(request: NextRequest) {
 
   if (rooms && rooms.length > 0) {
     await supabase.from('quote_rooms').insert(
-      rooms.map((r: { name: string | null; length: number; width: number; sqft: number }) => ({
+      rooms.map((r: { name: string | null; section: string | null; length: number; width: number; sqft: number }) => ({
         quote_id: quote.id,
         name: r.name,
+        section: r.section,
         length: r.length,
         width: r.width,
         sqft: r.sqft,

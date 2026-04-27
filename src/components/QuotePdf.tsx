@@ -277,6 +277,24 @@ export function QuotePdfDocument({ quote: q, rooms, settings }: QuotePdfDocument
                 {q.flooring_type.charAt(0).toUpperCase() + q.flooring_type.slice(1)}
               </Text>
             </View>
+            {q.wood_species && (
+              <View style={styles.infoItem}>
+                <Text style={styles.infoLabel}>Wood Species</Text>
+                <Text style={styles.infoValue}>{q.wood_species}</Text>
+              </View>
+            )}
+            {q.finish_type && (
+              <View style={styles.infoItem}>
+                <Text style={styles.infoLabel}>Finish</Text>
+                <Text style={styles.infoValue}>{q.finish_type}</Text>
+              </View>
+            )}
+            {q.stair_count != null && q.stair_count > 0 && (
+              <View style={styles.infoItem}>
+                <Text style={styles.infoLabel}>Stairs</Text>
+                <Text style={styles.infoValue}>{q.stair_count} stairs</Text>
+              </View>
+            )}
           </View>
         </View>
 
@@ -345,8 +363,22 @@ export function QuotePdfDocument({ quote: q, rooms, settings }: QuotePdfDocument
           )}
           {q.stairs_fee > 0 && (
             <View style={styles.lineRow}>
-              <Text style={styles.lineLabel}>Stairs Fee</Text>
+              <Text style={styles.lineLabel}>
+                Stairs{q.stair_count ? ` (${q.stair_count})` : ''}
+              </Text>
               <Text style={styles.lineValue}>{fmt(q.stairs_fee)}</Text>
+            </View>
+          )}
+          {q.quarter_round_fee > 0 && (
+            <View style={styles.lineRow}>
+              <Text style={styles.lineLabel}>Quarter Round / Moldings</Text>
+              <Text style={styles.lineValue}>{fmt(q.quarter_round_fee)}</Text>
+            </View>
+          )}
+          {q.reducers_fee > 0 && (
+            <View style={styles.lineRow}>
+              <Text style={styles.lineLabel}>Reducers / Saddles</Text>
+              <Text style={styles.lineValue}>{fmt(q.reducers_fee)}</Text>
             </View>
           )}
           {q.delivery_fee > 0 && (
