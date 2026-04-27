@@ -50,8 +50,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (!isSubscribed) {
     const used = countResult.count ?? 0
     freeQuotesRemaining = Math.max(0, 3 - used)
-    if (used >= 3) redirect('/billing/setup')
+    // Don't blanket-redirect here — let the user see their dashboard and existing quotes.
+    // Only /quotes/new enforces the limit.
   }
+
+  const trialExhausted = !isSubscribed && (countResult.count ?? 0) >= 3
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--bg)' }}>
@@ -59,6 +62,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         companyName={company.name}
         logoUrl={settingsResult.data?.logo_url ?? null}
         website={settingsResult.data?.website ?? null}
+        trialExhausted={trialExhausted}
       />
       <main className="lg:ml-60 pt-14 lg:pt-0">
         {freeQuotesRemaining !== null && (

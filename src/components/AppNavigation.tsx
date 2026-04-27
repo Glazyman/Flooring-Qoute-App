@@ -32,7 +32,7 @@ const navItems: NavItem[] = [
   { href: '/contact', label: 'Contact', icon: Mail },
 ]
 
-function NavLink({ item, onClick }: { item: NavItem; onClick?: () => void }) {
+function NavLink({ item, onClick, trialExhausted }: { item: NavItem; onClick?: () => void; trialExhausted?: boolean }) {
   const pathname = usePathname()
   const isActive =
     item.href === '/quotes/new'
@@ -43,15 +43,19 @@ function NavLink({ item, onClick }: { item: NavItem; onClick?: () => void }) {
           item.href !== '/quotes/new')
 
   if (item.highlight) {
+    const locked = trialExhausted
     return (
       <Link
-        href={item.href}
+        href={locked ? '/billing/setup' : item.href}
         onClick={onClick}
         className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm"
       >
         <item.icon className="w-4 h-4 flex-shrink-0" />
         {item.label}
-        <ChevronRight className="w-3.5 h-3.5 ml-auto opacity-60" />
+        {locked
+          ? <span className="ml-auto text-xs bg-white/20 px-1.5 py-0.5 rounded-full">Upgrade</span>
+          : <ChevronRight className="w-3.5 h-3.5 ml-auto opacity-60" />
+        }
       </Link>
     )
   }
@@ -76,10 +80,12 @@ export default function AppNavigation({
   companyName,
   logoUrl,
   website,
+  trialExhausted = false,
 }: {
   companyName: string
   logoUrl?: string | null
   website?: string | null
+  trialExhausted?: boolean
 }) {
   const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -122,7 +128,7 @@ export default function AppNavigation({
       {/* Nav */}
       <nav className="flex-1 space-y-1">
         {navItems.map((item) => (
-          <NavLink key={item.href} item={item} onClick={() => setMobileOpen(false)} />
+          <NavLink key={item.href} item={item} onClick={() => setMobileOpen(false)} trialExhausted={trialExhausted} />
         ))}
       </nav>
 

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 export default function BillingSetupPage() {
   const router = useRouter()
@@ -65,14 +66,14 @@ export default function BillingSetupPage() {
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
           <div className="text-center mb-6">
-            <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <svg className="w-7 h-7 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+            <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
-            <h2 className="text-xl font-bold text-gray-900 mb-1.5">Activate your subscription</h2>
-            <p className="text-sm text-gray-400">
-              You&apos;ve used your 3 free quotes. Subscribe to create unlimited estimates.
+            <h2 className="text-xl font-bold text-gray-900 mb-1.5">You&apos;ve used all 3 free quotes</h2>
+            <p className="text-sm text-gray-500 leading-relaxed">
+              Upgrade to Pro to create unlimited quotes, download PDFs, and keep winning jobs.
             </p>
           </div>
 
@@ -121,11 +122,15 @@ export default function BillingSetupPage() {
             {portalLoading ? 'Loading…' : 'Manage existing subscription'}
           </button>
 
-          <p className="text-center">
-            <button onClick={handleLogout} className="text-gray-300 hover:text-gray-500 text-xs transition-colors">
+          <div className="flex items-center justify-center gap-4">
+            <Link href="/dashboard" className="text-gray-400 hover:text-gray-600 text-xs transition-colors">
+              ← Back to dashboard
+            </Link>
+            <span className="text-gray-200">·</span>
+            <button onClick={handleLogout} className="text-gray-400 hover:text-gray-600 text-xs transition-colors">
               Sign out
             </button>
-          </p>
+          </div>
         </div>
       </div>
     </div>

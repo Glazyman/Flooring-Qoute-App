@@ -19,6 +19,26 @@ export default async function NewQuotePage() {
 
   if (!membership) redirect('/billing/setup')
 
+  // Enforce free trial limit before loading the form
+  const { data: company } = await supabase
+    .from('companies')
+    .select('subscription_status')
+    .eq('id', membership.company_id)
+    .single()
+
+  const isSubscribed =
+    company?.subscription_status === 'active' ||
+    company?.subscription_status === 'trialing'
+
+  if (!isSubscribed) {
+    const { count } = await supabase
+      .from('quotes')
+      .select('*', { count: 'exact', head: true })
+      .eq('company_id', membership.company_id)
+
+    if ((count ?? 0) >= 3) redirect('/billing/setup')
+  }
+
   const { data: settings } = await supabase
     .from('company_settings')
     .select('*')
