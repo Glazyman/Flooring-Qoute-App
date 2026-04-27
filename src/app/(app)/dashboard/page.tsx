@@ -50,9 +50,9 @@ export default async function DashboardPage() {
           { label: 'Accepted',        value: String(accepted.length) },
           { label: 'Revenue Won',     value: fmt(revenue) },
         ].map(({ label, value }) => (
-          <div key={label} className="bg-white rounded-3xl px-5 py-4 overflow-hidden" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
+          <div key={label} className="bg-white rounded-3xl px-5 py-5 overflow-hidden min-w-0" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
             <p className="text-[11px] font-semibold uppercase tracking-widest mb-1.5 truncate" style={{ color: 'var(--text-3)' }}>{label}</p>
-            <p className="text-2xl font-extrabold tracking-tight leading-tight break-all" style={{ color: 'var(--text)' }}>{value}</p>
+            <p className="text-xl font-extrabold tracking-tight leading-tight truncate" style={{ color: 'var(--text)' }}>{value}</p>
           </div>
         ))}
       </div>

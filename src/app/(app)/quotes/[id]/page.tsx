@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { fmt } from '@/lib/calculations'
 import type { Quote, QuoteRoom } from '@/lib/types'
+import DuplicateButton from '@/components/DuplicateButton'
 
 const STATUS_CONFIG: Record<string, { bg: string; text: string; label: string }> = {
   accepted: { bg: '#f0fdf4', text: '#16a34a', label: 'Accepted' },
@@ -75,17 +76,43 @@ export default async function QuoteDetailPage({
             </span>
           </div>
         </div>
-        <a
-          href={`/api/quotes/${id}/pdf`}
-          target="_blank"
-          className="flex items-center gap-2 text-white font-semibold px-4 py-2.5 rounded-2xl text-sm flex-shrink-0 active:scale-95"
-          style={{ background: 'var(--primary)', boxShadow: '0 2px 8px rgba(13,148,136,0.25)' }}
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-          Download PDF
-        </a>
+        <div className="flex items-center gap-2 flex-wrap justify-end">
+          <DuplicateButton quoteId={id} />
+          {q.customer_email ? (
+            <a
+              href={`mailto:${q.customer_email}?subject=${encodeURIComponent(`Your FloorQuote Pro Estimate – ${q.customer_name}`)}&body=${encodeURIComponent(`Hi ${q.customer_name},\n\nPlease find your flooring estimate attached.\n\nEstimate Total: ${fmt(q.final_total)}\nDeposit Required: ${fmt(q.deposit_amount)}\n\nThis estimate is valid for ${q.valid_days} days. Feel free to reach out with any questions.\n\nThank you for choosing us!`)}`}
+              className="flex items-center gap-2 text-white font-semibold px-4 py-2.5 rounded-2xl text-sm flex-shrink-0 active:scale-95"
+              style={{ background: 'var(--primary)', boxShadow: '0 2px 8px rgba(13,148,136,0.25)' }}
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Email Customer
+            </a>
+          ) : (
+            <span
+              className="flex items-center gap-2 font-semibold px-4 py-2.5 rounded-2xl text-sm flex-shrink-0 cursor-not-allowed"
+              style={{ background: 'var(--border)', color: 'var(--text-3)' }}
+              title="No email on file"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              No Email on File
+            </span>
+          )}
+          <a
+            href={`/api/quotes/${id}/pdf`}
+            target="_blank"
+            className="flex items-center gap-2 text-white font-semibold px-4 py-2.5 rounded-2xl text-sm flex-shrink-0 active:scale-95"
+            style={{ background: 'var(--primary)', boxShadow: '0 2px 8px rgba(13,148,136,0.25)' }}
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Download PDF
+          </a>
+        </div>
       </div>
 
       {/* Customer & Job */}
