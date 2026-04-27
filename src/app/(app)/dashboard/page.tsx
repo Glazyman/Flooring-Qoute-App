@@ -68,31 +68,22 @@ export default async function DashboardPage() {
         </Link>
       </div>
 
-      {/* Revenue hero card */}
-      <div
-        className="rounded-3xl p-6 text-white relative overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, #0d9488 0%, #0f766e 50%, #065f46 100%)', boxShadow: '0 8px 32px rgba(13,148,136,0.3)' }}
-      >
-        <div className="absolute top-0 right-0 w-48 h-48 rounded-full opacity-10" style={{ background: 'white', transform: 'translate(30%, -30%)' }} />
-        <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full opacity-10" style={{ background: 'white', transform: 'translate(-30%, 30%)' }} />
-        <div className="relative">
-          <p className="text-sm font-semibold text-teal-200 mb-1">Total Pipeline</p>
-          <p className="text-4xl font-extrabold tracking-tight mb-1">{fmt(totalRevenue)}</p>
-          <p className="text-sm text-teal-200">{total} quote{total !== 1 ? 's' : ''} · {winRate}% win rate</p>
-          <div className="flex gap-3 mt-4">
-            <div className="bg-white/15 rounded-2xl px-3 py-2 flex-1 text-center">
-              <p className="text-xl font-bold">{accepted.length}</p>
-              <p className="text-xs text-teal-200">Accepted</p>
+      {/* Stats hero card */}
+      <div className="bg-white rounded-3xl p-5" style={{ boxShadow: 'var(--shadow-card)', border: '1px solid var(--border)' }}>
+        <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: 'var(--text-3)' }}>Total Pipeline</p>
+        <p className="text-4xl font-extrabold tracking-tight mb-0.5" style={{ color: 'var(--text)' }}>{fmt(totalRevenue)}</p>
+        <p className="text-sm mb-5" style={{ color: 'var(--text-2)' }}>{total} quote{total !== 1 ? 's' : ''} · {winRate}% win rate</p>
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { label: 'Accepted', value: accepted.length, color: '#16a34a', bg: '#f0fdf4' },
+            { label: 'Pending',  value: pending.length,  color: '#d97706', bg: '#fffbeb' },
+            { label: 'Lost',     value: lost.length,     color: '#ff3b30', bg: '#fff1f0' },
+          ].map(({ label, value, color, bg }) => (
+            <div key={label} className="rounded-2xl px-3 py-3 text-center" style={{ background: bg }}>
+              <p className="text-2xl font-bold" style={{ color }}>{value}</p>
+              <p className="text-xs font-medium mt-0.5" style={{ color }}>{label}</p>
             </div>
-            <div className="bg-white/15 rounded-2xl px-3 py-2 flex-1 text-center">
-              <p className="text-xl font-bold">{pending.length}</p>
-              <p className="text-xs text-teal-200">Pending</p>
-            </div>
-            <div className="bg-white/15 rounded-2xl px-3 py-2 flex-1 text-center">
-              <p className="text-xl font-bold">{lost.length}</p>
-              <p className="text-xs text-teal-200">Lost</p>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
 
