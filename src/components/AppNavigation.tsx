@@ -140,6 +140,13 @@ export default function AppNavigation({
           <CreditCard className="w-4 h-4 flex-shrink-0" />
           Billing
         </button>
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all hover:bg-red-50 active:scale-95 text-red-400 hover:text-red-600"
+        >
+          <LogOut className="w-4 h-4 flex-shrink-0" />
+          Sign Out
+        </button>
       </div>
 
       {/* Bottom */}
@@ -158,13 +165,6 @@ export default function AppNavigation({
           </Link>
         )}
 
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all hover:bg-red-50 active:scale-95 text-red-400 hover:text-red-600"
-        >
-          <LogOut className="w-4 h-4 flex-shrink-0" />
-          Sign Out
-        </button>
 
         <div className="flex items-center gap-3 px-3 py-3 rounded-2xl bg-gray-50 border border-gray-100">
           <div
