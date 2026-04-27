@@ -43,19 +43,26 @@ export default async function DashboardPage() {
       </div>
 
       {/* 4 stat tiles */}
-      <div className="grid grid-cols-2 gap-3">
-        {[
-          { label: 'Total Quotes',    value: String(total) },
-          { label: 'Pending',         value: String(pending.length) },
-          { label: 'Accepted',        value: String(accepted.length) },
-          { label: 'Revenue Won',     value: fmt(revenue) },
-        ].map(({ label, value }) => (
-          <div key={label} className="bg-white rounded-3xl px-5 py-5 overflow-hidden min-w-0" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
-            <p className="text-[11px] font-semibold uppercase tracking-widest mb-1.5 truncate" style={{ color: 'var(--text-3)' }}>{label}</p>
-            <p className="text-xl font-extrabold tracking-tight leading-tight truncate" style={{ color: 'var(--text)' }}>{value}</p>
+      {(() => {
+        const avgValue = total > 0 ? revenue / total : 0
+        const tiles = [
+          { label: 'Total Quotes',    value: String(total),           sub: null },
+          { label: 'Accepted',        value: String(accepted.length), sub: `${pending.length} pending` },
+          { label: 'Revenue Won',     value: fmt(revenue),            sub: null },
+          { label: 'Avg Quote Value', value: fmt(avgValue),           sub: null },
+        ]
+        return (
+          <div className="grid grid-cols-2 gap-3">
+            {tiles.map(({ label, value, sub }) => (
+              <div key={label} className="bg-white rounded-3xl px-5 py-5 overflow-hidden min-w-0" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
+                <p className="text-[11px] font-semibold uppercase tracking-widest mb-1.5 truncate" style={{ color: 'var(--text-3)' }}>{label}</p>
+                <p className="text-xl font-extrabold tracking-tight leading-tight truncate" style={{ color: 'var(--text)' }}>{value}</p>
+                {sub && <p className="text-[11px] mt-1 font-medium" style={{ color: 'var(--text-3)' }}>{sub}</p>}
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        )
+      })()}
 
       {/* Recent Quotes */}
       <div className="bg-white rounded-3xl overflow-hidden" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>

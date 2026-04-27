@@ -209,8 +209,8 @@ export default function AppNavigation({
           <Menu className="w-5 h-5" />
         </button>
         <div className="flex items-center gap-2.5">
-          <Image src="/logo.png" alt="FloorQuote Pro" width={30} height={30} className="rounded-xl" />
-          <span className="font-extrabold text-gray-900 text-[15px] tracking-tight">FloorQuote Pro</span>
+          <Image src="/logo.png" alt="FloorQuote Pro" width={36} height={36} className="rounded-xl" />
+          <span className="font-extrabold text-gray-900 text-base tracking-tight">FloorQuote Pro</span>
         </div>
         <div className="w-9" />
       </header>
