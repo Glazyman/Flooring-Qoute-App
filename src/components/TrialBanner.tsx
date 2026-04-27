@@ -4,33 +4,28 @@ export default function TrialBanner({ remaining }: { remaining: number }) {
   const isOut = remaining === 0
   const isLast = remaining === 1
 
-  const bg = isOut
-    ? 'rgba(239,68,68,0.12)'
-    : isLast
-    ? 'rgba(245,158,11,0.12)'
-    : 'rgba(91,114,248,0.12)'
-
-  const color = isOut ? '#ef4444' : isLast ? '#f59e0b' : '#818cf8'
-  const border = isOut ? 'rgba(239,68,68,0.25)' : isLast ? 'rgba(245,158,11,0.25)' : 'rgba(91,114,248,0.25)'
-
   return (
     <div
-      className="px-5 py-3 text-sm flex items-center justify-between gap-4"
-      style={{ background: bg, borderBottom: `1px solid ${border}` }}
+      className={`px-5 py-3 text-sm flex items-center justify-between gap-4 ${
+        isOut
+          ? 'bg-red-500 text-white'
+          : isLast
+          ? 'bg-amber-500 text-white'
+          : 'bg-blue-600 text-white'
+      }`}
     >
-      <p className="font-medium text-sm" style={{ color }}>
+      <p className="font-medium text-sm">
         {isOut
           ? "You've used all 3 free quotes."
           : `Free trial: ${remaining} quote${remaining !== 1 ? 's' : ''} remaining.`}
         {' '}
-        <span style={{ color, opacity: 0.7 }}>Subscribe to unlock unlimited.</span>
+        <span className="opacity-80">Subscribe to unlock unlimited quotes.</span>
       </p>
       <Link
         href="/billing/setup"
-        className="flex-shrink-0 font-bold px-3 py-1.5 rounded-xl text-xs transition-all whitespace-nowrap text-white"
-        style={{ background: 'var(--primary-gradient)' }}
+        className="flex-shrink-0 bg-white/20 hover:bg-white/30 font-semibold px-3 py-1.5 rounded-xl text-xs transition-colors whitespace-nowrap"
       >
-        Upgrade →
+        Subscribe — $1/mo →
       </Link>
     </div>
   )

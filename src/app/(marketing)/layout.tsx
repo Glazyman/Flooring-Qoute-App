@@ -6,9 +6,9 @@ export default async function MarketingLayout({ children }: { children: React.Re
   const { data: { user } } = await supabase.auth.getUser()
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--bg)' }}>
+    <div className="min-h-screen" style={{ background: '#ffffff' }}>
       {/* Nav */}
-      <nav className="sticky top-0 z-50 backdrop-blur-md" style={{ background: 'rgba(12,15,30,0.85)', borderBottom: '1px solid var(--border)' }}>
+      <nav className="sticky top-0 z-50 border-b border-gray-100 bg-white/90 backdrop-blur-md">
         <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="w-8 h-8 bg-teal-600 rounded-xl flex items-center justify-center">
@@ -55,7 +55,7 @@ export default async function MarketingLayout({ children }: { children: React.Re
       {children}
 
       {/* Footer */}
-      <footer className="mt-24" style={{ borderTop: '1px solid var(--border)' }}>
+      <footer className="border-t border-gray-100 mt-24">
         <div className="max-w-6xl mx-auto px-5 py-10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 bg-teal-600 rounded-lg flex items-center justify-center">
