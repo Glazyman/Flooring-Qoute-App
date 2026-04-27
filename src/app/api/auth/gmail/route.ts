@@ -1,15 +1,15 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 export const runtime = 'nodejs'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const clientId = process.env.GOOGLE_CLIENT_ID
   if (!clientId) {
     return NextResponse.json({ error: 'Google OAuth not configured' }, { status: 503 })
   }
 
-  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://flooring-qoute-app.vercel.app').replace(/\/$/, '')
-  const redirectUri = `${appUrl}/api/auth/gmail/callback`
+  const origin = new URL(request.url).origin
+  const redirectUri = `${origin}/api/auth/gmail/callback`
 
   const params = new URLSearchParams({
     client_id: clientId,

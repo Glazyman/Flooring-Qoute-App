@@ -8,7 +8,8 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get('code')
   const error = searchParams.get('error')
 
-  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://flooring-qoute-app.vercel.app').replace(/\/$/, '')
+  const origin = new URL(request.url).origin
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || origin).replace(/\/$/, '')
 
   if (error || !code) {
     return NextResponse.redirect(`${appUrl}/settings?error=gmail_denied`)
@@ -16,7 +17,7 @@ export async function GET(request: NextRequest) {
 
   const clientId = process.env.GOOGLE_CLIENT_ID!
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET!
-  const redirectUri = `${appUrl}/api/auth/gmail/callback`
+  const redirectUri = `${origin}/api/auth/gmail/callback`
 
   // Exchange code for tokens
   const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
