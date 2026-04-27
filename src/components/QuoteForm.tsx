@@ -662,26 +662,15 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
         </div>
       </div>
 
-      {/* Mobile sticky bottom bar */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-gray-100 shadow-lg px-4 py-3 flex items-center gap-3">
-        <div className="flex-1">
-          <p className="text-xs text-gray-400">
-            {calcs.adjusted_sqft > 0
-              ? `${calcs.adjusted_sqft.toFixed(0)} sqft (w/ ${n(wastePct)}% waste)`
-              : 'Enter measurements'}
-          </p>
-          <p className="text-xl font-bold text-gray-900">{fmt(calcs.final_total)}</p>
-        </div>
+      {/* Mobile save button — inline at bottom of form */}
+      <div className="lg:hidden">
         <button
           type="submit" disabled={saving}
-          className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-bold py-3 px-6 rounded-2xl text-sm transition-colors shadow-sm flex-shrink-0"
+          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-bold py-4 px-4 rounded-2xl text-sm transition-colors shadow-sm"
         >
-          {saving ? 'Saving…' : 'Save →'}
+          {saving ? 'Saving…' : 'Save Quote →'}
         </button>
       </div>
-
-      {/* Mobile bottom padding so content isn't hidden behind sticky bar */}
-      <div className="lg:hidden h-20" />
     </form>
   )
 }
