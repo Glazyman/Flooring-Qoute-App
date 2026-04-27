@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import type { CompanySettings } from '@/lib/types'
 
 function Input({
@@ -65,6 +66,7 @@ function Card({ title, description, children }: { title: string; description?: s
 }
 
 export default function SettingsForm({ settings: initial }: { settings: CompanySettings }) {
+  const router = useRouter()
   const [form, setForm] = useState({
     company_name: initial.company_name || '',
     phone: initial.phone || '',
@@ -106,6 +108,7 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
 
     if (res.ok) {
       setSuccess(true)
+      router.refresh() // Refresh server components so nav updates instantly
     } else {
       const data = await res.json()
       setError(data.error || 'Failed to save')

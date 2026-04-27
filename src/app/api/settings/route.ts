@@ -40,5 +40,13 @@ export async function PUT(request: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
+  // Keep companies.name in sync so the sidebar logo reflects the updated name
+  if (body.company_name) {
+    await supabase
+      .from('companies')
+      .update({ name: body.company_name })
+      .eq('id', membership.company_id)
+  }
+
   return NextResponse.json({ ok: true })
 }
