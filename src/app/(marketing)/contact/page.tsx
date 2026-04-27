@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 
-const FORMSPREE_ID = process.env.NEXT_PUBLIC_FORMSPREE_ID
+const FORMSPREE_ID = process.env.NEXT_PUBLIC_FORMSPREE_ID || 'meevwpea'
 
 export default function ContactPage() {
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle')
