@@ -65,7 +65,7 @@ function Input({
       <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
         {label}{required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
-      <div className="flex items-center rounded-xl border border-gray-200 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent bg-white overflow-hidden">
+      <div className="flex items-center rounded-xl border border-gray-200 focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-transparent bg-white overflow-hidden">
         {prefix && <span className="px-3 py-3 bg-gray-50 text-gray-400 text-sm border-r border-gray-200 font-medium">{prefix}</span>}
         <input
           type={type} value={value} onChange={(e) => onChange(e.target.value)}
@@ -98,7 +98,7 @@ function LineItem({ label, value, bold, muted }: { label: string; value: number;
 }
 
 const SECTION_COLORS: Record<Section, string> = {
-  Upstairs: 'bg-blue-50 text-blue-700 border-blue-200',
+  Upstairs: 'bg-teal-50 text-teal-700 border-teal-200',
   Downstairs: 'bg-purple-50 text-purple-700 border-purple-200',
   Kitchen: 'bg-orange-50 text-orange-700 border-orange-200',
   Foyer: 'bg-green-50 text-green-700 border-green-200',
@@ -360,7 +360,7 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
                 <select
                   value={flooringType}
                   onChange={(e) => setFlooringType(e.target.value as FlooringType)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
                 >
                   {FLOORING_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                 </select>
@@ -375,7 +375,7 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
                 {(['rooms', 'manual'] as MeasurementType[]).map(m => (
                   <button key={m} type="button" onClick={() => setMeasurementType(m)}
                     className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
-                      measurementType === m ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                      measurementType === m ? 'bg-white text-teal-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
                     }`}
                   >
                     {m === 'rooms' ? 'By Rooms' : 'Total SqFt'}
@@ -389,18 +389,18 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
             ) : (
               <div className="space-y-4">
                 {/* Blueprint upload */}
-                <div className={`border-2 border-dashed rounded-2xl p-4 text-center transition-colors ${blueprintLoading ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50/50'}`}>
+                <div className={`border-2 border-dashed rounded-2xl p-4 text-center transition-colors ${blueprintLoading ? 'border-teal-300 bg-teal-50' : 'border-gray-200 hover:border-teal-300 hover:bg-teal-50/50'}`}>
                   <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleBlueprintUpload} />
                   {blueprintLoading ? (
                     <div className="flex flex-col items-center gap-2 py-2">
-                      <Loader2 className="w-6 h-6 text-blue-500 animate-spin" />
-                      <p className="text-sm font-medium text-blue-700">Analyzing with AI…</p>
-                      <p className="text-xs text-blue-500">~10–20 seconds per image</p>
+                      <Loader2 className="w-6 h-6 text-teal-500 animate-spin" />
+                      <p className="text-sm font-medium text-teal-700">Analyzing with AI…</p>
+                      <p className="text-xs text-teal-500">~10–20 seconds per image</p>
                     </div>
                   ) : (
                     <button type="button" onClick={() => fileRef.current?.click()} className="flex flex-col items-center gap-2 w-full py-2">
-                      <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-                        <Upload className="w-5 h-5 text-blue-600" />
+                      <div className="w-10 h-10 bg-teal-100 rounded-xl flex items-center justify-center">
+                        <Upload className="w-5 h-5 text-teal-600" />
                       </div>
                       <div>
                         <p className="text-sm font-semibold text-gray-900">Upload Blueprint or Measurement Sheet</p>
@@ -458,12 +458,12 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
                                     value={room.name}
                                     onChange={(e) => updateRoom(room.id, 'name', e.target.value)}
                                     placeholder={`Room ${idx + 1}`}
-                                    className="flex-1 min-w-0 px-2.5 py-2 rounded-lg border border-gray-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                                    className="flex-1 min-w-0 px-2.5 py-2 rounded-lg border border-gray-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
                                   />
                                   <select
                                     value={room.section}
                                     onChange={(e) => updateRoom(room.id, 'section', e.target.value)}
-                                    className="text-xs border border-gray-200 rounded-lg px-2 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-600 flex-shrink-0"
+                                    className="text-xs border border-gray-200 rounded-lg px-2 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-600 flex-shrink-0"
                                   >
                                     {SECTIONS.map(s => <option key={s} value={s}>{s}</option>)}
                                   </select>
@@ -483,7 +483,7 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
                                     <div key={dim}>
                                       <label className="block text-xs text-gray-400 mb-1 capitalize">{dim}</label>
                                       <div className="flex gap-1">
-                                        <div className="flex items-center flex-1 rounded-lg border border-gray-200 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-blue-500">
+                                        <div className="flex items-center flex-1 rounded-lg border border-gray-200 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-teal-500">
                                           <input
                                             type="number"
                                             inputMode="numeric"
@@ -494,7 +494,7 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
                                           />
                                           <span className="pr-2 text-xs text-gray-400 font-medium">ft</span>
                                         </div>
-                                        <div className="flex items-center w-14 rounded-lg border border-gray-200 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-blue-500">
+                                        <div className="flex items-center w-14 rounded-lg border border-gray-200 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-teal-500">
                                           <input
                                             type="number"
                                             inputMode="numeric"
@@ -523,7 +523,7 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
                             <button
                               type="button"
                               onClick={() => addRoom(section)}
-                              className="flex items-center gap-1.5 text-xs text-blue-600 hover:text-blue-700 font-semibold px-1"
+                              className="flex items-center gap-1.5 text-xs text-teal-600 hover:text-teal-700 font-semibold px-1"
                             >
                               <PlusCircle className="w-3.5 h-3.5" />
                               Add room to {section}
@@ -592,7 +592,7 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
                   <select
                     value={finishType}
                     onChange={(e) => setFinishType(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
                   >
                     <option value="">Select finish…</option>
                     <option>Waterbase</option>
@@ -608,7 +608,7 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
                   <select
                     value={woodSpecies}
                     onChange={(e) => setWoodSpecies(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
                   >
                     <option value="">Select species…</option>
                     <option>Red Oak</option>
@@ -634,7 +634,7 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
           <Card title="Tax">
             <div className="flex items-center gap-3 mb-4">
               <button type="button" onClick={() => setTaxEnabled(v => !v)}
-                className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${taxEnabled ? 'bg-blue-600' : 'bg-gray-200'}`}>
+                className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${taxEnabled ? 'bg-teal-600' : 'bg-gray-200'}`}>
                 <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${taxEnabled ? 'translate-x-5' : ''}`} />
               </button>
               <span className="text-sm font-medium text-gray-700">Apply sales tax</span>
@@ -658,7 +658,7 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
                 <textarea
                   value={notes} onChange={(e) => setNotes(e.target.value)}
                   rows={3} placeholder="Any additional notes for the customer…"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none placeholder:text-gray-300"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none placeholder:text-gray-300"
                 />
               </div>
               <Input label="Valid for (days)" value={validDays} onChange={setValidDays} type="number" placeholder="30" />
@@ -713,10 +713,10 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
                 </div>
               </div>
 
-              <div className="mt-3 bg-blue-50 rounded-xl p-3 space-y-2">
+              <div className="mt-3 bg-teal-50 rounded-xl p-3 space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-blue-700 font-medium">Deposit ({n(depositPct)}%)</span>
-                  <span className="font-bold text-blue-700">{fmt(calcs.deposit_amount)}</span>
+                  <span className="text-teal-700 font-medium">Deposit ({n(depositPct)}%)</span>
+                  <span className="font-bold text-teal-700">{fmt(calcs.deposit_amount)}</span>
                 </div>
                 <div className="flex justify-between text-xs text-gray-400">
                   <span>Balance due</span>
@@ -727,7 +727,7 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
 
             <button
               type="submit" disabled={saving}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-bold py-3.5 px-4 rounded-2xl text-sm transition-colors shadow-sm"
+              className="w-full bg-teal-600 hover:bg-teal-700 disabled:bg-teal-300 text-white font-bold py-3.5 px-4 rounded-2xl text-sm transition-colors shadow-sm"
             >
               {saving ? 'Saving…' : 'Save Quote →'}
             </button>
@@ -739,7 +739,7 @@ export default function QuoteForm({ settings }: { settings: CompanySettings | nu
       <div className="lg:hidden">
         <button
           type="submit" disabled={saving}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-bold py-4 px-4 rounded-2xl text-sm transition-colors shadow-sm"
+          className="w-full bg-teal-600 hover:bg-teal-700 disabled:bg-teal-300 text-white font-bold py-4 px-4 rounded-2xl text-sm transition-colors shadow-sm"
         >
           {saving ? 'Saving…' : 'Save Quote →'}
         </button>

@@ -161,7 +161,7 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() => router.push(`/quotes/${q.id}`)}
-                      className="text-blue-600 hover:text-blue-700 text-xs font-semibold"
+                      className="text-teal-600 hover:text-teal-700 text-xs font-semibold"
                     >
                       View →
                     </button>
@@ -204,7 +204,7 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
                 value={q.status}
                 onChange={(e) => updateStatus(q.id, e.target.value as QuoteStatus)}
                 disabled={updating === q.id}
-                className="flex-1 text-xs border border-gray-200 rounded-xl px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                className="flex-1 text-xs border border-gray-200 rounded-xl px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
               >
                 {STATUS_OPTIONS.map((s) => (
                   <option key={s} value={s}>{STATUS_CONFIG[s].label}</option>
@@ -212,7 +212,7 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
               </select>
               <button
                 onClick={() => router.push(`/quotes/${q.id}`)}
-                className="flex-1 text-center bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold py-2 rounded-xl transition-colors"
+                className="flex-1 text-center bg-teal-50 hover:bg-teal-100 text-teal-700 text-xs font-semibold py-2 rounded-xl transition-colors"
               >
                 View →
               </button>
