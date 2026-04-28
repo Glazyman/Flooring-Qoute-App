@@ -188,7 +188,7 @@ export default function HomePage() {
       <section className="max-w-5xl mx-auto px-5 mb-16 sm:mb-24">
         <div className="bg-gray-50 rounded-3xl border border-gray-100 px-5 py-12 sm:px-8 sm:py-16 text-center">
           <div className="flex justify-center mb-6">
-            <Image src="/logo.png" alt="FloorQuote Pro" width={56} height={56} className="rounded-2xl" />
+            <Image src="/logo.png" alt="FloorQuote Pro" width={56} height={56} style={{ mixBlendMode: 'multiply' }} />
           </div>
           <h2 className="text-2xl sm:text-4xl font-extrabold text-gray-900 tracking-tight mb-3">Ready to quote faster?</h2>
           <p className="text-base sm:text-lg text-gray-400 mb-8 max-w-lg mx-auto">Join flooring contractors already using FloorQuote Pro to win more jobs.</p>
