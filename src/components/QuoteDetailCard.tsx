@@ -404,11 +404,6 @@ export default function QuoteDetailCard({
       className="bg-white rounded-xl p-4 sm:p-6 relative"
       style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}
     >
-      {/* Inline-edit hint */}
-      <p className="text-xs mb-3" style={{ color: 'var(--primary)', opacity: 0.7 }}>
-        Click any field to edit
-      </p>
-
       {/* Top row: company block + Estimate title + meta table */}
       <div className="flex flex-col sm:flex-row sm:items-stretch sm:justify-between gap-4 mb-5">
         <div className="flex items-start gap-3 p-3 sm:w-1/2" style={{ border: FRAME_BORDER }}>

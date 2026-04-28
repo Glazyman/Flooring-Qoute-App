@@ -157,6 +157,11 @@ export default async function QuoteDetailPage({
         </div>
       </div>
 
+      {/* Inline-edit hint — above the sheet */}
+      <p className="text-xs" style={{ color: 'var(--primary)', opacity: 0.7 }}>
+        Click any field to edit
+      </p>
+
       {/* Preview card with inline editing */}
       <QuoteDetailCard
         quote={q}
