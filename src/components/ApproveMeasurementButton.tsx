@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { CheckCircle } from 'lucide-react'
 
-export default function ApproveMeasurementButton({ quoteId }: { quoteId: string }) {
+export default function ApproveMeasurementButton({ quoteId, onApprove }: { quoteId: string; onApprove?: () => void }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
@@ -18,8 +18,11 @@ export default function ApproveMeasurementButton({ quoteId }: { quoteId: string 
     })
     setDone(true)
     setLoading(false)
-    // Brief pause so user sees feedback, then refresh
-    setTimeout(() => router.refresh(), 600)
+    if (onApprove) {
+      onApprove()
+    } else {
+      setTimeout(() => router.refresh(), 600)
+    }
   }
 
   if (done) {

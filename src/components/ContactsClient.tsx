@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useRef } from 'react'
-import { Pencil, Trash2, X, Check, Search, UserPlus, Phone, Mail, MapPin, FileText, Upload, AlertCircle } from 'lucide-react'
+import { Pencil, Trash2, X, Check, Search, UserPlus, Phone, Mail, MapPin, FileText, Upload, AlertCircle, Square, CheckSquare } from 'lucide-react'
 
 interface Customer {
   id: string
@@ -73,6 +73,41 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [deletingId, setDeletingId] = useState<string | null>(null)
+
+  // Bulk select state
+  const [selecting, setSelecting] = useState(false)
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [bulkWorking, setBulkWorking] = useState(false)
+  const [confirmBulkDelete, setConfirmBulkDelete] = useState(false)
+
+  function toggleSelect(id: string) {
+    setSelected(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  function toggleAll() {
+    setSelected(prev => prev.size === filtered.length ? new Set() : new Set(filtered.map(c => c.id)))
+  }
+
+  function exitSelect() {
+    setSelecting(false)
+    setSelected(new Set())
+  }
+
+  async function bulkDelete() {
+    setBulkWorking(true)
+    await Promise.all(Array.from(selected).map(id =>
+      fetch(`/api/customers/${id}`, { method: 'DELETE' })
+    ))
+    setCustomers(prev => prev.filter(c => !selected.has(c.id)))
+    exitSelect()
+    setConfirmBulkDelete(false)
+    setBulkWorking(false)
+  }
 
   // CSV import state
   const [showImport, setShowImport] = useState(false)
@@ -185,8 +220,31 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
     window.location.reload()
   }
 
+  const selCount = selected.size
+  const allSelected = filtered.length > 0 && selCount === filtered.length
+
   return (
     <div className="space-y-4">
+      {/* Confirm bulk delete */}
+      {confirmBulkDelete && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
+          <div className="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-sm">
+            <h3 className="font-bold text-lg mb-2" style={{ color: 'var(--text)' }}>
+              Delete {selCount} contact{selCount !== 1 ? 's' : ''}?
+            </h3>
+            <p className="text-sm mb-6" style={{ color: 'var(--text-2)' }}>This cannot be undone.</p>
+            <div className="flex gap-3">
+              <button onClick={() => setConfirmBulkDelete(false)} className="flex-1 border font-semibold text-sm py-3 rounded-2xl" style={{ borderColor: 'var(--border)', color: 'var(--text-2)' }}>
+                Cancel
+              </button>
+              <button onClick={bulkDelete} disabled={bulkWorking} className="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold text-sm py-3 rounded-2xl disabled:opacity-50">
+                {bulkWorking ? 'Deleting…' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Search + Add */}
       <div className="flex gap-2">
         <div className="flex-1 flex items-center gap-2 bg-white rounded-2xl px-3.5 py-2.5" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
@@ -205,6 +263,16 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
             </button>
           )}
         </div>
+        {mode === 'page' && customers.length > 0 && (
+          <button
+            onClick={() => selecting ? exitSelect() : setSelecting(true)}
+            className={`flex items-center gap-2 border font-semibold px-3.5 py-2.5 rounded-2xl text-sm flex-shrink-0 active:scale-95 transition-colors ${
+              selecting ? 'bg-gray-100 border-gray-300 text-gray-700' : 'border-gray-200 text-gray-500 hover:bg-gray-50'
+            }`}
+          >
+            {selecting ? 'Cancel' : 'Select'}
+          </button>
+        )}
         {mode === 'page' && (
           <button
             onClick={() => { setShowImport(v => !v); setImportRows([]); setImportError(''); setImportDone(false) }}
@@ -223,6 +291,20 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
           <span className="hidden sm:inline">Add Contact</span>
         </button>
       </div>
+
+      {/* Select-all bar */}
+      {selecting && filtered.length > 0 && (
+        <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-white" style={{ border: '1px solid var(--border)' }}>
+          <button onClick={toggleAll} className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+            {allSelected
+              ? <CheckSquare className="w-5 h-5 text-teal-600" />
+              : <Square className="w-5 h-5 text-gray-400" />
+            }
+            {allSelected ? 'Deselect All' : 'Select All'}
+          </button>
+          {selCount > 0 && <span className="text-sm text-gray-400">{selCount} selected</span>}
+        </div>
+      )}
 
       {/* QuickBooks CSV Import Panel */}
       {showImport && mode === 'page' && (
@@ -381,13 +463,26 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
         </div>
       ) : (
         <div className="space-y-2.5">
-          {filtered.map(c => (
+          {filtered.map(c => {
+            const isSelected = selected.has(c.id)
+            return (
             <div
               key={c.id}
               className="bg-white rounded-3xl p-4 sm:p-5"
-              style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}
+              style={{
+                border: `1px solid ${isSelected ? '#2dd4bf' : 'var(--border)'}`,
+                boxShadow: isSelected ? '0 0 0 2px #99f6e4' : 'var(--shadow-card)',
+              }}
             >
               <div className="flex items-start gap-3">
+                {selecting && (
+                  <button onClick={() => toggleSelect(c.id)} className="flex-shrink-0 mt-0.5 p-0.5">
+                    {isSelected
+                      ? <CheckSquare className="w-5 h-5 text-teal-600" />
+                      : <Square className="w-5 h-5 text-gray-300" />
+                    }
+                  </button>
+                )}
                 <div
                   className="w-10 h-10 rounded-2xl flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
                   style={{ background: 'var(--primary)' }}
@@ -423,33 +518,59 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
                     )}
                   </div>
                 </div>
-                <div className="flex items-center gap-1.5 flex-shrink-0">
-                  {mode === 'picker' && onSelectContact && (
+                {selecting ? (
+                  <button onClick={() => toggleSelect(c.id)} className="p-2 flex-shrink-0">
+                    {isSelected
+                      ? <CheckSquare className="w-5 h-5 text-teal-600" />
+                      : <Square className="w-5 h-5 text-gray-300" />
+                    }
+                  </button>
+                ) : (
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    {mode === 'picker' && onSelectContact && (
+                      <button
+                        onClick={() => onSelectContact({ name: c.name, phone: c.phone || '', email: c.email || '', address: c.address || '' })}
+                        className="text-white font-semibold px-3 py-1.5 rounded-xl text-xs active:scale-95"
+                        style={{ background: 'var(--primary)' }}
+                      >
+                        Select
+                      </button>
+                    )}
                     <button
-                      onClick={() => onSelectContact({ name: c.name, phone: c.phone || '', email: c.email || '', address: c.address || '' })}
-                      className="text-white font-semibold px-3 py-1.5 rounded-xl text-xs active:scale-95"
-                      style={{ background: 'var(--primary)' }}
+                      onClick={() => startEdit(c)}
+                      className="p-2 rounded-xl hover:bg-gray-50 active:scale-95 text-gray-400 hover:text-gray-600 transition-colors"
                     >
-                      Select
+                      <Pencil className="w-4 h-4" />
                     </button>
-                  )}
-                  <button
-                    onClick={() => startEdit(c)}
-                    className="p-2 rounded-xl hover:bg-gray-50 active:scale-95 text-gray-400 hover:text-gray-600 transition-colors"
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(c.id)}
-                    disabled={deletingId === c.id}
-                    className="p-2 rounded-xl hover:bg-red-50 active:scale-95 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-40"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
+                    <button
+                      onClick={() => handleDelete(c.id)}
+                      disabled={deletingId === c.id}
+                      className="p-2 rounded-xl hover:bg-red-50 active:scale-95 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-40"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
-          ))}
+            )
+          })}
+        </div>
+      )}
+
+      {/* Floating bulk action bar */}
+      {selecting && selCount > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 px-4 py-3 rounded-2xl shadow-2xl" style={{ background: '#1c1c1e', minWidth: 240 }}>
+          <span className="text-white text-sm font-semibold">{selCount} selected</span>
+          <div className="flex-1" />
+          <button
+            onClick={() => setConfirmBulkDelete(true)}
+            disabled={bulkWorking}
+            className="flex items-center gap-1.5 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-3.5 py-2 rounded-xl disabled:opacity-50 transition-colors"
+          >
+            <Trash2 className="w-4 h-4" />
+            Delete
+          </button>
         </div>
       )}
     </div>
