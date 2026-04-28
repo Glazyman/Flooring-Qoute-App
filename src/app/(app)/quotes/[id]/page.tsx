@@ -328,13 +328,13 @@ export default async function QuoteDetailPage({
         <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 mt-4">
           <Link
             href={`/quotes/${id}/edit`}
-            className="flex items-center justify-center gap-1.5 font-semibold px-4 py-3 sm:py-2.5 rounded-2xl text-sm active:scale-95 transition-transform focus:outline-none focus:ring-0"
-            style={{ background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text)' }}
+            className="flex items-center justify-center gap-1.5 text-white font-semibold px-4 py-3 sm:py-2.5 rounded-2xl text-sm active:scale-95 transition-transform focus:outline-none focus:ring-0"
+            style={{ background: 'var(--primary)' }}
           >
             <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
             </svg>
-            Edit
+            Edit Quote
           </Link>
           <DuplicateButton quoteId={id} />
           <EmailQuoteButton quoteId={id} customerEmail={q.customer_email} />
@@ -353,7 +353,19 @@ export default async function QuoteDetailPage({
       </div>
 
       {/* Estimate document — mirrors PDF layout */}
-      <div className="bg-white rounded-xl p-4 sm:p-6" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
+      <div className="bg-white rounded-xl p-4 sm:p-6 relative" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
+        {/* Edit shortcut inside preview card */}
+        <Link
+          href={`/quotes/${id}/edit`}
+          className="absolute top-3 right-3 flex items-center gap-1 text-xs font-medium px-2.5 py-1.5 rounded-lg transition-colors"
+          style={{ background: 'var(--primary-light)', color: 'var(--primary)' }}
+          title="Edit this quote"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+          Edit
+        </Link>
         {/* Top row: company block + Estimate title + meta table */}
         <div className="flex flex-col sm:flex-row sm:items-stretch sm:justify-between gap-4 mb-5">
           <div
