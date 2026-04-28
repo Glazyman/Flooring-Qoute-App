@@ -47,7 +47,14 @@ interface FormState {
   quote_number_prefix: string
   invoice_number_prefix: string
   default_quote_valid_days: string
+  terms_validity: string
+  terms_scheduling: string
+  terms_scope: string
 }
+
+const DEFAULT_TERMS_VALIDITY = 'Prices subject to change without notice after 30 days of estimate.'
+const DEFAULT_TERMS_SCHEDULING = 'Additional fees may occur if work is not done at one time.'
+const DEFAULT_TERMS_SCOPE = 'Any additional work will be priced and billed separately.'
 
 function buildInitialForm(initial: CompanySettings): FormState {
   return {
@@ -66,6 +73,9 @@ function buildInitialForm(initial: CompanySettings): FormState {
     quote_number_prefix: initial.quote_number_prefix ?? '',
     invoice_number_prefix: initial.invoice_number_prefix ?? '',
     default_quote_valid_days: String(initial.default_quote_valid_days ?? 30),
+    terms_validity: initial.terms_validity ?? DEFAULT_TERMS_VALIDITY,
+    terms_scheduling: initial.terms_scheduling ?? DEFAULT_TERMS_SCHEDULING,
+    terms_scope: initial.terms_scope ?? DEFAULT_TERMS_SCOPE,
   }
 }
 
@@ -331,6 +341,9 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
         payment_terms: form.payment_terms?.trim() || null,
         quote_number_prefix: form.quote_number_prefix?.trim() || null,
         invoice_number_prefix: form.invoice_number_prefix?.trim() || null,
+        terms_validity: form.terms_validity?.trim() || null,
+        terms_scheduling: form.terms_scheduling?.trim() || null,
+        terms_scope: form.terms_scope?.trim() || null,
         material_prices_by_type: Object.fromEntries(
           Object.entries(materialPrices)
             .filter(([, v]) => v.material || v.labor)
@@ -473,6 +486,44 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
               style={{ borderColor: 'var(--border)', color: 'var(--text)' }}
             />
             <p className="text-xs mt-1.5" style={{ color: 'var(--text-3)' }}>Shown on the quote PDF and email beneath totals.</p>
+          </div>
+        </div>
+      </Card>
+
+      <Card title="Quote Terms & Disclaimers" description="These appear as a bulleted disclaimer block on every quote PDF and the in-app view. Leave any of them blank to omit.">
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--text-2)' }}>Validity</label>
+            <textarea
+              value={form.terms_validity}
+              onChange={(e) => set('terms_validity', e.target.value)}
+              rows={2}
+              placeholder={DEFAULT_TERMS_VALIDITY}
+              className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400 resize-none bg-white"
+              style={{ borderColor: 'var(--border)', color: 'var(--text)' }}
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--text-2)' }}>Scheduling</label>
+            <textarea
+              value={form.terms_scheduling}
+              onChange={(e) => set('terms_scheduling', e.target.value)}
+              rows={2}
+              placeholder={DEFAULT_TERMS_SCHEDULING}
+              className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400 resize-none bg-white"
+              style={{ borderColor: 'var(--border)', color: 'var(--text)' }}
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--text-2)' }}>Scope of Work</label>
+            <textarea
+              value={form.terms_scope}
+              onChange={(e) => set('terms_scope', e.target.value)}
+              rows={2}
+              placeholder={DEFAULT_TERMS_SCOPE}
+              className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400 resize-none bg-white"
+              style={{ borderColor: 'var(--border)', color: 'var(--text)' }}
+            />
           </div>
         </div>
       </Card>

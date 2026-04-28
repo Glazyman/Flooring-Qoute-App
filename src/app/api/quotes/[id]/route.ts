@@ -16,7 +16,7 @@ export async function PATCH(
   if (!membership) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await request.json()
-  const { rooms, ...quoteData } = body
+  const { rooms, line_items, ...quoteData } = body
 
   const { error } = await supabase
     .from('quotes')
@@ -34,6 +34,23 @@ export async function PATCH(
         rooms.map((r: { name: string | null; section: string | null; length: number; width: number; sqft: number }) => ({
           quote_id: id, name: r.name, section: r.section,
           length: r.length, width: r.width, sqft: r.sqft,
+        }))
+      )
+    }
+  }
+
+  // Replace line items: delete existing, insert new
+  if (line_items !== undefined) {
+    await supabase.from('quote_line_items').delete().eq('quote_id', id)
+    if (Array.isArray(line_items) && line_items.length > 0) {
+      await supabase.from('quote_line_items').insert(
+        line_items.map((li: { position?: number; description: string | null; qty: number; unit_price: number; total: number }, i: number) => ({
+          quote_id: id,
+          position: li.position ?? i,
+          description: li.description,
+          qty: li.qty,
+          unit_price: li.unit_price,
+          total: li.total,
         }))
       )
     }

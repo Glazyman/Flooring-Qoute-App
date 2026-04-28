@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { renderToBuffer } from '@react-pdf/renderer'
 import { QuotePdfDocument } from '@/components/QuotePdf'
-import type { Quote, QuoteRoom, CompanySettings } from '@/lib/types'
+import type { Quote, QuoteRoom, QuoteLineItem, CompanySettings } from '@/lib/types'
 import React from 'react'
 import { Resend } from 'resend'
 
@@ -148,8 +148,9 @@ export async function POST(
     return NextResponse.json({ error: 'No customer email on file' }, { status: 400 })
   }
 
-  const [{ data: rooms }, { data: settings }] = await Promise.all([
+  const [{ data: rooms }, { data: lineItems }, { data: settings }] = await Promise.all([
     supabase.from('quote_rooms').select('*').eq('quote_id', id).order('id'),
+    supabase.from('quote_line_items').select('*').eq('quote_id', id).order('position'),
     supabase.from('company_settings').select('*').eq('company_id', membership.company_id).single(),
   ])
 
@@ -168,6 +169,7 @@ export async function POST(
   const element = React.createElement(QuotePdfDocument as any, {
     quote: q,
     rooms: (rooms as QuoteRoom[]) || [],
+    lineItems: (lineItems as QuoteLineItem[]) || [],
     settings: s,
   })
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

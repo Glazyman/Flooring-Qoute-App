@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { fmt } from '@/lib/calculations'
 import { flooringTypeLabel } from '@/lib/flooringLabels'
 import { formatExpiration } from '@/lib/format'
-import type { Quote, QuoteRoom } from '@/lib/types'
+import type { Quote, QuoteRoom, QuoteLineItem, CompanySettings } from '@/lib/types'
 import DuplicateButton from '@/components/DuplicateButton'
 import EmailQuoteButton from '@/components/EmailQuoteButton'
 import ApproveMeasurementButton from '@/components/ApproveMeasurementButton'
@@ -41,7 +41,7 @@ export default async function QuoteDetailPage({
 
   if (!membership) redirect('/billing/setup')
 
-  const [{ data: quote }, { data: rooms }] = await Promise.all([
+  const [{ data: quote }, { data: rooms }, { data: lineItems }, { data: settingsRow }] = await Promise.all([
     supabase
       .from('quotes')
       .select('*')
@@ -49,6 +49,8 @@ export default async function QuoteDetailPage({
       .eq('company_id', membership.company_id)
       .single(),
     supabase.from('quote_rooms').select('*').eq('quote_id', id).order('id'),
+    supabase.from('quote_line_items').select('*').eq('quote_id', id).order('position'),
+    supabase.from('company_settings').select('*').eq('company_id', membership.company_id).single(),
   ])
 
   if (!quote) notFound()
@@ -59,6 +61,13 @@ export default async function QuoteDetailPage({
   const expirationLabel = formatExpiration(q.valid_days || 0, new Date(q.created_at))
 
   const extras = (q.extras_json || {}) as Record<string, number>
+  const typedLineItems = (lineItems || []) as QuoteLineItem[]
+  const settings = (settingsRow as CompanySettings | null) ?? null
+  const terms = [
+    settings?.terms_validity?.trim(),
+    settings?.terms_scheduling?.trim(),
+    settings?.terms_scope?.trim(),
+  ].filter((t): t is string => !!t && t.length > 0)
 
   return (
     <div className="max-w-3xl space-y-5">
@@ -219,6 +228,38 @@ export default async function QuoteDetailPage({
           {q.custom_fee_amount > 0 && (
             <LineItem label={q.custom_fee_label || 'Other'} value={q.custom_fee_amount} />
           )}
+          {typedLineItems.length > 0 && (
+            <div className="pt-3 mt-1">
+              <p className="text-[11px] font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--text-3)' }}>Additional Line Items</p>
+              <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+                <div className="grid grid-cols-12 gap-2 px-3 py-2 text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-3)', background: '#f9fafb', borderBottom: '1px solid var(--border)' }}>
+                  <span className="col-span-6 sm:col-span-7">Description</span>
+                  <span className="col-span-1 text-right">Qty</span>
+                  <span className="col-span-2 text-right">Rate</span>
+                  <span className="col-span-3 sm:col-span-2 text-right">Total</span>
+                </div>
+                {typedLineItems.map(li => {
+                  const qty = Number(li.qty) || 0
+                  const rate = Number(li.unit_price) || 0
+                  const total = Number(li.total) || qty * rate
+                  return (
+                    <div key={li.id} className="grid grid-cols-12 gap-2 px-3 py-2 text-sm border-t" style={{ borderColor: 'var(--border)' }}>
+                      <span className="col-span-6 sm:col-span-7 break-words" style={{ color: 'var(--text)' }}>{li.description || '—'}</span>
+                      <span className="col-span-1 text-right" style={{ color: 'var(--text-2)' }}>{qty}</span>
+                      <span className="col-span-2 text-right" style={{ color: 'var(--text-2)' }}>{fmt(rate)}</span>
+                      <span className="col-span-3 sm:col-span-2 text-right font-semibold" style={{ color: 'var(--text)' }}>{fmt(total)}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+          {q.scope_of_work && q.scope_of_work.trim() && (
+            <div className="rounded-xl px-4 py-3 mt-3" style={{ background: '#fef3c7', borderLeft: '3px solid #d97706' }}>
+              <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: '#92400e' }}>Scope of Work / Exclusions</p>
+              <p className="text-sm whitespace-pre-wrap leading-relaxed" style={{ color: '#0f172a' }}>{q.scope_of_work.trim()}</p>
+            </div>
+          )}
           <div className="border-t pt-2.5" style={{ borderColor: 'var(--border)' }}>
             <LineItem label="Subtotal" value={q.subtotal} bold />
           </div>
@@ -254,6 +295,47 @@ export default async function QuoteDetailPage({
           <p className="text-sm whitespace-pre-wrap leading-relaxed" style={{ color: 'var(--text)' }}>{q.notes}</p>
         </div>
       )}
+
+      {/* Terms & Disclaimers */}
+      {terms.length > 0 && (
+        <div className="bg-white rounded-xl p-4 sm:p-5" style={cardStyle}>
+          <h2 className="text-xs font-bold uppercase tracking-wide mb-3" style={{ color: 'var(--text-3)' }}>Terms & Disclaimers</h2>
+          <ul className="space-y-2">
+            {terms.map((t, i) => (
+              <li key={i} className="flex gap-2 text-sm leading-relaxed" style={{ color: 'var(--text-2)' }}>
+                <span aria-hidden="true" style={{ color: 'var(--text-3)' }}>•</span>
+                <span className="flex-1">{t}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Signature lines (print-style) */}
+      <div className="bg-white rounded-xl p-4 sm:p-5" style={cardStyle}>
+        <h2 className="text-xs font-bold uppercase tracking-wide mb-4" style={{ color: 'var(--text-3)' }}>Signatures</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <SignatureBlock label="Customer Signature" />
+          <SignatureBlock label="Authorized Representative" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function SignatureBlock({ label }: { label: string }) {
+  return (
+    <div>
+      <div className="flex items-end gap-3">
+        <div className="flex-1">
+          <div className="border-b" style={{ borderColor: 'var(--text)', height: 32 }} />
+          <p className="text-[10px] font-bold uppercase tracking-widest mt-1.5" style={{ color: 'var(--text-3)' }}>{label}</p>
+        </div>
+        <div className="w-24">
+          <div className="border-b" style={{ borderColor: 'var(--text)', height: 32 }} />
+          <p className="text-[10px] font-bold uppercase tracking-widest mt-1.5" style={{ color: 'var(--text-3)' }}>Date</p>
+        </div>
+      </div>
     </div>
   )
 }

@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/Card'
 import { formatPhone, formatExpiration } from '@/lib/format'
 import {
   PlusCircle,
+  Plus,
   Trash2,
   Upload,
   Loader2,
@@ -18,6 +19,17 @@ import {
   ChevronDown,
   ChevronRight,
 } from 'lucide-react'
+
+interface LineItemRow {
+  id: string
+  description: string
+  qty: string
+  unit_price: string
+}
+
+function newLineItem(): LineItemRow {
+  return { id: crypto.randomUUID(), description: '', qty: '1', unit_price: '' }
+}
 
 interface CustomerContact {
   id: string
@@ -152,10 +164,12 @@ export interface QuoteInitialData {
   markup_pct?: number
   deposit_pct?: number
   notes?: string | null
+  scope_of_work?: string | null
   valid_days?: number
   section_flooring_types?: Record<string, FlooringType> | null
   section_pricing?: Record<string, { material: number; labor: number }> | null
   extras_json?: Record<string, number> | null
+  line_items?: Array<{ description: string | null; qty: number; unit_price: number; total: number }>
 }
 
 function initialRoomsFromData(data: QuoteInitialData, defaultSection: string): Room[] {
@@ -307,7 +321,27 @@ export default function QuoteForm({
   const [markupPct, setMarkupPct] = useState(String(initialData?.markup_pct ?? settings?.default_markup_pct ?? 0))
   const [depositPct, setDepositPct] = useState(String(initialData?.deposit_pct ?? settings?.default_deposit_pct ?? 50))
   const [notes, setNotes] = useState(initialData?.notes ?? '')
+  const [scopeOfWork, setScopeOfWork] = useState(initialData?.scope_of_work ?? '')
   const [validDays, setValidDays] = useState(String(initialData?.valid_days ?? settings?.default_quote_valid_days ?? 30))
+
+  // Additional line items (description / qty / unit_price). Total is computed.
+  const [lineItems, setLineItems] = useState<LineItemRow[]>(() => {
+    const seed = initialData?.line_items
+    if (seed && seed.length > 0) {
+      return seed.map(li => ({
+        id: crypto.randomUUID(),
+        description: li.description ?? '',
+        qty: String(li.qty ?? 0),
+        unit_price: String(li.unit_price ?? 0),
+      }))
+    }
+    return []
+  })
+
+  const lineItemsTotal = useMemo(
+    () => lineItems.reduce((sum, li) => sum + n(li.qty) * n(li.unit_price), 0),
+    [lineItems]
+  )
 
   // Stair per-step auto-compute: when count + per-step set, write to stairs_fee
   function applyStairPerStep(count: string, perStep: string) {
@@ -401,6 +435,7 @@ export default function QuoteForm({
     reducers_fee: n(reducersFee),
     custom_fee_amount: n(customFeeAmount),
     extras: extrasObj,
+    line_items_total: lineItemsTotal,
     tax_enabled: taxEnabled,
     tax_pct: n(taxPct),
     markup_pct: n(markupPct),
@@ -670,9 +705,19 @@ export default function QuoteForm({
       deposit_amount: calcs.deposit_amount,
       ...(isEditing ? {} : { status: statusForCreate }),
       notes: [notes, blueprintNotes].filter(Boolean).join('\n\n') || null,
+      scope_of_work: scopeOfWork.trim() || null,
       valid_days: n(validDays) || 30,
       extras_json: extrasJson,
       rooms: roomsForApi,
+      line_items: lineItems
+        .filter(li => li.description.trim() || n(li.qty) > 0 || n(li.unit_price) > 0)
+        .map((li, i) => ({
+          position: i,
+          description: li.description.trim() || null,
+          qty: n(li.qty),
+          unit_price: n(li.unit_price),
+          total: +(n(li.qty) * n(li.unit_price)).toFixed(2),
+        })),
     }
 
     const url = isEditing ? `/api/quotes/${quoteId}` : '/api/quotes'
@@ -1243,6 +1288,89 @@ export default function QuoteForm({
             )}
           </Card>
 
+          {/* Additional Line Items */}
+          <Card title="Additional Line Items" description="Custom rows that fold into the subtotal (after extras, before tax/markup).">
+            <div className="space-y-2">
+              {/* Header row (sm+) */}
+              {lineItems.length > 0 && (
+                <div className="hidden sm:grid grid-cols-12 gap-2 px-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-3)' }}>
+                  <span className="col-span-5">Description</span>
+                  <span className="col-span-2">Qty</span>
+                  <span className="col-span-3">Unit Price</span>
+                  <span className="col-span-1 text-right">Total</span>
+                  <span className="col-span-1" />
+                </div>
+              )}
+
+              {lineItems.map((item, i) => {
+                const rowTotal = n(item.qty) * n(item.unit_price)
+                return (
+                  <div key={item.id} className="grid grid-cols-12 gap-2 items-center">
+                    <input
+                      type="text"
+                      value={item.description}
+                      onChange={e => setLineItems(prev => prev.map((li, idx) => idx === i ? { ...li, description: e.target.value } : li))}
+                      placeholder="Description"
+                      className="col-span-12 sm:col-span-5 w-full px-3 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400 placeholder:text-gray-300 bg-white"
+                      style={{ borderColor: 'var(--border)', color: 'var(--text)' }}
+                    />
+                    <input
+                      type="number"
+                      inputMode="decimal"
+                      value={item.qty}
+                      onChange={e => setLineItems(prev => prev.map((li, idx) => idx === i ? { ...li, qty: e.target.value } : li))}
+                      placeholder="Qty"
+                      min="0"
+                      className="col-span-3 sm:col-span-2 w-full px-3 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400 bg-white"
+                      style={{ borderColor: 'var(--border)', color: 'var(--text)' }}
+                    />
+                    <div className="col-span-5 sm:col-span-3 flex items-center rounded-xl border bg-white overflow-hidden focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-teal-400" style={{ borderColor: 'var(--border)' }}>
+                      <span className="px-2.5 py-2.5 text-sm font-medium border-r" style={{ color: 'var(--text-2)', borderColor: 'var(--border)', background: '#f9f9fb' }}>$</span>
+                      <input
+                        type="number"
+                        inputMode="decimal"
+                        value={item.unit_price}
+                        onChange={e => setLineItems(prev => prev.map((li, idx) => idx === i ? { ...li, unit_price: e.target.value } : li))}
+                        placeholder="0.00"
+                        min="0"
+                        step="0.01"
+                        className="flex-1 min-w-0 px-2.5 py-2.5 text-sm focus:outline-none bg-transparent placeholder:text-gray-300"
+                        style={{ color: 'var(--text)' }}
+                      />
+                    </div>
+                    <p className="col-span-3 sm:col-span-1 text-sm font-semibold text-right truncate" style={{ color: 'var(--text)' }}>
+                      {fmt(rowTotal)}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setLineItems(prev => prev.filter((_, idx) => idx !== i))}
+                      className="col-span-1 p-1.5 rounded-lg hover:bg-red-50 text-gray-300 hover:text-red-400 transition-colors flex justify-center"
+                      title="Remove line item"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                )
+              })}
+
+              <button
+                type="button"
+                onClick={() => setLineItems(prev => [...prev, newLineItem()])}
+                className="flex items-center gap-1.5 text-sm font-semibold mt-2 px-3 py-2 rounded-xl hover:bg-teal-50 transition-colors"
+                style={{ color: 'var(--primary)' }}
+              >
+                <Plus className="w-4 h-4" /> Add Line Item
+              </button>
+
+              {lineItemsTotal > 0 && (
+                <div className="flex items-center justify-between pt-3 mt-2 border-t text-sm" style={{ borderColor: 'var(--border)' }}>
+                  <span className="font-semibold" style={{ color: 'var(--text-2)' }}>Line items total</span>
+                  <span className="font-bold" style={{ color: 'var(--text)' }}>{fmt(lineItemsTotal)}</span>
+                </div>
+              )}
+            </div>
+          </Card>
+
           {/* Tax */}
           <Card title="Tax">
             <div className="flex items-center gap-3 mb-4">
@@ -1274,24 +1402,39 @@ export default function QuoteForm({
 
           {/* Notes */}
           <Card title="Notes & Validity">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="sm:col-span-2">
-                <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--text-2)' }}>Notes</label>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--text-2)' }}>Notes</label>
+                  <textarea
+                    value={notes} onChange={(e) => setNotes(e.target.value)}
+                    rows={3} placeholder="Any additional notes for the customer…"
+                    className="w-full px-3.5 py-3.5 rounded-xl border text-[16px] focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none placeholder:text-gray-300 bg-white"
+                    style={{ color: 'var(--text)', borderColor: 'var(--border)' }}
+                  />
+                </div>
+                <Input
+                  label="Valid for (days)"
+                  value={validDays}
+                  onChange={setValidDays}
+                  type="number"
+                  placeholder="30"
+                  hint={expirationLabel ? `Expires ${expirationLabel}` : undefined}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--text-2)' }}>Scope of Work / Exclusions</label>
                 <textarea
-                  value={notes} onChange={(e) => setNotes(e.target.value)}
-                  rows={3} placeholder="Any additional notes for the customer…"
+                  value={scopeOfWork} onChange={(e) => setScopeOfWork(e.target.value)}
+                  rows={3}
+                  placeholder="e.g. Finishing stringers, risers, railings, spindles and bullnose are not included in this price."
                   className="w-full px-3.5 py-3.5 rounded-xl border text-[16px] focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none placeholder:text-gray-300 bg-white"
                   style={{ color: 'var(--text)', borderColor: 'var(--border)' }}
                 />
+                <p className="text-xs mt-1.5" style={{ color: 'var(--text-3)' }}>
+                  Shown prominently on the quote PDF and email above the totals.
+                </p>
               </div>
-              <Input
-                label="Valid for (days)"
-                value={validDays}
-                onChange={setValidDays}
-                type="number"
-                placeholder="30"
-                hint={expirationLabel ? `Expires ${expirationLabel}` : undefined}
-              />
             </div>
           </Card>
         </div>

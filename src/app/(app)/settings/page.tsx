@@ -24,6 +24,9 @@ const DEFAULT_SETTINGS: CompanySettings = {
   next_quote_number: 1,
   next_invoice_number: 1,
   default_quote_valid_days: 30,
+  terms_validity: 'Prices subject to change without notice after 30 days of estimate.',
+  terms_scheduling: 'Additional fees may occur if work is not done at one time.',
+  terms_scope: 'Any additional work will be priced and billed separately.',
 }
 
 export default async function SettingsPage() {

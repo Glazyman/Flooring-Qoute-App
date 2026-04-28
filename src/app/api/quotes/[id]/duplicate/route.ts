@@ -63,5 +63,18 @@ export async function POST(
     await supabase.from('quote_rooms').insert(newRooms)
   }
 
+  const { data: originalLineItems } = await supabase
+    .from('quote_line_items')
+    .select('*')
+    .eq('quote_id', id)
+
+  if (originalLineItems && originalLineItems.length > 0) {
+    const newLineItems = originalLineItems.map(({ id: _lid, quote_id: _qid, created_at: _ca, ...rest }) => ({
+      ...rest,
+      quote_id: newQuote.id,
+    }))
+    await supabase.from('quote_line_items').insert(newLineItems)
+  }
+
   return NextResponse.json({ id: newQuote.id })
 }

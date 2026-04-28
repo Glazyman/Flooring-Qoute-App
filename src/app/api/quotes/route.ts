@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
   void isOnPro
 
   const body = await request.json()
-  const { rooms, ...quoteData } = body
+  const { rooms, line_items, ...quoteData } = body
 
   // Auto-generate quote number from settings prefix + counter when none provided.
   const incomingQuoteNumber = typeof quoteData.quote_number === 'string' ? quoteData.quote_number.trim() : ''
@@ -125,6 +125,19 @@ export async function POST(request: NextRequest) {
         length: r.length,
         width: r.width,
         sqft: r.sqft,
+      }))
+    )
+  }
+
+  if (Array.isArray(line_items) && line_items.length > 0) {
+    await supabase.from('quote_line_items').insert(
+      line_items.map((li: { position?: number; description: string | null; qty: number; unit_price: number; total: number }, i: number) => ({
+        quote_id: quote.id,
+        position: li.position ?? i,
+        description: li.description,
+        qty: li.qty,
+        unit_price: li.unit_price,
+        total: li.total,
       }))
     )
   }

@@ -40,6 +40,9 @@ export async function PUT(request: NextRequest) {
         quote_number_prefix: body.quote_number_prefix ?? null,
         invoice_number_prefix: body.invoice_number_prefix ?? null,
         default_quote_valid_days: body.default_quote_valid_days ?? 30,
+        terms_validity: body.terms_validity ?? null,
+        terms_scheduling: body.terms_scheduling ?? null,
+        terms_scope: body.terms_scope ?? null,
         updated_at: new Date().toISOString(),
       },
       { onConflict: 'company_id' }

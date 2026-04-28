@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { renderToBuffer } from '@react-pdf/renderer'
 import { QuotePdfDocument } from '@/components/QuotePdf'
-import type { Quote, QuoteRoom, CompanySettings } from '@/lib/types'
+import type { Quote, QuoteRoom, QuoteLineItem, CompanySettings } from '@/lib/types'
 import React from 'react'
 
 export const runtime = 'nodejs'
@@ -36,22 +36,17 @@ export async function GET(
 
   if (!quote) return new NextResponse('Not found', { status: 404 })
 
-  const { data: rooms } = await supabase
-    .from('quote_rooms')
-    .select('*')
-    .eq('quote_id', id)
-    .order('id')
-
-  const { data: settings } = await supabase
-    .from('company_settings')
-    .select('*')
-    .eq('company_id', membership.company_id)
-    .single()
+  const [{ data: rooms }, { data: lineItems }, { data: settings }] = await Promise.all([
+    supabase.from('quote_rooms').select('*').eq('quote_id', id).order('id'),
+    supabase.from('quote_line_items').select('*').eq('quote_id', id).order('position'),
+    supabase.from('company_settings').select('*').eq('company_id', membership.company_id).single(),
+  ])
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const element = React.createElement(QuotePdfDocument as any, {
     quote: quote as Quote,
     rooms: (rooms as QuoteRoom[]) || [],
+    lineItems: (lineItems as QuoteLineItem[]) || [],
     settings: settings as CompanySettings | null,
   })
 

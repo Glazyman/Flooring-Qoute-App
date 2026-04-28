@@ -1,7 +1,7 @@
 import { redirect, notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import QuoteForm, { QuoteInitialData } from '@/components/QuoteForm'
-import type { Quote, QuoteRoom, CompanySettings } from '@/lib/types'
+import type { Quote, QuoteRoom, QuoteLineItem, CompanySettings } from '@/lib/types'
 import Link from 'next/link'
 
 export default async function EditQuotePage({
@@ -18,9 +18,10 @@ export default async function EditQuotePage({
     .from('company_members').select('company_id').eq('user_id', user.id).single()
   if (!membership) redirect('/billing/setup')
 
-  const [{ data: quote }, { data: rooms }, { data: settingsRow }, { data: company }] = await Promise.all([
+  const [{ data: quote }, { data: rooms }, { data: lineItems }, { data: settingsRow }, { data: company }] = await Promise.all([
     supabase.from('quotes').select('*').eq('id', id).eq('company_id', membership.company_id).single(),
     supabase.from('quote_rooms').select('*').eq('quote_id', id).order('id'),
+    supabase.from('quote_line_items').select('*').eq('quote_id', id).order('position'),
     supabase.from('company_settings').select('*').eq('company_id', membership.company_id).single(),
     supabase.from('companies').select('subscription_status, stripe_price_id').eq('id', membership.company_id).single(),
   ])
@@ -39,6 +40,7 @@ export default async function EditQuotePage({
 
   const q = quote as Quote
   const typedRooms = (rooms || []) as QuoteRoom[]
+  const typedLineItems = (lineItems || []) as QuoteLineItem[]
 
   const initialData: QuoteInitialData = {
     customer_name: q.customer_name,
@@ -70,8 +72,15 @@ export default async function EditQuotePage({
     markup_pct: q.markup_pct,
     deposit_pct: q.deposit_pct,
     notes: q.notes,
+    scope_of_work: q.scope_of_work,
     valid_days: q.valid_days,
     extras_json: q.extras_json ?? null,
+    line_items: typedLineItems.map(li => ({
+      description: li.description,
+      qty: Number(li.qty) || 0,
+      unit_price: Number(li.unit_price) || 0,
+      total: Number(li.total) || 0,
+    })),
   }
 
   const settings: CompanySettings | null = (settingsRow as CompanySettings | null) ?? null

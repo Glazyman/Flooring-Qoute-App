@@ -6,7 +6,7 @@ import {
   StyleSheet,
   Image,
 } from '@react-pdf/renderer'
-import type { Quote, QuoteRoom, CompanySettings } from '@/lib/types'
+import type { Quote, QuoteRoom, QuoteLineItem, CompanySettings } from '@/lib/types'
 import { flooringTypeLabel } from '@/lib/flooringLabels'
 
 const styles = StyleSheet.create({
@@ -185,6 +185,106 @@ const styles = StyleSheet.create({
     fontFamily: 'Helvetica-Bold',
     color: '#92400e',
   },
+  itemsTableHeader: {
+    flexDirection: 'row',
+    paddingVertical: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: '#cbd5e1',
+    marginTop: 4,
+    marginBottom: 2,
+  },
+  itemsTableHeaderCell: {
+    fontSize: 8,
+    fontFamily: 'Helvetica-Bold',
+    color: '#475569',
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+  },
+  itemsTableRow: {
+    flexDirection: 'row',
+    paddingVertical: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f5f9',
+  },
+  itemsTableCell: {
+    fontSize: 9.5,
+    color: '#0f172a',
+  },
+  scopeBox: {
+    backgroundColor: '#fef3c7',
+    borderLeftWidth: 3,
+    borderLeftColor: '#d97706',
+    borderRadius: 4,
+    padding: 12,
+    marginTop: 4,
+    marginBottom: 12,
+  },
+  scopeTitle: {
+    fontSize: 9,
+    fontFamily: 'Helvetica-Bold',
+    color: '#92400e',
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+    marginBottom: 4,
+  },
+  scopeText: {
+    fontSize: 10,
+    color: '#0f172a',
+    lineHeight: 1.5,
+  },
+  termsList: {
+    marginTop: 4,
+  },
+  termItem: {
+    flexDirection: 'row',
+    marginBottom: 4,
+  },
+  termBullet: {
+    fontSize: 9,
+    color: '#475569',
+    marginRight: 6,
+    width: 8,
+  },
+  termText: {
+    fontSize: 9,
+    color: '#475569',
+    lineHeight: 1.45,
+    flex: 1,
+  },
+  signatureSection: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 20,
+    marginTop: 28,
+    paddingTop: 18,
+    borderTopWidth: 1,
+    borderTopColor: '#e2e8f0',
+  },
+  signatureBlock: {
+    flex: 1,
+  },
+  signatureLine: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#0f172a',
+    height: 24,
+    marginBottom: 4,
+  },
+  signatureLabel: {
+    fontSize: 8,
+    color: '#64748b',
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+  },
+  signatureRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  signatureNameCol: {
+    flex: 3,
+  },
+  signatureDateCol: {
+    flex: 1,
+  },
 })
 
 function fmt(value: number): string {
@@ -199,11 +299,17 @@ function fmt(value: number): string {
 interface QuotePdfDocumentProps {
   quote: Quote
   rooms: QuoteRoom[]
+  lineItems?: QuoteLineItem[]
   settings: CompanySettings | null
 }
 
-export function QuotePdfDocument({ quote: q, rooms, settings }: QuotePdfDocumentProps) {
+export function QuotePdfDocument({ quote: q, rooms, lineItems = [], settings }: QuotePdfDocumentProps) {
   const remainingBalance = q.final_total - q.deposit_amount
+  const terms = [
+    settings?.terms_validity?.trim(),
+    settings?.terms_scheduling?.trim(),
+    settings?.terms_scope?.trim(),
+  ].filter((t): t is string => !!t && t.length > 0)
 
   return (
     <Document>
@@ -409,6 +515,40 @@ export function QuotePdfDocument({ quote: q, rooms, settings }: QuotePdfDocument
             ))
           })()}
 
+          {/* Additional line items table */}
+          {lineItems.length > 0 && (
+            <View style={{ marginTop: 10 }}>
+              <Text style={[styles.sectionTitle, { marginBottom: 4 }]}>Additional Line Items</Text>
+              <View style={styles.itemsTableHeader}>
+                <Text style={[styles.itemsTableHeaderCell, { flex: 5 }]}>Description</Text>
+                <Text style={[styles.itemsTableHeaderCell, { flex: 1, textAlign: 'right' }]}>Qty</Text>
+                <Text style={[styles.itemsTableHeaderCell, { flex: 2, textAlign: 'right' }]}>Rate</Text>
+                <Text style={[styles.itemsTableHeaderCell, { flex: 2, textAlign: 'right' }]}>Total</Text>
+              </View>
+              {lineItems.map((li) => {
+                const qty = Number(li.qty) || 0
+                const rate = Number(li.unit_price) || 0
+                const total = Number(li.total) || qty * rate
+                return (
+                  <View key={li.id} style={styles.itemsTableRow}>
+                    <Text style={[styles.itemsTableCell, { flex: 5 }]}>{li.description || '—'}</Text>
+                    <Text style={[styles.itemsTableCell, { flex: 1, textAlign: 'right' }]}>{qty}</Text>
+                    <Text style={[styles.itemsTableCell, { flex: 2, textAlign: 'right' }]}>{fmt(rate)}</Text>
+                    <Text style={[styles.itemsTableCell, { flex: 2, textAlign: 'right', fontFamily: 'Helvetica-Bold' }]}>{fmt(total)}</Text>
+                  </View>
+                )
+              })}
+            </View>
+          )}
+
+          {/* Scope of Work / Exclusions — prominent block above the totals */}
+          {q.scope_of_work && q.scope_of_work.trim() && (
+            <View style={styles.scopeBox}>
+              <Text style={styles.scopeTitle}>Scope of Work / Exclusions</Text>
+              <Text style={styles.scopeText}>{q.scope_of_work.trim()}</Text>
+            </View>
+          )}
+
           <View style={styles.divider} />
           <View style={styles.lineRow}>
             <Text style={[styles.lineLabel, { fontFamily: 'Helvetica-Bold' }]}>Subtotal</Text>
@@ -446,6 +586,21 @@ export function QuotePdfDocument({ quote: q, rooms, settings }: QuotePdfDocument
           </View>
         </View>
 
+        {/* Terms & Disclaimers */}
+        {terms.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Terms &amp; Disclaimers</Text>
+            <View style={styles.termsList}>
+              {terms.map((t, i) => (
+                <View key={i} style={styles.termItem}>
+                  <Text style={styles.termBullet}>{'\u2022'}</Text>
+                  <Text style={styles.termText}>{t}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+
         {/* Payment Terms */}
         {settings?.payment_terms && (
           <View style={styles.section}>
@@ -465,6 +620,34 @@ export function QuotePdfDocument({ quote: q, rooms, settings }: QuotePdfDocument
             </View>
           </View>
         )}
+
+        {/* Signature block */}
+        <View style={styles.signatureSection}>
+          <View style={styles.signatureBlock}>
+            <View style={styles.signatureRow}>
+              <View style={styles.signatureNameCol}>
+                <View style={styles.signatureLine} />
+                <Text style={styles.signatureLabel}>Customer Signature</Text>
+              </View>
+              <View style={styles.signatureDateCol}>
+                <View style={styles.signatureLine} />
+                <Text style={styles.signatureLabel}>Date</Text>
+              </View>
+            </View>
+          </View>
+          <View style={styles.signatureBlock}>
+            <View style={styles.signatureRow}>
+              <View style={styles.signatureNameCol}>
+                <View style={styles.signatureLine} />
+                <Text style={styles.signatureLabel}>Authorized Representative</Text>
+              </View>
+              <View style={styles.signatureDateCol}>
+                <View style={styles.signatureLine} />
+                <Text style={styles.signatureLabel}>Date</Text>
+              </View>
+            </View>
+          </View>
+        </View>
 
         {/* Footer */}
         <View style={styles.footer}>

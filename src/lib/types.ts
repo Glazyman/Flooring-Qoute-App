@@ -86,6 +86,9 @@ export interface CompanySettings {
   next_quote_number: number | null
   next_invoice_number: number | null
   default_quote_valid_days: number | null
+  terms_validity: string | null
+  terms_scheduling: string | null
+  terms_scope: string | null
 }
 
 export interface QuoteRoom {
@@ -96,6 +99,17 @@ export interface QuoteRoom {
   length: number
   width: number
   sqft: number
+}
+
+export interface QuoteLineItem {
+  id: string
+  quote_id: string
+  position: number
+  description: string | null
+  qty: number
+  unit_price: number
+  total: number
+  created_at: string
 }
 
 export interface Quote {
@@ -137,6 +151,7 @@ export interface Quote {
   deposit_amount: number
   status: QuoteStatus
   notes: string | null
+  scope_of_work: string | null
   valid_days: number
   section_flooring_types: Record<string, FlooringType> | null
   extras_json: Record<string, number> | null

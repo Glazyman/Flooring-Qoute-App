@@ -28,6 +28,9 @@ export interface QuoteInputs {
   labor_total_override?: number
   // Optional extras (jsonb-backed). All multiplied/included into extras_total when present.
   extras?: QuoteExtras | null
+  // Optional pre-summed total of additional line items (description/qty/unit_price rows).
+  // Folded into extras_total so it flows through subtotal -> tax -> markup naturally.
+  line_items_total?: number
 }
 
 export interface QuoteCalculations {
@@ -62,7 +65,8 @@ export function calculateQuote(inputs: QuoteInputs): QuoteCalculations {
     underlaymentTotal +
     transitionTotal +
     (ex.floor_protection || 0) +
-    (ex.disposal_fee || 0)
+    (ex.disposal_fee || 0) +
+    (inputs.line_items_total || 0)
   const subtotal = material_total + labor_total + extras_total
   const tax_amount = inputs.tax_enabled ? subtotal * (inputs.tax_pct / 100) : 0
   const markup_amount = subtotal * (inputs.markup_pct / 100)
