@@ -245,9 +245,9 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
         </div>
       )}
 
-      {/* Search + Add */}
+      {/* Search + Actions */}
       <div className="flex gap-2">
-        <div className="flex-1 flex items-center gap-2 bg-white rounded-2xl px-3.5 py-2.5" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
+        <div className="flex-1 flex items-center gap-2 bg-white rounded-xl px-3.5 py-2.5" style={{ border: '1px solid var(--border)' }}>
           <Search className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--text-3)' }} />
           <input
             type="text"
@@ -266,29 +266,32 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
         {mode === 'page' && customers.length > 0 && (
           <button
             onClick={() => selecting ? exitSelect() : setSelecting(true)}
-            className={`flex items-center gap-2 border font-medium px-3.5 py-2 rounded-xl text-sm flex-shrink-0 active:scale-95 transition-colors ${
-              selecting ? 'bg-gray-100 border-gray-300 text-gray-600' : 'border-gray-200 text-gray-500 hover:bg-gray-50 hover:border-gray-300'
+            className={`flex items-center gap-1.5 font-medium px-3 py-2 rounded-xl text-sm flex-shrink-0 border transition-colors ${
+              selecting
+                ? 'bg-gray-100 border-gray-300 text-gray-600'
+                : 'border-gray-200 text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'
             }`}
           >
-            {selecting ? 'Cancel' : 'Select'}
+            <CheckSquare className="w-3.5 h-3.5" />
+            <span>{selecting ? 'Cancel' : 'Select'}</span>
           </button>
         )}
         {mode === 'page' && (
           <button
             onClick={() => { setShowImport(v => !v); setImportRows([]); setImportError(''); setImportDone(false) }}
-            className="flex items-center gap-2 border border-gray-200 text-gray-600 font-medium px-3.5 py-2 rounded-xl text-sm flex-shrink-0 active:scale-95 hover:bg-gray-50 transition-colors"
+            className="flex items-center justify-center w-9 h-9 border border-gray-200 text-gray-500 rounded-xl flex-shrink-0 hover:bg-gray-50 hover:text-gray-700 transition-colors"
+            title="Import from QuickBooks"
           >
             <Upload className="w-4 h-4" />
-            <span className="hidden sm:inline">QuickBooks</span>
           </button>
         )}
         <button
           onClick={startAdd}
-          className="flex items-center gap-2 text-white font-semibold px-4 py-2 rounded-xl text-sm flex-shrink-0 active:scale-95"
+          className="flex items-center justify-center w-9 h-9 text-white rounded-xl flex-shrink-0 active:scale-95"
           style={{ background: 'var(--primary)' }}
+          title="Add Contact"
         >
           <UserPlus className="w-4 h-4" />
-          <span className="hidden sm:inline">Add Contact</span>
         </button>
       </div>
 
