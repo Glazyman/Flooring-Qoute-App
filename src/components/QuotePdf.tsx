@@ -606,7 +606,7 @@ export function QuotePdfDocument({ quote: q, rooms, lineItems = [], settings }: 
             <Text style={[styles.itemsHeaderCell, styles.cellDescription, { textAlign: 'center' }]}>
               Description
             </Text>
-            <Text style={[styles.itemsHeaderCell, styles.cellHeaderQty]}>Qty</Text>
+            <Text style={[styles.itemsHeaderCell, styles.cellHeaderQty]}>Sqft</Text>
             <Text style={[styles.itemsHeaderCell, styles.cellHeaderRate]}>Rate</Text>
             <Text style={[styles.itemsHeaderCell, styles.cellHeaderTotal]}>Total</Text>
           </View>

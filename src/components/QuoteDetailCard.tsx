@@ -516,7 +516,7 @@ export default function QuoteDetailCard({
             }}
           >
             <span>Description</span>
-            <span className="text-right">Qty</span>
+            <span className="text-right">Sqft</span>
             <span className="text-right">Rate</span>
             <span className="text-right">Total</span>
           </div>
