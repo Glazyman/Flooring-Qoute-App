@@ -15,6 +15,7 @@ const DEFAULT_SETTINGS: CompanySettings = {
   default_waste_pct: 10,
   default_markup_pct: 0,
   default_deposit_pct: 50,
+  default_tax_pct: 0,
 }
 
 export default async function SettingsPage() {

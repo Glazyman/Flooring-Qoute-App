@@ -34,6 +34,7 @@ export async function PUT(request: NextRequest) {
         default_waste_pct: body.default_waste_pct,
         default_markup_pct: body.default_markup_pct,
         default_deposit_pct: body.default_deposit_pct,
+        default_tax_pct: body.default_tax_pct ?? 0,
         updated_at: new Date().toISOString(),
       },
       { onConflict: 'company_id' }

@@ -75,6 +75,7 @@ export interface CompanySettings {
   default_waste_pct: number
   default_markup_pct: number
   default_deposit_pct: number
+  default_tax_pct: number
 }
 
 export interface QuoteRoom {

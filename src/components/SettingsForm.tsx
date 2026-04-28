@@ -91,6 +91,7 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
     default_waste_pct: String(initial.default_waste_pct ?? 10),
     default_markup_pct: String(initial.default_markup_pct ?? 0),
     default_deposit_pct: String(initial.default_deposit_pct ?? 50),
+    default_tax_pct: String(initial.default_tax_pct ?? 0),
   })
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -145,6 +146,7 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
         default_waste_pct: parseFloat(form.default_waste_pct) || 0,
         default_markup_pct: parseFloat(form.default_markup_pct) || 0,
         default_deposit_pct: parseFloat(form.default_deposit_pct) || 0,
+        default_tax_pct: parseFloat(form.default_tax_pct) || 0,
       }),
     })
 
@@ -193,6 +195,7 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
                     default_waste_pct: String(initial.default_waste_pct ?? 10),
                     default_markup_pct: String(initial.default_markup_pct ?? 0),
                     default_deposit_pct: String(initial.default_deposit_pct ?? 50),
+                    default_tax_pct: String(initial.default_tax_pct ?? 0),
                   })
                   setEditing(false)
                   setError('')
@@ -295,6 +298,16 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
           <Input label="Waste %" value={form.default_waste_pct} onChange={(v) => set('default_waste_pct', v)} type="number" suffix="%" placeholder="10" disabled={ro} />
           <Input label="Markup %" value={form.default_markup_pct} onChange={(v) => set('default_markup_pct', v)} type="number" suffix="%" placeholder="0" disabled={ro} />
           <Input label="Deposit %" value={form.default_deposit_pct} onChange={(v) => set('default_deposit_pct', v)} type="number" suffix="%" placeholder="50" disabled={ro} />
+          <Input
+            label="Default Tax Rate"
+            value={form.default_tax_pct}
+            onChange={(v) => set('default_tax_pct', v)}
+            type="number"
+            suffix="%"
+            placeholder="0"
+            hint="Auto-fills the tax rate when you enable tax on a quote"
+            disabled={ro}
+          />
         </div>
       </Card>
     </form>

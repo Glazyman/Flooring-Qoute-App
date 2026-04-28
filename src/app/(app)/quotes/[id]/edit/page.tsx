@@ -74,6 +74,7 @@ export default async function EditQuotePage({
     default_labor_cost: company.default_labor_cost,
     default_markup_pct: company.default_markup_pct,
     default_deposit_pct: company.default_deposit_pct,
+    default_tax_pct: (company as unknown as { default_tax_pct?: number }).default_tax_pct ?? 0,
   } : null
 
   const isMeasurement = q.status === 'measurement'

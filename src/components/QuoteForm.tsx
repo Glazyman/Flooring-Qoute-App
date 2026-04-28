@@ -232,7 +232,13 @@ export default function QuoteForm({
   const [customFeeAmount, setCustomFeeAmount] = useState(initialData?.custom_fee_amount ? String(initialData.custom_fee_amount) : '')
 
   const [taxEnabled, setTaxEnabled] = useState(initialData?.tax_enabled ?? false)
-  const [taxPct, setTaxPct] = useState(initialData?.tax_pct ? String(initialData.tax_pct) : '')
+  const [taxPct, setTaxPct] = useState(
+    initialData?.tax_pct
+      ? String(initialData.tax_pct)
+      : settings?.default_tax_pct
+        ? String(settings.default_tax_pct)
+        : ''
+  )
   const [markupPct, setMarkupPct] = useState(String(initialData?.markup_pct ?? settings?.default_markup_pct ?? 0))
   const [depositPct, setDepositPct] = useState(String(initialData?.deposit_pct ?? settings?.default_deposit_pct ?? 50))
   const [notes, setNotes] = useState(initialData?.notes ?? '')
@@ -563,10 +569,6 @@ export default function QuoteForm({
 
           {/* Project Settings */}
           <Card title="Project Settings">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
-              <Input label="Waste %" value={wastePct} onChange={setWastePct} type="number" suffix="%" placeholder="10" decimal />
-            </div>
-
             {/* Method toggle */}
             <div className="mb-5">
               <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Measurement Method</label>
@@ -807,6 +809,7 @@ export default function QuoteForm({
           {/* Extras */}
           <Card title="Extras & Add-ons">
             <div className="grid grid-cols-2 gap-4">
+              <Input label="Waste %" value={wastePct} onChange={setWastePct} type="number" suffix="%" placeholder="10" decimal />
               <Input label="Removal Fee" value={removalFee} onChange={setRemovalFee} type="number" prefix="$" placeholder="0" decimal />
               <Input label="Furniture Moving" value={furnitureFee} onChange={setFurnitureFee} type="number" prefix="$" placeholder="0" decimal />
               <Input label="Quarter Round / Moldings" value={quarterRoundFee} onChange={setQuarterRoundFee} type="number" prefix="$" placeholder="0" decimal />
