@@ -745,21 +745,6 @@ export default function QuoteDetailCard({
             )
           })}
 
-          {/* Add row button */}
-          <div className="px-2 py-1.5" style={{ borderBottom: ROW_BORDER }}>
-            <button
-              onClick={addLineItem}
-              disabled={addingRow}
-              className="flex items-center gap-1.5 text-xs font-semibold py-1 px-2 rounded-lg transition-colors disabled:opacity-50"
-              style={{ color: TEAL, background: 'rgba(13,148,136,0.06)' }}
-            >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-              </svg>
-              {addingRow ? 'Adding…' : 'Add row'}
-            </button>
-          </div>
-
           {/* Fixed fee rows (static) */}
           {q.removal_fee > 0 && (
             <div
@@ -905,6 +890,21 @@ export default function QuoteDetailCard({
               </>
             )
           })()}
+
+          {/* Add row button — always at bottom of table */}
+          <div className="px-2 py-1.5" style={{ borderBottom: ROW_BORDER }}>
+            <button
+              onClick={addLineItem}
+              disabled={addingRow}
+              className="flex items-center gap-1.5 text-xs font-semibold py-1 px-2 rounded-lg transition-colors disabled:opacity-50"
+              style={{ color: TEAL, background: 'rgba(13,148,136,0.06)' }}
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+              </svg>
+              {addingRow ? 'Adding…' : 'Add row'}
+            </button>
+          </div>
 
           {/* Signature row */}
           <div className="px-2 py-3" style={{ borderBottom: ROW_BORDER, color: '#475569' }}>
