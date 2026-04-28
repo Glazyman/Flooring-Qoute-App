@@ -74,16 +74,18 @@ export default async function EditQuotePage({
     default_deposit_pct: company.default_deposit_pct,
   } : null
 
+  const isMeasurement = q.status === 'measurement'
+
   return (
     <div className="max-w-3xl">
       <div className="mb-5">
         <Link
-          href={`/quotes/${id}`}
+          href={isMeasurement ? '/measurements' : `/quotes/${id}`}
           className="text-xs font-medium text-gray-400 hover:text-gray-600 inline-flex items-center gap-1 mb-2"
         >
-          ← Back to Quote
+          {isMeasurement ? '← Back to Saved Measurements' : '← Back to Quote'}
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900">Edit Quote</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{isMeasurement ? 'Edit Measurement' : 'Edit Quote'}</h1>
         <p className="text-sm text-gray-400 mt-1">{q.customer_name}</p>
       </div>
       <QuoteForm settings={settings} initialData={initialData} quoteId={id} />

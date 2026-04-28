@@ -67,29 +67,25 @@ export default async function MeasurementsPage() {
       ) : (
         <div className="space-y-2.5">
           {list.map(m => (
-            <div
-              key={m.id}
-              className="bg-white rounded-2xl px-4 sm:px-5 py-4"
-              style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}
-            >
-              <div className="flex items-center gap-4">
-                <Link href={`/quotes/${m.id}/edit`} className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 text-white text-sm font-bold hover:opacity-80 transition-opacity" style={{ background: 'var(--primary)' }}>
+            <div key={m.id} className="bg-white rounded-2xl flex items-center gap-4 px-4 sm:px-5 py-4 hover:bg-gray-50 transition-colors" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
+              <Link href={`/quotes/${m.id}/edit`} className="flex items-center gap-4 flex-1 min-w-0 active:scale-[0.99]">
+                <div className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 text-white text-sm font-bold" style={{ background: 'var(--primary)' }}>
                   {m.customer_name.charAt(0).toUpperCase()}
-                </Link>
-                <Link href={`/quotes/${m.id}/edit`} className="flex-1 min-w-0 group">
-                  <p className="font-semibold text-sm group-hover:underline" style={{ color: 'var(--text)' }}>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm flex items-center gap-1.5" style={{ color: 'var(--text)' }}>
                     {m.customer_name}
-                    <Pencil className="w-3 h-3 inline-block ml-1.5 opacity-40 group-hover:opacity-70" />
+                    <Pencil className="w-3 h-3 opacity-30" />
                   </p>
                   <p className="text-xs mt-0.5" style={{ color: 'var(--text-2)' }}>
                     {m.flooring_type} · {m.adjusted_sqft.toFixed(0)} sqft · {fmtDate(m.created_at)}
                     {m.job_address && ` · ${m.job_address}`}
                   </p>
-                </Link>
-                <div className="flex items-center gap-3 flex-shrink-0">
-                  <p className="font-bold text-sm" style={{ color: 'var(--text)' }}>{fmt(m.final_total)}</p>
-                  <ApproveMeasurementButton quoteId={m.id} />
                 </div>
+                <p className="font-bold text-sm flex-shrink-0 mr-2" style={{ color: 'var(--text)' }}>{fmt(m.final_total)}</p>
+              </Link>
+              <div className="flex-shrink-0">
+                <ApproveMeasurementButton quoteId={m.id} />
               </div>
             </div>
           ))}
