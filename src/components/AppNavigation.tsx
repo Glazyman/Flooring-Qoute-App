@@ -21,7 +21,7 @@ const navItems: NavItem[] = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/quotes', label: 'Estimates', icon: FileText },
   { href: '/measurements', label: 'Measurements', icon: Ruler },
-  { href: '/invoices', label: 'Invoices', icon: Receipt },
+  { href: '/invoices', label: 'Import', icon: Receipt },
   { href: '/contacts', label: 'Contacts', icon: Users },
 ]
 
