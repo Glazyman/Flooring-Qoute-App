@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, Trash2, Upload, FileText, X } from 'lucide-react'
+import { Plus, Upload, FileText, X, CheckCircle2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 interface LineItem {
@@ -16,6 +16,39 @@ const emptyItem = (): LineItem => ({ description: '', quantity: 1, unit_price: 0
 
 function fmt(n: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n)
+}
+
+function parseCsv(text: string): LineItem[] {
+  const lines = text.split(/\r?\n/).filter(l => l.trim())
+  if (lines.length < 2) return []
+
+  const rawHeaders = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/['"]/g, ''))
+
+  function findCol(variants: string[]): number {
+    for (const v of variants) {
+      const idx = rawHeaders.findIndex(h => h === v || h.includes(v))
+      if (idx !== -1) return idx
+    }
+    return -1
+  }
+
+  const descCol = findCol(['description', 'desc', 'item', 'name', 'service', 'product'])
+  const qtyCol = findCol(['quantity', 'qty', 'count', 'units'])
+  const priceCol = findCol(['unit_price', 'unit price', 'price', 'amount', 'rate', 'cost'])
+
+  const items: LineItem[] = []
+  for (let i = 1; i < lines.length; i++) {
+    const cols = lines[i].split(',').map(c => c.trim().replace(/^"|"$/g, ''))
+    if (cols.every(c => !c)) continue
+
+    const description = descCol >= 0 ? (cols[descCol] ?? '') : (cols[0] ?? '')
+    const quantity = qtyCol >= 0 ? parseFloat(cols[qtyCol] ?? '') || 1 : 1
+    const unit_price = priceCol >= 0 ? parseFloat((cols[priceCol] ?? '').replace(/[$,]/g, '')) || 0 : 0
+    const total = quantity * unit_price
+
+    if (description.trim()) items.push({ description, quantity, unit_price, total })
+  }
+  return items
 }
 
 export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'form' | 'upload' }) {
@@ -33,6 +66,8 @@ export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'for
   const [lineItems, setLineItems] = useState<LineItem[]>([emptyItem()])
   const [taxPct, setTaxPct] = useState(0)
   const [notes, setNotes] = useState('')
+  const [csvImportCount, setCsvImportCount] = useState<number | null>(null)
+  const csvInputRef = useRef<HTMLInputElement>(null)
 
   // Upload fields
   const [uploadCustomerName, setUploadCustomerName] = useState('')
@@ -40,6 +75,25 @@ export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'for
   const [uploadFile, setUploadFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
+
+  function handleCsvUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = ev => {
+      const text = ev.target?.result as string
+      const parsed = parseCsv(text)
+      if (parsed.length > 0) {
+        setLineItems(parsed)
+        setCsvImportCount(parsed.length)
+        setError('')
+      } else {
+        setError('Could not parse any line items. Check that your CSV has description, quantity, and price columns.')
+      }
+    }
+    reader.readAsText(file)
+    e.target.value = ''
+  }
 
   function updateItem(i: number, field: keyof LineItem, value: string | number) {
     setLineItems(prev => {
@@ -215,7 +269,67 @@ export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'for
 
           {/* Line items */}
           <div className="bg-white rounded-xl p-5 space-y-3" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
-            <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Line Items</p>
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Line Items</p>
+              {csvImportCount !== null && (
+                <span className="flex items-center gap-1 text-xs font-semibold text-teal-600">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  Imported {csvImportCount} line item{csvImportCount !== 1 ? 's' : ''}
+                </span>
+              )}
+            </div>
+
+            {/* CSV upload zone */}
+            <div
+              className="border-2 border-dashed border-gray-200 rounded-xl p-5 text-center hover:border-teal-300 hover:bg-teal-50/30 transition-colors cursor-pointer"
+              onClick={() => csvInputRef.current?.click()}
+              onDragOver={e => { e.preventDefault(); e.currentTarget.classList.add('border-teal-300', 'bg-teal-50/30') }}
+              onDragLeave={e => { e.currentTarget.classList.remove('border-teal-300', 'bg-teal-50/30') }}
+              onDrop={e => {
+                e.preventDefault()
+                e.currentTarget.classList.remove('border-teal-300', 'bg-teal-50/30')
+                const file = e.dataTransfer.files?.[0]
+                if (file && file.name.endsWith('.csv')) {
+                  const reader = new FileReader()
+                  reader.onload = ev => {
+                    const text = ev.target?.result as string
+                    const parsed = parseCsv(text)
+                    if (parsed.length > 0) {
+                      setLineItems(parsed)
+                      setCsvImportCount(parsed.length)
+                      setError('')
+                    } else {
+                      setError('Could not parse any line items. Check that your CSV has description, quantity, and price columns.')
+                    }
+                  }
+                  reader.readAsText(file)
+                } else {
+                  setError('Please drop a .csv file.')
+                }
+              }}
+            >
+              <input
+                type="file"
+                accept=".csv"
+                className="hidden"
+                ref={csvInputRef}
+                onChange={handleCsvUpload}
+              />
+              <button
+                type="button"
+                onClick={e => { e.stopPropagation(); csvInputRef.current?.click() }}
+                className="flex flex-col items-center gap-2 w-full"
+              >
+                <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center">
+                  <Upload className="w-5 h-5 text-gray-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-700">Upload CSV</p>
+                  <p className="text-xs text-gray-400 mt-0.5">Import line items from a spreadsheet · drag &amp; drop or click</p>
+                </div>
+              </button>
+            </div>
+
             {lineItems.map((item, i) => (
               <div key={i} className="grid grid-cols-12 gap-2 items-center">
                 <input
