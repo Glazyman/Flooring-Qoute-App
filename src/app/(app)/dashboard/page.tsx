@@ -68,7 +68,7 @@ export default async function DashboardPage() {
       {/* Recent Quotes */}
       <div className="bg-white rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
         <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
-          <p className="font-semibold text-sm" style={{ color: 'var(--text)' }}>Recent Quotes</p>
+          <p className="font-semibold text-sm" style={{ color: 'var(--text)' }}>Recent Estimates</p>
           <Link href="/quotes" className="text-sm font-medium" style={{ color: 'var(--primary)' }}>See all</Link>
         </div>
 
