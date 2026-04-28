@@ -191,10 +191,12 @@ export default function QuoteForm({
   settings,
   initialData,
   quoteId,
+  isPro = false,
 }: {
   settings: CompanySettings | null
   initialData?: QuoteInitialData
   quoteId?: string
+  isPro?: boolean
 }) {
   const isEditing = !!quoteId
   const router = useRouter()
@@ -853,27 +855,48 @@ export default function QuoteForm({
               </div>
             ) : (
               <div className="space-y-4">
-                {/* Blueprint upload */}
-                <div className={`border-2 border-dashed rounded-xl p-4 text-center transition-colors ${blueprintLoading ? 'border-teal-300 bg-teal-50' : 'hover:border-teal-300 hover:bg-teal-50/50'}`} style={{ borderColor: blueprintLoading ? undefined : 'var(--border)' }}>
-                  <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleBlueprintUpload} />
-                  {blueprintLoading ? (
+                {/* Blueprint upload (Pro tier only) */}
+                {isPro ? (
+                  <div className={`border-2 border-dashed rounded-xl p-4 text-center transition-colors ${blueprintLoading ? 'border-teal-300 bg-teal-50' : 'hover:border-teal-300 hover:bg-teal-50/50'}`} style={{ borderColor: blueprintLoading ? undefined : 'var(--border)' }}>
+                    <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleBlueprintUpload} />
+                    {blueprintLoading ? (
+                      <div className="flex flex-col items-center gap-2 py-2">
+                        <Loader2 className="w-6 h-6 text-teal-500 animate-spin" />
+                        <p className="text-sm font-medium text-teal-700">Analyzing with AI…</p>
+                        <p className="text-xs text-teal-500">~10–20 seconds per image</p>
+                      </div>
+                    ) : (
+                      <button type="button" onClick={() => fileRef.current?.click()} className="flex flex-col items-center gap-2 w-full py-2">
+                        <div className="w-10 h-10 bg-teal-100 rounded-xl flex items-center justify-center">
+                          <Upload className="w-5 h-5 text-teal-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold" style={{ color: 'var(--text)' }}>Upload Blueprint or Measurement Sheet</p>
+                          <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>Select multiple images — one per floor is fine</p>
+                        </div>
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <a
+                    href="/billing/setup"
+                    className="block border-2 border-dashed rounded-xl p-4 text-center transition-colors hover:border-teal-300 hover:bg-teal-50/50"
+                    style={{ borderColor: 'var(--border)' }}
+                  >
                     <div className="flex flex-col items-center gap-2 py-2">
-                      <Loader2 className="w-6 h-6 text-teal-500 animate-spin" />
-                      <p className="text-sm font-medium text-teal-700">Analyzing with AI…</p>
-                      <p className="text-xs text-teal-500">~10–20 seconds per image</p>
-                    </div>
-                  ) : (
-                    <button type="button" onClick={() => fileRef.current?.click()} className="flex flex-col items-center gap-2 w-full py-2">
-                      <div className="w-10 h-10 bg-teal-100 rounded-xl flex items-center justify-center">
-                        <Upload className="w-5 h-5 text-teal-600" />
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--bg)' }}>
+                        <Upload className="w-5 h-5" style={{ color: 'var(--text-3)' }} />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold" style={{ color: 'var(--text)' }}>Upload Blueprint or Measurement Sheet</p>
-                        <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>Select multiple images — one per floor is fine</p>
+                        <p className="text-sm font-semibold" style={{ color: 'var(--text)' }}>
+                          Upload Blueprint
+                          <span className="ml-2 text-[10px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-md" style={{ color: 'var(--primary)', background: 'var(--primary-light)' }}>Pro</span>
+                        </p>
+                        <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>AI extracts every room — upgrade to enable</p>
                       </div>
-                    </button>
-                  )}
-                </div>
+                    </div>
+                  </a>
+                )}
 
                 {blueprintError && (
                   <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-xl text-xs font-medium">

@@ -71,7 +71,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const [companyResult, countResult, settingsResult] = await Promise.all([
     supabase
       .from('companies')
-      .select('id, name, subscription_status')
+      .select('id, name, subscription_status, stripe_price_id')
       .eq('id', companyId)
       .single(),
     supabase
@@ -92,15 +92,40 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     company.subscription_status === 'active' ||
     company.subscription_status === 'trialing'
 
+  const starterPriceIds = new Set([
+    process.env.STRIPE_STARTER_MONTHLY_PRICE_ID,
+    process.env.STRIPE_STARTER_ANNUAL_PRICE_ID,
+  ].filter(Boolean))
+  const proPriceIds = new Set([
+    process.env.STRIPE_PRO_MONTHLY_PRICE_ID,
+    process.env.STRIPE_PRO_ANNUAL_PRICE_ID,
+  ].filter(Boolean))
+
+  const companyPriceId = (company as { stripe_price_id?: string | null }).stripe_price_id ?? null
+  const isOnStarter = isSubscribed && companyPriceId !== null && starterPriceIds.has(companyPriceId)
+  const isOnPro = isSubscribed && companyPriceId !== null && proPriceIds.has(companyPriceId)
+
   let freeQuotesRemaining: number | null = null
 
   if (!isSubscribed) {
     const used = countResult.count ?? 0
     freeQuotesRemaining = Math.max(0, 3 - used)
-    // Don't blanket-redirect here — let the user see their dashboard and existing quotes.
-    // Only /quotes/new enforces the limit.
   }
 
+  // Starter monthly usage (only count when relevant)
+  let starterMonthlyUsed: number | null = null
+  if (isOnStarter) {
+    const now = new Date()
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+    const { count } = await supabase
+      .from('quotes')
+      .select('*', { count: 'exact', head: true })
+      .eq('company_id', companyId)
+      .gte('created_at', monthStart)
+    starterMonthlyUsed = count ?? 0
+  }
+
+  const planLabel = isOnPro ? 'Pro' : isOnStarter ? 'Starter' : isSubscribed ? 'Active' : 'Free Trial'
   const trialExhausted = !isSubscribed && (countResult.count ?? 0) >= 3
 
   return (
@@ -110,10 +135,27 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         logoUrl={settingsResult.data?.logo_url ?? null}
         website={settingsResult.data?.website ?? null}
         trialExhausted={trialExhausted}
+        planLabel={planLabel}
       />
       <main className="lg:ml-56 pt-16 lg:pt-0">
         {freeQuotesRemaining !== null && (
           <TrialBanner remaining={freeQuotesRemaining} />
+        )}
+        {starterMonthlyUsed !== null && starterMonthlyUsed >= 20 && (
+          <div className={`px-5 py-3 text-sm flex items-center justify-between gap-4 ${starterMonthlyUsed >= 25 ? 'bg-red-500 text-white' : 'bg-amber-500 text-white'}`}>
+            <p className="font-medium text-sm">
+              {starterMonthlyUsed >= 25
+                ? "You've used all 25 quotes this month on Starter."
+                : `Starter plan: ${starterMonthlyUsed}/25 quotes used this month.`}{' '}
+              <span className="opacity-80">Upgrade to Pro for unlimited quotes.</span>
+            </p>
+            <a
+              href="/billing/setup"
+              className="flex-shrink-0 bg-white/20 hover:bg-white/30 font-semibold px-3 py-1.5 rounded-xl text-xs transition-colors whitespace-nowrap"
+            >
+              Upgrade →
+            </a>
+          </div>
         )}
         <div className="max-w-5xl mx-auto px-5 py-6 lg:px-8 lg:py-7">{children}</div>
       </main>

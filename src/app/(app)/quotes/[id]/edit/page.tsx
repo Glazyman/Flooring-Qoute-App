@@ -18,11 +18,22 @@ export default async function EditQuotePage({
     .from('company_members').select('company_id').eq('user_id', user.id).single()
   if (!membership) redirect('/billing/setup')
 
-  const [{ data: quote }, { data: rooms }, { data: settingsRow }] = await Promise.all([
+  const [{ data: quote }, { data: rooms }, { data: settingsRow }, { data: company }] = await Promise.all([
     supabase.from('quotes').select('*').eq('id', id).eq('company_id', membership.company_id).single(),
     supabase.from('quote_rooms').select('*').eq('quote_id', id).order('id'),
     supabase.from('company_settings').select('*').eq('company_id', membership.company_id).single(),
+    supabase.from('companies').select('subscription_status, stripe_price_id').eq('id', membership.company_id).single(),
   ])
+
+  const isSubscribed =
+    company?.subscription_status === 'active' ||
+    company?.subscription_status === 'trialing'
+  const proPriceIds = new Set([
+    process.env.STRIPE_PRO_MONTHLY_PRICE_ID,
+    process.env.STRIPE_PRO_ANNUAL_PRICE_ID,
+  ].filter(Boolean))
+  const companyPriceId = company?.stripe_price_id ?? null
+  const isOnPro = isSubscribed && companyPriceId !== null && proPriceIds.has(companyPriceId)
 
   if (!quote) notFound()
 
@@ -79,7 +90,7 @@ export default async function EditQuotePage({
         <h1 className="text-2xl font-bold text-gray-900">{isMeasurement ? 'Edit Measurement' : 'Edit Quote'}</h1>
         <p className="text-sm text-gray-400 mt-1">{q.customer_name}</p>
       </div>
-      <QuoteForm settings={settings} initialData={initialData} quoteId={id} />
+      <QuoteForm settings={settings} initialData={initialData} quoteId={id} isPro={!!isOnPro} />
     </div>
   )
 }

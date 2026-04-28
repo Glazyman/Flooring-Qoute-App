@@ -56,12 +56,13 @@ function NavLink({ item, onClick, trialExhausted }: { item: NavItem; onClick?: (
 }
 
 export default function AppNavigation({
-  companyName, logoUrl, website, trialExhausted = false,
+  companyName, logoUrl, website, trialExhausted = false, planLabel,
 }: {
   companyName: string
   logoUrl?: string | null
   website?: string | null
   trialExhausted?: boolean
+  planLabel?: string
 }) {
   const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -94,9 +95,11 @@ export default function AppNavigation({
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-[13px] font-semibold truncate" style={{ color: 'rgba(255,255,255,0.9)' }}>{companyName}</p>
-            {website && (
+            {planLabel ? (
+              <p className="text-[11px] truncate -mt-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>{planLabel} plan</p>
+            ) : website ? (
               <p className="text-[11px] truncate -mt-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>{website}</p>
-            )}
+            ) : null}
           </div>
         </div>
       </div>

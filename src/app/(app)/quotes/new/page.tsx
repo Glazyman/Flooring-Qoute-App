@@ -35,8 +35,14 @@ export default async function NewQuotePage() {
     process.env.STRIPE_STARTER_ANNUAL_PRICE_ID,
   ].filter(Boolean))
 
+  const proPriceIds = new Set([
+    process.env.STRIPE_PRO_MONTHLY_PRICE_ID,
+    process.env.STRIPE_PRO_ANNUAL_PRICE_ID,
+  ].filter(Boolean))
+
   const companyPriceId = company?.stripe_price_id ?? null
   const isOnStarter = isSubscribed && companyPriceId !== null && starterPriceIds.has(companyPriceId)
+  const isOnPro = isSubscribed && companyPriceId !== null && proPriceIds.has(companyPriceId)
 
   if (!isSubscribed) {
     // Free trial limit check
@@ -102,7 +108,7 @@ export default async function NewQuotePage() {
         <h1 className="text-2xl font-bold text-gray-900">New Quote</h1>
         <p className="text-sm text-gray-400 mt-0.5">Fill in the details to generate your estimate</p>
       </div>
-      <QuoteForm settings={settings as CompanySettings | null} />
+      <QuoteForm settings={settings as CompanySettings | null} isPro={!!isOnPro} />
     </div>
   )
 }
