@@ -12,52 +12,52 @@ import { flooringTypeLabel } from '@/lib/flooringLabels'
 const styles = StyleSheet.create({
   page: {
     fontFamily: 'Helvetica',
-    fontSize: 10,
+    fontSize: 9.5,
     color: '#0f172a',
-    padding: 40,
+    padding: 28,
     backgroundColor: '#ffffff',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 28,
-    paddingBottom: 16,
-    borderBottomWidth: 2,
+    marginBottom: 12,
+    paddingBottom: 8,
+    borderBottomWidth: 1.5,
     borderBottomColor: '#2563eb',
   },
   companyName: {
-    fontSize: 18,
+    fontSize: 14,
     fontFamily: 'Helvetica-Bold',
     color: '#2563eb',
-    marginBottom: 4,
-  },
-  companyDetail: {
-    fontSize: 9,
-    color: '#64748b',
     marginBottom: 2,
   },
+  companyDetail: {
+    fontSize: 8,
+    color: '#64748b',
+    marginBottom: 1,
+  },
   estimateTitle: {
-    fontSize: 22,
+    fontSize: 16,
     fontFamily: 'Helvetica-Bold',
     color: '#0f172a',
     textAlign: 'right',
   },
   estimateDate: {
-    fontSize: 9,
+    fontSize: 8,
     color: '#64748b',
     textAlign: 'right',
-    marginTop: 2,
+    marginTop: 1,
   },
   section: {
-    marginBottom: 16,
+    marginBottom: 8,
   },
   sectionTitle: {
-    fontSize: 9,
+    fontSize: 8,
     fontFamily: 'Helvetica-Bold',
     color: '#94a3b8',
     textTransform: 'uppercase',
     letterSpacing: 0.8,
-    marginBottom: 6,
+    marginBottom: 3,
   },
   row: {
     flexDirection: 'row',
@@ -67,134 +67,134 @@ const styles = StyleSheet.create({
   infoGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
+    gap: 8,
   },
   infoItem: {
     flex: 1,
-    minWidth: '45%',
-    marginBottom: 8,
+    minWidth: '22%',
+    marginBottom: 3,
   },
   infoLabel: {
-    fontSize: 8,
+    fontSize: 7.5,
     color: '#94a3b8',
-    marginBottom: 2,
+    marginBottom: 1,
   },
   infoValue: {
-    fontSize: 10,
+    fontSize: 9.5,
     color: '#0f172a',
   },
   divider: {
     borderTopWidth: 1,
     borderTopColor: '#e2e8f0',
-    marginVertical: 8,
+    marginVertical: 4,
   },
   heavyDivider: {
-    borderTopWidth: 2,
+    borderTopWidth: 1.5,
     borderTopColor: '#0f172a',
-    marginVertical: 8,
+    marginVertical: 4,
   },
   lineRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 3,
+    paddingVertical: 1.5,
   },
   lineLabel: {
     color: '#475569',
-    fontSize: 10,
+    fontSize: 9.5,
   },
   lineValue: {
     fontFamily: 'Helvetica-Bold',
     color: '#0f172a',
-    fontSize: 10,
+    fontSize: 9.5,
   },
   totalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 4,
+    paddingVertical: 2,
   },
   totalLabel: {
-    fontSize: 12,
+    fontSize: 11,
     fontFamily: 'Helvetica-Bold',
     color: '#0f172a',
   },
   totalValue: {
-    fontSize: 12,
+    fontSize: 11,
     fontFamily: 'Helvetica-Bold',
     color: '#0f172a',
   },
   depositBox: {
     backgroundColor: '#eff6ff',
-    borderRadius: 6,
-    padding: 10,
-    marginTop: 8,
+    borderRadius: 4,
+    padding: 6,
+    marginTop: 4,
   },
   depositRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   depositLabel: {
-    fontSize: 10,
+    fontSize: 9,
     color: '#1d4ed8',
     fontFamily: 'Helvetica-Bold',
   },
   depositValue: {
-    fontSize: 10,
+    fontSize: 9,
     color: '#1d4ed8',
     fontFamily: 'Helvetica-Bold',
   },
   balanceLabel: {
-    fontSize: 10,
+    fontSize: 9,
     color: '#475569',
   },
   balanceValue: {
-    fontSize: 10,
+    fontSize: 9,
     color: '#475569',
   },
   notesBox: {
     backgroundColor: '#f8fafc',
-    borderRadius: 4,
-    padding: 10,
-    marginTop: 4,
+    borderRadius: 3,
+    padding: 6,
+    marginTop: 2,
   },
   notesText: {
-    fontSize: 9,
+    fontSize: 8.5,
     color: '#475569',
-    lineHeight: 1.5,
+    lineHeight: 1.35,
   },
   footer: {
-    marginTop: 24,
-    paddingTop: 12,
+    marginTop: 8,
+    paddingTop: 6,
     borderTopWidth: 1,
     borderTopColor: '#e2e8f0',
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   footerText: {
-    fontSize: 8,
+    fontSize: 7.5,
     color: '#94a3b8',
   },
   statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 20,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 10,
     backgroundColor: '#fef3c7',
   },
   statusText: {
-    fontSize: 9,
+    fontSize: 8,
     fontFamily: 'Helvetica-Bold',
     color: '#92400e',
   },
   itemsTableHeader: {
     flexDirection: 'row',
-    paddingVertical: 6,
+    paddingVertical: 4,
     borderBottomWidth: 1,
     borderBottomColor: '#cbd5e1',
-    marginTop: 4,
-    marginBottom: 2,
+    marginTop: 2,
+    marginBottom: 1,
   },
   itemsTableHeaderCell: {
-    fontSize: 8,
+    fontSize: 7.5,
     fontFamily: 'Helvetica-Bold',
     color: '#475569',
     textTransform: 'uppercase',
@@ -202,75 +202,74 @@ const styles = StyleSheet.create({
   },
   itemsTableRow: {
     flexDirection: 'row',
-    paddingVertical: 4,
+    paddingVertical: 2.5,
     borderBottomWidth: 1,
     borderBottomColor: '#f1f5f9',
   },
   itemsTableCell: {
-    fontSize: 9.5,
+    fontSize: 9,
     color: '#0f172a',
   },
   scopeBox: {
     backgroundColor: '#fef3c7',
-    borderLeftWidth: 3,
+    borderLeftWidth: 2,
     borderLeftColor: '#d97706',
-    borderRadius: 4,
-    padding: 12,
+    borderRadius: 3,
+    padding: 6,
     marginTop: 4,
-    marginBottom: 12,
+    marginBottom: 6,
   },
   scopeTitle: {
-    fontSize: 9,
+    fontSize: 8,
     fontFamily: 'Helvetica-Bold',
     color: '#92400e',
     textTransform: 'uppercase',
     letterSpacing: 0.6,
-    marginBottom: 4,
+    marginBottom: 2,
   },
   scopeText: {
-    fontSize: 10,
+    fontSize: 9,
     color: '#0f172a',
-    lineHeight: 1.5,
+    lineHeight: 1.35,
   },
   termsList: {
-    marginTop: 4,
+    marginTop: 2,
   },
   termItem: {
     flexDirection: 'row',
-    marginBottom: 4,
+    marginBottom: 1,
   },
   termBullet: {
-    fontSize: 9,
+    fontSize: 8.5,
     color: '#475569',
-    marginRight: 6,
-    width: 8,
+    marginRight: 4,
+    width: 6,
   },
   termText: {
-    fontSize: 9,
+    fontSize: 8.5,
     color: '#475569',
-    lineHeight: 1.45,
+    lineHeight: 1.3,
     flex: 1,
   },
   signatureSection: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 20,
-    marginTop: 28,
-    paddingTop: 18,
+    gap: 16,
+    marginTop: 12,
+    paddingTop: 8,
     borderTopWidth: 1,
     borderTopColor: '#e2e8f0',
   },
   signatureBlock: {
-    flex: 1,
+    flex: 0.6,
   },
   signatureLine: {
     borderBottomWidth: 1,
     borderBottomColor: '#0f172a',
-    height: 24,
-    marginBottom: 4,
+    height: 18,
+    marginBottom: 2,
   },
   signatureLabel: {
-    fontSize: 8,
+    fontSize: 7.5,
     color: '#64748b',
     textTransform: 'uppercase',
     letterSpacing: 0.6,
@@ -286,10 +285,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   materialDescription: {
-    fontSize: 9,
+    fontSize: 8.5,
     color: '#475569',
-    lineHeight: 1.4,
-    marginBottom: 6,
+    lineHeight: 1.35,
+    marginBottom: 4,
   },
 })
 
@@ -357,9 +356,8 @@ export function QuotePdfDocument({ quote: q, rooms, lineItems = [], settings }: 
           </View>
         </View>
 
-        {/* Customer & Project Info */}
+        {/* Customer & Project — combined info row */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Customer & Project</Text>
           <View style={styles.infoGrid}>
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Customer</Text>
@@ -384,14 +382,14 @@ export function QuotePdfDocument({ quote: q, rooms, lineItems = [], settings }: 
               </View>
             )}
             <View style={styles.infoItem}>
-              <Text style={styles.infoLabel}>Flooring Type</Text>
+              <Text style={styles.infoLabel}>Flooring</Text>
               <Text style={styles.infoValue}>
                 {flooringTypeLabel(q.flooring_type, q.section_flooring_types)}
               </Text>
             </View>
             {q.wood_species && (
               <View style={styles.infoItem}>
-                <Text style={styles.infoLabel}>Wood Species</Text>
+                <Text style={styles.infoLabel}>Species</Text>
                 <Text style={styles.infoValue}>{q.wood_species}</Text>
               </View>
             )}
@@ -401,6 +399,12 @@ export function QuotePdfDocument({ quote: q, rooms, lineItems = [], settings }: 
                 <Text style={styles.infoValue}>{q.finish_type}</Text>
               </View>
             )}
+            <View style={styles.infoItem}>
+              <Text style={styles.infoLabel}>Sqft (with {q.waste_pct}% waste)</Text>
+              <Text style={styles.infoValue}>
+                {q.base_sqft.toLocaleString()} → {q.adjusted_sqft.toFixed(0)} sqft
+              </Text>
+            </View>
             {q.stair_count != null && q.stair_count > 0 && (
               <View style={styles.infoItem}>
                 <Text style={styles.infoLabel}>Stairs</Text>
@@ -408,39 +412,6 @@ export function QuotePdfDocument({ quote: q, rooms, lineItems = [], settings }: 
               </View>
             )}
           </View>
-        </View>
-
-        {/* Measurements */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Measurements</Text>
-          <View style={styles.infoGrid}>
-            <View style={styles.infoItem}>
-              <Text style={styles.infoLabel}>Base Square Footage</Text>
-              <Text style={styles.infoValue}>{q.base_sqft.toLocaleString()} sqft</Text>
-            </View>
-            <View style={styles.infoItem}>
-              <Text style={styles.infoLabel}>Waste Factor</Text>
-              <Text style={styles.infoValue}>{q.waste_pct}%</Text>
-            </View>
-            <View style={styles.infoItem}>
-              <Text style={styles.infoLabel}>Adjusted Square Footage</Text>
-              <Text style={styles.infoValue}>{q.adjusted_sqft.toFixed(0)} sqft</Text>
-            </View>
-          </View>
-
-          {rooms && rooms.length > 0 && (
-            <View style={{ marginTop: 8 }}>
-              <Text style={[styles.infoLabel, { marginBottom: 4 }]}>Room Details</Text>
-              {rooms.map((room, i) => (
-                <View key={room.id} style={[styles.lineRow, { paddingVertical: 2 }]}>
-                  <Text style={styles.lineLabel}>{room.name || `Room ${i + 1}`}</Text>
-                  <Text style={styles.lineLabel}>
-                    {room.length} × {room.width} ft = {room.sqft.toFixed(0)} sqft
-                  </Text>
-                </View>
-              ))}
-            </View>
-          )}
         </View>
 
         {/* Line Items */}
