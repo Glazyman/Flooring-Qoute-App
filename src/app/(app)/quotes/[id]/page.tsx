@@ -434,48 +434,55 @@ export default async function QuoteDetailPage({
         </div>
 
         {/* Items table */}
-        <div className="text-sm">
+        <div className="text-sm overflow-x-auto">
+          <div style={{ minWidth: 480 }}>
           <div
             className="grid items-center px-2 py-1.5 italic font-bold"
             style={{
-              gridTemplateColumns: '5fr 1fr 1fr 1fr',
+              gridTemplateColumns: '5fr 80px 90px 90px',
               background: BAND_BG,
               color: '#0f172a',
             }}
           >
-            <span className="text-center">Description</span>
-            <span className="text-center">Qty</span>
-            <span className="text-center">Rate</span>
-            <span className="text-center">Total</span>
+            <span>Description</span>
+            <span className="text-right">Qty</span>
+            <span className="text-right">Rate</span>
+            <span className="text-right">Total</span>
           </div>
           {itemRows.map((row, i) => (
             <div
               key={i}
               className="grid items-start px-2 py-2"
               style={{
-                gridTemplateColumns: '5fr 1fr 1fr 1fr',
+                gridTemplateColumns: '5fr 80px 90px 90px',
                 borderBottom: ROW_BORDER,
                 color: '#0f172a',
               }}
             >
-              <span className="pr-2 break-words whitespace-pre-wrap">{row.description}</span>
-              <span className="text-right">{row.qty || ''}</span>
-              <span className="text-right">{row.rate || ''}</span>
-              <span className="text-right">{row.total || ''}</span>
+              <span className="pr-3 break-words whitespace-pre-wrap">{row.description}</span>
+              <span className="text-right tabular-nums">{row.qty || ''}</span>
+              <span className="text-right tabular-nums">{row.rate || ''}</span>
+              <span className="text-right tabular-nums font-semibold">{row.total || ''}</span>
             </div>
           ))}
           {/* Inline signature row */}
           <div
-            className="grid px-2 py-3 break-words"
-            style={{ gridTemplateColumns: '5fr 1fr 1fr 1fr', borderBottom: ROW_BORDER, color: '#0f172a' }}
+            className="px-2 py-3"
+            style={{ borderBottom: ROW_BORDER, color: '#475569' }}
           >
-            <span className="break-all">
-              READ CAREFULLY SIGN &amp; EMAIL BACK________________________&nbsp;&nbsp;Date____________
-            </span>
-            <span />
-            <span />
-            <span />
+            <p className="text-sm font-semibold text-gray-700 mb-2">READ CAREFULLY SIGN &amp; EMAIL BACK</p>
+            <div className="flex gap-8 items-end">
+              <div className="flex-1">
+                <div className="border-b border-gray-700 h-6 mb-1" />
+                <span className="text-xs text-gray-400 uppercase tracking-wide">Customer Signature</span>
+              </div>
+              <div className="w-32">
+                <div className="border-b border-gray-700 h-6 mb-1" />
+                <span className="text-xs text-gray-400 uppercase tracking-wide">Date</span>
+              </div>
+            </div>
           </div>
+          </div>{/* end minWidth wrapper */}
         </div>
 
         {/* Bottom row: scope/notes + totals */}
