@@ -195,8 +195,18 @@ export default function QuoteForm({
 
   function setSectionFlooringType(section: string, type: FlooringType) {
     setSectionFlooring(prev => ({ ...prev, [section]: type }))
-    // keep top-level flooring_type in sync with Upstairs (used as primary)
     if (section === 'Upstairs') setFlooringType(type)
+    // Auto-fill pricing if a per-type override exists in settings
+    const override = settings?.material_prices_by_type?.[type]
+    if (override) {
+      setSectionPricing(prev => ({
+        ...prev,
+        [section]: {
+          material: String(override.material),
+          labor: String(override.labor),
+        },
+      }))
+    }
   }
   const [measurementType, setMeasurementType] = useState<MeasurementType>(initialData?.measurement_type ?? 'rooms')
   const [manualSqft, setManualSqft] = useState(initialData?.measurement_type === 'manual' ? String(initialData.base_sqft) : '')
@@ -207,14 +217,22 @@ export default function QuoteForm({
     const saved = initialData?.section_pricing
     const defaultMat = String(initialData?.material_cost_per_sqft ?? settings?.default_material_cost ?? 5)
     const defaultLab = String(initialData?.labor_cost_per_sqft ?? settings?.default_labor_cost ?? 3)
+
+    // For new quotes (no initialData), check per-type overrides using the initial flooring types
+    const savedSectionFlooring = (initialData as unknown as { section_flooring_types?: Record<string, FlooringType> } | null)?.section_flooring_types
+    const upType = savedSectionFlooring?.Upstairs ?? initialData?.flooring_type ?? 'unfinished'
+    const downType = savedSectionFlooring?.Downstairs ?? initialData?.flooring_type ?? 'unfinished'
+    const upOverride = !saved ? (settings?.material_prices_by_type?.[upType] ?? null) : null
+    const downOverride = !saved ? (settings?.material_prices_by_type?.[downType] ?? null) : null
+
     return {
       Upstairs: {
-        material: saved?.Upstairs ? String(saved.Upstairs.material) : defaultMat,
-        labor: saved?.Upstairs ? String(saved.Upstairs.labor) : defaultLab,
+        material: saved?.Upstairs ? String(saved.Upstairs.material) : upOverride ? String(upOverride.material) : defaultMat,
+        labor: saved?.Upstairs ? String(saved.Upstairs.labor) : upOverride ? String(upOverride.labor) : defaultLab,
       },
       Downstairs: {
-        material: saved?.Downstairs ? String(saved.Downstairs.material) : defaultMat,
-        labor: saved?.Downstairs ? String(saved.Downstairs.labor) : defaultLab,
+        material: saved?.Downstairs ? String(saved.Downstairs.material) : downOverride ? String(downOverride.material) : defaultMat,
+        labor: saved?.Downstairs ? String(saved.Downstairs.labor) : downOverride ? String(downOverride.labor) : defaultLab,
       },
     }
   })

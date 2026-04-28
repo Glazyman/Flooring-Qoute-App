@@ -35,6 +35,7 @@ export async function PUT(request: NextRequest) {
         default_markup_pct: body.default_markup_pct,
         default_deposit_pct: body.default_deposit_pct,
         default_tax_pct: body.default_tax_pct ?? 0,
+        material_prices_by_type: body.material_prices_by_type ?? {},
         updated_at: new Date().toISOString(),
       },
       { onConflict: 'company_id' }

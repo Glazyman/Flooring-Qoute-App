@@ -348,6 +348,45 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
           />
         </div>
       </Card>
+
+      <Card title="Pricing by Material" description="Override default material and labor costs per flooring type. Leave blank to use the global default.">
+        <div className="grid grid-cols-3 gap-3 text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
+          <span>Material</span>
+          <span>Mat. $/sqft</span>
+          <span>Labor $/sqft</span>
+        </div>
+        <div className="space-y-2">
+          {FLOORING_TYPES.map(type => (
+            <div key={type} className="grid grid-cols-3 gap-3 items-center">
+              <span className="text-sm font-medium text-gray-700">{FLOORING_LABELS[type]}</span>
+              <div className={`flex items-center rounded-xl border overflow-hidden transition-all ${ro ? 'border-gray-100 bg-gray-50' : 'border-gray-200 bg-white focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-transparent'}`}>
+                <span className={`px-2.5 py-2 text-sm border-r font-medium ${ro ? 'bg-gray-50 text-gray-300 border-gray-100' : 'bg-gray-50 text-gray-400 border-gray-200'}`}>$</span>
+                <input
+                  type="number"
+                  value={materialPrices[type]?.material ?? ''}
+                  onChange={e => setMaterialPrices(prev => ({ ...prev, [type]: { ...prev[type], material: e.target.value } }))}
+                  placeholder={form.default_material_cost || '5.00'}
+                  disabled={ro}
+                  inputMode="decimal"
+                  className={`flex-1 px-2.5 py-2 text-sm focus:outline-none transition-colors ${ro ? 'bg-gray-50 text-gray-400 cursor-default' : 'bg-white text-gray-900'} placeholder:text-gray-300`}
+                />
+              </div>
+              <div className={`flex items-center rounded-xl border overflow-hidden transition-all ${ro ? 'border-gray-100 bg-gray-50' : 'border-gray-200 bg-white focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-transparent'}`}>
+                <span className={`px-2.5 py-2 text-sm border-r font-medium ${ro ? 'bg-gray-50 text-gray-300 border-gray-100' : 'bg-gray-50 text-gray-400 border-gray-200'}`}>$</span>
+                <input
+                  type="number"
+                  value={materialPrices[type]?.labor ?? ''}
+                  onChange={e => setMaterialPrices(prev => ({ ...prev, [type]: { ...prev[type], labor: e.target.value } }))}
+                  placeholder={form.default_labor_cost || '3.00'}
+                  disabled={ro}
+                  inputMode="decimal"
+                  className={`flex-1 px-2.5 py-2 text-sm focus:outline-none transition-colors ${ro ? 'bg-gray-50 text-gray-400 cursor-default' : 'bg-white text-gray-900'} placeholder:text-gray-300`}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
     </form>
   )
 }
