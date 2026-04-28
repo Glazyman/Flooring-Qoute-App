@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import Link from 'next/link'
 import { fmt } from '@/lib/calculations'
 import { flooringTypeLabel, FLOORING_LABEL } from '@/lib/flooringLabels'
 import type { Quote, QuoteRoom, QuoteLineItem, CompanySettings } from '@/lib/types'
@@ -235,6 +236,9 @@ export default function QuoteDetailCard({
   terms,
   dateStr,
 }: QuoteDetailCardProps) {
+  // Precompute stair count for state initializer
+  const stairCount = q.stair_count && q.stair_count > 0 ? q.stair_count : null
+
   // Editable quote fields
   const [customerName, setCustomerName] = useState(q.customer_name)
   const [customerPhone, setCustomerPhone] = useState(q.customer_phone ?? '')
@@ -245,6 +249,35 @@ export default function QuoteDetailCard({
   const [notesValue, setNotesValue] = useState(q.notes ?? '')
   const [materialRate, setMaterialRate] = useState(q.material_cost_per_sqft)
   const [laborRate, setLaborRate] = useState(q.labor_cost_per_sqft)
+
+  // Editable sqft
+  const [adjustedSqft, setAdjustedSqft] = useState(q.adjusted_sqft)
+
+  // Fixed fee amounts
+  const [removalFee, setRemovalFee] = useState(q.removal_fee ?? 0)
+  const [furnitureFee, setFurnitureFee] = useState(q.furniture_fee ?? 0)
+  const [stairsFee, setStairsFee] = useState(q.stairs_fee ?? 0)
+  const [quarterRoundFee, setQuarterRoundFee] = useState(q.quarter_round_fee ?? 0)
+  const [reducersFee, setReducersFee] = useState(q.reducers_fee ?? 0)
+  const [deliveryFee, setDeliveryFee] = useState(q.delivery_fee ?? 0)
+  const [customFeeAmount, setCustomFeeAmount] = useState(q.custom_fee_amount ?? 0)
+  const [customFeeLabel, setCustomFeeLabel] = useState(q.custom_fee_label ?? '')
+
+  // Fixed fee description overrides (local only — no persistence)
+  const [removalFeeDesc, setRemovalFeeDesc] = useState('Removal of existing flooring')
+  const [furnitureFeeDesc, setFurnitureFeeDesc] = useState('Furniture moving')
+  const [stairsFeeDesc, setStairsFeeDesc] = useState(stairCount ? `Stairs (${stairCount})` : 'Stairs')
+  const [quarterRoundFeeDesc, setQuarterRoundFeeDesc] = useState('Quarter round / moldings')
+  const [reducersFeeDesc, setReducersFeeDesc] = useState('Reducers / saddles')
+  const [deliveryFeeDesc, setDeliveryFeeDesc] = useState('Delivery')
+
+  // Extras JSON state (for editable extras)
+  const [extrasJson, setExtrasJson] = useState<Record<string, number>>(
+    (q.extras_json ?? {}) as Record<string, number>
+  )
+  const [subfloorPrepDesc, setSubfloorPrepDesc] = useState('Subfloor prep')
+  const [floorProtectionDesc, setFloorProtectionDesc] = useState('Floor protection')
+  const [disposalFeeDesc, setDisposalFeeDesc] = useState('Disposal / dump fee')
 
   // Line items
   const [items, setItems] = useState<QuoteLineItem[]>(initialLineItems)
@@ -261,7 +294,26 @@ export default function QuoteDetailCard({
 
   // Save quote field to API
   async function handleSave(field: string, rawValue: string) {
-    const numericFields = ['material_cost_per_sqft', 'labor_cost_per_sqft']
+    // Handle extras_json fields via a dedicated path
+    if (field.startsWith('extras_')) {
+      const extrasKey = field.slice('extras_'.length)
+      const newValue = parseFloat(rawValue) || 0
+      const newExtras = { ...extrasJson, [extrasKey]: newValue }
+      setExtrasJson(newExtras)
+      setEditing(null)
+      fetch(`/api/quotes/${q.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ extras_json: newExtras }),
+      }).then(() => flashSaved(field)).catch(() => {})
+      return
+    }
+
+    const numericFields = [
+      'material_cost_per_sqft', 'labor_cost_per_sqft', 'adjusted_sqft',
+      'removal_fee', 'furniture_fee', 'stairs_fee', 'quarter_round_fee',
+      'reducers_fee', 'delivery_fee', 'custom_fee_amount',
+    ]
     const apiValue = numericFields.includes(field) ? parseFloat(rawValue) || 0 : rawValue
 
     // Optimistic update
@@ -275,6 +327,15 @@ export default function QuoteDetailCard({
       case 'notes': setNotesValue(rawValue); break
       case 'material_cost_per_sqft': setMaterialRate(parseFloat(rawValue) || 0); break
       case 'labor_cost_per_sqft': setLaborRate(parseFloat(rawValue) || 0); break
+      case 'adjusted_sqft': setAdjustedSqft(parseFloat(rawValue) || 0); break
+      case 'removal_fee': setRemovalFee(parseFloat(rawValue) || 0); break
+      case 'furniture_fee': setFurnitureFee(parseFloat(rawValue) || 0); break
+      case 'stairs_fee': setStairsFee(parseFloat(rawValue) || 0); break
+      case 'quarter_round_fee': setQuarterRoundFee(parseFloat(rawValue) || 0); break
+      case 'reducers_fee': setReducersFee(parseFloat(rawValue) || 0); break
+      case 'delivery_fee': setDeliveryFee(parseFloat(rawValue) || 0); break
+      case 'custom_fee_amount': setCustomFeeAmount(parseFloat(rawValue) || 0); break
+      case 'custom_fee_label': setCustomFeeLabel(rawValue); break
     }
 
     setEditing(null)
@@ -284,6 +345,31 @@ export default function QuoteDetailCard({
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ [field]: apiValue }),
     }).then(() => flashSaved(field)).catch(() => {})
+  }
+
+  // Save stairs rate (rate × count → stairs_fee total)
+  function handleStairsRateSave(key: string, rawValue: string) {
+    const newRate = parseFloat(rawValue) || 0
+    const cnt = q.stair_count && q.stair_count > 0 ? q.stair_count : 1
+    const newTotal = newRate * cnt
+    setStairsFee(newTotal)
+    setEditing(null)
+    fetch(`/api/quotes/${q.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stairs_fee: newTotal }),
+    }).then(() => flashSaved(key)).catch(() => {})
+  }
+
+  // Local-only description save (no API call)
+  function handleLocalDescSave(
+    setter: React.Dispatch<React.SetStateAction<string>>,
+    key: string,
+    val: string,
+  ) {
+    setter(val)
+    setEditing(null)
+    flashSaved(key)
   }
 
   // Save line item field to API
@@ -316,6 +402,12 @@ export default function QuoteDetailCard({
         total: newItem.total,
       }),
     }).then(() => flashSaved(saveKey)).catch(() => {})
+  }
+
+  // Delete a custom line item
+  async function deleteLineItem(id: string) {
+    setItems(prev => prev.filter(li => li.id !== id))
+    fetch(`/api/quote-line-items/${id}`, { method: 'DELETE' }).catch(() => {})
   }
 
   const onEdit = (key: string) => setEditing(key || null)
@@ -380,9 +472,27 @@ export default function QuoteDetailCard({
   if (canOptimizeTotals) {
     const origMat = Number(q.material_total) || q.adjusted_sqft * q.material_cost_per_sqft
     const origLab = Number(q.labor_total) || q.adjusted_sqft * q.labor_cost_per_sqft
-    const fixedPortion = q.subtotal - origMat - origLab - origLineItemsSum
-    const newMat = q.adjusted_sqft * materialRate
-    const newLab = q.adjusted_sqft * laborRate
+    const origFixedPortion = q.subtotal - origMat - origLab - origLineItemsSum
+
+    // Delta from fee edits relative to original server values
+    const underlaymentRate = extrasJson.underlayment_per_sqft ?? 0
+    const feeDelta =
+      (removalFee - (q.removal_fee ?? 0)) +
+      (furnitureFee - (q.furniture_fee ?? 0)) +
+      (stairsFee - (q.stairs_fee ?? 0)) +
+      (quarterRoundFee - (q.quarter_round_fee ?? 0)) +
+      (reducersFee - (q.reducers_fee ?? 0)) +
+      (deliveryFee - (q.delivery_fee ?? 0)) +
+      (customFeeAmount - (q.custom_fee_amount ?? 0)) +
+      ((extrasJson.subfloor_prep ?? 0) - ((q.extras_json?.subfloor_prep) ?? 0)) +
+      ((extrasJson.floor_protection ?? 0) - ((q.extras_json?.floor_protection) ?? 0)) +
+      ((extrasJson.disposal_fee ?? 0) - ((q.extras_json?.disposal_fee) ?? 0)) +
+      // Underlayment is per-sqft; account for sqft change
+      underlaymentRate * (adjustedSqft - q.adjusted_sqft)
+
+    const fixedPortion = origFixedPortion + feeDelta
+    const newMat = adjustedSqft * materialRate
+    const newLab = adjustedSqft * laborRate
     displaySubtotal = fixedPortion + newMat + newLab + currentLineItemsSum
     displayMarkup = q.markup_pct > 0 ? displaySubtotal * (q.markup_pct / 100) : 0
     const taxBase = displaySubtotal + displayMarkup
@@ -399,11 +509,27 @@ export default function QuoteDetailCard({
   const flooringLabel = flooringTypeLabel(q.flooring_type, q.section_flooring_types) || 'flooring'
   const wasteFactor = 1 + (Number(q.waste_pct) || 0) / 100
 
+  // Shared grid columns (5 cols: desc, sqft, rate, total, action)
+  const GRID_COLS = '5fr 80px 90px 90px 28px'
+
   return (
     <div
       className="bg-white rounded-xl p-4 sm:p-6 relative"
       style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}
     >
+      {/* Edit shortcut */}
+      <Link
+        href={`/quotes/${q.id}/edit`}
+        className="absolute top-3 right-3 flex items-center gap-1 text-xs font-medium px-2.5 py-1.5 rounded-lg transition-colors"
+        style={{ background: 'var(--primary-light)', color: 'var(--primary)' }}
+        title="Edit this quote"
+      >
+        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+        </svg>
+        Edit
+      </Link>
+
       {/* Top row: company block + Estimate title + meta table */}
       <div className="flex flex-col sm:flex-row sm:items-stretch sm:justify-between gap-4 mb-5">
         <div className="flex items-start gap-3 p-3 sm:w-1/2" style={{ border: FRAME_BORDER }}>
@@ -525,10 +651,11 @@ export default function QuoteDetailCard({
       {/* Items table */}
       <div className="text-sm overflow-x-auto">
         <div style={{ minWidth: 480 }}>
+          {/* Header */}
           <div
             className="grid items-center px-2 py-1.5 italic font-bold"
             style={{
-              gridTemplateColumns: '5fr 80px 90px 90px',
+              gridTemplateColumns: GRID_COLS,
               background: BAND_BG,
               color: '#0f172a',
             }}
@@ -537,6 +664,7 @@ export default function QuoteDetailCard({
             <span className="text-right">Sqft</span>
             <span className="text-right">Rate</span>
             <span className="text-right">Total</span>
+            <span />
           </div>
 
           {/* Section pricing rows (static — multi-section not inline-editable) */}
@@ -557,7 +685,7 @@ export default function QuoteDetailCard({
                   <div
                     className="grid items-start px-2 py-2"
                     style={{
-                      gridTemplateColumns: '5fr 80px 90px 90px',
+                      gridTemplateColumns: GRID_COLS,
                       borderBottom: ROW_BORDER,
                       color: '#0f172a',
                     }}
@@ -568,12 +696,13 @@ export default function QuoteDetailCard({
                     <span className="text-right tabular-nums">{fmtQty(adjSqft)}</span>
                     <span className="text-right tabular-nums">{fmtNumber(matRate, 2)}</span>
                     <span className="text-right tabular-nums font-semibold">{fmtNumber(adjSqft * matRate, 2)}</span>
+                    <span />
                   </div>
                   {labRate > 0 && (
                     <div
                       className="grid items-start px-2 py-2"
                       style={{
-                        gridTemplateColumns: '5fr 80px 90px 90px',
+                        gridTemplateColumns: GRID_COLS,
                         borderBottom: ROW_BORDER,
                         color: '#0f172a',
                       }}
@@ -582,6 +711,7 @@ export default function QuoteDetailCard({
                       <span className="text-right tabular-nums">{fmtQty(adjSqft)}</span>
                       <span className="text-right tabular-nums">{fmtNumber(labRate, 2)}</span>
                       <span className="text-right tabular-nums font-semibold">{fmtNumber(adjSqft * labRate, 2)}</span>
+                      <span />
                     </div>
                   )}
                 </div>
@@ -589,14 +719,14 @@ export default function QuoteDetailCard({
             })
           }
 
-          {/* Simple material + labor rows (editable rate) */}
+          {/* Simple material + labor rows (editable rate + sqft) */}
           {!canRenderPerSection && q.adjusted_sqft > 0 && (
             <>
               {/* Material row */}
               <div
                 className="grid items-start px-2 py-2"
                 style={{
-                  gridTemplateColumns: '5fr 80px 90px 90px',
+                  gridTemplateColumns: GRID_COLS,
                   borderBottom: ROW_BORDER,
                   color: '#0f172a',
                 }}
@@ -612,7 +742,17 @@ export default function QuoteDetailCard({
                     align="left"
                   />
                 </span>
-                <span className="text-right tabular-nums">{fmtQty(q.adjusted_sqft)}</span>
+                <span className="text-right tabular-nums">
+                  <EditableCell
+                    fieldKey="adjusted_sqft"
+                    value={fmtQty(adjustedSqft)}
+                    editing={editing}
+                    saved={saved}
+                    onEdit={onEdit}
+                    onSave={(key, val) => handleSave('adjusted_sqft', val)}
+                    align="right"
+                  />
+                </span>
                 <span className="text-right tabular-nums">
                   <EditableCell
                     fieldKey="material_cost_per_sqft"
@@ -625,14 +765,12 @@ export default function QuoteDetailCard({
                   />
                 </span>
                 <span className="text-right tabular-nums font-semibold">
-                  {fmtNumber(
-                    Number(q.material_total) || q.adjusted_sqft * materialRate,
-                    2,
-                  )}
+                  {fmtNumber(adjustedSqft * materialRate, 2)}
                   {saved === 'material_cost_per_sqft' && (
                     <span style={{ color: TEAL, marginLeft: 4, fontSize: '0.75em' }}>✓</span>
                   )}
                 </span>
+                <span />
               </div>
 
               {/* Labor row (only if rate > 0) */}
@@ -640,13 +778,13 @@ export default function QuoteDetailCard({
                 <div
                   className="grid items-start px-2 py-2"
                   style={{
-                    gridTemplateColumns: '5fr 80px 90px 90px',
+                    gridTemplateColumns: GRID_COLS,
                     borderBottom: ROW_BORDER,
                     color: '#0f172a',
                   }}
                 >
                   <span className="pr-3">Labor / installation</span>
-                  <span className="text-right tabular-nums">{fmtQty(q.adjusted_sqft)}</span>
+                  <span className="text-right tabular-nums">{fmtQty(adjustedSqft)}</span>
                   <span className="text-right tabular-nums">
                     <EditableCell
                       fieldKey="labor_cost_per_sqft"
@@ -659,20 +797,18 @@ export default function QuoteDetailCard({
                     />
                   </span>
                   <span className="text-right tabular-nums font-semibold">
-                    {fmtNumber(
-                      Number(q.labor_total) || q.adjusted_sqft * laborRate,
-                      2,
-                    )}
+                    {fmtNumber(adjustedSqft * laborRate, 2)}
                     {saved === 'labor_cost_per_sqft' && (
                       <span style={{ color: TEAL, marginLeft: 4, fontSize: '0.75em' }}>✓</span>
                     )}
                   </span>
+                  <span />
                 </div>
               )}
             </>
           )}
 
-          {/* Line item rows (editable) */}
+          {/* Line item rows (editable + deletable) */}
           {items.map(li => {
             const liQty = Number(li.qty) || 0
             const liRate = Number(li.unit_price) || 0
@@ -683,7 +819,7 @@ export default function QuoteDetailCard({
                 key={li.id}
                 className="grid items-start px-2 py-2"
                 style={{
-                  gridTemplateColumns: '5fr 80px 90px 90px',
+                  gridTemplateColumns: GRID_COLS,
                   borderBottom: ROW_BORDER,
                   color: '#0f172a',
                 }}
@@ -727,150 +863,430 @@ export default function QuoteDetailCard({
                     <span style={{ color: TEAL, marginLeft: 4, fontSize: '0.75em' }}>✓</span>
                   ) : null}
                 </span>
+                <span className="flex items-start justify-center pt-0.5">
+                  <button
+                    onClick={() => deleteLineItem(li.id)}
+                    title="Delete row"
+                    style={{
+                      color: TEAL,
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: 0,
+                      lineHeight: 1,
+                      fontSize: '0.85em',
+                      fontWeight: 700,
+                    }}
+                    className="hover:opacity-60 transition-opacity"
+                  >
+                    ✕
+                  </button>
+                </span>
               </div>
             )
           })}
 
-          {/* Fixed fee rows (static) */}
-          {q.removal_fee > 0 && (
+          {/* Fixed fee rows (editable) */}
+          {removalFee > 0 && (
             <div
               className="grid items-start px-2 py-2"
-              style={{ gridTemplateColumns: '5fr 80px 90px 90px', borderBottom: ROW_BORDER, color: '#0f172a' }}
+              style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a' }}
             >
-              <span className="pr-3">Removal of existing flooring</span>
+              <span className="pr-3">
+                <EditableCell
+                  fieldKey="removal_fee_desc"
+                  value={removalFeeDesc}
+                  editing={editing}
+                  saved={saved}
+                  onEdit={onEdit}
+                  onSave={(key, val) => handleLocalDescSave(setRemovalFeeDesc, key, val)}
+                  align="left"
+                />
+              </span>
               <span />
-              <span className="text-right tabular-nums">{fmtNumber(q.removal_fee, 2)}</span>
-              <span className="text-right tabular-nums font-semibold">{fmtNumber(q.removal_fee, 2)}</span>
+              <span className="text-right tabular-nums">
+                <EditableCell
+                  fieldKey="removal_fee"
+                  value={fmtNumber(removalFee, 2)}
+                  editing={editing}
+                  saved={saved}
+                  onEdit={onEdit}
+                  onSave={(key, val) => handleSave('removal_fee', val)}
+                  align="right"
+                />
+              </span>
+              <span className="text-right tabular-nums font-semibold">
+                {fmtNumber(removalFee, 2)}
+                {saved === 'removal_fee' && (
+                  <span style={{ color: TEAL, marginLeft: 4, fontSize: '0.75em' }}>✓</span>
+                )}
+              </span>
+              <span />
             </div>
           )}
-          {q.furniture_fee > 0 && (
+          {furnitureFee > 0 && (
             <div
               className="grid items-start px-2 py-2"
-              style={{ gridTemplateColumns: '5fr 80px 90px 90px', borderBottom: ROW_BORDER, color: '#0f172a' }}
+              style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a' }}
             >
-              <span className="pr-3">Furniture moving</span>
+              <span className="pr-3">
+                <EditableCell
+                  fieldKey="furniture_fee_desc"
+                  value={furnitureFeeDesc}
+                  editing={editing}
+                  saved={saved}
+                  onEdit={onEdit}
+                  onSave={(key, val) => handleLocalDescSave(setFurnitureFeeDesc, key, val)}
+                  align="left"
+                />
+              </span>
               <span />
-              <span className="text-right tabular-nums">{fmtNumber(q.furniture_fee, 2)}</span>
-              <span className="text-right tabular-nums font-semibold">{fmtNumber(q.furniture_fee, 2)}</span>
+              <span className="text-right tabular-nums">
+                <EditableCell
+                  fieldKey="furniture_fee"
+                  value={fmtNumber(furnitureFee, 2)}
+                  editing={editing}
+                  saved={saved}
+                  onEdit={onEdit}
+                  onSave={(key, val) => handleSave('furniture_fee', val)}
+                  align="right"
+                />
+              </span>
+              <span className="text-right tabular-nums font-semibold">
+                {fmtNumber(furnitureFee, 2)}
+                {saved === 'furniture_fee' && (
+                  <span style={{ color: TEAL, marginLeft: 4, fontSize: '0.75em' }}>✓</span>
+                )}
+              </span>
+              <span />
             </div>
           )}
-          {q.stairs_fee > 0 && (() => {
-            const count = q.stair_count && q.stair_count > 0 ? q.stair_count : null
-            const perUnit = count ? q.stairs_fee / count : q.stairs_fee
+          {stairsFee > 0 && (() => {
+            const perUnit = stairCount ? stairsFee / stairCount : stairsFee
             return (
               <div
                 className="grid items-start px-2 py-2"
-                style={{ gridTemplateColumns: '5fr 80px 90px 90px', borderBottom: ROW_BORDER, color: '#0f172a' }}
+                style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a' }}
               >
-                <span className="pr-3">{count ? `Stairs (${count})` : 'Stairs'}</span>
-                <span className="text-right tabular-nums">{count ? String(count) : ''}</span>
-                <span className="text-right tabular-nums">{fmtNumber(perUnit, 2)}</span>
-                <span className="text-right tabular-nums font-semibold">{fmtNumber(q.stairs_fee, 2)}</span>
+                <span className="pr-3">
+                  <EditableCell
+                    fieldKey="stairs_fee_desc"
+                    value={stairsFeeDesc}
+                    editing={editing}
+                    saved={saved}
+                    onEdit={onEdit}
+                    onSave={(key, val) => handleLocalDescSave(setStairsFeeDesc, key, val)}
+                    align="left"
+                  />
+                </span>
+                <span className="text-right tabular-nums">{stairCount ? String(stairCount) : ''}</span>
+                <span className="text-right tabular-nums">
+                  <EditableCell
+                    fieldKey="stairs_fee_rate"
+                    value={fmtNumber(perUnit, 2)}
+                    editing={editing}
+                    saved={saved}
+                    onEdit={onEdit}
+                    onSave={handleStairsRateSave}
+                    align="right"
+                  />
+                </span>
+                <span className="text-right tabular-nums font-semibold">
+                  {fmtNumber(stairsFee, 2)}
+                  {saved === 'stairs_fee_rate' && (
+                    <span style={{ color: TEAL, marginLeft: 4, fontSize: '0.75em' }}>✓</span>
+                  )}
+                </span>
+                <span />
               </div>
             )
           })()}
-          {q.quarter_round_fee > 0 && (
+          {quarterRoundFee > 0 && (
             <div
               className="grid items-start px-2 py-2"
-              style={{ gridTemplateColumns: '5fr 80px 90px 90px', borderBottom: ROW_BORDER, color: '#0f172a' }}
+              style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a' }}
             >
-              <span className="pr-3">Quarter round / moldings</span>
+              <span className="pr-3">
+                <EditableCell
+                  fieldKey="quarter_round_fee_desc"
+                  value={quarterRoundFeeDesc}
+                  editing={editing}
+                  saved={saved}
+                  onEdit={onEdit}
+                  onSave={(key, val) => handleLocalDescSave(setQuarterRoundFeeDesc, key, val)}
+                  align="left"
+                />
+              </span>
               <span />
-              <span className="text-right tabular-nums">{fmtNumber(q.quarter_round_fee, 2)}</span>
-              <span className="text-right tabular-nums font-semibold">{fmtNumber(q.quarter_round_fee, 2)}</span>
+              <span className="text-right tabular-nums">
+                <EditableCell
+                  fieldKey="quarter_round_fee"
+                  value={fmtNumber(quarterRoundFee, 2)}
+                  editing={editing}
+                  saved={saved}
+                  onEdit={onEdit}
+                  onSave={(key, val) => handleSave('quarter_round_fee', val)}
+                  align="right"
+                />
+              </span>
+              <span className="text-right tabular-nums font-semibold">
+                {fmtNumber(quarterRoundFee, 2)}
+                {saved === 'quarter_round_fee' && (
+                  <span style={{ color: TEAL, marginLeft: 4, fontSize: '0.75em' }}>✓</span>
+                )}
+              </span>
+              <span />
             </div>
           )}
-          {q.reducers_fee > 0 && (
+          {reducersFee > 0 && (
             <div
               className="grid items-start px-2 py-2"
-              style={{ gridTemplateColumns: '5fr 80px 90px 90px', borderBottom: ROW_BORDER, color: '#0f172a' }}
+              style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a' }}
             >
-              <span className="pr-3">Reducers / saddles</span>
+              <span className="pr-3">
+                <EditableCell
+                  fieldKey="reducers_fee_desc"
+                  value={reducersFeeDesc}
+                  editing={editing}
+                  saved={saved}
+                  onEdit={onEdit}
+                  onSave={(key, val) => handleLocalDescSave(setReducersFeeDesc, key, val)}
+                  align="left"
+                />
+              </span>
               <span />
-              <span className="text-right tabular-nums">{fmtNumber(q.reducers_fee, 2)}</span>
-              <span className="text-right tabular-nums font-semibold">{fmtNumber(q.reducers_fee, 2)}</span>
+              <span className="text-right tabular-nums">
+                <EditableCell
+                  fieldKey="reducers_fee"
+                  value={fmtNumber(reducersFee, 2)}
+                  editing={editing}
+                  saved={saved}
+                  onEdit={onEdit}
+                  onSave={(key, val) => handleSave('reducers_fee', val)}
+                  align="right"
+                />
+              </span>
+              <span className="text-right tabular-nums font-semibold">
+                {fmtNumber(reducersFee, 2)}
+                {saved === 'reducers_fee' && (
+                  <span style={{ color: TEAL, marginLeft: 4, fontSize: '0.75em' }}>✓</span>
+                )}
+              </span>
+              <span />
             </div>
           )}
-          {q.delivery_fee > 0 && (
+          {deliveryFee > 0 && (
             <div
               className="grid items-start px-2 py-2"
-              style={{ gridTemplateColumns: '5fr 80px 90px 90px', borderBottom: ROW_BORDER, color: '#0f172a' }}
+              style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a' }}
             >
-              <span className="pr-3">Delivery</span>
+              <span className="pr-3">
+                <EditableCell
+                  fieldKey="delivery_fee_desc"
+                  value={deliveryFeeDesc}
+                  editing={editing}
+                  saved={saved}
+                  onEdit={onEdit}
+                  onSave={(key, val) => handleLocalDescSave(setDeliveryFeeDesc, key, val)}
+                  align="left"
+                />
+              </span>
               <span />
-              <span className="text-right tabular-nums">{fmtNumber(q.delivery_fee, 2)}</span>
-              <span className="text-right tabular-nums font-semibold">{fmtNumber(q.delivery_fee, 2)}</span>
+              <span className="text-right tabular-nums">
+                <EditableCell
+                  fieldKey="delivery_fee"
+                  value={fmtNumber(deliveryFee, 2)}
+                  editing={editing}
+                  saved={saved}
+                  onEdit={onEdit}
+                  onSave={(key, val) => handleSave('delivery_fee', val)}
+                  align="right"
+                />
+              </span>
+              <span className="text-right tabular-nums font-semibold">
+                {fmtNumber(deliveryFee, 2)}
+                {saved === 'delivery_fee' && (
+                  <span style={{ color: TEAL, marginLeft: 4, fontSize: '0.75em' }}>✓</span>
+                )}
+              </span>
+              <span />
             </div>
           )}
-          {q.custom_fee_amount > 0 && q.custom_fee_label?.trim() && (
+          {customFeeAmount > 0 && customFeeLabel.trim() && (
             <div
               className="grid items-start px-2 py-2"
-              style={{ gridTemplateColumns: '5fr 80px 90px 90px', borderBottom: ROW_BORDER, color: '#0f172a' }}
+              style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a' }}
             >
-              <span className="pr-3">{q.custom_fee_label.trim()}</span>
+              <span className="pr-3">
+                <EditableCell
+                  fieldKey="custom_fee_label"
+                  value={customFeeLabel.trim()}
+                  editing={editing}
+                  saved={saved}
+                  onEdit={onEdit}
+                  onSave={(key, val) => handleSave('custom_fee_label', val)}
+                  align="left"
+                />
+              </span>
               <span />
-              <span className="text-right tabular-nums">{fmtNumber(q.custom_fee_amount, 2)}</span>
-              <span className="text-right tabular-nums font-semibold">{fmtNumber(q.custom_fee_amount, 2)}</span>
+              <span className="text-right tabular-nums">
+                <EditableCell
+                  fieldKey="custom_fee_amount"
+                  value={fmtNumber(customFeeAmount, 2)}
+                  editing={editing}
+                  saved={saved}
+                  onEdit={onEdit}
+                  onSave={(key, val) => handleSave('custom_fee_amount', val)}
+                  align="right"
+                />
+              </span>
+              <span className="text-right tabular-nums font-semibold">
+                {fmtNumber(customFeeAmount, 2)}
+                {saved === 'custom_fee_amount' && (
+                  <span style={{ color: TEAL, marginLeft: 4, fontSize: '0.75em' }}>✓</span>
+                )}
+              </span>
+              <span />
             </div>
           )}
+
           {/* Extras */}
           {(() => {
-            const ex = (q.extras_json || {}) as Record<string, number>
             return (
               <>
-                {ex.subfloor_prep > 0 && (
+                {(extrasJson.subfloor_prep ?? 0) > 0 && (
                   <div
                     className="grid items-start px-2 py-2"
-                    style={{ gridTemplateColumns: '5fr 80px 90px 90px', borderBottom: ROW_BORDER, color: '#0f172a' }}
+                    style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a' }}
                   >
-                    <span className="pr-3">Subfloor prep</span>
+                    <span className="pr-3">
+                      <EditableCell
+                        fieldKey="extras_subfloor_prep_desc"
+                        value={subfloorPrepDesc}
+                        editing={editing}
+                        saved={saved}
+                        onEdit={onEdit}
+                        onSave={(key, val) => handleLocalDescSave(setSubfloorPrepDesc, key, val)}
+                        align="left"
+                      />
+                    </span>
                     <span />
-                    <span className="text-right tabular-nums">{fmtNumber(ex.subfloor_prep, 2)}</span>
-                    <span className="text-right tabular-nums font-semibold">{fmtNumber(ex.subfloor_prep, 2)}</span>
+                    <span className="text-right tabular-nums">
+                      <EditableCell
+                        fieldKey="extras_subfloor_prep"
+                        value={fmtNumber(extrasJson.subfloor_prep, 2)}
+                        editing={editing}
+                        saved={saved}
+                        onEdit={onEdit}
+                        onSave={(key, val) => handleSave('extras_subfloor_prep', val)}
+                        align="right"
+                      />
+                    </span>
+                    <span className="text-right tabular-nums font-semibold">
+                      {fmtNumber(extrasJson.subfloor_prep, 2)}
+                      {saved === 'extras_subfloor_prep' && (
+                        <span style={{ color: TEAL, marginLeft: 4, fontSize: '0.75em' }}>✓</span>
+                      )}
+                    </span>
+                    <span />
                   </div>
                 )}
-                {ex.underlayment_per_sqft > 0 && q.adjusted_sqft > 0 && (
+                {(extrasJson.underlayment_per_sqft ?? 0) > 0 && adjustedSqft > 0 && (
                   <div
                     className="grid items-start px-2 py-2"
-                    style={{ gridTemplateColumns: '5fr 80px 90px 90px', borderBottom: ROW_BORDER, color: '#0f172a' }}
+                    style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a' }}
                   >
                     <span className="pr-3">Underlayment</span>
-                    <span className="text-right tabular-nums">{fmtQty(q.adjusted_sqft)}</span>
-                    <span className="text-right tabular-nums">{fmtNumber(ex.underlayment_per_sqft, 2)}</span>
-                    <span className="text-right tabular-nums font-semibold">{fmtNumber(ex.underlayment_per_sqft * q.adjusted_sqft, 2)}</span>
+                    <span className="text-right tabular-nums">{fmtQty(adjustedSqft)}</span>
+                    <span className="text-right tabular-nums">{fmtNumber(extrasJson.underlayment_per_sqft, 2)}</span>
+                    <span className="text-right tabular-nums font-semibold">{fmtNumber(extrasJson.underlayment_per_sqft * adjustedSqft, 2)}</span>
+                    <span />
                   </div>
                 )}
-                {ex.transition_qty > 0 && ex.transition_unit > 0 && (
+                {(extrasJson.transition_qty ?? 0) > 0 && (extrasJson.transition_unit ?? 0) > 0 && (
                   <div
                     className="grid items-start px-2 py-2"
-                    style={{ gridTemplateColumns: '5fr 80px 90px 90px', borderBottom: ROW_BORDER, color: '#0f172a' }}
+                    style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a' }}
                   >
                     <span className="pr-3">Transition strips</span>
-                    <span className="text-right tabular-nums">{fmtQty(ex.transition_qty)}</span>
-                    <span className="text-right tabular-nums">{fmtNumber(ex.transition_unit, 2)}</span>
-                    <span className="text-right tabular-nums font-semibold">{fmtNumber(ex.transition_qty * ex.transition_unit, 2)}</span>
+                    <span className="text-right tabular-nums">{fmtQty(extrasJson.transition_qty)}</span>
+                    <span className="text-right tabular-nums">{fmtNumber(extrasJson.transition_unit, 2)}</span>
+                    <span className="text-right tabular-nums font-semibold">{fmtNumber(extrasJson.transition_qty * extrasJson.transition_unit, 2)}</span>
+                    <span />
                   </div>
                 )}
-                {ex.floor_protection > 0 && (
+                {(extrasJson.floor_protection ?? 0) > 0 && (
                   <div
                     className="grid items-start px-2 py-2"
-                    style={{ gridTemplateColumns: '5fr 80px 90px 90px', borderBottom: ROW_BORDER, color: '#0f172a' }}
+                    style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a' }}
                   >
-                    <span className="pr-3">Floor protection</span>
+                    <span className="pr-3">
+                      <EditableCell
+                        fieldKey="extras_floor_protection_desc"
+                        value={floorProtectionDesc}
+                        editing={editing}
+                        saved={saved}
+                        onEdit={onEdit}
+                        onSave={(key, val) => handleLocalDescSave(setFloorProtectionDesc, key, val)}
+                        align="left"
+                      />
+                    </span>
                     <span />
-                    <span className="text-right tabular-nums">{fmtNumber(ex.floor_protection, 2)}</span>
-                    <span className="text-right tabular-nums font-semibold">{fmtNumber(ex.floor_protection, 2)}</span>
+                    <span className="text-right tabular-nums">
+                      <EditableCell
+                        fieldKey="extras_floor_protection"
+                        value={fmtNumber(extrasJson.floor_protection, 2)}
+                        editing={editing}
+                        saved={saved}
+                        onEdit={onEdit}
+                        onSave={(key, val) => handleSave('extras_floor_protection', val)}
+                        align="right"
+                      />
+                    </span>
+                    <span className="text-right tabular-nums font-semibold">
+                      {fmtNumber(extrasJson.floor_protection, 2)}
+                      {saved === 'extras_floor_protection' && (
+                        <span style={{ color: TEAL, marginLeft: 4, fontSize: '0.75em' }}>✓</span>
+                      )}
+                    </span>
+                    <span />
                   </div>
                 )}
-                {ex.disposal_fee > 0 && (
+                {(extrasJson.disposal_fee ?? 0) > 0 && (
                   <div
                     className="grid items-start px-2 py-2"
-                    style={{ gridTemplateColumns: '5fr 80px 90px 90px', borderBottom: ROW_BORDER, color: '#0f172a' }}
+                    style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a' }}
                   >
-                    <span className="pr-3">Disposal / dump fee</span>
+                    <span className="pr-3">
+                      <EditableCell
+                        fieldKey="extras_disposal_fee_desc"
+                        value={disposalFeeDesc}
+                        editing={editing}
+                        saved={saved}
+                        onEdit={onEdit}
+                        onSave={(key, val) => handleLocalDescSave(setDisposalFeeDesc, key, val)}
+                        align="left"
+                      />
+                    </span>
                     <span />
-                    <span className="text-right tabular-nums">{fmtNumber(ex.disposal_fee, 2)}</span>
-                    <span className="text-right tabular-nums font-semibold">{fmtNumber(ex.disposal_fee, 2)}</span>
+                    <span className="text-right tabular-nums">
+                      <EditableCell
+                        fieldKey="extras_disposal_fee"
+                        value={fmtNumber(extrasJson.disposal_fee, 2)}
+                        editing={editing}
+                        saved={saved}
+                        onEdit={onEdit}
+                        onSave={(key, val) => handleSave('extras_disposal_fee', val)}
+                        align="right"
+                      />
+                    </span>
+                    <span className="text-right tabular-nums font-semibold">
+                      {fmtNumber(extrasJson.disposal_fee, 2)}
+                      {saved === 'extras_disposal_fee' && (
+                        <span style={{ color: TEAL, marginLeft: 4, fontSize: '0.75em' }}>✓</span>
+                      )}
+                    </span>
+                    <span />
                   </div>
                 )}
               </>
