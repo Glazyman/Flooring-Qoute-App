@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import Link from 'next/link'
 import { fmt } from '@/lib/calculations'
 import { flooringTypeLabel, FLOORING_LABEL } from '@/lib/flooringLabels'
 import type { Quote, QuoteRoom, QuoteLineItem, CompanySettings } from '@/lib/types'
@@ -405,18 +404,10 @@ export default function QuoteDetailCard({
       className="bg-white rounded-xl p-4 sm:p-6 relative"
       style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}
     >
-      {/* Edit shortcut */}
-      <Link
-        href={`/quotes/${q.id}/edit`}
-        className="absolute top-3 right-3 flex items-center gap-1 text-xs font-medium px-2.5 py-1.5 rounded-lg transition-colors"
-        style={{ background: 'var(--primary-light)', color: 'var(--primary)' }}
-        title="Edit this quote"
-      >
-        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-        </svg>
-        Edit
-      </Link>
+      {/* Inline-edit hint */}
+      <p className="text-xs mb-3" style={{ color: 'var(--primary)', opacity: 0.7 }}>
+        Click any field to edit
+      </p>
 
       {/* Top row: company block + Estimate title + meta table */}
       <div className="flex flex-col sm:flex-row sm:items-stretch sm:justify-between gap-4 mb-5">
