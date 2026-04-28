@@ -186,30 +186,58 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
         </div>
       )}
 
-      {/* Select / select-all toolbar */}
-      <div className="flex items-center gap-3">
+      {/* Select / select-all / bulk toolbar */}
+      <div className="flex items-center gap-2 flex-wrap">
         <button
           onClick={() => selecting ? exitSelect() : setSelecting(true)}
-          className={`text-sm font-semibold px-3.5 py-2 rounded-2xl border transition-colors ${
-            selecting
-              ? 'bg-gray-100 border-gray-300 text-gray-700'
-              : 'border-gray-200 text-gray-500 hover:bg-gray-50'
-          }`}
+          className="text-xs font-medium text-gray-500 hover:text-gray-700 px-2 py-1 rounded hover:bg-gray-100 transition-colors"
         >
           {selecting ? 'Cancel' : 'Select'}
         </button>
-
         {selecting && (
-          <button onClick={toggleAll} className="flex items-center gap-1.5 text-sm font-semibold text-gray-600">
-            {allSelected
-              ? <CheckSquare className="w-4 h-4 text-teal-600" />
-              : <Square className="w-4 h-4 text-gray-400" />
-            }
-            {allSelected ? 'Deselect All' : 'Select All'}
+          <button onClick={toggleAll} className="text-xs font-medium text-gray-500 hover:text-gray-700 px-2 py-1 rounded hover:bg-gray-100 transition-colors">
+            {allSelected ? 'Deselect all' : 'Select all'}
           </button>
         )}
         {selecting && selCount > 0 && (
-          <span className="text-sm text-gray-400">{selCount} selected</span>
+          <>
+            <span className="text-xs text-gray-400 font-medium">{selCount} selected</span>
+            <div className="ml-auto flex items-center gap-2">
+              {bulkStatusPicker ? (
+                <>
+                  {STATUS_OPTIONS.map(s => (
+                    <button
+                      key={s}
+                      onClick={() => bulkSetStatus(s)}
+                      disabled={working}
+                      className="text-xs font-medium px-3 py-1.5 rounded-lg border transition-colors disabled:opacity-50"
+                      style={{ background: STATUS_CONFIG[s].bg, color: STATUS_CONFIG[s].text, borderColor: STATUS_CONFIG[s].text + '40' }}
+                    >
+                      {STATUS_CONFIG[s].label}
+                    </button>
+                  ))}
+                  <button onClick={() => setBulkStatusPicker(false)} className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1">✕</button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setBulkStatusPicker(true)}
+                    disabled={working}
+                    className="text-xs font-medium text-teal-700 hover:text-teal-800 px-3 py-1.5 rounded-lg border border-teal-200 hover:bg-teal-50 transition-colors disabled:opacity-50"
+                  >
+                    Set Status
+                  </button>
+                  <button
+                    onClick={() => setConfirmBulkDelete(true)}
+                    disabled={working}
+                    className="text-xs font-medium text-red-600 hover:text-red-700 px-3 py-1.5 rounded-lg border border-red-200 hover:bg-red-50 transition-colors disabled:opacity-50"
+                  >
+                    Delete
+                  </button>
+                </>
+              )}
+            </div>
+          </>
         )}
       </div>
 
@@ -292,8 +320,8 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
                         View →
                       </button>
                       {!selecting && (
-                        <button onClick={() => setConfirmDelete(q.id)} className="text-gray-300 hover:text-red-400 transition-colors" title="Delete">
-                          <Trash2 className="w-4 h-4" />
+                        <button onClick={() => setConfirmDelete(q.id)} className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors" title="Delete">
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       )}
                     </div>
@@ -357,7 +385,7 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
                       ))}
                     </select>
                   </div>
-                  <button onClick={() => setConfirmDelete(q.id)} className="p-1.5 text-gray-300 hover:text-red-400 flex-shrink-0">
+                  <button onClick={() => setConfirmDelete(q.id)} className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 flex-shrink-0 transition-colors">
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -367,54 +395,6 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
         })}
       </div>
 
-      {/* Floating bulk action bar for Estimates */}
-      {selecting && selCount > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 px-4 py-3 rounded-2xl shadow-2xl" style={{ background: '#1c1c1e', minWidth: 300 }}>
-          <span className="text-white text-sm font-semibold mr-1">{selCount} selected</span>
-          <div className="flex-1" />
-
-          {/* Status submenu */}
-          {bulkStatusPicker ? (
-            <>
-              {STATUS_OPTIONS.map(s => (
-                <button
-                  key={s}
-                  onClick={() => bulkSetStatus(s)}
-                  disabled={working}
-                  className="text-xs font-semibold px-3 py-2 rounded-xl disabled:opacity-50 transition-colors"
-                  style={{ background: STATUS_CONFIG[s].bg, color: STATUS_CONFIG[s].text }}
-                >
-                  {STATUS_CONFIG[s].label}
-                </button>
-              ))}
-              <button
-                onClick={() => setBulkStatusPicker(false)}
-                className="text-gray-400 text-xs font-semibold px-2 py-2 rounded-xl hover:text-white"
-              >
-                ✕
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={() => setBulkStatusPicker(true)}
-                disabled={working}
-                className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-sm font-semibold px-3.5 py-2 rounded-xl disabled:opacity-50 transition-colors"
-              >
-                Set Status
-              </button>
-              <button
-                onClick={() => setConfirmBulkDelete(true)}
-                disabled={working}
-                className="flex items-center gap-1.5 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-3.5 py-2 rounded-xl disabled:opacity-50 transition-colors"
-              >
-                <Trash2 className="w-4 h-4" />
-                Delete
-              </button>
-            </>
-          )}
-        </div>
-      )}
     </>
   )
 }

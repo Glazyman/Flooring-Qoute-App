@@ -42,7 +42,7 @@ function NavLink({ item, onClick, trialExhausted }: { item: NavItem; onClick?: (
     <Link
       href={item.href}
       onClick={onClick}
-      className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-[13px] font-medium transition-all"
+      className="flex items-center gap-2.5 px-2.5 py-2.5 lg:py-1.5 rounded-md text-[13px] font-medium transition-all"
       style={isActive
         ? { background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.95)' }
         : { color: 'rgba(255,255,255,0.5)' }
@@ -104,7 +104,7 @@ export default function AppNavigation({
         <Link
           href={trialExhausted ? '/billing/setup' : '/quotes/new'}
           onClick={() => setMobileOpen(false)}
-          className="flex items-center justify-center gap-2 w-full py-1.5 rounded-md text-[13px] font-semibold text-white transition-all"
+          className="flex items-center justify-center gap-2 w-full py-2.5 lg:py-1.5 rounded-md text-[13px] font-semibold text-white transition-all"
           style={{ background: '#0D9488' }}
         >
           <PlusCircle className="w-3.5 h-3.5" />
@@ -130,7 +130,7 @@ export default function AppNavigation({
         ))}
         <button
           onClick={() => { setMobileOpen(false); setContactOpen(true) }}
-          className="w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-[13px] font-medium transition-all text-left"
+          className="w-full flex items-center gap-2.5 px-2.5 py-2.5 lg:py-1.5 rounded-md text-[13px] font-medium transition-all text-left"
           style={{ color: 'rgba(255,255,255,0.5)' }}
           onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)'; (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.75)' }}
           onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.5)' }}
@@ -140,7 +140,7 @@ export default function AppNavigation({
         </button>
         <button
           onClick={handleBillingPortal}
-          className="w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-[13px] font-medium transition-all text-left"
+          className="w-full flex items-center gap-2.5 px-2.5 py-2.5 lg:py-1.5 rounded-md text-[13px] font-medium transition-all text-left"
           style={{ color: 'rgba(255,255,255,0.5)' }}
           onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)'; (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.75)' }}
           onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.5)' }}
@@ -150,7 +150,7 @@ export default function AppNavigation({
         </button>
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-[13px] font-medium transition-all text-left"
+          className="w-full flex items-center gap-2.5 px-2.5 py-2.5 lg:py-1.5 rounded-md text-[13px] font-medium transition-all text-left"
           style={{ color: 'rgba(239,68,68,0.6)' }}
           onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(239,68,68,0.08)'; (e.currentTarget as HTMLElement).style.color = 'rgba(239,68,68,0.9)' }}
           onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'rgba(239,68,68,0.6)' }}
@@ -204,7 +204,7 @@ export default function AppNavigation({
       >
         <button
           onClick={() => setMobileOpen(true)}
-          className="p-2 -ml-1 rounded-md"
+          className="w-11 h-11 flex items-center justify-center -ml-2 rounded-md"
           style={{ color: 'rgba(255,255,255,0.6)' }}
         >
           <Menu className="w-5 h-5" />
@@ -231,7 +231,7 @@ export default function AppNavigation({
                 <Image src="/logo.png" alt="FloorQuote Pro" width={24} height={24} className="rounded-md" />
                 <span className="font-bold text-sm" style={{ color: 'rgba(255,255,255,0.9)' }}>FloorQuote Pro</span>
               </div>
-              <button onClick={() => setMobileOpen(false)} className="p-2 rounded-md" style={{ color: 'rgba(255,255,255,0.5)' }}>
+              <button onClick={() => setMobileOpen(false)} className="w-10 h-10 flex items-center justify-center rounded-md" style={{ color: 'rgba(255,255,255,0.5)' }}>
                 <X className="w-4 h-4" />
               </button>
             </div>

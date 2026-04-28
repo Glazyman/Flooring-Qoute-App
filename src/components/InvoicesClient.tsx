@@ -111,7 +111,7 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
           {items.length > 0 && (
             <button
               onClick={() => selecting ? exitSelect() : setSelecting(true)}
-              className={`text-sm font-semibold px-3.5 py-2.5 rounded-2xl border transition-colors ${
+              className={`text-sm font-semibold px-3.5 py-3 md:py-2.5 rounded-2xl border transition-colors ${
                 selecting
                   ? 'bg-gray-100 border-gray-300 text-gray-700'
                   : 'border-gray-200 text-gray-500 hover:bg-gray-50'
@@ -122,14 +122,14 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
           )}
           <Link
             href="/invoices/new?tab=upload"
-            className="flex items-center gap-2 border border-gray-200 text-gray-600 font-semibold px-3.5 py-2.5 rounded-2xl text-sm hover:bg-gray-50 transition-colors active:scale-95"
+            className="flex items-center gap-2 border border-gray-200 text-gray-600 font-semibold px-3.5 py-3 md:py-2.5 rounded-2xl text-sm hover:bg-gray-50 transition-colors active:scale-95"
           >
             <Upload className="w-4 h-4" />
             <span className="hidden sm:inline">Upload</span>
           </Link>
           <Link
             href="/invoices/new"
-            className="flex items-center gap-2 text-white font-semibold px-4 py-2.5 rounded-2xl text-sm active:scale-95"
+            className="flex items-center gap-2 text-white font-semibold px-4 py-3 md:py-2.5 rounded-2xl text-sm active:scale-95"
             style={{ background: 'var(--primary)', boxShadow: '0 2px 8px rgba(13,148,136,0.25)' }}
           >
             <Plus className="w-4 h-4" />
@@ -138,18 +138,39 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
         </div>
       </div>
 
-      {/* Select-all bar */}
+      {/* Inline select/bulk bar */}
       {selecting && items.length > 0 && (
-        <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-white" style={{ border: '1px solid var(--border)' }}>
-          <button onClick={toggleAll} className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-            {allSelected
-              ? <CheckSquare className="w-5 h-5 text-teal-600" />
-              : <Square className="w-5 h-5 text-gray-400" />
-            }
-            {allSelected ? 'Deselect All' : 'Select All'}
+        <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-xl border border-gray-100">
+          <button onClick={toggleAll} className="text-xs font-medium text-gray-500 hover:text-gray-700 px-2 py-1 rounded hover:bg-gray-100 transition-colors">
+            {allSelected ? 'Deselect all' : 'Select all'}
           </button>
           {selCount > 0 && (
-            <span className="text-sm text-gray-400">{selCount} selected</span>
+            <>
+              <span className="text-xs text-gray-400 font-medium">{selCount} selected</span>
+              <div className="ml-auto flex items-center gap-2">
+                <button
+                  onClick={() => bulkSetStatus('sent')}
+                  disabled={working}
+                  className="text-xs font-medium text-teal-700 hover:text-teal-800 px-3 py-1.5 rounded-lg border border-teal-200 hover:bg-teal-50 transition-colors disabled:opacity-50"
+                >
+                  Mark Sent
+                </button>
+                <button
+                  onClick={() => bulkSetStatus('paid')}
+                  disabled={working}
+                  className="text-xs font-medium text-teal-700 hover:text-teal-800 px-3 py-1.5 rounded-lg border border-teal-200 hover:bg-teal-50 transition-colors disabled:opacity-50"
+                >
+                  Mark Paid
+                </button>
+                <button
+                  onClick={() => setConfirmDelete(true)}
+                  disabled={working}
+                  className="text-xs font-medium text-red-600 hover:text-red-700 px-3 py-1.5 rounded-lg border border-red-200 hover:bg-red-50 transition-colors disabled:opacity-50"
+                >
+                  Delete
+                </button>
+              </div>
+            </>
           )}
         </div>
       )}
@@ -191,7 +212,7 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
                 }}
               >
                 {selecting && (
-                  <button onClick={() => toggleSelect(inv.id)} className="flex-shrink-0 p-0.5">
+                  <button onClick={() => toggleSelect(inv.id)} className="flex-shrink-0 w-9 h-9 flex items-center justify-center -ml-1">
                     {isSelected
                       ? <CheckSquare className="w-5 h-5 text-teal-600" />
                       : <Square className="w-5 h-5 text-gray-300" />
@@ -240,35 +261,6 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
         </div>
       )}
 
-      {/* Floating bulk action bar */}
-      {selecting && selCount > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 px-4 py-3 rounded-2xl shadow-2xl" style={{ background: '#1c1c1e', minWidth: 300 }}>
-          <span className="text-white text-sm font-semibold">{selCount} selected</span>
-          <div className="flex-1" />
-          <button
-            onClick={() => bulkSetStatus('sent')}
-            disabled={working}
-            className="flex items-center gap-1.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold px-3.5 py-2 rounded-xl disabled:opacity-50 transition-colors"
-          >
-            Mark Sent
-          </button>
-          <button
-            onClick={() => bulkSetStatus('paid')}
-            disabled={working}
-            className="flex items-center gap-1.5 bg-green-500 hover:bg-green-600 text-white text-sm font-semibold px-3.5 py-2 rounded-xl disabled:opacity-50 transition-colors"
-          >
-            Mark Paid
-          </button>
-          <button
-            onClick={() => setConfirmDelete(true)}
-            disabled={working}
-            className="flex items-center gap-1.5 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-3.5 py-2 rounded-xl disabled:opacity-50 transition-colors"
-          >
-            <Trash2 className="w-4 h-4" />
-            Delete
-          </button>
-        </div>
-      )}
     </div>
   )
 }

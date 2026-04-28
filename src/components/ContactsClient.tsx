@@ -266,7 +266,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
         {mode === 'page' && customers.length > 0 && (
           <button
             onClick={() => selecting ? exitSelect() : setSelecting(true)}
-            className={`flex items-center gap-2 border font-semibold px-3.5 py-2.5 rounded-2xl text-sm flex-shrink-0 active:scale-95 transition-colors ${
+            className={`flex items-center gap-2 border font-semibold px-3.5 py-3 md:py-2.5 rounded-2xl text-sm flex-shrink-0 active:scale-95 transition-colors ${
               selecting ? 'bg-gray-100 border-gray-300 text-gray-700' : 'border-gray-200 text-gray-500 hover:bg-gray-50'
             }`}
           >
@@ -276,7 +276,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
         {mode === 'page' && (
           <button
             onClick={() => { setShowImport(v => !v); setImportRows([]); setImportError(''); setImportDone(false) }}
-            className="flex items-center gap-2 border border-gray-200 text-gray-600 font-semibold px-3.5 py-2.5 rounded-2xl text-sm flex-shrink-0 active:scale-95 hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-2 border border-gray-200 text-gray-600 font-semibold px-3.5 py-3 md:py-2.5 rounded-2xl text-sm flex-shrink-0 active:scale-95 hover:bg-gray-50 transition-colors"
           >
             <Upload className="w-4 h-4" />
             <span className="hidden sm:inline">QuickBooks</span>
@@ -284,7 +284,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
         )}
         <button
           onClick={startAdd}
-          className="flex items-center gap-2 text-white font-semibold px-4 py-2.5 rounded-2xl text-sm flex-shrink-0 active:scale-95"
+          className="flex items-center gap-2 text-white font-semibold px-4 py-3 md:py-2.5 rounded-2xl text-sm flex-shrink-0 active:scale-95"
           style={{ background: 'var(--primary)', boxShadow: '0 2px 8px rgba(13,148,136,0.25)' }}
         >
           <UserPlus className="w-4 h-4" />
@@ -292,19 +292,6 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
         </button>
       </div>
 
-      {/* Select-all bar */}
-      {selecting && filtered.length > 0 && (
-        <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-white" style={{ border: '1px solid var(--border)' }}>
-          <button onClick={toggleAll} className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-            {allSelected
-              ? <CheckSquare className="w-5 h-5 text-teal-600" />
-              : <Square className="w-5 h-5 text-gray-400" />
-            }
-            {allSelected ? 'Deselect All' : 'Select All'}
-          </button>
-          {selCount > 0 && <span className="text-sm text-gray-400">{selCount} selected</span>}
-        </div>
-      )}
 
       {/* QuickBooks CSV Import Panel */}
       {showImport && mode === 'page' && (
@@ -463,6 +450,28 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
         </div>
       ) : (
         <div className="bg-white rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+          {/* Inline select/bulk bar */}
+          {selecting && (
+            <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 border-b border-gray-100">
+              <button onClick={toggleAll} className="text-xs font-medium text-gray-500 hover:text-gray-700 px-2 py-1 rounded hover:bg-gray-100 transition-colors">
+                {allSelected ? 'Deselect all' : 'Select all'}
+              </button>
+              {selCount > 0 && (
+                <>
+                  <span className="text-xs text-gray-400 font-medium">{selCount} selected</span>
+                  <div className="ml-auto flex items-center gap-2">
+                    <button
+                      onClick={() => setConfirmBulkDelete(true)}
+                      disabled={bulkWorking}
+                      className="text-xs font-medium text-red-600 hover:text-red-700 px-3 py-1.5 rounded-lg border border-red-200 hover:bg-red-50 transition-colors disabled:opacity-50"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
           {filtered.map((c, idx) => {
             const isSelected = selected.has(c.id)
             const meta = [c.phone, c.email, c.address].filter(Boolean).join(' · ')
@@ -476,7 +485,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
                 }}
               >
                 {selecting && (
-                  <button onClick={() => toggleSelect(c.id)} className="flex-shrink-0">
+                  <button onClick={() => toggleSelect(c.id)} className="flex-shrink-0 w-9 h-9 flex items-center justify-center -ml-1">
                     {isSelected
                       ? <CheckSquare className="w-4 h-4 text-teal-600" />
                       : <Square className="w-4 h-4 text-gray-300" />
@@ -488,19 +497,12 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
                   {meta && <p className="text-xs truncate mt-0.5" style={{ color: 'var(--text-2)' }}>{meta}</p>}
                   {c.notes && <p className="text-xs truncate mt-0.5 italic" style={{ color: 'var(--text-3)' }}>{c.notes}</p>}
                 </div>
-                {selecting ? (
-                  <button onClick={() => toggleSelect(c.id)} className="flex-shrink-0 p-1">
-                    {isSelected
-                      ? <CheckSquare className="w-4 h-4 text-teal-600" />
-                      : <Square className="w-4 h-4 text-gray-300" />
-                    }
-                  </button>
-                ) : (
-                  <div className="flex items-center gap-1 flex-shrink-0">
+                {!selecting && (
+                  <div className="flex items-center gap-0.5 flex-shrink-0">
                     {mode === 'picker' && onSelectContact && (
                       <button
                         onClick={() => onSelectContact({ name: c.name, phone: c.phone || '', email: c.email || '', address: c.address || '' })}
-                        className="text-white font-semibold px-3 py-1.5 rounded-lg text-xs active:scale-95"
+                        className="text-white font-semibold px-3 py-1.5 rounded-lg text-xs active:scale-95 mr-1"
                         style={{ background: 'var(--primary)' }}
                       >
                         Select
@@ -508,14 +510,14 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
                     )}
                     <button
                       onClick={() => startEdit(c)}
-                      className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                      className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
                     >
                       <Pencil className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={() => handleDelete(c.id)}
                       disabled={deletingId === c.id}
-                      className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-40"
+                      className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors disabled:opacity-40"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -527,21 +529,6 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
         </div>
       )}
 
-      {/* Floating bulk action bar */}
-      {selecting && selCount > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 px-4 py-3 rounded-2xl shadow-2xl" style={{ background: '#1c1c1e', minWidth: 240 }}>
-          <span className="text-white text-sm font-semibold">{selCount} selected</span>
-          <div className="flex-1" />
-          <button
-            onClick={() => setConfirmBulkDelete(true)}
-            disabled={bulkWorking}
-            className="flex items-center gap-1.5 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-3.5 py-2 rounded-xl disabled:opacity-50 transition-colors"
-          >
-            <Trash2 className="w-4 h-4" />
-            Delete
-          </button>
-        </div>
-      )}
     </div>
   )
 }

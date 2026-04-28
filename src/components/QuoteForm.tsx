@@ -732,7 +732,7 @@ export default function QuoteForm({
                                   type="button"
                                   onClick={() => removeRoom(room.id)}
                                   disabled={rooms.length === 1}
-                                  className="p-2 text-gray-300 hover:text-red-400 disabled:opacity-20 transition-colors rounded-xl hover:bg-red-50 flex-shrink-0"
+                                  className="w-9 h-9 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 disabled:opacity-20 transition-colors rounded-lg flex-shrink-0"
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </button>
