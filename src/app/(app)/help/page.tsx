@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { HelpCircle, MessageSquare, BookOpen, Zap, ChevronDown, ChevronRight } from 'lucide-react'
+import { HelpCircle, MessageSquare, ChevronDown, ChevronRight } from 'lucide-react'
 
 const FORMSPREE_ID = 'meevwpea'
 
@@ -29,6 +29,14 @@ const FAQS = [
   {
     q: 'How do I upgrade my plan?',
     a: 'Click "Billing" in the sidebar to manage your subscription. You can upgrade, downgrade, or cancel at any time.',
+  },
+  {
+    q: 'How does the free trial work?',
+    a: 'You get 3 free quotes. After that, click Billing in the sidebar to upgrade. You can cancel anytime from the customer portal.',
+  },
+  {
+    q: 'How do I cancel my subscription?',
+    a: 'Click Billing in the sidebar to open the Stripe customer portal where you can pause or cancel your subscription anytime.',
   },
 ]
 
@@ -88,30 +96,23 @@ export default function HelpPage() {
         <p className="text-sm mt-0.5" style={{ color: 'var(--text-2)' }}>We reply within 1 business day</p>
       </div>
 
-      {/* Quick links */}
-      <div className="grid grid-cols-3 gap-3">
-        {[
-          { icon: BookOpen, label: 'Getting Started', sub: 'Setup your account' },
-          { icon: Zap, label: 'Quick Tips', sub: 'Work faster' },
-          { icon: MessageSquare, label: 'Contact Us', sub: 'Send a message' },
-        ].map(({ icon: Icon, label, sub }) => (
-          <a
-            key={label}
-            href={label === 'Contact Us' ? '#contact' : '#faq'}
-            className="bg-white rounded-xl p-4 text-center hover:bg-gray-50 transition-colors"
-            style={{ border: '1px solid var(--border)' }}
-          >
-            <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center mx-auto mb-2"
-              style={{ background: 'var(--primary-light)' }}
-            >
-              <Icon className="w-4 h-4" style={{ color: 'var(--primary)' }} />
-            </div>
-            <p className="text-xs font-semibold" style={{ color: 'var(--text)' }}>{label}</p>
-            <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>{sub}</p>
-          </a>
-        ))}
-      </div>
+      {/* Contact link */}
+      <a
+        href="#contact"
+        className="flex items-center gap-3 bg-white rounded-xl px-4 py-3 hover:bg-gray-50 transition-colors"
+        style={{ border: '1px solid var(--border)' }}
+      >
+        <div
+          className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+          style={{ background: 'var(--primary-light)' }}
+        >
+          <MessageSquare className="w-4 h-4" style={{ color: 'var(--primary)' }} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold" style={{ color: 'var(--text)' }}>Contact Us</p>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>Send a message — we reply within 1 business day</p>
+        </div>
+      </a>
 
       {/* FAQ */}
       <div id="faq" className="bg-white rounded-xl px-5" style={{ border: '1px solid var(--border)' }}>

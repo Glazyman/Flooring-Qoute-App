@@ -40,11 +40,35 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Customer name is required' }, { status: 400 })
   }
 
+  // Auto-generate invoice number from settings prefix + counter when none provided.
+  let resolvedInvoiceNumber: string | null = invoice_number?.trim() ? invoice_number.trim() : null
+  if (!resolvedInvoiceNumber) {
+    try {
+      const { data: settings } = await supabase
+        .from('company_settings')
+        .select('invoice_number_prefix, next_invoice_number')
+        .eq('company_id', membership.company_id)
+        .single()
+
+      const prefix = (settings?.invoice_number_prefix ?? '').trim()
+      const next = settings?.next_invoice_number ?? 1
+      resolvedInvoiceNumber = prefix ? `${prefix}-${next}` : String(next)
+
+      await supabase
+        .from('company_settings')
+        .update({ next_invoice_number: next + 1 })
+        .eq('company_id', membership.company_id)
+    } catch {
+      // Non-fatal — fall back to no invoice number rather than blocking the create.
+      resolvedInvoiceNumber = null
+    }
+  }
+
   const { data, error } = await supabase
     .from('invoices')
     .insert({
       company_id: membership.company_id,
-      invoice_number: invoice_number || null,
+      invoice_number: resolvedInvoiceNumber,
       customer_name: customer_name.trim(),
       customer_email: customer_email || null,
       customer_phone: customer_phone || null,

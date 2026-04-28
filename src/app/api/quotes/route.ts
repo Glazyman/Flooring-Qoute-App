@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { syncCustomerFromQuote } from '@/lib/customerSync'
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
@@ -79,6 +80,32 @@ export async function POST(request: NextRequest) {
   const body = await request.json()
   const { rooms, ...quoteData } = body
 
+  // Auto-generate quote number from settings prefix + counter when none provided.
+  const incomingQuoteNumber = typeof quoteData.quote_number === 'string' ? quoteData.quote_number.trim() : ''
+  if (!incomingQuoteNumber) {
+    try {
+      const { data: settings } = await supabase
+        .from('company_settings')
+        .select('quote_number_prefix, next_quote_number')
+        .eq('company_id', membership.company_id)
+        .single()
+
+      const prefix = (settings?.quote_number_prefix ?? '').trim()
+      const next = settings?.next_quote_number ?? 1
+      quoteData.quote_number = prefix ? `${prefix}-${next}` : String(next)
+
+      await supabase
+        .from('company_settings')
+        .update({ next_quote_number: next + 1 })
+        .eq('company_id', membership.company_id)
+    } catch {
+      // Non-fatal — fall back to no quote_number rather than blocking the create.
+      delete quoteData.quote_number
+    }
+  } else {
+    quoteData.quote_number = incomingQuoteNumber
+  }
+
   const { data: quote, error: quoteError } = await supabase
     .from('quotes')
     .insert({ ...quoteData, company_id: membership.company_id })
@@ -102,33 +129,13 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // Auto-save customer to contacts (best-effort, never blocks quote creation)
   try {
-    const customerEmail = quoteData.customer_email as string | null | undefined
-    const customerName = quoteData.customer_name as string
-
-    let existingQuery = supabase
-      .from('customers')
-      .select('id')
-      .eq('company_id', membership.company_id)
-
-    if (customerEmail) {
-      existingQuery = existingQuery.eq('email', customerEmail)
-    } else {
-      existingQuery = existingQuery.ilike('name', customerName)
-    }
-
-    const { data: existing } = await existingQuery.maybeSingle()
-
-    if (!existing) {
-      await supabase.from('customers').insert({
-        company_id: membership.company_id,
-        name: customerName,
-        phone: (quoteData.customer_phone as string | null) ?? null,
-        email: customerEmail ?? null,
-        address: (quoteData.job_address as string | null) ?? null,
-      })
-    }
+    await syncCustomerFromQuote(supabase, membership.company_id, {
+      customer_name: quoteData.customer_name as string | null | undefined,
+      customer_phone: quoteData.customer_phone as string | null | undefined,
+      customer_email: quoteData.customer_email as string | null | undefined,
+      job_address: quoteData.job_address as string | null | undefined,
+    })
   } catch {
     // Non-fatal — quote was already saved successfully
   }

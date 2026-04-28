@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useMemo, useRef } from 'react'
-import { Pencil, Trash2, X, Check, Search, UserPlus, Phone, Mail, MapPin, FileText, Upload, AlertCircle, Square, CheckSquare } from 'lucide-react'
+import Link from 'next/link'
+import { Pencil, Trash2, X, Check, Search, UserPlus, Upload, AlertCircle, Square, CheckSquare } from 'lucide-react'
 
 interface Customer {
   id: string
@@ -478,6 +479,18 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
           {filtered.map((c, idx) => {
             const isSelected = selected.has(c.id)
             const meta = [c.phone, c.email, c.address].filter(Boolean).join(' · ')
+
+            const rowContent = (
+              <>
+                <p className="text-sm font-semibold truncate" style={{ color: 'var(--text)' }}>{c.name}</p>
+                {meta && <p className="text-xs truncate mt-0.5" style={{ color: 'var(--text-2)' }}>{meta}</p>}
+                {c.notes && <p className="text-xs truncate mt-0.5 italic" style={{ color: 'var(--text-3)' }}>{c.notes}</p>}
+              </>
+            )
+
+            // Not in selecting/picker mode: row content links to detail page.
+            const linkable = !selecting && mode === 'page'
+
             return (
               <div
                 key={c.id}
@@ -495,11 +508,16 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
                     }
                   </button>
                 )}
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold truncate" style={{ color: 'var(--text)' }}>{c.name}</p>
-                  {meta && <p className="text-xs truncate mt-0.5" style={{ color: 'var(--text-2)' }}>{meta}</p>}
-                  {c.notes && <p className="text-xs truncate mt-0.5 italic" style={{ color: 'var(--text-3)' }}>{c.notes}</p>}
-                </div>
+                {linkable ? (
+                  <Link
+                    href={`/contacts/${c.id}`}
+                    className="flex-1 min-w-0 -my-3 py-3 -ml-1 pl-1 pr-2 hover:bg-transparent"
+                  >
+                    {rowContent}
+                  </Link>
+                ) : (
+                  <div className="flex-1 min-w-0">{rowContent}</div>
+                )}
                 {!selecting && (
                   <div className="flex items-center gap-0.5 flex-shrink-0">
                     {mode === 'picker' && onSelectContact && (
@@ -514,6 +532,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
                     <button
                       onClick={() => startEdit(c)}
                       className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                      title="Edit contact"
                     >
                       <Pencil className="w-3.5 h-3.5" />
                     </button>
@@ -521,6 +540,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
                       onClick={() => handleDelete(c.id)}
                       disabled={deletingId === c.id}
                       className="p-1.5 text-gray-300 hover:text-red-500 transition-colors rounded disabled:opacity-40"
+                      title="Delete contact"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

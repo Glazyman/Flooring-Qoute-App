@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { syncCustomerFromQuote } from '@/lib/customerSync'
 
 export async function PATCH(
   request: NextRequest,
@@ -35,6 +36,19 @@ export async function PATCH(
           length: r.length, width: r.width, sqft: r.sqft,
         }))
       )
+    }
+  }
+
+  if (typeof quoteData.customer_name === 'string' && quoteData.customer_name.trim()) {
+    try {
+      await syncCustomerFromQuote(supabase, membership.company_id, {
+        customer_name: quoteData.customer_name as string | null | undefined,
+        customer_phone: quoteData.customer_phone as string | null | undefined,
+        customer_email: quoteData.customer_email as string | null | undefined,
+        job_address: quoteData.job_address as string | null | undefined,
+      })
+    } catch {
+      // Non-fatal — quote update already succeeded
     }
   }
 

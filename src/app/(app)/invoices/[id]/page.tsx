@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import type { Invoice, InvoiceLineItem } from '@/lib/types'
 import InvoiceStatusButton from '@/components/InvoiceStatusButton'
+import EmailInvoiceButton from '@/components/EmailInvoiceButton'
 import { FileText, ExternalLink } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -63,6 +64,10 @@ export default async function InvoiceDetailPage({
             </span>
             <InvoiceStatusButton invoiceId={inv.id} currentStatus={inv.status} />
           </div>
+        </div>
+
+        <div className="mt-4 flex flex-wrap items-start gap-2">
+          <EmailInvoiceButton invoiceId={inv.id} customerEmail={inv.customer_email} />
         </div>
       </div>
 
