@@ -1,28 +1,37 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #f2f2f7;
+  --bg: #F4F3F8;
   --card: #ffffff;
-  --card-alt: #f9f9fb;
-  --border: #e5e5ea;
-  --primary: #0d9488;
-  --primary-hover: #0f766e;
-  --primary-light: #f0fdfa;
+  --card-alt: #FAFAFA;
+  --border: #E8E5F0;
+  --primary: #7C3AED;
+  --primary-hover: #6D28D9;
+  --primary-light: #F5F3FF;
   --accent: #f97316;
   --accent-light: #fff7ed;
-  --text: #1c1c1e;
-  --text-2: #6d6d72;
-  --text-3: #aeaeb2;
-  --success: #34c759;
+  --text: #0F0E17;
+  --text-2: #6B7280;
+  --text-3: #9CA3AF;
+  --success: #16a34a;
   --success-bg: #f0fdf4;
-  --warning: #ff9500;
+  --warning: #d97706;
   --warning-bg: #fffbeb;
-  --danger: #ff3b30;
-  --danger-bg: #fff1f0;
-  --radius: 14px;
-  --radius-lg: 20px;
-  --shadow-card: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+  --danger: #dc2626;
+  --danger-bg: #fef2f2;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
   --shadow-lifted: 0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
+
+  /* Dark sidebar */
+  --sidebar-bg: #1B1825;
+  --sidebar-border: rgba(255,255,255,0.07);
+  --sidebar-text: rgba(255,255,255,0.55);
+  --sidebar-text-active: #FFFFFF;
+  --sidebar-active-bg: rgba(124,58,237,0.18);
+  --sidebar-hover-bg: rgba(255,255,255,0.06);
+  --sidebar-section-label: rgba(255,255,255,0.3);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -35,7 +44,7 @@ html {
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Segoe UI', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
@@ -57,7 +66,7 @@ input[type="number"] { -moz-appearance: textfield; }
 /* iOS-style input base */
 input, select, textarea {
   font-family: inherit;
-  font-size: 16px; /* prevents iOS zoom */
+  font-size: 16px;
 }
 
 /* Smooth transitions */
@@ -70,4 +79,4 @@ a, button { transition: opacity 0.15s ease, background 0.15s ease, color 0.15s e
 .quote-row:hover { background: var(--card-alt); }
 
 /* Marketing pages — white background */
-.marketing-page { background: #ffffff; color: #1c1c1e; }
+.marketing-page { background: #ffffff; color: #0F0E17; }

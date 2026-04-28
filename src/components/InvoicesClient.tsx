@@ -130,7 +130,7 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
           <Link
             href="/invoices/new"
             className="flex items-center gap-2 text-white font-semibold px-4 py-2.5 rounded-2xl text-sm active:scale-95"
-            style={{ background: 'var(--primary)', boxShadow: '0 2px 8px rgba(13,148,136,0.25)' }}
+            style={{ background: 'var(--primary)', boxShadow: '0 2px 8px rgba(124,58,237,0.25)' }}
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">New Invoice</span>
@@ -143,7 +143,7 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
         <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-white" style={{ border: '1px solid var(--border)' }}>
           <button onClick={toggleAll} className="flex items-center gap-2 text-sm font-semibold text-gray-700">
             {allSelected
-              ? <CheckSquare className="w-5 h-5 text-teal-600" />
+              ? <CheckSquare className="w-5 h-5 text-violet-600" />
               : <Square className="w-5 h-5 text-gray-400" />
             }
             {allSelected ? 'Deselect All' : 'Select All'}
@@ -186,14 +186,14 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
                 key={inv.id}
                 className={`flex items-center gap-4 bg-white rounded-2xl px-4 sm:px-5 py-4 transition-all`}
                 style={{
-                  border: `1px solid ${isSelected ? '#2dd4bf' : 'var(--border)'}`,
-                  boxShadow: isSelected ? '0 0 0 2px #99f6e4' : 'var(--shadow-card)',
+                  border: `1px solid ${isSelected ? '#A78BFA' : 'var(--border)'}`,
+                  boxShadow: isSelected ? '0 0 0 2px #DDD6FE' : 'var(--shadow-card)',
                 }}
               >
                 {selecting && (
                   <button onClick={() => toggleSelect(inv.id)} className="flex-shrink-0 p-0.5">
                     {isSelected
-                      ? <CheckSquare className="w-5 h-5 text-teal-600" />
+                      ? <CheckSquare className="w-5 h-5 text-violet-600" />
                       : <Square className="w-5 h-5 text-gray-300" />
                     }
                   </button>

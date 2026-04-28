@@ -202,7 +202,7 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
         {selecting && (
           <button onClick={toggleAll} className="flex items-center gap-1.5 text-sm font-semibold text-gray-600">
             {allSelected
-              ? <CheckSquare className="w-4 h-4 text-teal-600" />
+              ? <CheckSquare className="w-4 h-4 text-violet-600" />
               : <Square className="w-4 h-4 text-gray-400" />
             }
             {allSelected ? 'Deselect All' : 'Select All'}
@@ -222,7 +222,7 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
                 <th className="px-5 py-4 w-10">
                   <button onClick={toggleAll}>
                     {allSelected
-                      ? <CheckSquare className="w-4 h-4 text-teal-600" />
+                      ? <CheckSquare className="w-4 h-4 text-violet-600" />
                       : <Square className="w-4 h-4 text-gray-400" />
                     }
                   </button>
@@ -251,7 +251,7 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
                     <td className="px-5 py-4">
                       <button onClick={() => toggleSelect(q.id)}>
                         {isSelected
-                          ? <CheckSquare className="w-4 h-4 text-teal-600" />
+                          ? <CheckSquare className="w-4 h-4 text-violet-600" />
                           : <Square className="w-4 h-4 text-gray-300" />
                         }
                       </button>
@@ -322,8 +322,8 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
               key={q.id}
               className="bg-white rounded-3xl overflow-hidden"
               style={{
-                boxShadow: isSelected ? '0 0 0 2px #2dd4bf' : 'var(--shadow-card)',
-                border: `1px solid ${isSelected ? '#2dd4bf' : 'var(--border)'}`,
+                boxShadow: isSelected ? '0 0 0 2px #A78BFA' : 'var(--shadow-card)',
+                border: `1px solid ${isSelected ? '#A78BFA' : 'var(--border)'}`,
               }}
             >
               {selecting ? (
@@ -334,7 +334,7 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
                   <div className="flex items-start gap-3 mb-3">
                     <div className="flex-shrink-0 pt-0.5">
                       {isSelected
-                        ? <CheckSquare className="w-5 h-5 text-teal-600" />
+                        ? <CheckSquare className="w-5 h-5 text-violet-600" />
                         : <Square className="w-5 h-5 text-gray-300" />
                       }
                     </div>
@@ -395,7 +395,7 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
                   </select>
                   <button
                     onClick={() => router.push(`/quotes/${q.id}`)}
-                    className="px-5 py-3.5 text-sm font-semibold transition-colors active:bg-teal-50"
+                    className="px-5 py-3.5 text-sm font-semibold transition-colors active:bg-violet-50"
                     style={{ color: 'var(--primary)', borderRight: '1px solid var(--border)' }}
                   >
                     View

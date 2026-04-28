@@ -60,7 +60,7 @@ export default function ContactForm({ prefill }: { prefill: Prefill }) {
         </div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Message sent!</h2>
         <p className="text-gray-500 mb-6">Thanks for reaching out. We&apos;ll get back to you within 1 business day.</p>
-        <button onClick={() => setStatus('idle')} className="text-sm font-semibold text-teal-600 hover:text-teal-700">
+        <button onClick={() => setStatus('idle')} className="text-sm font-semibold text-violet-600 hover:text-violet-700">
           Send another message
         </button>
       </div>
@@ -81,7 +81,7 @@ export default function ContactForm({ prefill }: { prefill: Prefill }) {
             value={name}
             onChange={e => setName(e.target.value)}
             placeholder="Your full name"
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 placeholder:text-gray-300"
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 placeholder:text-gray-300"
           />
         </div>
         <div>
@@ -96,7 +96,7 @@ export default function ContactForm({ prefill }: { prefill: Prefill }) {
             onChange={e => setEmail(e.target.value)}
             placeholder="you@example.com"
             inputMode="email"
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 placeholder:text-gray-300"
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 placeholder:text-gray-300"
           />
         </div>
       </div>
@@ -110,7 +110,7 @@ export default function ContactForm({ prefill }: { prefill: Prefill }) {
           value={company}
           onChange={e => setCompany(e.target.value)}
           placeholder="Farkas Flooring"
-          className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 placeholder:text-gray-300"
+          className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 placeholder:text-gray-300"
         />
       </div>
 
@@ -121,7 +121,7 @@ export default function ContactForm({ prefill }: { prefill: Prefill }) {
         <select
           name="subject"
           required
-          className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
+          className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white"
         >
           <option value="">Select a topic…</option>
           <option>General question</option>
@@ -141,7 +141,7 @@ export default function ContactForm({ prefill }: { prefill: Prefill }) {
           required
           rows={5}
           placeholder="Tell us what you need…"
-          className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 placeholder:text-gray-300 resize-none"
+          className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 placeholder:text-gray-300 resize-none"
         />
       </div>
 
@@ -154,7 +154,7 @@ export default function ContactForm({ prefill }: { prefill: Prefill }) {
       <button
         type="submit"
         disabled={status === 'sending'}
-        className="w-full bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white font-bold py-3.5 rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
+        className="w-full bg-violet-600 hover:bg-violet-700 disabled:opacity-60 text-white font-bold py-3.5 rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
       >
         {status === 'sending' ? (
           <>

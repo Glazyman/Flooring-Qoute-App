@@ -81,7 +81,7 @@ function Input({
       <label className="block text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: 'var(--text-2)' }}>
         {label}{required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
-      <div className="flex items-center rounded-xl border focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-teal-400 overflow-hidden" style={{ background: 'white', borderColor: 'var(--border)' }}>
+      <div className="flex items-center rounded-xl border focus-within:ring-2 focus-within:ring-violet-500 focus-within:border-violet-400 overflow-hidden" style={{ background: 'white', borderColor: 'var(--border)' }}>
         {prefix && <span className="px-3.5 py-3.5 text-sm border-r font-semibold" style={{ color: 'var(--text-2)', borderColor: 'var(--border)', background: '#f9f9fb' }}>{prefix}</span>}
         <input
           type={type} value={value} onChange={(e) => onChange(e.target.value)}
@@ -115,7 +115,7 @@ function LineItem({ label, value, bold, muted }: { label: string; value: number;
 }
 
 const SECTION_COLORS: Record<Section, string> = {
-  Upstairs: 'bg-teal-50 text-teal-700 border-teal-200',
+  Upstairs: 'bg-violet-50 text-violet-700 border-violet-200',
   Downstairs: 'bg-indigo-50 text-indigo-700 border-indigo-200',
 }
 
@@ -576,7 +576,7 @@ export default function QuoteForm({
                 {(['rooms', 'manual'] as MeasurementType[]).map(m => (
                   <button key={m} type="button" onClick={() => setMeasurementType(m)}
                     className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
-                      measurementType === m ? 'bg-white text-teal-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                      measurementType === m ? 'bg-white text-violet-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
                     }`}
                   >
                     {m === 'rooms' ? 'By Rooms' : 'Total SqFt'}
@@ -591,14 +591,14 @@ export default function QuoteForm({
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: 'var(--text-2)' }}>Pricing ($/sqft)</label>
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="flex items-center rounded-xl border border-gray-200 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-teal-500">
+                    <div className="flex items-center rounded-xl border border-gray-200 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-violet-500">
                       <span className="px-3 py-3 text-sm font-bold text-gray-500 border-r border-gray-100 bg-gray-50">$</span>
                       <input type="number" inputMode="decimal" value={sectionPricing['Upstairs'].material}
                         onChange={e => setSectionPricing(prev => ({ ...prev, Upstairs: { ...prev.Upstairs, material: e.target.value }, Downstairs: { ...prev.Downstairs, material: e.target.value } }))}
                         placeholder="5.00" className="flex-1 px-3 py-3 text-sm font-semibold focus:outline-none bg-transparent" />
                       <span className="px-2.5 py-3 text-[10px] font-bold text-gray-400 border-l border-gray-100 bg-gray-50">MAT</span>
                     </div>
-                    <div className="flex items-center rounded-xl border border-gray-200 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-teal-500">
+                    <div className="flex items-center rounded-xl border border-gray-200 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-violet-500">
                       <span className="px-3 py-3 text-sm font-bold text-gray-500 border-r border-gray-100 bg-gray-50">$</span>
                       <input type="number" inputMode="decimal" value={sectionPricing['Upstairs'].labor}
                         onChange={e => setSectionPricing(prev => ({ ...prev, Upstairs: { ...prev.Upstairs, labor: e.target.value }, Downstairs: { ...prev.Downstairs, labor: e.target.value } }))}
@@ -611,18 +611,18 @@ export default function QuoteForm({
             ) : (
               <div className="space-y-4">
                 {/* Blueprint upload */}
-                <div className={`border-2 border-dashed rounded-2xl p-4 text-center transition-colors ${blueprintLoading ? 'border-teal-300 bg-teal-50' : 'border-gray-200 hover:border-teal-300 hover:bg-teal-50/50'}`}>
+                <div className={`border-2 border-dashed rounded-2xl p-4 text-center transition-colors ${blueprintLoading ? 'border-violet-300 bg-violet-50' : 'border-gray-200 hover:border-violet-300 hover:bg-violet-50/50'}`}>
                   <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleBlueprintUpload} />
                   {blueprintLoading ? (
                     <div className="flex flex-col items-center gap-2 py-2">
-                      <Loader2 className="w-6 h-6 text-teal-500 animate-spin" />
-                      <p className="text-sm font-medium text-teal-700">Analyzing with AI…</p>
-                      <p className="text-xs text-teal-500">~10–20 seconds per image</p>
+                      <Loader2 className="w-6 h-6 text-violet-500 animate-spin" />
+                      <p className="text-sm font-medium text-violet-700">Analyzing with AI…</p>
+                      <p className="text-xs text-violet-500">~10–20 seconds per image</p>
                     </div>
                   ) : (
                     <button type="button" onClick={() => fileRef.current?.click()} className="flex flex-col items-center gap-2 w-full py-2">
-                      <div className="w-10 h-10 bg-teal-100 rounded-xl flex items-center justify-center">
-                        <Upload className="w-5 h-5 text-teal-600" />
+                      <div className="w-10 h-10 bg-violet-100 rounded-xl flex items-center justify-center">
+                        <Upload className="w-5 h-5 text-violet-600" />
                       </div>
                       <div>
                         <p className="text-sm font-semibold text-gray-900">Upload Blueprint or Measurement Sheet</p>
@@ -654,20 +654,20 @@ export default function QuoteForm({
                     const secFlooring = sectionFlooring[section] ?? 'unfinished'
 
                     return (
-                      <div key={section} className="rounded-2xl overflow-hidden" style={{ border: `1px solid ${isUp ? '#99f6e4' : '#c7d2fe'}` }}>
+                      <div key={section} className="rounded-2xl overflow-hidden" style={{ border: `1px solid ${isUp ? '#DDD6FE' : '#c7d2fe'}` }}>
                         {/* Section header */}
-                        <div className={`px-4 pt-3 pb-2 ${isUp ? 'bg-teal-50' : 'bg-indigo-50'}`}>
+                        <div className={`px-4 pt-3 pb-2 ${isUp ? 'bg-violet-50' : 'bg-indigo-50'}`}>
                           <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
-                              <span className={`text-xs font-bold uppercase tracking-widest ${isUp ? 'text-teal-700' : 'text-indigo-700'}`}>
+                              <span className={`text-xs font-bold uppercase tracking-widest ${isUp ? 'text-violet-700' : 'text-indigo-700'}`}>
                                 {section}
                               </span>
-                              <span className={`text-xs ${isUp ? 'text-teal-500' : 'text-indigo-400'}`}>
+                              <span className={`text-xs ${isUp ? 'text-violet-500' : 'text-indigo-400'}`}>
                                 {sectionRooms.length} room{sectionRooms.length !== 1 ? 's' : ''}
                               </span>
                             </div>
                             {sectionTotal > 0 && (
-                              <span className={`text-xs font-bold ${isUp ? 'text-teal-700' : 'text-indigo-700'}`}>
+                              <span className={`text-xs font-bold ${isUp ? 'text-violet-700' : 'text-indigo-700'}`}>
                                 {sectionTotal.toFixed(1)} sqft
                               </span>
                             )}
@@ -676,7 +676,7 @@ export default function QuoteForm({
                           <select
                             value={secFlooring}
                             onChange={e => setSectionFlooringType(section, e.target.value as FlooringType)}
-                            className={`w-full text-sm font-semibold rounded-xl px-3 py-2 border focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white ${isUp ? 'border-teal-200 text-teal-800' : 'border-indigo-200 text-indigo-800'}`}
+                            className={`w-full text-sm font-semibold rounded-xl px-3 py-2 border focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white ${isUp ? 'border-violet-200 text-violet-800' : 'border-indigo-200 text-indigo-800'}`}
                           >
                             <optgroup label="Hardwood">
                               {FLOORING_TYPES.filter(t => t.group === 'Hardwood').map(t => (
@@ -693,8 +693,8 @@ export default function QuoteForm({
                           {/* Per-section pricing */}
                           <div className="grid grid-cols-2 gap-2 mt-2">
                             {(['material', 'labor'] as const).map(kind => (
-                              <div key={kind} className="flex items-center rounded-xl border bg-white overflow-hidden focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-teal-400" style={{ borderColor: isUp ? '#99f6e4' : '#c7d2fe' }}>
-                                <span className={`px-2.5 py-2.5 text-xs font-bold border-r ${isUp ? 'text-teal-600 border-teal-100' : 'text-indigo-600 border-indigo-100'}`} style={{ background: isUp ? '#f0fdf4' : '#f5f3ff' }}>$</span>
+                              <div key={kind} className="flex items-center rounded-xl border bg-white overflow-hidden focus-within:ring-2 focus-within:ring-violet-500 focus-within:border-violet-400" style={{ borderColor: isUp ? '#DDD6FE' : '#c7d2fe' }}>
+                                <span className={`px-2.5 py-2.5 text-xs font-bold border-r ${isUp ? 'text-violet-600 border-violet-100' : 'text-indigo-600 border-indigo-100'}`} style={{ background: isUp ? '#F5F3FF' : '#f5f3ff' }}>$</span>
                                 <input
                                   type="number"
                                   inputMode="decimal"
@@ -706,7 +706,7 @@ export default function QuoteForm({
                                   placeholder={kind === 'material' ? '5.00' : '3.00'}
                                   className="flex-1 min-w-0 px-2 py-2.5 text-sm font-semibold focus:outline-none bg-transparent"
                                 />
-                                <span className={`px-2 py-2.5 text-[10px] font-bold border-l ${isUp ? 'text-teal-500 border-teal-100' : 'text-indigo-500 border-indigo-100'}`} style={{ background: isUp ? '#f0fdf4' : '#f5f3ff' }}>
+                                <span className={`px-2 py-2.5 text-[10px] font-bold border-l ${isUp ? 'text-violet-500 border-violet-100' : 'text-indigo-500 border-indigo-100'}`} style={{ background: isUp ? '#F5F3FF' : '#f5f3ff' }}>
                                   {kind === 'material' ? 'MAT' : 'LAB'}<br />
                                   <span className="font-normal">/sqft</span>
                                 </span>
@@ -726,7 +726,7 @@ export default function QuoteForm({
                                   value={room.name}
                                   onChange={(e) => updateRoom(room.id, 'name', e.target.value)}
                                   placeholder={`Room ${idx + 1}`}
-                                  className="flex-1 min-w-0 px-3 py-2 rounded-xl border border-gray-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
+                                  className="flex-1 min-w-0 px-3 py-2 rounded-xl border border-gray-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white"
                                 />
                                 <button
                                   type="button"
@@ -744,7 +744,7 @@ export default function QuoteForm({
                                   <div key={dim}>
                                     <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">{dim}</p>
                                     <div className="flex gap-1.5">
-                                      <div className="flex items-center flex-1 rounded-xl border border-gray-200 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-teal-400">
+                                      <div className="flex items-center flex-1 rounded-xl border border-gray-200 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-violet-500 focus-within:border-violet-400">
                                         <input
                                           type="number"
                                           inputMode="numeric"
@@ -755,7 +755,7 @@ export default function QuoteForm({
                                         />
                                         <span className="pr-2.5 text-xs text-gray-400 font-semibold">ft</span>
                                       </div>
-                                      <div className="flex items-center w-16 rounded-xl border border-gray-200 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-teal-400">
+                                      <div className="flex items-center w-16 rounded-xl border border-gray-200 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-violet-500 focus-within:border-violet-400">
                                         <input
                                           type="number"
                                           inputMode="numeric"
@@ -784,7 +784,7 @@ export default function QuoteForm({
                           <button
                             type="button"
                             onClick={() => addRoom(section)}
-                            className={`w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-semibold transition-colors ${isUp ? 'text-teal-600 hover:bg-teal-50' : 'text-indigo-600 hover:bg-indigo-50'}`}
+                            className={`w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-semibold transition-colors ${isUp ? 'text-violet-600 hover:bg-violet-50' : 'text-indigo-600 hover:bg-indigo-50'}`}
                           >
                             <PlusCircle className="w-3.5 h-3.5" />
                             Add room
@@ -796,7 +796,7 @@ export default function QuoteForm({
 
                   {/* Total bar */}
                   {roomsSqft > 0 && (
-                    <div className="flex items-center justify-between rounded-2xl px-4 py-3" style={{ background: 'var(--primary-light)', border: '1px solid #99f6e4' }}>
+                    <div className="flex items-center justify-between rounded-2xl px-4 py-3" style={{ background: 'var(--primary-light)', border: '1px solid #DDD6FE' }}>
                       <span className="text-sm font-semibold" style={{ color: 'var(--primary)' }}>Total measured</span>
                       <span className="text-sm font-extrabold" style={{ color: 'var(--primary)' }}>{roomsSqft.toFixed(1)} sqft</span>
                     </div>
@@ -827,7 +827,7 @@ export default function QuoteForm({
                   <select
                     value={finishType}
                     onChange={(e) => setFinishType(e.target.value)}
-                    className="w-full px-3.5 py-3.5 rounded-xl border text-[16px] bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    className="w-full px-3.5 py-3.5 rounded-xl border text-[16px] bg-white focus:outline-none focus:ring-2 focus:ring-violet-500"
                   >
                     <option value="">Select finish…</option>
                     <option>Waterbase</option>
@@ -843,7 +843,7 @@ export default function QuoteForm({
                   <select
                     value={woodSpecies}
                     onChange={(e) => setWoodSpecies(e.target.value)}
-                    className="w-full px-3.5 py-3.5 rounded-xl border text-[16px] bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    className="w-full px-3.5 py-3.5 rounded-xl border text-[16px] bg-white focus:outline-none focus:ring-2 focus:ring-violet-500"
                   >
                     <option value="">Select species…</option>
                     <option>Red Oak</option>
@@ -869,7 +869,7 @@ export default function QuoteForm({
           <Card title="Tax">
             <div className="flex items-center gap-3 mb-4">
               <button type="button" onClick={() => setTaxEnabled(v => !v)}
-                className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${taxEnabled ? 'bg-teal-600' : 'bg-gray-200'}`}>
+                className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${taxEnabled ? 'bg-violet-600' : 'bg-gray-200'}`}>
                 <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${taxEnabled ? 'translate-x-5' : ''}`} />
               </button>
               <span className="text-sm font-medium text-gray-700">Apply sales tax</span>
@@ -893,7 +893,7 @@ export default function QuoteForm({
                 <textarea
                   value={notes} onChange={(e) => setNotes(e.target.value)}
                   rows={3} placeholder="Any additional notes for the customer…"
-                  className="w-full px-3.5 py-3.5 rounded-xl border border-gray-200 text-[16px] focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none placeholder:text-gray-300 bg-white"
+                  className="w-full px-3.5 py-3.5 rounded-xl border border-gray-200 text-[16px] focus:outline-none focus:ring-2 focus:ring-violet-500 resize-none placeholder:text-gray-300 bg-white"
                   style={{ color: 'var(--text)' }}
                 />
               </div>
@@ -949,10 +949,10 @@ export default function QuoteForm({
                 </div>
               </div>
 
-              <div className="mt-3 bg-teal-50 rounded-xl p-3 space-y-2">
+              <div className="mt-3 bg-violet-50 rounded-xl p-3 space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-teal-700 font-medium">Deposit ({n(depositPct)}%)</span>
-                  <span className="font-bold text-teal-700">{fmt(calcs.deposit_amount)}</span>
+                  <span className="text-violet-700 font-medium">Deposit ({n(depositPct)}%)</span>
+                  <span className="font-bold text-violet-700">{fmt(calcs.deposit_amount)}</span>
                 </div>
                 <div className="flex justify-between text-xs text-gray-400">
                   <span>Balance due</span>
@@ -964,7 +964,7 @@ export default function QuoteForm({
             <button
               type="submit" disabled={saving}
               className="w-full text-white font-bold py-4 px-4 rounded-2xl text-sm transition-all active:scale-95 disabled:opacity-50"
-              style={{ background: 'linear-gradient(135deg, var(--primary) 0%, #0f766e 100%)', boxShadow: '0 4px 14px rgba(13,148,136,0.4)' }}
+              style={{ background: 'linear-gradient(135deg, var(--primary) 0%, #6D28D9 100%)', boxShadow: '0 4px 14px rgba(124,58,237,0.4)' }}
             >
               {saving ? 'Saving…' : isEditing ? 'Update Quote →' : 'Save Measurements →'}
             </button>
@@ -977,7 +977,7 @@ export default function QuoteForm({
         <button
           type="submit" disabled={saving}
           className="w-full text-white font-bold py-4 px-4 rounded-2xl text-base transition-all active:scale-95 disabled:opacity-50"
-          style={{ background: 'linear-gradient(135deg, var(--primary) 0%, #0f766e 100%)', boxShadow: '0 4px 14px rgba(13,148,136,0.4)' }}
+          style={{ background: 'linear-gradient(135deg, var(--primary) 0%, #6D28D9 100%)', boxShadow: '0 4px 14px rgba(124,58,237,0.4)' }}
         >
           {saving ? 'Saving…' : isEditing ? 'Update Quote →' : 'Save Measurements →'}
         </button>

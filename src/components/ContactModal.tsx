@@ -84,8 +84,8 @@ export default function ContactModal({
         <div className="flex-1 overflow-y-auto p-5 sm:p-6 pb-8">
           {status === 'success' ? (
             <div className="text-center py-10">
-              <div className="w-14 h-14 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-7 h-7 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="w-14 h-14 bg-violet-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-7 h-7 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
@@ -93,7 +93,7 @@ export default function ContactModal({
               <p className="text-sm text-slate-500 mb-5">We&apos;ll get back to you within 1 business day.</p>
               <button
                 onClick={() => setStatus('idle')}
-                className="text-sm font-semibold text-teal-600 hover:text-teal-700"
+                className="text-sm font-semibold text-violet-600 hover:text-violet-700"
               >
                 Send another message
               </button>
@@ -107,7 +107,7 @@ export default function ContactModal({
                     name="name"
                     required
                     placeholder="Your name"
-                    className="w-full px-4 py-3.5 rounded-xl border border-slate-200 text-slate-900 text-[16px] focus:outline-none focus:ring-2 focus:ring-teal-500 placeholder:text-slate-300 bg-white"
+                    className="w-full px-4 py-3.5 rounded-xl border border-slate-200 text-slate-900 text-[16px] focus:outline-none focus:ring-2 focus:ring-violet-500 placeholder:text-slate-300 bg-white"
                   />
                 </div>
                 <div>
@@ -119,7 +119,7 @@ export default function ContactModal({
                     defaultValue={prefill?.email || ''}
                     inputMode="email"
                     placeholder="you@email.com"
-                    className="w-full px-4 py-3.5 rounded-xl border border-slate-200 text-slate-900 text-[16px] focus:outline-none focus:ring-2 focus:ring-teal-500 placeholder:text-slate-300 bg-white"
+                    className="w-full px-4 py-3.5 rounded-xl border border-slate-200 text-slate-900 text-[16px] focus:outline-none focus:ring-2 focus:ring-violet-500 placeholder:text-slate-300 bg-white"
                   />
                 </div>
               </div>
@@ -129,7 +129,7 @@ export default function ContactModal({
                 <select
                   name="subject"
                   required
-                  className="w-full px-4 py-3.5 rounded-xl border border-slate-200 text-slate-900 text-[16px] focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
+                  className="w-full px-4 py-3.5 rounded-xl border border-slate-200 text-slate-900 text-[16px] focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white"
                 >
                   <option value="">Select a topic…</option>
                   <option>General question</option>
@@ -147,7 +147,7 @@ export default function ContactModal({
                   required
                   rows={4}
                   placeholder="How can we help?"
-                  className="w-full px-4 py-3.5 rounded-xl border border-slate-200 text-slate-900 text-[16px] focus:outline-none focus:ring-2 focus:ring-teal-500 placeholder:text-slate-300 resize-none bg-white"
+                  className="w-full px-4 py-3.5 rounded-xl border border-slate-200 text-slate-900 text-[16px] focus:outline-none focus:ring-2 focus:ring-violet-500 placeholder:text-slate-300 resize-none bg-white"
                 />
               </div>
 

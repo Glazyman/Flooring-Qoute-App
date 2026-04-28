@@ -109,7 +109,7 @@ export default async function QuoteDetailPage({
             href={`/api/quotes/${id}/pdf`}
             target="_blank"
             className="flex items-center justify-center gap-1.5 text-white font-semibold px-4 py-3 sm:py-2.5 rounded-2xl text-sm active:scale-95"
-            style={{ background: 'var(--primary)', boxShadow: '0 2px 8px rgba(13,148,136,0.25)' }}
+            style={{ background: 'var(--primary)', boxShadow: '0 2px 8px rgba(124,58,237,0.25)' }}
           >
             <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -210,10 +210,10 @@ export default async function QuoteDetailPage({
               <span className="text-xl font-bold text-gray-900">{fmt(q.final_total)}</span>
             </div>
           </div>
-          <div className="bg-teal-50 rounded-xl p-4 space-y-2 mt-2">
+          <div className="bg-violet-50 rounded-xl p-4 space-y-2 mt-2">
             <div className="flex justify-between text-sm">
-              <span className="text-teal-700 font-semibold">Deposit ({q.deposit_pct}%)</span>
-              <span className="font-bold text-teal-700">{fmt(q.deposit_amount)}</span>
+              <span className="text-violet-700 font-semibold">Deposit ({q.deposit_pct}%)</span>
+              <span className="font-bold text-violet-700">{fmt(q.deposit_amount)}</span>
             </div>
             <div className="flex justify-between text-xs text-gray-400">
               <span>Remaining balance</span>
@@ -238,7 +238,7 @@ function Detail({ label, value, accent }: { label: string; value: string; accent
   return (
     <div>
       <p className="text-xs font-medium text-gray-400 mb-1">{label}</p>
-      <p className={`text-sm font-semibold ${accent ? 'text-teal-600' : 'text-gray-900'}`}>{value}</p>
+      <p className={`text-sm font-semibold ${accent ? 'text-violet-600' : 'text-gray-900'}`}>{value}</p>
     </div>
   )
 }

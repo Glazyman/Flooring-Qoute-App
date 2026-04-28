@@ -99,7 +99,7 @@ export default function BillingSetupPage() {
               className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${annual ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
             >
               Annual
-              <span className="text-xs font-bold px-1.5 py-0.5 rounded-full bg-teal-100 text-teal-700">
+              <span className="text-xs font-bold px-1.5 py-0.5 rounded-full bg-violet-100 text-violet-700">
                 Save 17%
               </span>
             </button>
@@ -149,27 +149,27 @@ export default function BillingSetupPage() {
           </div>
 
           {/* Pro */}
-          <div className="rounded-2xl p-6 flex flex-col relative overflow-hidden" style={{ background: 'var(--primary)', boxShadow: '0 8px 30px rgba(13,148,136,0.25)' }}>
+          <div className="rounded-2xl p-6 flex flex-col relative overflow-hidden" style={{ background: 'var(--primary)', boxShadow: '0 8px 30px rgba(124,58,237,0.25)' }}>
             <div className="absolute top-4 right-4 bg-white/20 text-white text-xs font-bold px-2.5 py-1 rounded-full">Most Popular</div>
-            <p className="text-xs font-bold text-teal-200 uppercase tracking-widest mb-2">Pro</p>
+            <p className="text-xs font-bold text-violet-200 uppercase tracking-widest mb-2">Pro</p>
             {annual ? (
               <div className="mb-1">
                 <span className="text-3xl font-bold text-white">$32.99</span>
-                <span className="text-sm text-teal-200">/mo</span>
-                <p className="text-xs text-teal-200 mt-0.5">$395.88 billed annually</p>
+                <span className="text-sm text-violet-200">/mo</span>
+                <p className="text-xs text-violet-200 mt-0.5">$395.88 billed annually</p>
               </div>
             ) : (
               <div className="mb-1">
                 <span className="text-3xl font-bold text-white">$39.99</span>
-                <span className="text-sm text-teal-200">/mo</span>
-                <p className="text-xs text-teal-200 mt-0.5">Billed monthly</p>
+                <span className="text-sm text-violet-200">/mo</span>
+                <p className="text-xs text-violet-200 mt-0.5">Billed monthly</p>
               </div>
             )}
             <ul className="space-y-2 my-5 flex-1">
               {PRO_FEATURES.map((feat) => (
                 <li key={feat} className="flex items-center gap-2.5 text-sm text-white">
                   <div className="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
-                    <svg className="w-3 h-3 text-teal-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-3 h-3 text-violet-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
@@ -180,7 +180,7 @@ export default function BillingSetupPage() {
             <button
               onClick={() => handleSubscribe('pro')}
               disabled={loadingPlan !== null}
-              className="w-full bg-white hover:bg-teal-50 disabled:opacity-50 font-bold py-3 px-4 rounded-2xl text-sm transition-colors"
+              className="w-full bg-white hover:bg-violet-50 disabled:opacity-50 font-bold py-3 px-4 rounded-2xl text-sm transition-colors"
               style={{ color: 'var(--primary)' }}
             >
               {loadingPlan === 'pro' ? 'Redirecting…' : 'Subscribe to Pro'}
