@@ -517,9 +517,9 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
                     <button
                       onClick={() => handleDelete(c.id)}
                       disabled={deletingId === c.id}
-                      className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors disabled:opacity-40"
+                      className="p-1.5 text-gray-300 hover:text-red-500 transition-colors rounded disabled:opacity-40"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 )}

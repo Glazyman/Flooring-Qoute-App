@@ -324,8 +324,8 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
                         View →
                       </button>
                       {!selecting && (
-                        <button onClick={() => setConfirmDelete(q.id)} className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors" title="Delete">
-                          <Trash2 className="w-3.5 h-3.5" />
+                        <button onClick={() => setConfirmDelete(q.id)} className="p-1.5 text-gray-300 hover:text-red-500 transition-colors rounded" title="Delete">
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       )}
                     </div>
@@ -389,8 +389,8 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
                       ))}
                     </select>
                   </div>
-                  <button onClick={() => setConfirmDelete(q.id)} className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 flex-shrink-0 transition-colors">
-                    <Trash2 className="w-3.5 h-3.5" />
+                  <button onClick={() => setConfirmDelete(q.id)} className="p-2 text-gray-300 hover:text-red-500 flex-shrink-0 transition-colors rounded">
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               )}
