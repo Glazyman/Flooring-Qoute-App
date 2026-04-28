@@ -885,7 +885,7 @@ export default function QuoteForm({
               className="w-full text-white font-bold py-4 px-4 rounded-2xl text-sm transition-all active:scale-95 disabled:opacity-50"
               style={{ background: 'linear-gradient(135deg, var(--primary) 0%, #0f766e 100%)', boxShadow: '0 4px 14px rgba(13,148,136,0.4)' }}
             >
-              {saving ? 'Saving…' : isEditing ? 'Update Quote →' : 'Save Quote →'}
+              {saving ? 'Saving…' : isEditing ? 'Update Quote →' : 'Save Measurements →'}
             </button>
           </div>
         </div>
@@ -898,7 +898,7 @@ export default function QuoteForm({
           className="w-full text-white font-bold py-4 px-4 rounded-2xl text-base transition-all active:scale-95 disabled:opacity-50"
           style={{ background: 'linear-gradient(135deg, var(--primary) 0%, #0f766e 100%)', boxShadow: '0 4px 14px rgba(13,148,136,0.4)' }}
         >
-          {saving ? 'Saving…' : isEditing ? 'Update Quote →' : 'Save Quote →'}
+          {saving ? 'Saving…' : isEditing ? 'Update Quote →' : 'Save Measurements →'}
         </button>
       </div>
     </form>

@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import type { Quote } from '@/lib/types'
-import { Ruler, Plus } from 'lucide-react'
+import { Ruler, Plus, Pencil } from 'lucide-react'
 import { fmt } from '@/lib/calculations'
 import ApproveMeasurementButton from '@/components/ApproveMeasurementButton'
 
@@ -73,18 +73,19 @@ export default async function MeasurementsPage() {
               style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}
             >
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 text-white text-sm font-bold" style={{ background: 'var(--primary)' }}>
+                <Link href={`/quotes/${m.id}/edit`} className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 text-white text-sm font-bold hover:opacity-80 transition-opacity" style={{ background: 'var(--primary)' }}>
                   {m.customer_name.charAt(0).toUpperCase()}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <Link href={`/quotes/${m.id}`} className="font-semibold text-sm hover:underline" style={{ color: 'var(--text)' }}>
+                </Link>
+                <Link href={`/quotes/${m.id}/edit`} className="flex-1 min-w-0 group">
+                  <p className="font-semibold text-sm group-hover:underline" style={{ color: 'var(--text)' }}>
                     {m.customer_name}
-                  </Link>
+                    <Pencil className="w-3 h-3 inline-block ml-1.5 opacity-40 group-hover:opacity-70" />
+                  </p>
                   <p className="text-xs mt-0.5" style={{ color: 'var(--text-2)' }}>
                     {m.flooring_type} · {m.adjusted_sqft.toFixed(0)} sqft · {fmtDate(m.created_at)}
                     {m.job_address && ` · ${m.job_address}`}
                   </p>
-                </div>
+                </Link>
                 <div className="flex items-center gap-3 flex-shrink-0">
                   <p className="font-bold text-sm" style={{ color: 'var(--text)' }}>{fmt(m.final_total)}</p>
                   <ApproveMeasurementButton quoteId={m.id} />
