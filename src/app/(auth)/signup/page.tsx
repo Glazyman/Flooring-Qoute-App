@@ -85,8 +85,7 @@ export default function SignupPage() {
       }
     }
 
-    router.push('/dashboard')
-    router.refresh()
+    window.location.href = '/dashboard'
   }
 
   const passwordsMatch = !form.confirmPassword || form.password === form.confirmPassword
