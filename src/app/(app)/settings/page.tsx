@@ -16,6 +16,7 @@ const DEFAULT_SETTINGS: CompanySettings = {
   default_markup_pct: 0,
   default_deposit_pct: 50,
   default_tax_pct: 0,
+  material_prices_by_type: null,
 }
 
 export default async function SettingsPage() {

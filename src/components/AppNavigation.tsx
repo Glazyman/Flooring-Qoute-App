@@ -9,7 +9,6 @@ import {
   LogOut, CreditCard, Menu, X, HelpCircle, Users, Receipt, Ruler, ChevronDown,
 } from 'lucide-react'
 import { useState } from 'react'
-import ContactModal from './ContactModal'
 
 interface NavItem {
   href: string
@@ -66,7 +65,6 @@ export default function AppNavigation({
 }) {
   const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [contactOpen, setContactOpen] = useState(false)
 
   async function handleLogout() {
     const supabase = createClient()
@@ -128,16 +126,7 @@ export default function AppNavigation({
         {toolItems.map((item) => (
           <NavLink key={item.href} item={item} onClick={() => setMobileOpen(false)} />
         ))}
-        <button
-          onClick={() => { setMobileOpen(false); setContactOpen(true) }}
-          className="w-full flex items-center gap-2.5 px-2.5 py-2.5 lg:py-1.5 rounded-md text-[13px] font-medium transition-all text-left"
-          style={{ color: 'rgba(255,255,255,0.5)' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)'; (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.75)' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.5)' }}
-        >
-          <HelpCircle className="w-3.5 h-3.5 flex-shrink-0" />
-          Help & Support
-        </button>
+        <NavLink item={{ href: '/help', label: 'Help & Support', icon: HelpCircle }} onClick={() => setMobileOpen(false)} />
         <button
           onClick={handleBillingPortal}
           className="w-full flex items-center gap-2.5 px-2.5 py-2.5 lg:py-1.5 rounded-md text-[13px] font-medium transition-all text-left"
@@ -216,7 +205,6 @@ export default function AppNavigation({
         <div className="w-9" />
       </header>
 
-      <ContactModal open={contactOpen} onClose={() => setContactOpen(false)} />
 
       {/* Mobile drawer */}
       {mobileOpen && (

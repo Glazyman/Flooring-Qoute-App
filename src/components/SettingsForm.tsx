@@ -3,7 +3,38 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import type { CompanySettings } from '@/lib/types'
+import type { CompanySettings, FlooringType } from '@/lib/types'
+
+const FLOORING_TYPES: FlooringType[] = [
+  'hardwood', 'unfinished', 'prefinished', 'engineered',
+  'prefinished_engineered', 'unfinished_engineered',
+  'vinyl', 'tile', 'carpet', 'laminate',
+]
+
+const FLOORING_LABELS: Record<string, string> = {
+  hardwood: 'Hardwood',
+  unfinished: 'Unfinished Hardwood',
+  prefinished: 'Pre-finished',
+  engineered: 'Engineered',
+  prefinished_engineered: 'Pre-finished Engineered',
+  unfinished_engineered: 'Unfinished Engineered',
+  vinyl: 'LVT / Vinyl',
+  tile: 'Tile',
+  carpet: 'Carpet',
+  laminate: 'Laminate',
+}
+
+function initMaterialPrices(initial: CompanySettings): Record<string, { material: string; labor: string }> {
+  const defaults: Record<string, { material: string; labor: string }> = {}
+  for (const type of FLOORING_TYPES) {
+    const saved = initial.material_prices_by_type?.[type]
+    defaults[type] = {
+      material: saved ? String(saved.material) : '',
+      labor: saved ? String(saved.labor) : '',
+    }
+  }
+  return defaults
+}
 
 function Input({
   label,
@@ -93,6 +124,7 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
     default_deposit_pct: String(initial.default_deposit_pct ?? 50),
     default_tax_pct: String(initial.default_tax_pct ?? 0),
   })
+  const [materialPrices, setMaterialPrices] = useState<Record<string, { material: string; labor: string }>>(() => initMaterialPrices(initial))
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -147,6 +179,11 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
         default_markup_pct: parseFloat(form.default_markup_pct) || 0,
         default_deposit_pct: parseFloat(form.default_deposit_pct) || 0,
         default_tax_pct: parseFloat(form.default_tax_pct) || 0,
+        material_prices_by_type: Object.fromEntries(
+          Object.entries(materialPrices)
+            .filter(([, v]) => v.material || v.labor)
+            .map(([k, v]) => [k, { material: parseFloat(v.material) || 0, labor: parseFloat(v.labor) || 0 }])
+        ),
       }),
     })
 
@@ -197,6 +234,7 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
                     default_deposit_pct: String(initial.default_deposit_pct ?? 50),
                     default_tax_pct: String(initial.default_tax_pct ?? 0),
                   })
+                  setMaterialPrices(initMaterialPrices(initial))
                   setEditing(false)
                   setError('')
                 }}

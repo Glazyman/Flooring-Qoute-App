@@ -76,6 +76,7 @@ export interface CompanySettings {
   default_markup_pct: number
   default_deposit_pct: number
   default_tax_pct: number
+  material_prices_by_type: Record<string, { material: number; labor: number }> | null
 }
 
 export interface QuoteRoom {
