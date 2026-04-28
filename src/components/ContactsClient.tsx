@@ -266,8 +266,8 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
         {mode === 'page' && customers.length > 0 && (
           <button
             onClick={() => selecting ? exitSelect() : setSelecting(true)}
-            className={`flex items-center gap-2 border font-semibold px-3.5 py-3 md:py-2.5 rounded-2xl text-sm flex-shrink-0 active:scale-95 transition-colors ${
-              selecting ? 'bg-gray-100 border-gray-300 text-gray-700' : 'border-gray-200 text-gray-500 hover:bg-gray-50'
+            className={`flex items-center gap-2 border font-medium px-3.5 py-2 rounded-xl text-sm flex-shrink-0 active:scale-95 transition-colors ${
+              selecting ? 'bg-gray-100 border-gray-300 text-gray-600' : 'border-gray-200 text-gray-500 hover:bg-gray-50 hover:border-gray-300'
             }`}
           >
             {selecting ? 'Cancel' : 'Select'}
@@ -276,7 +276,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
         {mode === 'page' && (
           <button
             onClick={() => { setShowImport(v => !v); setImportRows([]); setImportError(''); setImportDone(false) }}
-            className="flex items-center gap-2 border border-gray-200 text-gray-600 font-semibold px-3.5 py-3 md:py-2.5 rounded-2xl text-sm flex-shrink-0 active:scale-95 hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-2 border border-gray-200 text-gray-600 font-medium px-3.5 py-2 rounded-xl text-sm flex-shrink-0 active:scale-95 hover:bg-gray-50 transition-colors"
           >
             <Upload className="w-4 h-4" />
             <span className="hidden sm:inline">QuickBooks</span>
@@ -284,8 +284,8 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
         )}
         <button
           onClick={startAdd}
-          className="flex items-center gap-2 text-white font-semibold px-4 py-3 md:py-2.5 rounded-2xl text-sm flex-shrink-0 active:scale-95"
-          style={{ background: 'var(--primary)', boxShadow: '0 2px 8px rgba(13,148,136,0.25)' }}
+          className="flex items-center gap-2 text-white font-semibold px-4 py-2 rounded-xl text-sm flex-shrink-0 active:scale-95"
+          style={{ background: 'var(--primary)' }}
         >
           <UserPlus className="w-4 h-4" />
           <span className="hidden sm:inline">Add Contact</span>
