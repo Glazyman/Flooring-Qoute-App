@@ -1,4 +1,31 @@
 export type QuoteStatus = 'pending' | 'accepted' | 'lost'
+export type InvoiceStatus = 'draft' | 'sent' | 'paid'
+
+export interface InvoiceLineItem {
+  description: string
+  quantity: number
+  unit_price: number
+  total: number
+}
+
+export interface Invoice {
+  id: string
+  company_id: string
+  invoice_number: string | null
+  customer_name: string
+  customer_email: string | null
+  customer_phone: string | null
+  job_address: string | null
+  line_items: InvoiceLineItem[]
+  subtotal: number
+  tax_pct: number
+  tax_amount: number
+  total: number
+  status: InvoiceStatus
+  notes: string | null
+  file_url: string | null
+  created_at: string
+}
 export type MeasurementType = 'manual' | 'rooms'
 export type FlooringType = 'hardwood' | 'vinyl' | 'tile' | 'carpet' | 'laminate'
 

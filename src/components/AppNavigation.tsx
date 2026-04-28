@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import {
   LayoutDashboard, FileText, PlusCircle, Settings,
-  LogOut, CreditCard, Menu, X, HelpCircle, Users,
+  LogOut, CreditCard, Menu, X, HelpCircle, Users, Receipt,
 } from 'lucide-react'
 import { useState } from 'react'
 import ContactModal from './ContactModal'
@@ -21,6 +21,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/quotes', label: 'All Quotes', icon: FileText },
+  { href: '/invoices', label: 'Invoices', icon: Receipt },
   { href: '/contacts', label: 'Contacts', icon: Users },
   { href: '/quotes/new', label: 'New Quote', icon: PlusCircle, highlight: true },
 ]

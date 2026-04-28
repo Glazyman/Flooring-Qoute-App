@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useMemo } from 'react'
-import { Pencil, Trash2, X, Check, Search, UserPlus, Phone, Mail, MapPin, FileText } from 'lucide-react'
+import { useState, useMemo, useRef } from 'react'
+import { Pencil, Trash2, X, Check, Search, UserPlus, Phone, Mail, MapPin, FileText, Upload, AlertCircle } from 'lucide-react'
 
 interface Customer {
   id: string
@@ -33,6 +33,37 @@ interface Props {
   mode?: 'page' | 'picker'
 }
 
+interface ImportPreviewRow {
+  name: string
+  phone: string
+  email: string
+  address: string
+}
+
+// Parse a QuickBooks-style CSV export into contact rows
+function parseQuickBooksCSV(text: string): ImportPreviewRow[] {
+  const lines = text.split(/\r?\n/).filter(l => l.trim())
+  if (lines.length < 2) return []
+  const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim().toLowerCase())
+
+  const col = (row: string[], names: string[]): string => {
+    for (const name of names) {
+      const idx = headers.indexOf(name)
+      if (idx !== -1 && row[idx]) return row[idx].replace(/^"|"$/g, '').trim()
+    }
+    return ''
+  }
+
+  return lines.slice(1).map(line => {
+    const row = line.match(/(".*?"|[^,]+|(?<=,)(?=,)|^(?=,)|(?<=,)$)/g) ?? line.split(',')
+    const name = col(row, ['customer', 'name', 'full name', 'display name', 'customer:job'])
+    const phone = col(row, ['phone', 'phone number', 'main phone', 'mobile', 'work phone'])
+    const email = col(row, ['email', 'e-mail', 'email address', 'main email'])
+    const address = col(row, ['billing address line 1', 'billing street', 'address', 'street'])
+    return { name, phone, email, address }
+  }).filter(r => r.name)
+}
+
 export default function ContactsClient({ initialCustomers, onSelectContact, mode = 'page' }: Props) {
   const [customers, setCustomers] = useState<Customer[]>(initialCustomers)
   const [search, setSearch] = useState('')
@@ -42,6 +73,14 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [deletingId, setDeletingId] = useState<string | null>(null)
+
+  // CSV import state
+  const [showImport, setShowImport] = useState(false)
+  const [importRows, setImportRows] = useState<ImportPreviewRow[]>([])
+  const [importError, setImportError] = useState('')
+  const [importing, setImporting] = useState(false)
+  const [importDone, setImportDone] = useState(false)
+  const csvRef = useRef<HTMLInputElement>(null)
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase()
@@ -113,6 +152,39 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
     }
   }
 
+  function handleCSVFile(file: File) {
+    setImportError('')
+    setImportDone(false)
+    const reader = new FileReader()
+    reader.onload = e => {
+      const text = e.target?.result as string
+      const rows = parseQuickBooksCSV(text)
+      if (rows.length === 0) {
+        setImportError('No valid contacts found. Make sure this is a QuickBooks customer CSV export.')
+      } else {
+        setImportRows(rows)
+      }
+    }
+    reader.readAsText(file)
+  }
+
+  async function handleImportConfirm() {
+    setImporting(true)
+    setImportError('')
+    const res = await fetch('/api/contacts/import', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contacts: importRows }),
+    })
+    const data = await res.json()
+    setImporting(false)
+    if (!res.ok) { setImportError(data.error || 'Import failed'); return }
+    setImportDone(true)
+    setImportRows([])
+    // Reload the page to get fresh list
+    window.location.reload()
+  }
+
   return (
     <div className="space-y-4">
       {/* Search + Add */}
@@ -133,6 +205,15 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
             </button>
           )}
         </div>
+        {mode === 'page' && (
+          <button
+            onClick={() => { setShowImport(v => !v); setImportRows([]); setImportError(''); setImportDone(false) }}
+            className="flex items-center gap-2 border border-gray-200 text-gray-600 font-semibold px-3.5 py-2.5 rounded-2xl text-sm flex-shrink-0 active:scale-95 hover:bg-gray-50 transition-colors"
+          >
+            <Upload className="w-4 h-4" />
+            <span className="hidden sm:inline">QuickBooks</span>
+          </button>
+        )}
         <button
           onClick={startAdd}
           className="flex items-center gap-2 text-white font-semibold px-4 py-2.5 rounded-2xl text-sm flex-shrink-0 active:scale-95"
@@ -142,6 +223,89 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
           <span className="hidden sm:inline">Add Contact</span>
         </button>
       </div>
+
+      {/* QuickBooks CSV Import Panel */}
+      {showImport && mode === 'page' && (
+        <div className="bg-white rounded-3xl p-5 space-y-4" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold text-sm text-gray-900">Import from QuickBooks</h3>
+              <p className="text-xs text-gray-400 mt-0.5">Export your customer list from QuickBooks as CSV, then upload it here.</p>
+            </div>
+            <button onClick={() => setShowImport(false)} className="text-gray-400 hover:text-gray-600 p-1 rounded-lg">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {importError && (
+            <div className="flex items-start gap-2 bg-red-50 border border-red-200 text-red-700 px-3.5 py-3 rounded-xl text-sm">
+              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              {importError}
+            </div>
+          )}
+
+          {importDone && (
+            <div className="bg-green-50 border border-green-200 text-green-700 px-3.5 py-3 rounded-xl text-sm font-medium">
+              Contacts imported successfully!
+            </div>
+          )}
+
+          {importRows.length === 0 ? (
+            <div
+              onClick={() => csvRef.current?.click()}
+              className="border-2 border-dashed border-gray-200 hover:border-teal-300 rounded-2xl p-8 text-center cursor-pointer transition-colors"
+            >
+              <input
+                ref={csvRef}
+                type="file"
+                accept=".csv"
+                className="hidden"
+                onChange={e => { const f = e.target.files?.[0]; if (f) handleCSVFile(f) }}
+              />
+              <Upload className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+              <p className="text-sm font-medium text-gray-600">Click to select QuickBooks CSV</p>
+              <p className="text-xs text-gray-400 mt-1">In QuickBooks: Customers → Export → Export to CSV</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <p className="text-sm font-semibold text-gray-700">{importRows.length} contact{importRows.length !== 1 ? 's' : ''} found — preview:</p>
+              <div className="max-h-52 overflow-y-auto space-y-1.5 pr-1">
+                {importRows.slice(0, 20).map((r, i) => (
+                  <div key={i} className="flex items-center gap-3 bg-gray-50 rounded-xl px-3 py-2.5">
+                    <div className="w-7 h-7 rounded-xl flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style={{ background: 'var(--primary)' }}>
+                      {r.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-gray-800 truncate">{r.name}</p>
+                      <p className="text-[11px] text-gray-400 truncate">{[r.email, r.phone].filter(Boolean).join(' · ')}</p>
+                    </div>
+                  </div>
+                ))}
+                {importRows.length > 20 && (
+                  <p className="text-xs text-gray-400 text-center py-1">+{importRows.length - 20} more</p>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleImportConfirm}
+                  disabled={importing}
+                  className="flex items-center gap-1.5 text-white font-semibold px-4 py-2.5 rounded-2xl text-sm disabled:opacity-60 active:scale-95"
+                  style={{ background: 'var(--primary)' }}
+                >
+                  <Check className="w-4 h-4" />
+                  {importing ? 'Importing…' : `Import ${importRows.length} Contacts`}
+                </button>
+                <button
+                  onClick={() => { setImportRows([]); setImportError('') }}
+                  className="px-4 py-2.5 rounded-2xl text-sm font-medium hover:bg-gray-50 active:scale-95 text-gray-500"
+                >
+                  Choose different file
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Add/Edit Form */}
       {showForm && (
