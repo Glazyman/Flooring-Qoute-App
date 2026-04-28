@@ -11,7 +11,7 @@ export default function TrialBanner({ remaining }: { remaining: number }) {
           ? 'bg-red-500 text-white'
           : isLast
           ? 'bg-amber-500 text-white'
-          : 'bg-violet-600 text-white'
+          : 'bg-teal-600 text-white'
       }`}
     >
       <p className="font-medium text-sm">

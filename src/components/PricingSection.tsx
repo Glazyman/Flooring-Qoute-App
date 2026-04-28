@@ -34,7 +34,7 @@ function CheckIcon() {
 
 function CheckIconWhite() {
   return (
-    <svg className="w-4 h-4 flex-shrink-0 text-violet-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <svg className="w-4 h-4 flex-shrink-0 text-teal-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
     </svg>
   )
@@ -63,7 +63,7 @@ export default function PricingSection() {
             className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${annual ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
           >
             Annual
-            <span className="text-xs font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(124,58,237,0.12)', color: 'var(--primary)' }}>
+            <span className="text-xs font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(13,148,136,0.12)', color: 'var(--primary)' }}>
               Save 17%
             </span>
           </button>
@@ -86,7 +86,7 @@ export default function PricingSection() {
               <p className="text-sm text-gray-400 mb-1">Billed monthly</p>
             </>
           )}
-          <p className="text-xs text-violet-600 font-semibold mb-7">3 free quotes to start</p>
+          <p className="text-xs text-teal-600 font-semibold mb-7">3 free quotes to start</p>
           <ul className="space-y-3 mb-8 flex-1">
             {STARTER_FEATURES.map(item => (
               <li key={item} className="flex items-center gap-2.5 text-sm text-gray-700">
@@ -104,21 +104,21 @@ export default function PricingSection() {
         </div>
 
         {/* Pro — highlighted */}
-        <div className="rounded-xl p-6 sm:p-8 text-white relative overflow-hidden flex flex-col" style={{ background: 'var(--primary)', boxShadow: '0 8px 30px rgba(124,58,237,0.3)' }}>
+        <div className="rounded-xl p-6 sm:p-8 text-white relative overflow-hidden flex flex-col" style={{ background: 'var(--primary)', boxShadow: '0 8px 30px rgba(13,148,136,0.3)' }}>
           <div className="absolute top-5 right-5 bg-white/20 text-white text-xs font-bold px-2.5 py-1 rounded-full">Most Popular</div>
-          <p className="text-xs font-bold text-violet-200 uppercase tracking-widest mb-3">Pro</p>
+          <p className="text-xs font-bold text-teal-200 uppercase tracking-widest mb-3">Pro</p>
           {annual ? (
             <>
-              <p className="text-4xl font-extrabold mb-0.5">$32.99<span className="text-xl font-normal text-violet-200">/mo</span></p>
-              <p className="text-sm text-violet-200 mb-1">$395.88 billed annually</p>
+              <p className="text-4xl font-extrabold mb-0.5">$32.99<span className="text-xl font-normal text-teal-200">/mo</span></p>
+              <p className="text-sm text-teal-200 mb-1">$395.88 billed annually</p>
             </>
           ) : (
             <>
-              <p className="text-4xl font-extrabold mb-0.5">$39.99<span className="text-xl font-normal text-violet-200">/mo</span></p>
-              <p className="text-sm text-violet-200 mb-1">Billed monthly</p>
+              <p className="text-4xl font-extrabold mb-0.5">$39.99<span className="text-xl font-normal text-teal-200">/mo</span></p>
+              <p className="text-sm text-teal-200 mb-1">Billed monthly</p>
             </>
           )}
-          <p className="text-xs text-violet-200 font-semibold mb-7">3 free quotes to start</p>
+          <p className="text-xs text-teal-200 font-semibold mb-7">3 free quotes to start</p>
           <ul className="space-y-3 mb-8 flex-1">
             {PRO_FEATURES.map(item => (
               <li key={item} className="flex items-center gap-2.5 text-sm text-white">
@@ -129,7 +129,7 @@ export default function PricingSection() {
           </ul>
           <Link
             href="/signup"
-            className="block text-center bg-white font-bold py-3.5 rounded-2xl text-sm transition-colors hover:bg-violet-50"
+            className="block text-center bg-white font-bold py-3.5 rounded-2xl text-sm transition-colors hover:bg-teal-50"
             style={{ color: 'var(--primary)' }}
           >
             Start Free

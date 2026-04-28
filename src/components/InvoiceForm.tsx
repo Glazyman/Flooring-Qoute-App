@@ -162,7 +162,7 @@ export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'for
                   value={invoiceNumber}
                   onChange={e => setInvoiceNumber(e.target.value)}
                   placeholder="INV-001"
-                  className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-400"
+                  className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400"
                   style={{ borderColor: 'var(--border)' }}
                 />
               </div>
@@ -173,7 +173,7 @@ export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'for
                   value={customerName}
                   onChange={e => setCustomerName(e.target.value)}
                   placeholder="John Smith"
-                  className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-400"
+                  className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400"
                   style={{ borderColor: 'var(--border)' }}
                 />
               </div>
@@ -184,7 +184,7 @@ export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'for
                   value={customerEmail}
                   onChange={e => setCustomerEmail(e.target.value)}
                   placeholder="john@example.com"
-                  className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-400"
+                  className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400"
                   style={{ borderColor: 'var(--border)' }}
                 />
               </div>
@@ -195,7 +195,7 @@ export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'for
                   value={customerPhone}
                   onChange={e => setCustomerPhone(e.target.value)}
                   placeholder="(555) 000-0000"
-                  className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-400"
+                  className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400"
                   style={{ borderColor: 'var(--border)' }}
                 />
               </div>
@@ -206,7 +206,7 @@ export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'for
                   value={jobAddress}
                   onChange={e => setJobAddress(e.target.value)}
                   placeholder="123 Main St"
-                  className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-400"
+                  className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400"
                   style={{ borderColor: 'var(--border)' }}
                 />
               </div>
@@ -223,7 +223,7 @@ export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'for
                   value={item.description}
                   onChange={e => updateItem(i, 'description', e.target.value)}
                   placeholder="Description"
-                  className="col-span-5 px-3 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-400"
+                  className="col-span-5 px-3 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400"
                   style={{ borderColor: 'var(--border)' }}
                 />
                 <input
@@ -232,7 +232,7 @@ export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'for
                   onChange={e => updateItem(i, 'quantity', parseFloat(e.target.value) || 0)}
                   placeholder="Qty"
                   min="0"
-                  className="col-span-2 px-3 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-400"
+                  className="col-span-2 px-3 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400"
                   style={{ borderColor: 'var(--border)' }}
                 />
                 <input
@@ -242,7 +242,7 @@ export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'for
                   placeholder="Price"
                   min="0"
                   step="0.01"
-                  className="col-span-3 px-3 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-400"
+                  className="col-span-3 px-3 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400"
                   style={{ borderColor: 'var(--border)' }}
                 />
                 <p className="col-span-1 text-xs font-semibold text-gray-700 text-right truncate">{fmt(item.total)}</p>
@@ -275,7 +275,7 @@ export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'for
                     min="0"
                     max="100"
                     step="0.1"
-                    className="w-16 px-2 py-1 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    className="w-16 px-2 py-1 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                     style={{ borderColor: 'var(--border)' }}
                   />
                 </label>
@@ -296,7 +296,7 @@ export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'for
               onChange={e => setNotes(e.target.value)}
               rows={3}
               placeholder="Payment terms, thank you message…"
-              className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-400 resize-none"
+              className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400 resize-none"
               style={{ borderColor: 'var(--border)' }}
             />
           </div>
@@ -305,7 +305,7 @@ export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'for
             onClick={handleSubmitForm}
             disabled={saving}
             className="w-full text-white font-bold py-4 rounded-2xl text-sm disabled:opacity-60 active:scale-[0.99] transition-all"
-            style={{ background: 'var(--primary)', boxShadow: '0 2px 12px rgba(124,58,237,0.3)' }}
+            style={{ background: 'var(--primary)', boxShadow: '0 2px 12px rgba(13,148,136,0.3)' }}
           >
             {saving ? 'Saving…' : 'Save Invoice'}
           </button>
@@ -323,7 +323,7 @@ export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'for
                   value={uploadCustomerName}
                   onChange={e => setUploadCustomerName(e.target.value)}
                   placeholder="John Smith"
-                  className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-400"
+                  className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400"
                   style={{ borderColor: 'var(--border)' }}
                 />
               </div>
@@ -334,7 +334,7 @@ export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'for
                   value={uploadInvoiceNumber}
                   onChange={e => setUploadInvoiceNumber(e.target.value)}
                   placeholder="INV-001"
-                  className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-400"
+                  className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400"
                   style={{ borderColor: 'var(--border)' }}
                 />
               </div>
@@ -344,7 +344,7 @@ export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'for
           <div
             onClick={() => fileRef.current?.click()}
             className={`bg-white rounded-xl p-10 text-center cursor-pointer transition-colors ${
-              uploadFile ? 'border-violet-300' : 'border-dashed border-gray-200 hover:border-violet-300'
+              uploadFile ? 'border-teal-300' : 'border-dashed border-gray-200 hover:border-teal-300'
             }`}
             style={{ border: uploadFile ? '2px solid var(--primary)' : undefined, boxShadow: 'var(--shadow-card)' }}
           >
@@ -381,7 +381,7 @@ export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'for
             onClick={handleUpload}
             disabled={uploading || !uploadFile}
             className="w-full text-white font-bold py-4 rounded-2xl text-sm disabled:opacity-60 active:scale-[0.99] transition-all"
-            style={{ background: 'var(--primary)', boxShadow: '0 2px 12px rgba(124,58,237,0.3)' }}
+            style={{ background: 'var(--primary)', boxShadow: '0 2px 12px rgba(13,148,136,0.3)' }}
           >
             {uploading ? 'Uploading…' : 'Save Invoice'}
           </button>

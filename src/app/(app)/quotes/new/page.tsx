@@ -77,7 +77,7 @@ export default async function NewQuotePage() {
             <Link
               href="/billing/setup"
               className="inline-flex items-center gap-2 text-white font-bold px-6 py-3 rounded-2xl text-sm"
-              style={{ background: 'var(--primary)', boxShadow: '0 4px 16px rgba(124,58,237,0.3)' }}
+              style={{ background: 'var(--primary)', boxShadow: '0 4px 16px rgba(13,148,136,0.3)' }}
             >
               Upgrade to Pro
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

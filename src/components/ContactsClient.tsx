@@ -285,7 +285,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
         <button
           onClick={startAdd}
           className="flex items-center gap-2 text-white font-semibold px-4 py-2.5 rounded-2xl text-sm flex-shrink-0 active:scale-95"
-          style={{ background: 'var(--primary)', boxShadow: '0 2px 8px rgba(124,58,237,0.25)' }}
+          style={{ background: 'var(--primary)', boxShadow: '0 2px 8px rgba(13,148,136,0.25)' }}
         >
           <UserPlus className="w-4 h-4" />
           <span className="hidden sm:inline">Add Contact</span>
@@ -297,7 +297,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
         <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-white" style={{ border: '1px solid var(--border)' }}>
           <button onClick={toggleAll} className="flex items-center gap-2 text-sm font-semibold text-gray-700">
             {allSelected
-              ? <CheckSquare className="w-5 h-5 text-violet-600" />
+              ? <CheckSquare className="w-5 h-5 text-teal-600" />
               : <Square className="w-5 h-5 text-gray-400" />
             }
             {allSelected ? 'Deselect All' : 'Select All'}
@@ -335,7 +335,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
           {importRows.length === 0 ? (
             <div
               onClick={() => csvRef.current?.click()}
-              className="border-2 border-dashed border-gray-200 hover:border-violet-300 rounded-2xl p-8 text-center cursor-pointer transition-colors"
+              className="border-2 border-dashed border-gray-200 hover:border-teal-300 rounded-2xl p-8 text-center cursor-pointer transition-colors"
             >
               <input
                 ref={csvRef}
@@ -415,7 +415,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
                   value={form[key as keyof FormState]}
                   onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
                   placeholder={placeholder}
-                  className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-400"
+                  className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400"
                   style={{ borderColor: 'var(--border)', color: 'var(--text)' }}
                 />
               </div>
@@ -427,7 +427,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
                 onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
                 placeholder="Optional notes…"
                 rows={2}
-                className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-400 resize-none"
+                className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400 resize-none"
                 style={{ borderColor: 'var(--border)', color: 'var(--text)' }}
               />
             </div>
@@ -478,7 +478,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
                 {selecting && (
                   <button onClick={() => toggleSelect(c.id)} className="flex-shrink-0 mt-0.5 p-0.5">
                     {isSelected
-                      ? <CheckSquare className="w-5 h-5 text-violet-600" />
+                      ? <CheckSquare className="w-5 h-5 text-teal-600" />
                       : <Square className="w-5 h-5 text-gray-300" />
                     }
                   </button>
@@ -521,7 +521,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
                 {selecting ? (
                   <button onClick={() => toggleSelect(c.id)} className="p-2 flex-shrink-0">
                     {isSelected
-                      ? <CheckSquare className="w-5 h-5 text-violet-600" />
+                      ? <CheckSquare className="w-5 h-5 text-teal-600" />
                       : <Square className="w-5 h-5 text-gray-300" />
                     }
                   </button>

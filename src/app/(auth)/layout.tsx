@@ -15,7 +15,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             height={56}
             className="rounded-2xl mx-auto mb-3"
           />
-          <h1 className="text-2xl font-bold text-violet-600">FloorQuote Pro</h1>
+          <h1 className="text-2xl font-bold text-teal-600">FloorQuote Pro</h1>
           <p className="text-sm text-gray-400 mt-1">Professional estimates in under 2 minutes</p>
         </div>
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">

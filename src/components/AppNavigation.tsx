@@ -89,7 +89,7 @@ export default function AppNavigation({
       {/* Company header */}
       <div className="px-3 mb-4">
         <button className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md hover:bg-white/5 transition-colors text-left">
-          <div className="w-6 h-6 rounded-md overflow-hidden flex-shrink-0 flex items-center justify-center text-white text-[10px] font-bold" style={{ background: '#7C3AED' }}>
+          <div className="w-6 h-6 rounded-md overflow-hidden flex-shrink-0 flex items-center justify-center text-white text-[10px] font-bold" style={{ background: '#0D9488' }}>
             {logoUrl
               ? <img src={logoUrl} alt={companyName} className="w-full h-full object-cover" />
               : initials}
@@ -105,7 +105,7 @@ export default function AppNavigation({
           href={trialExhausted ? '/billing/setup' : '/quotes/new'}
           onClick={() => setMobileOpen(false)}
           className="flex items-center justify-center gap-2 w-full py-1.5 rounded-md text-[13px] font-semibold text-white transition-all"
-          style={{ background: '#7C3AED' }}
+          style={{ background: '#0D9488' }}
         >
           <PlusCircle className="w-3.5 h-3.5" />
           New Quote
@@ -166,11 +166,11 @@ export default function AppNavigation({
           <Link
             href="/billing/setup"
             className="block rounded-lg p-3 text-white"
-            style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)' }}
+            style={{ background: 'linear-gradient(135deg, #0D9488 0%, #0B7D73 100%)' }}
           >
             <p className="text-xs font-bold mb-0.5">✨ Upgrade to Pro</p>
             <p className="text-xs opacity-70 leading-snug mb-2">3 free quotes used. Unlock unlimited.</p>
-            <span className="inline-block bg-white text-violet-700 text-xs font-bold px-2.5 py-1 rounded-md">
+            <span className="inline-block bg-white text-teal-700 text-xs font-bold px-2.5 py-1 rounded-md">
               Upgrade now →
             </span>
           </Link>

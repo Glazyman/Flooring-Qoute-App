@@ -34,7 +34,7 @@ function Input({
       <div className={`flex items-center rounded-xl border overflow-hidden transition-all ${
         disabled
           ? 'border-gray-100 bg-gray-50'
-          : 'border-gray-200 bg-white focus-within:ring-2 focus-within:ring-violet-500 focus-within:border-transparent'
+          : 'border-gray-200 bg-white focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-transparent'
       }`}>
         {prefix && (
           <span className={`px-3 py-2.5 text-sm border-r font-medium ${disabled ? 'bg-gray-50 text-gray-300 border-gray-100' : 'bg-gray-50 text-gray-400 border-gray-200'}`}>
@@ -207,7 +207,7 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
               <button
                 type="submit"
                 disabled={saving}
-                className="px-5 py-2 text-sm font-bold text-white bg-violet-600 hover:bg-violet-700 disabled:opacity-50 rounded-xl transition-colors shadow-sm"
+                className="px-5 py-2 text-sm font-bold text-white bg-teal-600 hover:bg-teal-700 disabled:opacity-50 rounded-xl transition-colors shadow-sm"
               >
                 {saving ? 'Saving…' : 'Save Changes'}
               </button>
@@ -245,12 +245,12 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
             <div className="flex gap-3 items-start">
               <div
                 className={`w-16 h-16 rounded-2xl border-2 border-dashed flex items-center justify-center flex-shrink-0 overflow-hidden transition-colors ${
-                  ro ? 'border-gray-100 bg-gray-50 cursor-default' : 'border-gray-200 bg-gray-50 cursor-pointer hover:border-violet-400'
+                  ro ? 'border-gray-100 bg-gray-50 cursor-default' : 'border-gray-200 bg-gray-50 cursor-pointer hover:border-teal-400'
                 }`}
                 onClick={() => !ro && logoInputRef.current?.click()}
               >
                 {logoUploading ? (
-                  <div className="w-5 h-5 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
                 ) : form.logo_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={form.logo_url} alt="Logo" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
@@ -266,7 +266,7 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
                   <button
                     type="button"
                     onClick={() => logoInputRef.current?.click()}
-                    className="w-full text-sm font-semibold text-violet-600 border border-violet-200 bg-violet-50 hover:bg-violet-100 py-2 px-3 rounded-xl transition-colors"
+                    className="w-full text-sm font-semibold text-teal-600 border border-teal-200 bg-teal-50 hover:bg-teal-100 py-2 px-3 rounded-xl transition-colors"
                   >
                     {logoUploading ? 'Uploading…' : form.logo_url ? 'Replace logo' : 'Upload logo'}
                   </button>
@@ -277,7 +277,7 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
                   onChange={(e) => set('logo_url', e.target.value)}
                   placeholder="or paste image URL…"
                   disabled={ro}
-                  className={`w-full px-3 py-2 text-sm rounded-xl border placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-colors ${
+                  className={`w-full px-3 py-2 text-sm rounded-xl border placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-colors ${
                     ro ? 'border-gray-100 bg-gray-50 text-gray-400 cursor-default' : 'border-gray-200 text-gray-700'
                   }`}
                 />
