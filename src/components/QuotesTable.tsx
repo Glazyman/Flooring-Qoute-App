@@ -12,6 +12,7 @@ interface QuotesTableProps {
 const STATUS_OPTIONS: QuoteStatus[] = ['pending', 'accepted', 'lost']
 
 const STATUS_CONFIG: Record<QuoteStatus, { bg: string; text: string; label: string }> = {
+  measurement: { bg: '#f0f9ff', text: '#0369a1', label: 'Measurement' },
   accepted: { bg: '#f0fdf4', text: '#16a34a', label: 'Accepted' },
   pending: { bg: '#fffbeb', text: '#d97706', label: 'Pending' },
   lost: { bg: '#fff1f0', text: '#ff3b30', label: 'Lost' },

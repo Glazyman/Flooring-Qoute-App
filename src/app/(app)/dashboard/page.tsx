@@ -17,6 +17,7 @@ export default async function DashboardPage() {
     .from('quotes')
     .select('id, status, final_total, created_at, customer_name, job_address, flooring_type')
     .eq('company_id', membership.company_id)
+    .neq('status', 'measurement')
     .order('created_at', { ascending: false })
 
   const quotes = allQuotes ?? []

@@ -407,7 +407,7 @@ export default function QuoteForm({
       markup_amount: calcs.markup_amount,
       final_total: calcs.final_total,
       deposit_amount: calcs.deposit_amount,
-      ...(isEditing ? {} : { status: 'pending' }),
+      ...(isEditing ? {} : { status: 'measurement' }),
       notes: [notes, blueprintNotes].filter(Boolean).join('\n\n') || null,
       valid_days: n(validDays) || 30,
       rooms: roomsForApi,

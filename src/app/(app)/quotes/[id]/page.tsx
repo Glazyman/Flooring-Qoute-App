@@ -5,10 +5,12 @@ import { fmt } from '@/lib/calculations'
 import type { Quote, QuoteRoom } from '@/lib/types'
 import DuplicateButton from '@/components/DuplicateButton'
 import EmailQuoteButton from '@/components/EmailQuoteButton'
+import ApproveMeasurementButton from '@/components/ApproveMeasurementButton'
 
 export const dynamic = 'force-dynamic'
 
 const STATUS_CONFIG: Record<string, { bg: string; text: string; label: string }> = {
+  measurement: { bg: '#eff6ff', text: '#1d4ed8', label: 'Measurement' },
   accepted: { bg: '#f0fdf4', text: '#16a34a', label: 'Accepted' },
   pending: { bg: '#fffbeb', text: '#d97706', label: 'Pending' },
   lost: { bg: '#fef2f2', text: '#dc2626', label: 'Lost' },
@@ -53,13 +55,24 @@ export default async function QuoteDetailPage({
 
   return (
     <div className="max-w-3xl space-y-5">
+      {/* Measurement approval banner */}
+      {q.status === 'measurement' && (
+        <div className="flex items-center justify-between gap-4 bg-blue-50 border border-blue-200 rounded-2xl px-4 py-3">
+          <div>
+            <p className="text-sm font-semibold text-blue-800">This is a saved measurement</p>
+            <p className="text-xs text-blue-600 mt-0.5">Approve it to move it to All Quotes and send to the customer.</p>
+          </div>
+          <ApproveMeasurementButton quoteId={q.id} />
+        </div>
+      )}
+
       {/* Header */}
       <div>
         <Link
-          href="/quotes"
+          href={q.status === 'measurement' ? '/measurements' : '/quotes'}
           className="text-xs font-medium text-gray-400 hover:text-gray-600 mb-2 inline-flex items-center gap-1"
         >
-          ← Back to Quotes
+          {q.status === 'measurement' ? '← Back to Measurements' : '← Back to Quotes'}
         </Link>
         <div className="mt-1">
           <h1 className="text-xl sm:text-2xl font-bold text-gray-900 break-words">{q.customer_name}</h1>

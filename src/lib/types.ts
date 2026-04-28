@@ -1,4 +1,4 @@
-export type QuoteStatus = 'pending' | 'accepted' | 'lost'
+export type QuoteStatus = 'measurement' | 'pending' | 'accepted' | 'lost'
 export type InvoiceStatus = 'draft' | 'sent' | 'paid'
 
 export interface InvoiceLineItem {
