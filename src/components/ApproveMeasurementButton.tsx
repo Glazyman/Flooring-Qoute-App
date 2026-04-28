@@ -41,7 +41,7 @@ export default function ApproveMeasurementButton({ quoteId, onApprove }: { quote
       style={{ background: 'var(--primary)' }}
     >
       <CheckCircle className="w-3.5 h-3.5" />
-      {loading ? 'Approving…' : 'Approve Quote'}
+      {loading ? 'Approving…' : 'Approve'}
     </button>
   )
 }
