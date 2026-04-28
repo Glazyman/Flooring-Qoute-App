@@ -217,35 +217,6 @@ function EditableCell({
   )
 }
 
-// ---- Row selector circle ----
-function RowSelector({ rowKey, selected, onToggle }: { rowKey: string; selected: boolean; onToggle: (k: string) => void }) {
-  return (
-    <button
-      onClick={e => { e.stopPropagation(); onToggle(rowKey) }}
-      className="w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors"
-      style={{
-        borderColor: selected ? '#0D9488' : '#cbd5e1',
-        background: selected ? '#0D9488' : 'transparent',
-      }}
-      aria-label="Select row"
-    />
-  )
-}
-
-// ---- Row delete action cell ----
-function DeleteCell({ show, onDelete }: { show: boolean; onDelete: () => void }) {
-  if (!show) return <span />
-  return (
-    <button
-      onClick={e => { e.stopPropagation(); onDelete() }}
-      className="text-xs font-medium px-1.5 py-0.5 rounded transition-colors"
-      style={{ color: '#ef4444', background: 'rgba(239,68,68,0.08)' }}
-    >
-      ✕ Delete
-    </button>
-  )
-}
-
 // ---- Main component ----
 
 export interface QuoteDetailCardProps {
@@ -316,16 +287,93 @@ export default function QuoteDetailCard({
   const [editing, setEditing] = useState<string | null>(null)
   const [saved, setSaved] = useState<string | null>(null)
 
-  // Row selection (select-to-act UX)
-  const [selectedRowKey, setSelectedRowKey] = useState<string | null>(null)
-
-  function toggleRowSelect(key: string) {
-    setSelectedRowKey(prev => (prev === key ? null : key))
-  }
+  // Select mode
+  const [selectMode, setSelectMode] = useState(false)
+  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set())
 
   const flashSaved = (key: string) => {
     setSaved(key)
     setTimeout(() => setSaved(s => (s === key ? null : s)), 1500)
+  }
+
+  function handleSelectAll() {
+    const allKeys = new Set<string>()
+    items.forEach(li => allKeys.add(`li-${li.id}`))
+    if (removalFee > 0) allKeys.add('fee-removal')
+    if (furnitureFee > 0) allKeys.add('fee-furniture')
+    if (stairsFee > 0) allKeys.add('fee-stairs')
+    if (quarterRoundFee > 0) allKeys.add('fee-quarterround')
+    if (reducersFee > 0) allKeys.add('fee-reducers')
+    if (deliveryFee > 0) allKeys.add('fee-delivery')
+    if (customFeeAmount > 0 && customFeeLabel.trim()) allKeys.add('fee-custom')
+    if ((extrasJson.subfloor_prep ?? 0) > 0) allKeys.add('fee-subfloor')
+    if ((extrasJson.underlayment_per_sqft ?? 0) > 0 && adjustedSqft > 0) allKeys.add('fee-underlayment')
+    if ((extrasJson.transition_qty ?? 0) > 0 && (extrasJson.transition_unit ?? 0) > 0) allKeys.add('fee-transition')
+    if ((extrasJson.floor_protection ?? 0) > 0) allKeys.add('fee-floorprotection')
+    if ((extrasJson.disposal_fee ?? 0) > 0) allKeys.add('fee-disposal')
+    setSelectedKeys(allKeys)
+  }
+
+  async function handleDeleteSelected() {
+    const keys = Array.from(selectedKeys)
+
+    const lineItemDeletes = keys
+      .filter(k => k.startsWith('li-'))
+      .map(k => {
+        const id = k.slice(3)
+        return fetch(`/api/quote-line-items/${id}`, { method: 'DELETE' })
+      })
+
+    // Collect quote field patches
+    const quotePatch: Record<string, number> = {}
+    if (keys.includes('fee-removal')) { quotePatch.removal_fee = 0 }
+    if (keys.includes('fee-furniture')) { quotePatch.furniture_fee = 0 }
+    if (keys.includes('fee-stairs')) { quotePatch.stairs_fee = 0 }
+    if (keys.includes('fee-quarterround')) { quotePatch.quarter_round_fee = 0 }
+    if (keys.includes('fee-reducers')) { quotePatch.reducers_fee = 0 }
+    if (keys.includes('fee-delivery')) { quotePatch.delivery_fee = 0 }
+    if (keys.includes('fee-custom')) { quotePatch.custom_fee_amount = 0 }
+
+    // Collect extras patches
+    let newExtras = { ...extrasJson }
+    let extrasChanged = false
+    if (keys.includes('fee-subfloor')) { newExtras = { ...newExtras, subfloor_prep: 0 }; extrasChanged = true }
+    if (keys.includes('fee-underlayment')) { newExtras = { ...newExtras, underlayment_per_sqft: 0 }; extrasChanged = true }
+    if (keys.includes('fee-transition')) { newExtras = { ...newExtras, transition_qty: 0, transition_unit: 0 }; extrasChanged = true }
+    if (keys.includes('fee-floorprotection')) { newExtras = { ...newExtras, floor_protection: 0 }; extrasChanged = true }
+    if (keys.includes('fee-disposal')) { newExtras = { ...newExtras, disposal_fee: 0 }; extrasChanged = true }
+
+    if (extrasChanged) {
+      quotePatch.extras_json = newExtras as unknown as number
+    }
+
+    const apiCalls: Promise<unknown>[] = [...lineItemDeletes]
+    if (Object.keys(quotePatch).length > 0) {
+      apiCalls.push(
+        fetch(`/api/quotes/${q.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(quotePatch),
+        })
+      )
+    }
+
+    // Optimistic state updates
+    const liIds = keys.filter(k => k.startsWith('li-')).map(k => k.slice(3))
+    if (liIds.length > 0) setItems(prev => prev.filter(li => !liIds.includes(li.id)))
+    if (keys.includes('fee-removal')) setRemovalFee(0)
+    if (keys.includes('fee-furniture')) setFurnitureFee(0)
+    if (keys.includes('fee-stairs')) setStairsFee(0)
+    if (keys.includes('fee-quarterround')) setQuarterRoundFee(0)
+    if (keys.includes('fee-reducers')) setReducersFee(0)
+    if (keys.includes('fee-delivery')) setDeliveryFee(0)
+    if (keys.includes('fee-custom')) setCustomFeeAmount(0)
+    if (extrasChanged) setExtrasJson(newExtras)
+
+    await Promise.all(apiCalls).catch(() => {})
+
+    setSelectedKeys(new Set())
+    setSelectMode(false)
   }
 
   // Save quote field to API
@@ -442,14 +490,12 @@ export default function QuoteDetailCard({
 
   // Delete a custom line item
   async function deleteLineItem(id: string) {
-    setSelectedRowKey(null)
     setItems(prev => prev.filter(li => li.id !== id))
     fetch(`/api/quote-line-items/${id}`, { method: 'DELETE' }).catch(() => {})
   }
 
   // Zero out a fixed-fee field (removes the row visually)
   async function deleteFixedFee(field: string, setter: React.Dispatch<React.SetStateAction<number>>) {
-    setSelectedRowKey(null)
     setter(0)
     fetch(`/api/quotes/${q.id}`, {
       method: 'PATCH',
@@ -460,7 +506,6 @@ export default function QuoteDetailCard({
 
   // Zero out an extras_json key
   async function deleteExtrasKey(key: string) {
-    setSelectedRowKey(null)
     const newExtras = { ...extrasJson, [key]: 0 }
     setExtrasJson(newExtras)
     fetch(`/api/quotes/${q.id}`, {
@@ -569,8 +614,29 @@ export default function QuoteDetailCard({
   const flooringLabel = flooringTypeLabel(q.flooring_type, q.section_flooring_types) || 'flooring'
   const wasteFactor = 1 + (Number(q.waste_pct) || 0) / 100
 
-  // Shared grid columns (6 cols: selector | desc | sqft | rate | total | action)
-  const GRID_COLS = '20px 5fr 80px 90px 90px 80px'
+  // Shared grid columns (4 cols: desc | sqft | rate | total)
+  const GRID_COLS = '5fr 80px 90px 90px'
+
+  // Helper: row checkbox for selectable rows
+  function RowCheckbox({ rowKey }: { rowKey: string }) {
+    if (!selectMode) return null
+    return (
+      <input
+        type="checkbox"
+        checked={selectedKeys.has(rowKey)}
+        onChange={e => {
+          setSelectedKeys(prev => {
+            const next = new Set(prev)
+            e.target.checked ? next.add(rowKey) : next.delete(rowKey)
+            return next
+          })
+        }}
+        className="mr-2 flex-shrink-0"
+        style={{ accentColor: '#0D9488' }}
+        onClick={e => e.stopPropagation()}
+      />
+    )
+  }
 
   return (
     <div
@@ -708,6 +774,48 @@ export default function QuoteDetailCard({
         </div>
       </div>
 
+      {/* Select toolbar */}
+      <div className="flex items-center justify-between mb-1.5">
+        {!selectMode ? (
+          <button
+            onClick={() => setSelectMode(true)}
+            className="text-xs font-medium px-2.5 py-1 rounded-lg transition-colors"
+            style={{ background: 'rgba(13,148,136,0.08)', color: '#0D9488' }}
+          >
+            Select
+          </button>
+        ) : (
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={() => { setSelectMode(false); setSelectedKeys(new Set()) }}
+              className="text-xs font-medium px-2.5 py-1 rounded-lg"
+              style={{ background: '#f1f5f9', color: '#64748b' }}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSelectAll}
+              className="text-xs font-medium px-2.5 py-1 rounded-lg"
+              style={{ background: 'rgba(13,148,136,0.08)', color: '#0D9488' }}
+            >
+              Select All
+            </button>
+            {selectedKeys.size > 0 && (
+              <button
+                onClick={handleDeleteSelected}
+                className="text-xs font-medium px-2.5 py-1 rounded-lg"
+                style={{ background: 'rgba(239,68,68,0.08)', color: '#ef4444' }}
+              >
+                Delete ({selectedKeys.size})
+              </button>
+            )}
+            {selectedKeys.size > 0 && (
+              <span className="text-xs text-gray-400">{selectedKeys.size} selected</span>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* Items table */}
       <div className="text-sm overflow-x-auto">
         <div style={{ minWidth: 480 }}>
@@ -720,12 +828,10 @@ export default function QuoteDetailCard({
               color: '#0f172a',
             }}
           >
-            <span />
             <span>Description</span>
             <span className="text-right">Sqft</span>
             <span className="text-right">Rate</span>
             <span className="text-right">Total</span>
-            <span />
           </div>
 
           {/* Section pricing rows (static — multi-section not inline-editable) */}
@@ -751,14 +857,12 @@ export default function QuoteDetailCard({
                       color: '#0f172a',
                     }}
                   >
-                    <span />
                     <span className="pr-3 break-words whitespace-pre-wrap">
                       {baseDesc ? `${sectionName} — ${baseDesc}` : `${sectionName}: supply ${sectionLabel}`}
                     </span>
                     <span className="text-right tabular-nums">{fmtQty(adjSqft)}</span>
                     <span className="text-right tabular-nums">{fmtNumber(matRate, 2)}</span>
                     <span className="text-right tabular-nums font-semibold">{fmtNumber(adjSqft * matRate, 2)}</span>
-                    <span />
                   </div>
                   {labRate > 0 && (
                     <div
@@ -769,12 +873,10 @@ export default function QuoteDetailCard({
                         color: '#0f172a',
                       }}
                     >
-                      <span />
                       <span className="pr-3">{sectionName}: labor / installation</span>
                       <span className="text-right tabular-nums">{fmtQty(adjSqft)}</span>
                       <span className="text-right tabular-nums">{fmtNumber(labRate, 2)}</span>
                       <span className="text-right tabular-nums font-semibold">{fmtNumber(adjSqft * labRate, 2)}</span>
-                      <span />
                     </div>
                   )}
                 </div>
@@ -794,7 +896,6 @@ export default function QuoteDetailCard({
                   color: '#0f172a',
                 }}
               >
-                <span />
                 <span className="pr-3 break-words whitespace-pre-wrap">
                   <EditableCell
                     fieldKey="material_description"
@@ -834,7 +935,6 @@ export default function QuoteDetailCard({
                     <span style={{ color: TEAL, marginLeft: 4, fontSize: '0.75em' }}>✓</span>
                   )}
                 </span>
-                <span />
               </div>
 
               {/* Labor row (only if rate > 0) */}
@@ -847,7 +947,6 @@ export default function QuoteDetailCard({
                     color: '#0f172a',
                   }}
                 >
-                  <span />
                   <span className="pr-3">Labor / installation</span>
                   <span className="text-right tabular-nums">{fmtQty(adjustedSqft)}</span>
                   <span className="text-right tabular-nums">
@@ -867,19 +966,18 @@ export default function QuoteDetailCard({
                       <span style={{ color: TEAL, marginLeft: 4, fontSize: '0.75em' }}>✓</span>
                     )}
                   </span>
-                  <span />
                 </div>
               )}
             </>
           )}
 
-          {/* Line item rows (editable + deletable) */}
+          {/* Line item rows (editable + selectable) */}
           {items.map(li => {
             const liQty = Number(li.qty) || 0
             const liRate = Number(li.unit_price) || 0
             const liTotal = Number(li.total) || liQty * liRate
             const liKey = `li-${li.id}`
-            const isSelected = selectedRowKey === liKey
+            const isSelected = selectedKeys.has(liKey)
             return (
               <div
                 key={li.id}
@@ -891,10 +989,8 @@ export default function QuoteDetailCard({
                   background: isSelected ? 'rgba(13,148,136,0.06)' : undefined,
                 }}
               >
-                <span className="flex items-center justify-center">
-                  <RowSelector rowKey={liKey} selected={isSelected} onToggle={toggleRowSelect} />
-                </span>
-                <span className="pr-3 break-words">
+                <span className="pr-3 break-words flex items-center">
+                  <RowCheckbox rowKey={liKey} />
                   <EditableCell
                     fieldKey={`${liKey}-description`}
                     value={li.description?.trim() || ''}
@@ -933,23 +1029,18 @@ export default function QuoteDetailCard({
                     <span style={{ color: TEAL, marginLeft: 4, fontSize: '0.75em' }}>✓</span>
                   ) : null}
                 </span>
-                <span className="flex items-center">
-                  <DeleteCell show={isSelected} onDelete={() => deleteLineItem(li.id)} />
-                </span>
               </div>
             )
           })}
 
-          {/* Fixed fee rows (editable) */}
+          {/* Fixed fee rows (editable + selectable) */}
           {removalFee > 0 && (
             <div
               className="grid items-center px-2 py-2"
-              style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedRowKey === 'removal_fee' ? 'rgba(13,148,136,0.06)' : undefined }}
+              style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-removal') ? 'rgba(13,148,136,0.06)' : undefined }}
             >
-              <span className="flex items-center justify-center">
-                <RowSelector rowKey="removal_fee" selected={selectedRowKey === 'removal_fee'} onToggle={toggleRowSelect} />
-              </span>
-              <span className="pr-3">
+              <span className="pr-3 flex items-center">
+                <RowCheckbox rowKey="fee-removal" />
                 <EditableCell
                   fieldKey="removal_fee_desc"
                   value={removalFeeDesc}
@@ -978,20 +1069,15 @@ export default function QuoteDetailCard({
                   <span style={{ color: TEAL, marginLeft: 4, fontSize: '0.75em' }}>✓</span>
                 )}
               </span>
-              <span className="flex items-center">
-                <DeleteCell show={selectedRowKey === 'removal_fee'} onDelete={() => deleteFixedFee('removal_fee', setRemovalFee)} />
-              </span>
             </div>
           )}
           {furnitureFee > 0 && (
             <div
               className="grid items-center px-2 py-2"
-              style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedRowKey === 'furniture_fee' ? 'rgba(13,148,136,0.06)' : undefined }}
+              style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-furniture') ? 'rgba(13,148,136,0.06)' : undefined }}
             >
-              <span className="flex items-center justify-center">
-                <RowSelector rowKey="furniture_fee" selected={selectedRowKey === 'furniture_fee'} onToggle={toggleRowSelect} />
-              </span>
-              <span className="pr-3">
+              <span className="pr-3 flex items-center">
+                <RowCheckbox rowKey="fee-furniture" />
                 <EditableCell
                   fieldKey="furniture_fee_desc"
                   value={furnitureFeeDesc}
@@ -1020,9 +1106,6 @@ export default function QuoteDetailCard({
                   <span style={{ color: TEAL, marginLeft: 4, fontSize: '0.75em' }}>✓</span>
                 )}
               </span>
-              <span className="flex items-center">
-                <DeleteCell show={selectedRowKey === 'furniture_fee'} onDelete={() => deleteFixedFee('furniture_fee', setFurnitureFee)} />
-              </span>
             </div>
           )}
           {stairsFee > 0 && (() => {
@@ -1030,12 +1113,10 @@ export default function QuoteDetailCard({
             return (
               <div
                 className="grid items-center px-2 py-2"
-                style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedRowKey === 'stairs_fee' ? 'rgba(13,148,136,0.06)' : undefined }}
+                style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-stairs') ? 'rgba(13,148,136,0.06)' : undefined }}
               >
-                <span className="flex items-center justify-center">
-                  <RowSelector rowKey="stairs_fee" selected={selectedRowKey === 'stairs_fee'} onToggle={toggleRowSelect} />
-                </span>
-                <span className="pr-3">
+                <span className="pr-3 flex items-center">
+                  <RowCheckbox rowKey="fee-stairs" />
                   <EditableCell
                     fieldKey="stairs_fee_desc"
                     value={stairsFeeDesc}
@@ -1064,21 +1145,16 @@ export default function QuoteDetailCard({
                     <span style={{ color: TEAL, marginLeft: 4, fontSize: '0.75em' }}>✓</span>
                   )}
                 </span>
-                <span className="flex items-center">
-                  <DeleteCell show={selectedRowKey === 'stairs_fee'} onDelete={() => deleteFixedFee('stairs_fee', setStairsFee)} />
-                </span>
               </div>
             )
           })()}
           {quarterRoundFee > 0 && (
             <div
               className="grid items-center px-2 py-2"
-              style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedRowKey === 'quarter_round_fee' ? 'rgba(13,148,136,0.06)' : undefined }}
+              style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-quarterround') ? 'rgba(13,148,136,0.06)' : undefined }}
             >
-              <span className="flex items-center justify-center">
-                <RowSelector rowKey="quarter_round_fee" selected={selectedRowKey === 'quarter_round_fee'} onToggle={toggleRowSelect} />
-              </span>
-              <span className="pr-3">
+              <span className="pr-3 flex items-center">
+                <RowCheckbox rowKey="fee-quarterround" />
                 <EditableCell
                   fieldKey="quarter_round_fee_desc"
                   value={quarterRoundFeeDesc}
@@ -1107,20 +1183,15 @@ export default function QuoteDetailCard({
                   <span style={{ color: TEAL, marginLeft: 4, fontSize: '0.75em' }}>✓</span>
                 )}
               </span>
-              <span className="flex items-center">
-                <DeleteCell show={selectedRowKey === 'quarter_round_fee'} onDelete={() => deleteFixedFee('quarter_round_fee', setQuarterRoundFee)} />
-              </span>
             </div>
           )}
           {reducersFee > 0 && (
             <div
               className="grid items-center px-2 py-2"
-              style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedRowKey === 'reducers_fee' ? 'rgba(13,148,136,0.06)' : undefined }}
+              style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-reducers') ? 'rgba(13,148,136,0.06)' : undefined }}
             >
-              <span className="flex items-center justify-center">
-                <RowSelector rowKey="reducers_fee" selected={selectedRowKey === 'reducers_fee'} onToggle={toggleRowSelect} />
-              </span>
-              <span className="pr-3">
+              <span className="pr-3 flex items-center">
+                <RowCheckbox rowKey="fee-reducers" />
                 <EditableCell
                   fieldKey="reducers_fee_desc"
                   value={reducersFeeDesc}
@@ -1149,20 +1220,15 @@ export default function QuoteDetailCard({
                   <span style={{ color: TEAL, marginLeft: 4, fontSize: '0.75em' }}>✓</span>
                 )}
               </span>
-              <span className="flex items-center">
-                <DeleteCell show={selectedRowKey === 'reducers_fee'} onDelete={() => deleteFixedFee('reducers_fee', setReducersFee)} />
-              </span>
             </div>
           )}
           {deliveryFee > 0 && (
             <div
               className="grid items-center px-2 py-2"
-              style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedRowKey === 'delivery_fee' ? 'rgba(13,148,136,0.06)' : undefined }}
+              style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-delivery') ? 'rgba(13,148,136,0.06)' : undefined }}
             >
-              <span className="flex items-center justify-center">
-                <RowSelector rowKey="delivery_fee" selected={selectedRowKey === 'delivery_fee'} onToggle={toggleRowSelect} />
-              </span>
-              <span className="pr-3">
+              <span className="pr-3 flex items-center">
+                <RowCheckbox rowKey="fee-delivery" />
                 <EditableCell
                   fieldKey="delivery_fee_desc"
                   value={deliveryFeeDesc}
@@ -1191,20 +1257,15 @@ export default function QuoteDetailCard({
                   <span style={{ color: TEAL, marginLeft: 4, fontSize: '0.75em' }}>✓</span>
                 )}
               </span>
-              <span className="flex items-center">
-                <DeleteCell show={selectedRowKey === 'delivery_fee'} onDelete={() => deleteFixedFee('delivery_fee', setDeliveryFee)} />
-              </span>
             </div>
           )}
           {customFeeAmount > 0 && customFeeLabel.trim() && (
             <div
               className="grid items-center px-2 py-2"
-              style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedRowKey === 'custom_fee_amount' ? 'rgba(13,148,136,0.06)' : undefined }}
+              style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-custom') ? 'rgba(13,148,136,0.06)' : undefined }}
             >
-              <span className="flex items-center justify-center">
-                <RowSelector rowKey="custom_fee_amount" selected={selectedRowKey === 'custom_fee_amount'} onToggle={toggleRowSelect} />
-              </span>
-              <span className="pr-3">
+              <span className="pr-3 flex items-center">
+                <RowCheckbox rowKey="fee-custom" />
                 <EditableCell
                   fieldKey="custom_fee_label"
                   value={customFeeLabel.trim()}
@@ -1233,9 +1294,6 @@ export default function QuoteDetailCard({
                   <span style={{ color: TEAL, marginLeft: 4, fontSize: '0.75em' }}>✓</span>
                 )}
               </span>
-              <span className="flex items-center">
-                <DeleteCell show={selectedRowKey === 'custom_fee_amount'} onDelete={() => deleteFixedFee('custom_fee_amount', setCustomFeeAmount)} />
-              </span>
             </div>
           )}
 
@@ -1246,12 +1304,10 @@ export default function QuoteDetailCard({
                 {(extrasJson.subfloor_prep ?? 0) > 0 && (
                   <div
                     className="grid items-center px-2 py-2"
-                    style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedRowKey === 'extras_subfloor_prep' ? 'rgba(13,148,136,0.06)' : undefined }}
+                    style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-subfloor') ? 'rgba(13,148,136,0.06)' : undefined }}
                   >
-                    <span className="flex items-center justify-center">
-                      <RowSelector rowKey="extras_subfloor_prep" selected={selectedRowKey === 'extras_subfloor_prep'} onToggle={toggleRowSelect} />
-                    </span>
-                    <span className="pr-3">
+                    <span className="pr-3 flex items-center">
+                      <RowCheckbox rowKey="fee-subfloor" />
                       <EditableCell
                         fieldKey="extras_subfloor_prep_desc"
                         value={subfloorPrepDesc}
@@ -1280,59 +1336,43 @@ export default function QuoteDetailCard({
                         <span style={{ color: TEAL, marginLeft: 4, fontSize: '0.75em' }}>✓</span>
                       )}
                     </span>
-                    <span className="flex items-center">
-                      <DeleteCell show={selectedRowKey === 'extras_subfloor_prep'} onDelete={() => deleteExtrasKey('subfloor_prep')} />
-                    </span>
                   </div>
                 )}
                 {(extrasJson.underlayment_per_sqft ?? 0) > 0 && adjustedSqft > 0 && (
                   <div
                     className="grid items-start px-2 py-2"
-                    style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a' }}
+                    style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-underlayment') ? 'rgba(13,148,136,0.06)' : undefined }}
                   >
-                    <span />
-                    <span className="pr-3">Underlayment</span>
+                    <span className="pr-3 flex items-center">
+                      <RowCheckbox rowKey="fee-underlayment" />
+                      <span>Underlayment</span>
+                    </span>
                     <span className="text-right tabular-nums">{fmtQty(adjustedSqft)}</span>
                     <span className="text-right tabular-nums">{fmtNumber(extrasJson.underlayment_per_sqft, 2)}</span>
                     <span className="text-right tabular-nums font-semibold">{fmtNumber(extrasJson.underlayment_per_sqft * adjustedSqft, 2)}</span>
-                    <span />
                   </div>
                 )}
                 {(extrasJson.transition_qty ?? 0) > 0 && (extrasJson.transition_unit ?? 0) > 0 && (
                   <div
                     className="grid items-center px-2 py-2"
-                    style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedRowKey === 'extras_transition' ? 'rgba(13,148,136,0.06)' : undefined }}
+                    style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-transition') ? 'rgba(13,148,136,0.06)' : undefined }}
                   >
-                    <span className="flex items-center justify-center">
-                      <RowSelector rowKey="extras_transition" selected={selectedRowKey === 'extras_transition'} onToggle={toggleRowSelect} />
+                    <span className="pr-3 flex items-center">
+                      <RowCheckbox rowKey="fee-transition" />
+                      <span>Transition strips</span>
                     </span>
-                    <span className="pr-3">Transition strips</span>
                     <span className="text-right tabular-nums">{fmtQty(extrasJson.transition_qty)}</span>
                     <span className="text-right tabular-nums">{fmtNumber(extrasJson.transition_unit, 2)}</span>
                     <span className="text-right tabular-nums font-semibold">{fmtNumber(extrasJson.transition_qty * extrasJson.transition_unit, 2)}</span>
-                    <span className="flex items-center">
-                      <DeleteCell show={selectedRowKey === 'extras_transition'} onDelete={() => {
-                        setSelectedRowKey(null)
-                        const newExtras = { ...extrasJson, transition_qty: 0, transition_unit: 0 }
-                        setExtrasJson(newExtras)
-                        fetch(`/api/quotes/${q.id}`, {
-                          method: 'PATCH',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ extras_json: newExtras }),
-                        }).catch(() => {})
-                      }} />
-                    </span>
                   </div>
                 )}
                 {(extrasJson.floor_protection ?? 0) > 0 && (
                   <div
                     className="grid items-center px-2 py-2"
-                    style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedRowKey === 'extras_floor_protection' ? 'rgba(13,148,136,0.06)' : undefined }}
+                    style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-floorprotection') ? 'rgba(13,148,136,0.06)' : undefined }}
                   >
-                    <span className="flex items-center justify-center">
-                      <RowSelector rowKey="extras_floor_protection" selected={selectedRowKey === 'extras_floor_protection'} onToggle={toggleRowSelect} />
-                    </span>
-                    <span className="pr-3">
+                    <span className="pr-3 flex items-center">
+                      <RowCheckbox rowKey="fee-floorprotection" />
                       <EditableCell
                         fieldKey="extras_floor_protection_desc"
                         value={floorProtectionDesc}
@@ -1361,20 +1401,15 @@ export default function QuoteDetailCard({
                         <span style={{ color: TEAL, marginLeft: 4, fontSize: '0.75em' }}>✓</span>
                       )}
                     </span>
-                    <span className="flex items-center">
-                      <DeleteCell show={selectedRowKey === 'extras_floor_protection'} onDelete={() => deleteExtrasKey('floor_protection')} />
-                    </span>
                   </div>
                 )}
                 {(extrasJson.disposal_fee ?? 0) > 0 && (
                   <div
                     className="grid items-center px-2 py-2"
-                    style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedRowKey === 'extras_disposal_fee' ? 'rgba(13,148,136,0.06)' : undefined }}
+                    style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-disposal') ? 'rgba(13,148,136,0.06)' : undefined }}
                   >
-                    <span className="flex items-center justify-center">
-                      <RowSelector rowKey="extras_disposal_fee" selected={selectedRowKey === 'extras_disposal_fee'} onToggle={toggleRowSelect} />
-                    </span>
-                    <span className="pr-3">
+                    <span className="pr-3 flex items-center">
+                      <RowCheckbox rowKey="fee-disposal" />
                       <EditableCell
                         fieldKey="extras_disposal_fee_desc"
                         value={disposalFeeDesc}
@@ -1402,9 +1437,6 @@ export default function QuoteDetailCard({
                       {saved === 'extras_disposal_fee' && (
                         <span style={{ color: TEAL, marginLeft: 4, fontSize: '0.75em' }}>✓</span>
                       )}
-                    </span>
-                    <span className="flex items-center">
-                      <DeleteCell show={selectedRowKey === 'extras_disposal_fee'} onDelete={() => deleteExtrasKey('disposal_fee')} />
                     </span>
                   </div>
                 )}
