@@ -80,7 +80,7 @@ export default function BillingSetupPage() {
       <div className="w-full max-w-2xl">
         {/* Logo */}
         <div className="text-center mb-8">
-          <Image src="/logo.png" alt="FloorQuote Pro" width={96} height={96} className="mx-auto mb-4" style={{ mixBlendMode: 'multiply' }} />
+          <Image src="/logo.png" alt="FloorQuote Pro" width={96} height={96} className="mx-auto mb-4 rounded-xl" />
           <h1 className="text-2xl font-bold text-gray-900">FloorQuote Pro</h1>
           <p className="text-gray-500 mt-1 text-sm">Choose a plan to keep quoting</p>
         </div>

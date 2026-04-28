@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   description: 'Professional flooring estimates in under 2 minutes',
   icons: {
     icon: [
-      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.png', type: 'image/png' },
       { url: '/logo.png', type: 'image/png' },
     ],
     apple: '/logo.png',
