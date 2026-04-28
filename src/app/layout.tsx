@@ -12,7 +12,10 @@ export const metadata: Metadata = {
   title: 'FloorQuote Pro',
   description: 'Professional flooring estimates in under 2 minutes',
   icons: {
-    icon: '/logo.png',
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/logo.png', type: 'image/png' },
+    ],
     apple: '/logo.png',
   },
 }
