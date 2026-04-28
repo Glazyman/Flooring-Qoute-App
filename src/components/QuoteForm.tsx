@@ -14,14 +14,21 @@ interface CustomerContact {
   address: string | null
 }
 
-const FLOORING_TYPES: { value: FlooringType; label: string }[] = [
-  { value: 'hardwood', label: 'Hardwood' },
-  { value: 'vinyl', label: 'Vinyl' },
-  { value: 'lvt', label: 'LVT' },
-  { value: 'tile', label: 'Tile' },
-  { value: 'carpet', label: 'Carpet' },
+const FLOORING_TYPES: { value: FlooringType; label: string; group?: string }[] = [
+  { value: 'unfinished',            label: 'Unfinished',              group: 'Hardwood' },
+  { value: 'prefinished',           label: 'Pre-Finished',            group: 'Hardwood' },
+  { value: 'engineered',            label: 'Engineered',              group: 'Hardwood' },
+  { value: 'prefinished_engineered',label: 'Pre-Finished Engineered', group: 'Hardwood' },
+  { value: 'unfinished_engineered', label: 'Unfinished Engineered',   group: 'Hardwood' },
+  { value: 'vinyl',    label: 'Vinyl / LVT' },
+  { value: 'tile',     label: 'Tile' },
+  { value: 'carpet',   label: 'Carpet' },
   { value: 'laminate', label: 'Laminate' },
 ]
+
+const FLOORING_LABEL: Record<FlooringType, string> = Object.fromEntries(
+  FLOORING_TYPES.map(f => [f.value, f.label])
+) as Record<FlooringType, string>
 
 const SECTIONS = ['Upstairs', 'Downstairs'] as const
 type Section = typeof SECTIONS[number]
@@ -141,6 +148,7 @@ export interface QuoteInitialData {
   deposit_pct?: number
   notes?: string | null
   valid_days?: number
+  section_flooring_types?: Record<string, FlooringType> | null
 }
 
 function initialRoomsFromData(data: QuoteInitialData): Room[] {
@@ -174,7 +182,21 @@ export default function QuoteForm({
   const [customerEmail, setCustomerEmail] = useState(initialData?.customer_email ?? '')
   const [jobAddress, setJobAddress] = useState(initialData?.job_address ?? '')
 
-  const [flooringType, setFlooringType] = useState<FlooringType>(initialData?.flooring_type ?? 'hardwood')
+  const [flooringType, setFlooringType] = useState<FlooringType>(initialData?.flooring_type ?? 'unfinished')
+
+  // Per-section flooring types
+  const [sectionFlooring, setSectionFlooring] = useState<Record<string, FlooringType>>(() => {
+    const saved = (initialData as unknown as { section_flooring_types?: Record<string, FlooringType> })?.section_flooring_types
+    if (saved && Object.keys(saved).length > 0) return saved
+    const base = initialData?.flooring_type ?? 'unfinished'
+    return { Upstairs: base, Downstairs: base }
+  })
+
+  function setSectionFlooringType(section: string, type: FlooringType) {
+    setSectionFlooring(prev => ({ ...prev, [section]: type }))
+    // keep top-level flooring_type in sync with Upstairs (used as primary)
+    if (section === 'Upstairs') setFlooringType(type)
+  }
   const [measurementType, setMeasurementType] = useState<MeasurementType>(initialData?.measurement_type ?? 'rooms')
   const [manualSqft, setManualSqft] = useState(initialData?.measurement_type === 'manual' ? String(initialData.base_sqft) : '')
   const [rooms, setRooms] = useState<Room[]>(initialData ? initialRoomsFromData(initialData) : [newRoom('Upstairs')])
@@ -376,6 +398,7 @@ export default function QuoteForm({
       customer_email: customerEmail || null,
       job_address: jobAddress || null,
       flooring_type: flooringType,
+      section_flooring_types: sectionFlooring,
       measurement_type: measurementType,
       base_sqft: baseSqft,
       waste_pct: n(wastePct),
@@ -505,18 +528,6 @@ export default function QuoteForm({
           {/* Project Settings */}
           <Card title="Project Settings">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
-              <div>
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
-                  Flooring Type <span className="text-red-500">*</span>
-                </label>
-                <select
-                  value={flooringType}
-                  onChange={(e) => setFlooringType(e.target.value as FlooringType)}
-                  className="w-full px-3.5 py-3.5 rounded-xl border text-[16px] bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"
-                >
-                  {FLOORING_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-                </select>
-              </div>
               <Input label="Waste %" value={wastePct} onChange={setWastePct} type="number" suffix="%" placeholder="10" decimal />
             </div>
 
@@ -581,24 +592,44 @@ export default function QuoteForm({
                     const sectionRooms = rooms.filter(r => r.section === section)
                     const sectionTotal = sectionRooms.reduce((s, r) => s + roomSqft(r), 0)
                     const isUp = section === 'Upstairs'
+                    const secFlooring = sectionFlooring[section] ?? 'unfinished'
 
                     return (
                       <div key={section} className="rounded-2xl overflow-hidden" style={{ border: `1px solid ${isUp ? '#99f6e4' : '#c7d2fe'}` }}>
                         {/* Section header */}
-                        <div className={`flex items-center justify-between px-4 py-3 ${isUp ? 'bg-teal-50' : 'bg-indigo-50'}`}>
-                          <div className="flex items-center gap-2">
-                            <span className={`text-xs font-bold uppercase tracking-widest ${isUp ? 'text-teal-700' : 'text-indigo-700'}`}>
-                              {section}
-                            </span>
-                            <span className={`text-xs ${isUp ? 'text-teal-500' : 'text-indigo-400'}`}>
-                              {sectionRooms.length} room{sectionRooms.length !== 1 ? 's' : ''}
-                            </span>
+                        <div className={`px-4 pt-3 pb-2 ${isUp ? 'bg-teal-50' : 'bg-indigo-50'}`}>
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className={`text-xs font-bold uppercase tracking-widest ${isUp ? 'text-teal-700' : 'text-indigo-700'}`}>
+                                {section}
+                              </span>
+                              <span className={`text-xs ${isUp ? 'text-teal-500' : 'text-indigo-400'}`}>
+                                {sectionRooms.length} room{sectionRooms.length !== 1 ? 's' : ''}
+                              </span>
+                            </div>
+                            {sectionTotal > 0 && (
+                              <span className={`text-xs font-bold ${isUp ? 'text-teal-700' : 'text-indigo-700'}`}>
+                                {sectionTotal.toFixed(1)} sqft
+                              </span>
+                            )}
                           </div>
-                          {sectionTotal > 0 && (
-                            <span className={`text-xs font-bold ${isUp ? 'text-teal-700' : 'text-indigo-700'}`}>
-                              {sectionTotal.toFixed(1)} sqft
-                            </span>
-                          )}
+                          {/* Flooring type selector per section */}
+                          <select
+                            value={secFlooring}
+                            onChange={e => setSectionFlooringType(section, e.target.value as FlooringType)}
+                            className={`w-full text-sm font-semibold rounded-xl px-3 py-2 border focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white ${isUp ? 'border-teal-200 text-teal-800' : 'border-indigo-200 text-indigo-800'}`}
+                          >
+                            <optgroup label="Hardwood">
+                              {FLOORING_TYPES.filter(t => t.group === 'Hardwood').map(t => (
+                                <option key={t.value} value={t.value}>{t.label}</option>
+                              ))}
+                            </optgroup>
+                            <optgroup label="Other">
+                              {FLOORING_TYPES.filter(t => !t.group).map(t => (
+                                <option key={t.value} value={t.value}>{t.label}</option>
+                              ))}
+                            </optgroup>
+                          </select>
                         </div>
 
                         {/* Room cards */}

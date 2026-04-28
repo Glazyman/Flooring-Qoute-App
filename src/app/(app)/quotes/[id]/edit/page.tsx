@@ -35,6 +35,7 @@ export default async function EditQuotePage({
     customer_email: q.customer_email,
     job_address: q.job_address,
     flooring_type: q.flooring_type,
+    section_flooring_types: q.section_flooring_types ?? null,
     measurement_type: q.measurement_type,
     base_sqft: q.base_sqft,
     waste_pct: q.waste_pct,

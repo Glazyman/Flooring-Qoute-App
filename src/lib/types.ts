@@ -27,7 +27,17 @@ export interface Invoice {
   created_at: string
 }
 export type MeasurementType = 'manual' | 'rooms'
-export type FlooringType = 'hardwood' | 'vinyl' | 'lvt' | 'tile' | 'carpet' | 'laminate'
+export type FlooringType =
+  | 'hardwood'
+  | 'unfinished'
+  | 'prefinished'
+  | 'engineered'
+  | 'prefinished_engineered'
+  | 'unfinished_engineered'
+  | 'vinyl'
+  | 'tile'
+  | 'carpet'
+  | 'laminate'
 
 export interface Profile {
   id: string
@@ -117,6 +127,7 @@ export interface Quote {
   status: QuoteStatus
   notes: string | null
   valid_days: number
+  section_flooring_types: Record<string, FlooringType> | null
   created_at: string
   updated_at: string
 }
