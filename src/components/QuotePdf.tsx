@@ -337,36 +337,52 @@ export function QuotePdfDocument({ quote: q, rooms, lineItems = [], settings }: 
       const baseSqft = roomsBySection[sectionName] ?? 0
       const adjSqft = baseSqft * wasteFactor
       const sp = sectionPricing[sectionName] || { material: 0, labor: 0 }
-      const rate = (Number(sp.material) || 0) + (Number(sp.labor) || 0)
-      const total = adjSqft * rate
+      const matRate = Number(sp.material) || 0
+      const labRate = Number(sp.labor) || 0
       const sectionType = q.section_flooring_types?.[sectionName]
       const sectionLabel = sectionType
         ? FLOORING_LABEL[sectionType] || sectionType
         : flooringTypeLabel(q.flooring_type, q.section_flooring_types)
       const baseDesc = q.material_description?.trim()
-      const description = baseDesc
-        ? `${sectionName} — ${baseDesc}`
-        : `${sectionName}: install and supply ${sectionLabel}`
+      // Material row
       rows.push({
-        description,
+        description: baseDesc
+          ? `${sectionName} — ${baseDesc}`
+          : `${sectionName}: supply ${sectionLabel}`,
         qty: fmtQty(adjSqft),
-        rate: fmtNumber(rate, 2),
-        total: fmtNumber(total, 2),
+        rate: fmtNumber(matRate, 2),
+        total: fmtNumber(adjSqft * matRate, 2),
       })
+      // Labor row
+      if (labRate > 0) {
+        rows.push({
+          description: `${sectionName}: labor / installation`,
+          qty: fmtQty(adjSqft),
+          rate: fmtNumber(labRate, 2),
+          total: fmtNumber(adjSqft * labRate, 2),
+        })
+      }
     })
   } else if (q.adjusted_sqft > 0) {
-    const combinedRate =
-      (Number(q.material_cost_per_sqft) || 0) +
-      (Number(q.labor_cost_per_sqft) || 0)
-    const combinedTotal =
-      (Number(q.material_total) || 0) + (Number(q.labor_total) || 0)
-    const description = q.material_description?.trim() || fallbackDescription(q)
+    const matRate = Number(q.material_cost_per_sqft) || 0
+    const labRate = Number(q.labor_cost_per_sqft) || 0
+    const materialDesc = q.material_description?.trim() || fallbackDescription(q)
+    // Material row
     rows.push({
-      description,
+      description: materialDesc,
       qty: fmtQty(q.adjusted_sqft),
-      rate: fmtNumber(combinedRate, 2),
-      total: fmtNumber(combinedTotal, 2),
+      rate: fmtNumber(matRate, 2),
+      total: fmtNumber(Number(q.material_total) || q.adjusted_sqft * matRate, 2),
     })
+    // Labor row
+    if (labRate > 0) {
+      rows.push({
+        description: 'Labor / installation',
+        qty: fmtQty(q.adjusted_sqft),
+        rate: fmtNumber(labRate, 2),
+        total: fmtNumber(Number(q.labor_total) || q.adjusted_sqft * labRate, 2),
+      })
+    }
   }
 
   // Quote line items.
