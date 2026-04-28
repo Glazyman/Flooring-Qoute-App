@@ -33,7 +33,7 @@ export default async function QuotesPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight" style={{ color: 'var(--text)' }}>All Quotes</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight" style={{ color: 'var(--text)' }}>Estimates</h1>
           <p className="text-sm font-medium mt-0.5" style={{ color: 'var(--text-2)' }}>
             {quotes?.length || 0} quote{quotes?.length !== 1 ? 's' : ''} total
           </p>

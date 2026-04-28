@@ -20,7 +20,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/quotes', label: 'All Quotes', icon: FileText },
+  { href: '/quotes', label: 'Estimates', icon: FileText },
   { href: '/measurements', label: 'Saved Measurements', icon: Ruler },
   { href: '/invoices', label: 'Invoices', icon: Receipt },
   { href: '/contacts', label: 'Contacts', icon: Users },

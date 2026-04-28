@@ -36,7 +36,7 @@ export default async function MeasurementsPage() {
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight" style={{ color: 'var(--text)' }}>Saved Measurements</h1>
           <p className="text-sm mt-0.5" style={{ color: 'var(--text-2)' }}>
-            {list.length} measurement{list.length !== 1 ? 's' : ''} — approve to move to All Quotes
+            {list.length} measurement{list.length !== 1 ? 's' : ''} — approve to move to Estimates
           </p>
         </div>
         <Link
