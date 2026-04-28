@@ -188,21 +188,21 @@ export default function AppNavigation({
 
       {/* Mobile header */}
       <header
-        className="lg:hidden fixed top-0 left-0 right-0 h-12 flex items-center justify-between px-4 z-30"
+        className="lg:hidden fixed top-0 left-0 right-0 h-16 flex items-center justify-between px-4 z-30"
         style={{ background: 'var(--sidebar-bg)', borderBottom: '1px solid var(--sidebar-border)', paddingTop: 'env(safe-area-inset-top)' }}
       >
         <button
           onClick={() => setMobileOpen(true)}
-          className="w-11 h-11 flex items-center justify-center -ml-2 rounded-md"
+          className="w-12 h-12 flex items-center justify-center -ml-2 rounded-md"
           style={{ color: 'rgba(255,255,255,0.6)' }}
         >
-          <Menu className="w-5 h-5" />
+          <Menu className="w-6 h-6" />
         </button>
-        <div className="flex items-center gap-2">
-          <Image src="/logo.png" alt="FloorQuote Pro" width={24} height={24} className="rounded-md" />
-          <span className="font-bold text-sm" style={{ color: 'rgba(255,255,255,0.9)' }}>FloorQuote Pro</span>
+        <div className="flex items-center gap-2.5">
+          <Image src="/logo.png" alt="FloorQuote Pro" width={28} height={28} className="rounded-md" />
+          <span className="font-bold text-base" style={{ color: 'rgba(255,255,255,0.9)' }}>FloorQuote Pro</span>
         </div>
-        <div className="w-9" />
+        <div className="w-12" />
       </header>
 
 
