@@ -89,42 +89,15 @@ export default function HelpPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-6">
       {/* Header */}
-      <div>
+      <div className="text-center">
         <h1 className="text-2xl font-extrabold tracking-tight" style={{ color: 'var(--text)' }}>Help & Support</h1>
         <p className="text-sm mt-0.5" style={{ color: 'var(--text-2)' }}>We reply within 1 business day</p>
       </div>
 
-      {/* Contact link */}
-      <a
-        href="#contact"
-        className="flex items-center gap-3 bg-white rounded-xl px-4 py-3 hover:bg-gray-50 transition-colors"
-        style={{ border: '1px solid var(--border)' }}
-      >
-        <div
-          className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-          style={{ background: 'var(--primary-light)' }}
-        >
-          <MessageSquare className="w-4 h-4" style={{ color: 'var(--primary)' }} />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold" style={{ color: 'var(--text)' }}>Contact Us</p>
-          <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>Send a message — we reply within 1 business day</p>
-        </div>
-      </a>
-
-      {/* FAQ */}
-      <div id="faq" className="bg-white rounded-xl px-5" style={{ border: '1px solid var(--border)' }}>
-        <div className="flex items-center gap-2 py-4 border-b" style={{ borderColor: 'var(--border)' }}>
-          <HelpCircle className="w-4 h-4" style={{ color: 'var(--primary)' }} />
-          <h2 className="text-sm font-bold uppercase tracking-wide" style={{ color: 'var(--text)' }}>Frequently Asked Questions</h2>
-        </div>
-        {FAQS.map(faq => <FAQ key={faq.q} {...faq} />)}
-      </div>
-
       {/* Contact form */}
-      <div id="contact" className="bg-white rounded-xl p-5" style={{ border: '1px solid var(--border)' }}>
+      <div className="bg-white rounded-xl p-5 lg:p-6" style={{ border: '1px solid var(--border)' }}>
         <div className="flex items-center gap-2 mb-5">
           <MessageSquare className="w-4 h-4" style={{ color: 'var(--primary)' }} />
           <h2 className="text-sm font-bold uppercase tracking-wide" style={{ color: 'var(--text)' }}>Send Us a Message</h2>
@@ -200,6 +173,15 @@ export default function HelpPage() {
             </button>
           </form>
         )}
+      </div>
+
+      {/* FAQ */}
+      <div className="bg-white rounded-xl px-5" style={{ border: '1px solid var(--border)' }}>
+        <div className="flex items-center gap-2 py-4 border-b" style={{ borderColor: 'var(--border)' }}>
+          <HelpCircle className="w-4 h-4" style={{ color: 'var(--primary)' }} />
+          <h2 className="text-sm font-bold uppercase tracking-wide" style={{ color: 'var(--text)' }}>Frequently Asked Questions</h2>
+        </div>
+        {FAQS.map(faq => <FAQ key={faq.q} {...faq} />)}
       </div>
     </div>
   )
