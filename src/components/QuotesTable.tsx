@@ -3,8 +3,9 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { fmt } from '@/lib/calculations'
+import { flooringTypeLabel } from '@/lib/flooringLabels'
 import type { Quote, QuoteStatus } from '@/lib/types'
-import { Trash2, Square, CheckSquare } from 'lucide-react'
+import { Trash2, Square, CheckSquare, Search, X } from 'lucide-react'
 
 interface QuotesTableProps {
   quotes: Quote[]
@@ -30,12 +31,18 @@ function StatusBadge({ status }: { status: QuoteStatus }) {
 
 const avatarColor = '#1c1c1e'
 
+type StatusFilter = 'all' | QuoteStatus
+
 export default function QuotesTable({ quotes }: QuotesTableProps) {
   const router = useRouter()
   const [updating, setUpdating] = useState<string | null>(null)
   const [deleting, setDeleting] = useState<string | null>(null)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
   const [localQuotes, setLocalQuotes] = useState(quotes)
+
+  // Filter state
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
 
   // Bulk state
   const [selecting, setSelecting] = useState(false)
@@ -78,7 +85,7 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
   }
 
   function toggleAll() {
-    setSelected(prev => prev.size === localQuotes.length ? new Set() : new Set(localQuotes.map(q => q.id)))
+    setSelected(prev => prev.size === filteredQuotes.length ? new Set() : new Set(filteredQuotes.map(q => q.id)))
   }
 
   function exitSelect() {
@@ -113,8 +120,21 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
     setWorking(false)
   }
 
+  const q = search.trim().toLowerCase()
+  const filteredQuotes = localQuotes.filter(quote => {
+    if (statusFilter !== 'all' && quote.status !== statusFilter) return false
+    if (!q) return true
+    const label = flooringTypeLabel(quote.flooring_type, quote.section_flooring_types).toLowerCase()
+    return (
+      quote.customer_name.toLowerCase().includes(q) ||
+      (quote.job_address || '').toLowerCase().includes(q) ||
+      label.includes(q) ||
+      (quote.flooring_type || '').toLowerCase().includes(q)
+    )
+  })
+
   const selCount = selected.size
-  const allSelected = localQuotes.length > 0 && selCount === localQuotes.length
+  const allSelected = filteredQuotes.length > 0 && selCount === filteredQuotes.length
 
   if (localQuotes.length === 0) {
     return (
@@ -185,6 +205,41 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
           </div>
         </div>
       )}
+
+      {/* Search + filter pills */}
+      <div className="flex flex-col sm:flex-row gap-2">
+        <div className="flex items-center gap-2 bg-white rounded-xl px-3.5 py-2 flex-1" style={{ border: '1px solid var(--border)' }}>
+          <Search className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--text-3)' }} />
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search by customer, address, type…"
+            className="flex-1 text-sm focus:outline-none bg-transparent"
+            style={{ color: 'var(--text)' }}
+          />
+          {search && (
+            <button onClick={() => setSearch('')} className="text-gray-300 hover:text-gray-500" type="button">
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+        <div className="flex gap-1 rounded-xl p-1" style={{ background: '#f9f9fb', border: '1px solid var(--border)' }}>
+          {(['all', 'pending', 'accepted', 'lost'] as StatusFilter[]).map(f => (
+            <button
+              key={f}
+              type="button"
+              onClick={() => setStatusFilter(f)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-colors ${
+                statusFilter === f ? 'bg-white text-teal-700' : 'text-gray-500 hover:text-gray-700'
+              }`}
+              style={statusFilter === f ? { boxShadow: '0 1px 2px rgba(0,0,0,0.04)' } : undefined}
+            >
+              {f === 'all' ? 'All' : f}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* Select / select-all / bulk toolbar */}
       <div className="flex items-center gap-2 flex-wrap">
@@ -268,14 +323,14 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
             </tr>
           </thead>
           <tbody>
-            {localQuotes.map((q, idx) => {
+            {filteredQuotes.map((q, idx) => {
               const isSelected = selected.has(q.id)
               return (
                 <tr
                   key={q.id}
                   className="transition-colors hover:bg-gray-50"
                   style={{
-                    borderBottom: idx < localQuotes.length - 1 ? '1px solid var(--border)' : 'none',
+                    borderBottom: idx < filteredQuotes.length - 1 ? '1px solid var(--border)' : 'none',
                     background: isSelected ? '#f0fdf4' : undefined,
                   }}
                 >
@@ -294,7 +349,7 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
                     {q.job_address && <p className="text-xs truncate max-w-44 mt-0.5" style={{ color: 'var(--text-3)' }}>{q.job_address}</p>}
                   </td>
                   <td className="px-5 py-3.5">
-                    <span className="capitalize text-sm" style={{ color: 'var(--text-2)' }}>{q.flooring_type}</span>
+                    <span className="text-sm" style={{ color: 'var(--text-2)' }}>{flooringTypeLabel(q.flooring_type, q.section_flooring_types)}</span>
                   </td>
                   <td className="px-5 py-3.5 text-sm" style={{ color: 'var(--text-2)' }}>
                     {Math.round(q.adjusted_sqft).toLocaleString()} sqft
@@ -339,14 +394,14 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
 
       {/* Mobile rows */}
       <div className="md:hidden bg-white rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
-        {localQuotes.map((q, idx) => {
+        {filteredQuotes.map((q, idx) => {
           const isSelected = selected.has(q.id)
           return (
             <div
               key={q.id}
               className="transition-colors"
               style={{
-                borderBottom: idx < localQuotes.length - 1 ? '1px solid var(--border)' : 'none',
+                borderBottom: idx < filteredQuotes.length - 1 ? '1px solid var(--border)' : 'none',
                 background: isSelected ? '#F0FDFA' : undefined,
               }}
             >
@@ -358,8 +413,8 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
                   }
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-sm" style={{ color: 'var(--text)' }}>{q.customer_name}</p>
-                    <p className="text-xs mt-0.5 capitalize" style={{ color: 'var(--text-2)' }}>
-                      {q.flooring_type} · {Math.round(q.adjusted_sqft).toLocaleString()} sqft
+                    <p className="text-xs mt-0.5" style={{ color: 'var(--text-2)' }}>
+                      {flooringTypeLabel(q.flooring_type, q.section_flooring_types)} · {Math.round(q.adjusted_sqft).toLocaleString()} sqft
                     </p>
                   </div>
                   <div className="text-right flex-shrink-0">
@@ -371,8 +426,8 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
                 <div className="flex items-center px-4 py-3 gap-3">
                   <button onClick={() => router.push(`/quotes/${q.id}`)} className="flex-1 min-w-0 text-left">
                     <p className="font-semibold text-sm" style={{ color: 'var(--text)' }}>{q.customer_name}</p>
-                    <p className="text-xs mt-0.5 capitalize" style={{ color: 'var(--text-2)' }}>
-                      {q.flooring_type} · {Math.round(q.adjusted_sqft).toLocaleString()} sqft
+                    <p className="text-xs mt-0.5" style={{ color: 'var(--text-2)' }}>
+                      {flooringTypeLabel(q.flooring_type, q.section_flooring_types)} · {Math.round(q.adjusted_sqft).toLocaleString()} sqft
                     </p>
                   </button>
                   <div className="text-right flex-shrink-0 mr-1">

@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import SettingsForm from '@/components/SettingsForm'
 import type { CompanySettings } from '@/lib/types'
@@ -17,6 +18,12 @@ const DEFAULT_SETTINGS: CompanySettings = {
   default_deposit_pct: 50,
   default_tax_pct: 0,
   material_prices_by_type: null,
+  payment_terms: null,
+  quote_number_prefix: null,
+  invoice_number_prefix: null,
+  next_quote_number: 1,
+  next_invoice_number: 1,
+  default_quote_valid_days: 30,
 }
 
 export default async function SettingsPage() {
@@ -42,16 +49,18 @@ export default async function SettingsPage() {
     .single()
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-        <p className="text-sm text-gray-400 mt-0.5">
+        <h1 className="text-2xl font-extrabold tracking-tight" style={{ color: 'var(--text)' }}>Settings</h1>
+        <p className="text-sm mt-0.5" style={{ color: 'var(--text-2)' }}>
           Configure your company info and default quote values
         </p>
       </div>
-      <SettingsForm
-        settings={(settings as CompanySettings) || { ...DEFAULT_SETTINGS, company_id: membership.company_id }}
-      />
+      <Suspense fallback={<p className="text-sm" style={{ color: 'var(--text-2)' }}>Loading…</p>}>
+        <SettingsForm
+          settings={(settings as CompanySettings) || { ...DEFAULT_SETTINGS, company_id: membership.company_id }}
+        />
+      </Suspense>
     </div>
   )
 }

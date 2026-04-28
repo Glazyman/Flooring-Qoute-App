@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { fmt } from '@/lib/calculations'
+import { flooringTypeLabel } from '@/lib/flooringLabels'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,7 +16,7 @@ export default async function DashboardPage() {
 
   const { data: allQuotes = [] } = await supabase
     .from('quotes')
-    .select('id, status, final_total, created_at, customer_name, job_address, flooring_type')
+    .select('id, status, final_total, created_at, customer_name, job_address, flooring_type, section_flooring_types')
     .eq('company_id', membership.company_id)
     .neq('status', 'measurement')
     .order('created_at', { ascending: false })
@@ -45,12 +46,12 @@ export default async function DashboardPage() {
 
       {/* 4 stat tiles */}
       {(() => {
-        const avgValue = total > 0 ? revenue / total : 0
+        const avgAccepted = accepted.length > 0 ? revenue / accepted.length : 0
         const tiles = [
-          { label: 'Total Quotes',    value: String(total),           sub: null },
-          { label: 'Accepted',        value: String(accepted.length), sub: `${pending.length} pending` },
-          { label: 'Revenue Won',     value: fmt(revenue),            sub: null },
-          { label: 'Avg Quote Value', value: fmt(avgValue),           sub: null },
+          { label: 'Total Quotes',       value: String(total),           sub: null },
+          { label: 'Accepted',           value: String(accepted.length), sub: `${pending.length} pending` },
+          { label: 'Revenue Won',        value: fmt(revenue),            sub: null },
+          { label: 'Avg Accepted Value', value: fmt(avgAccepted),        sub: null },
         ]
         return (
           <div className="grid grid-cols-2 gap-3">
@@ -93,7 +94,7 @@ export default async function DashboardPage() {
                 >
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold truncate" style={{ color: 'var(--text)' }}>{q.customer_name}</p>
-                    <p className="text-xs truncate capitalize mt-0.5" style={{ color: 'var(--text-2)' }}>{q.flooring_type} · {q.job_address || date}</p>
+                    <p className="text-xs truncate mt-0.5" style={{ color: 'var(--text-2)' }}>{flooringTypeLabel(q.flooring_type, q.section_flooring_types as Record<string, string> | null)} · {q.job_address || date}</p>
                   </div>
                   <div className="text-right flex-shrink-0">
                     <p className="text-sm font-bold" style={{ color: 'var(--text)' }}>{fmt(q.final_total)}</p>

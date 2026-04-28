@@ -1,5 +1,5 @@
 export type QuoteStatus = 'measurement' | 'pending' | 'accepted' | 'lost'
-export type InvoiceStatus = 'draft' | 'sent' | 'paid'
+export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'overdue' | 'void'
 
 export interface InvoiceLineItem {
   description: string
@@ -27,6 +27,9 @@ export interface Invoice {
   created_at: string
 }
 export type MeasurementType = 'manual' | 'rooms'
+// Note: 'hardwood' is kept for backward compat with legacy quote records,
+// but it is no longer offered as a selectable type in either Settings or
+// the QuoteForm. New quotes must use one of the more specific types.
 export type FlooringType =
   | 'hardwood'
   | 'unfinished'
@@ -77,6 +80,12 @@ export interface CompanySettings {
   default_deposit_pct: number
   default_tax_pct: number
   material_prices_by_type: Record<string, { material: number; labor: number }> | null
+  payment_terms: string | null
+  quote_number_prefix: string | null
+  invoice_number_prefix: string | null
+  next_quote_number: number | null
+  next_invoice_number: number | null
+  default_quote_valid_days: number | null
 }
 
 export interface QuoteRoom {
@@ -130,6 +139,8 @@ export interface Quote {
   notes: string | null
   valid_days: number
   section_flooring_types: Record<string, FlooringType> | null
+  extras_json: Record<string, number> | null
+  quote_number: string | null
   created_at: string
   updated_at: string
 }

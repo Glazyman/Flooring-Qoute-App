@@ -36,6 +36,10 @@ export async function PUT(request: NextRequest) {
         default_deposit_pct: body.default_deposit_pct,
         default_tax_pct: body.default_tax_pct ?? 0,
         material_prices_by_type: body.material_prices_by_type ?? {},
+        payment_terms: body.payment_terms ?? null,
+        quote_number_prefix: body.quote_number_prefix ?? null,
+        invoice_number_prefix: body.invoice_number_prefix ?? null,
+        default_quote_valid_days: body.default_quote_valid_days ?? 30,
         updated_at: new Date().toISOString(),
       },
       { onConflict: 'company_id' }

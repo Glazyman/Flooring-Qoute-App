@@ -4,10 +4,10 @@ import {
   Text,
   View,
   StyleSheet,
-  Font,
   Image,
 } from '@react-pdf/renderer'
 import type { Quote, QuoteRoom, CompanySettings } from '@/lib/types'
+import { flooringTypeLabel } from '@/lib/flooringLabels'
 
 const styles = StyleSheet.create({
   page: {
@@ -274,7 +274,7 @@ export function QuotePdfDocument({ quote: q, rooms, settings }: QuotePdfDocument
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Flooring Type</Text>
               <Text style={styles.infoValue}>
-                {q.flooring_type.charAt(0).toUpperCase() + q.flooring_type.slice(1)}
+                {flooringTypeLabel(q.flooring_type, q.section_flooring_types)}
               </Text>
             </View>
             {q.wood_species && (
@@ -393,6 +393,21 @@ export function QuotePdfDocument({ quote: q, rooms, settings }: QuotePdfDocument
               <Text style={styles.lineValue}>{fmt(q.custom_fee_amount)}</Text>
             </View>
           )}
+          {(() => {
+            const ex = (q.extras_json || {}) as Record<string, number>
+            const lines: { label: string; value: number }[] = []
+            if (ex.subfloor_prep > 0) lines.push({ label: 'Subfloor Prep', value: ex.subfloor_prep })
+            if (ex.underlayment_per_sqft > 0) lines.push({ label: `Underlayment ($${ex.underlayment_per_sqft}/sqft)`, value: ex.underlayment_per_sqft * q.adjusted_sqft })
+            if (ex.transition_qty > 0 && ex.transition_unit > 0) lines.push({ label: `Transition Strips (${ex.transition_qty} × $${ex.transition_unit})`, value: ex.transition_qty * ex.transition_unit })
+            if (ex.floor_protection > 0) lines.push({ label: 'Floor Protection', value: ex.floor_protection })
+            if (ex.disposal_fee > 0) lines.push({ label: 'Disposal / Dump Fee', value: ex.disposal_fee })
+            return lines.map((it, i) => (
+              <View key={i} style={styles.lineRow}>
+                <Text style={styles.lineLabel}>{it.label}</Text>
+                <Text style={styles.lineValue}>{fmt(it.value)}</Text>
+              </View>
+            ))
+          })()}
 
           <View style={styles.divider} />
           <View style={styles.lineRow}>
@@ -408,7 +423,7 @@ export function QuotePdfDocument({ quote: q, rooms, settings }: QuotePdfDocument
           )}
           {q.markup_amount > 0 && (
             <View style={styles.lineRow}>
-              <Text style={styles.lineLabel}>Markup ({q.markup_pct}%)</Text>
+              <Text style={styles.lineLabel}>Profit ({q.markup_pct}%)</Text>
               <Text style={styles.lineValue}>{fmt(q.markup_amount)}</Text>
             </View>
           )}
@@ -430,6 +445,16 @@ export function QuotePdfDocument({ quote: q, rooms, settings }: QuotePdfDocument
             </View>
           </View>
         </View>
+
+        {/* Payment Terms */}
+        {settings?.payment_terms && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Payment Terms</Text>
+            <View style={styles.notesBox}>
+              <Text style={styles.notesText}>{settings.payment_terms}</Text>
+            </View>
+          </View>
+        )}
 
         {/* Notes */}
         {q.notes && (

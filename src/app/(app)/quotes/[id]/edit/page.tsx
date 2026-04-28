@@ -18,10 +18,10 @@ export default async function EditQuotePage({
     .from('company_members').select('company_id').eq('user_id', user.id).single()
   if (!membership) redirect('/billing/setup')
 
-  const [{ data: quote }, { data: rooms }, { data: company }] = await Promise.all([
+  const [{ data: quote }, { data: rooms }, { data: settingsRow }] = await Promise.all([
     supabase.from('quotes').select('*').eq('id', id).eq('company_id', membership.company_id).single(),
     supabase.from('quote_rooms').select('*').eq('quote_id', id).order('id'),
-    supabase.from('companies').select('default_waste_pct, default_material_cost, default_labor_cost, default_markup_pct, default_deposit_pct').eq('id', membership.company_id).single(),
+    supabase.from('company_settings').select('*').eq('company_id', membership.company_id).single(),
   ])
 
   if (!quote) notFound()
@@ -60,23 +60,10 @@ export default async function EditQuotePage({
     deposit_pct: q.deposit_pct,
     notes: q.notes,
     valid_days: q.valid_days,
+    extras_json: q.extras_json ?? null,
   }
 
-  const settings: CompanySettings | null = company ? {
-    company_id: membership.company_id,
-    company_name: '',
-    phone: null,
-    email: null,
-    logo_url: null,
-    website: null,
-    default_waste_pct: company.default_waste_pct,
-    default_material_cost: company.default_material_cost,
-    default_labor_cost: company.default_labor_cost,
-    default_markup_pct: company.default_markup_pct,
-    default_deposit_pct: company.default_deposit_pct,
-    default_tax_pct: (company as unknown as { default_tax_pct?: number }).default_tax_pct ?? 0,
-    material_prices_by_type: (company as unknown as { material_prices_by_type?: Record<string, { material: number; labor: number }> }).material_prices_by_type ?? null,
-  } : null
+  const settings: CompanySettings | null = (settingsRow as CompanySettings | null) ?? null
 
   const isMeasurement = q.status === 'measurement'
 

@@ -12,7 +12,8 @@ function buildHtmlBody(
   q: Quote,
   companyName: string,
   companyEmail: string | null,
-  companyPhone: string | null
+  companyPhone: string | null,
+  paymentTerms: string | null
 ): string {
   const fmt = (n: number) =>
     new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n)
@@ -68,6 +69,12 @@ function buildHtmlBody(
                 <td style="padding:12px 16px;color:#111;">${q.valid_days} days</td>
               </tr>
             </table>
+
+            ${paymentTerms ? `
+            <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:14px 18px;margin-bottom:24px;">
+              <p style="margin:0 0 6px;font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;">Payment Terms</p>
+              <p style="margin:0;color:#374151;font-size:14px;line-height:1.5;white-space:pre-wrap;">${paymentTerms.replace(/</g, '&lt;')}</p>
+            </div>` : ''}
 
             <p style="margin:0 0 24px;color:#444;line-height:1.6;">
               If you have any questions or would like to move forward, please don't hesitate to reach out.
@@ -150,10 +157,11 @@ export async function POST(
   const companyName = s?.company_name || 'Your Flooring Contractor'
   const companyEmail = s?.email || null
   const companyPhone = s?.phone || null
+  const paymentTerms = s?.payment_terms || null
 
   const safeName = q.customer_name.replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '-')
   const subject = `Your Flooring Estimate – ${q.customer_name}`
-  const htmlBody = buildHtmlBody(q, companyName, companyEmail, companyPhone)
+  const htmlBody = buildHtmlBody(q, companyName, companyEmail, companyPhone, paymentTerms)
 
   // Generate PDF
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

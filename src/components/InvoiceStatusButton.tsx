@@ -8,6 +8,8 @@ const NEXT_STATUS: Record<InvoiceStatus, { label: string; next: InvoiceStatus } 
   draft: { label: 'Mark as Sent', next: 'sent' },
   sent: { label: 'Mark as Paid', next: 'paid' },
   paid: null,
+  overdue: { label: 'Mark as Paid', next: 'paid' },
+  void: null,
 }
 
 export default function InvoiceStatusButton({

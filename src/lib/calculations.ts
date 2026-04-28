@@ -1,3 +1,12 @@
+export interface QuoteExtras {
+  subfloor_prep?: number
+  underlayment_per_sqft?: number
+  transition_qty?: number
+  transition_unit?: number
+  floor_protection?: number
+  disposal_fee?: number
+}
+
 export interface QuoteInputs {
   base_sqft: number
   waste_pct: number
@@ -17,6 +26,8 @@ export interface QuoteInputs {
   // Optional overrides for per-section pricing
   material_total_override?: number
   labor_total_override?: number
+  // Optional extras (jsonb-backed). All multiplied/included into extras_total when present.
+  extras?: QuoteExtras | null
 }
 
 export interface QuoteCalculations {
@@ -36,6 +47,9 @@ export function calculateQuote(inputs: QuoteInputs): QuoteCalculations {
   const adjusted_sqft = inputs.base_sqft * (1 + inputs.waste_pct / 100)
   const material_total = inputs.material_total_override ?? adjusted_sqft * inputs.material_cost_per_sqft
   const labor_total = inputs.labor_total_override ?? adjusted_sqft * inputs.labor_cost_per_sqft
+  const ex = inputs.extras || {}
+  const underlaymentTotal = (ex.underlayment_per_sqft || 0) * adjusted_sqft
+  const transitionTotal = (ex.transition_qty || 0) * (ex.transition_unit || 0)
   const extras_total =
     (inputs.removal_fee || 0) +
     (inputs.furniture_fee || 0) +
@@ -43,7 +57,12 @@ export function calculateQuote(inputs: QuoteInputs): QuoteCalculations {
     (inputs.delivery_fee || 0) +
     (inputs.quarter_round_fee || 0) +
     (inputs.reducers_fee || 0) +
-    (inputs.custom_fee_amount || 0)
+    (inputs.custom_fee_amount || 0) +
+    (ex.subfloor_prep || 0) +
+    underlaymentTotal +
+    transitionTotal +
+    (ex.floor_protection || 0) +
+    (ex.disposal_fee || 0)
   const subtotal = material_total + labor_total + extras_total
   const tax_amount = inputs.tax_enabled ? subtotal * (inputs.tax_pct / 100) : 0
   const markup_amount = subtotal * (inputs.markup_pct / 100)

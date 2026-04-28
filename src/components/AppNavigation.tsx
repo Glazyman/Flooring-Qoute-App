@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import {
   LayoutDashboard, FileText, PlusCircle, Settings,
-  LogOut, CreditCard, Menu, X, HelpCircle, Users, Receipt, Ruler, ChevronDown,
+  LogOut, CreditCard, Menu, X, HelpCircle, Users, Receipt, Ruler,
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -86,15 +86,19 @@ export default function AppNavigation({
 
       {/* Company header */}
       <div className="px-3 mb-4">
-        <button className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md hover:bg-white/5 transition-colors text-left">
+        <div className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md text-left">
           <div className="w-6 h-6 rounded-md overflow-hidden flex-shrink-0 flex items-center justify-center text-white text-[10px] font-bold" style={{ background: '#0D9488' }}>
             {logoUrl
               ? <img src={logoUrl} alt={companyName} className="w-full h-full object-cover" />
               : initials}
           </div>
-          <span className="flex-1 text-[13px] font-semibold truncate" style={{ color: 'rgba(255,255,255,0.9)' }}>{companyName}</span>
-          <ChevronDown className="w-3 h-3 flex-shrink-0" style={{ color: 'rgba(255,255,255,0.3)' }} />
-        </button>
+          <div className="flex-1 min-w-0">
+            <p className="text-[13px] font-semibold truncate" style={{ color: 'rgba(255,255,255,0.9)' }}>{companyName}</p>
+            {website && (
+              <p className="text-[11px] truncate -mt-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>{website}</p>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* New Quote CTA */}
