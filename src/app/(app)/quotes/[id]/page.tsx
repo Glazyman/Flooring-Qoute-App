@@ -2,8 +2,7 @@ import { redirect, notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { fmt } from '@/lib/calculations'
-import { flooringTypeLabel } from '@/lib/flooringLabels'
-import { formatExpiration } from '@/lib/format'
+import { flooringTypeLabel, FLOORING_LABEL } from '@/lib/flooringLabels'
 import type { Quote, QuoteRoom, QuoteLineItem, CompanySettings } from '@/lib/types'
 import DuplicateButton from '@/components/DuplicateButton'
 import EmailQuoteButton from '@/components/EmailQuoteButton'
@@ -18,7 +17,203 @@ const STATUS_CONFIG: Record<string, { bg: string; text: string; label: string }>
   lost: { bg: '#fef2f2', text: '#dc2626', label: 'Lost' },
 }
 
-const cardStyle = { border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }
+const BAND_BG = '#94a3b8'
+const FRAME_BORDER = '1px solid #0f172a'
+const ROW_BORDER = '0.5px solid #e2e8f0'
+
+interface ItemRow {
+  description: string
+  qty?: string
+  rate?: string
+  total?: string
+}
+
+function fmtNumber(value: number, decimals = 2): string {
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  }).format(value)
+}
+
+function fmtQty(value: number): string {
+  const rounded = Math.round(value * 100) / 100
+  if (Number.isInteger(rounded)) {
+    return new Intl.NumberFormat('en-US').format(rounded)
+  }
+  return fmtNumber(rounded, 2)
+}
+
+function buildRows(
+  q: Quote,
+  rooms: QuoteRoom[],
+  lineItems: QuoteLineItem[],
+): ItemRow[] {
+  const rows: ItemRow[] = []
+  const sectionPricing =
+    (q as unknown as {
+      section_pricing?: Record<string, { material: number; labor: number }> | null
+    }).section_pricing ?? null
+
+  const sectionKeys = sectionPricing ? Object.keys(sectionPricing) : []
+  const roomsBySection: Record<string, number> = {}
+  rooms.forEach((r) => {
+    const key = r.section || 'Main Floor'
+    roomsBySection[key] = (roomsBySection[key] ?? 0) + (Number(r.sqft) || 0)
+  })
+
+  const canRenderPerSection =
+    sectionKeys.length > 1 &&
+    sectionKeys.every((k) => (roomsBySection[k] ?? 0) > 0)
+
+  if (canRenderPerSection && sectionPricing) {
+    const wasteFactor = 1 + (Number(q.waste_pct) || 0) / 100
+    sectionKeys.forEach((sectionName) => {
+      const baseSqft = roomsBySection[sectionName] ?? 0
+      const adjSqft = baseSqft * wasteFactor
+      const sp = sectionPricing[sectionName] || { material: 0, labor: 0 }
+      const rate = (Number(sp.material) || 0) + (Number(sp.labor) || 0)
+      const total = adjSqft * rate
+      const sectionType = q.section_flooring_types?.[sectionName]
+      const sectionLabel = sectionType
+        ? FLOORING_LABEL[sectionType] || sectionType
+        : flooringTypeLabel(q.flooring_type, q.section_flooring_types)
+      const baseDesc = q.material_description?.trim()
+      const description = baseDesc
+        ? `${sectionName} — ${baseDesc}`
+        : `${sectionName}: install and supply ${sectionLabel}`
+      rows.push({
+        description,
+        qty: fmtQty(adjSqft),
+        rate: fmtNumber(rate, 2),
+        total: fmtNumber(total, 2),
+      })
+    })
+  } else if (q.adjusted_sqft > 0) {
+    const combinedRate =
+      (Number(q.material_cost_per_sqft) || 0) +
+      (Number(q.labor_cost_per_sqft) || 0)
+    const combinedTotal =
+      (Number(q.material_total) || 0) + (Number(q.labor_total) || 0)
+    const flooringLabel =
+      flooringTypeLabel(q.flooring_type, q.section_flooring_types) || 'flooring'
+    const description =
+      q.material_description?.trim() || `Install and supply ${flooringLabel}`
+    rows.push({
+      description,
+      qty: fmtQty(q.adjusted_sqft),
+      rate: fmtNumber(combinedRate, 2),
+      total: fmtNumber(combinedTotal, 2),
+    })
+  }
+
+  lineItems.forEach((li) => {
+    const qty = Number(li.qty) || 0
+    const rate = Number(li.unit_price) || 0
+    const total = Number(li.total) || qty * rate
+    rows.push({
+      description: li.description?.trim() || '—',
+      qty: qty > 0 ? fmtQty(qty) : '',
+      rate: fmtNumber(rate, 2),
+      total: fmtNumber(total, 2),
+    })
+  })
+
+  if (q.removal_fee > 0) {
+    rows.push({
+      description: 'Removal of existing flooring',
+      rate: fmtNumber(q.removal_fee, 2),
+      total: fmtNumber(q.removal_fee, 2),
+    })
+  }
+  if (q.furniture_fee > 0) {
+    rows.push({
+      description: 'Furniture moving',
+      rate: fmtNumber(q.furniture_fee, 2),
+      total: fmtNumber(q.furniture_fee, 2),
+    })
+  }
+  if (q.stairs_fee > 0) {
+    const count = q.stair_count && q.stair_count > 0 ? q.stair_count : null
+    const perUnit = count ? q.stairs_fee / count : q.stairs_fee
+    rows.push({
+      description: count ? `Stairs (${count})` : 'Stairs',
+      qty: count ? String(count) : '',
+      rate: fmtNumber(perUnit, 2),
+      total: fmtNumber(q.stairs_fee, 2),
+    })
+  }
+  if (q.quarter_round_fee > 0) {
+    rows.push({
+      description: 'Quarter round / moldings',
+      rate: fmtNumber(q.quarter_round_fee, 2),
+      total: fmtNumber(q.quarter_round_fee, 2),
+    })
+  }
+  if (q.reducers_fee > 0) {
+    rows.push({
+      description: 'Reducers / saddles',
+      rate: fmtNumber(q.reducers_fee, 2),
+      total: fmtNumber(q.reducers_fee, 2),
+    })
+  }
+  if (q.delivery_fee > 0) {
+    rows.push({
+      description: 'Delivery',
+      rate: fmtNumber(q.delivery_fee, 2),
+      total: fmtNumber(q.delivery_fee, 2),
+    })
+  }
+  if (q.custom_fee_amount > 0 && q.custom_fee_label?.trim()) {
+    rows.push({
+      description: q.custom_fee_label.trim(),
+      rate: fmtNumber(q.custom_fee_amount, 2),
+      total: fmtNumber(q.custom_fee_amount, 2),
+    })
+  }
+
+  const ex = (q.extras_json || {}) as Record<string, number>
+  if (ex.subfloor_prep > 0) {
+    rows.push({
+      description: 'Subfloor prep',
+      rate: fmtNumber(ex.subfloor_prep, 2),
+      total: fmtNumber(ex.subfloor_prep, 2),
+    })
+  }
+  if (ex.underlayment_per_sqft > 0 && q.adjusted_sqft > 0) {
+    const total = ex.underlayment_per_sqft * q.adjusted_sqft
+    rows.push({
+      description: 'Underlayment',
+      qty: fmtQty(q.adjusted_sqft),
+      rate: fmtNumber(ex.underlayment_per_sqft, 2),
+      total: fmtNumber(total, 2),
+    })
+  }
+  if (ex.transition_qty > 0 && ex.transition_unit > 0) {
+    const total = ex.transition_qty * ex.transition_unit
+    rows.push({
+      description: 'Transition strips',
+      qty: fmtQty(ex.transition_qty),
+      rate: fmtNumber(ex.transition_unit, 2),
+      total: fmtNumber(total, 2),
+    })
+  }
+  if (ex.floor_protection > 0) {
+    rows.push({
+      description: 'Floor protection',
+      rate: fmtNumber(ex.floor_protection, 2),
+      total: fmtNumber(ex.floor_protection, 2),
+    })
+  }
+  if (ex.disposal_fee > 0) {
+    rows.push({
+      description: 'Disposal / dump fee',
+      rate: fmtNumber(ex.disposal_fee, 2),
+      total: fmtNumber(ex.disposal_fee, 2),
+    })
+  }
+
+  return rows
+}
 
 export default async function QuoteDetailPage({
   params,
@@ -58,9 +253,8 @@ export default async function QuoteDetailPage({
   const q = quote as Quote
   const remainingBalance = q.final_total - q.deposit_amount
   const statusCfg = STATUS_CONFIG[q.status] || { bg: '#f9fafb', text: '#6b7280', label: q.status }
-  const expirationLabel = formatExpiration(q.valid_days || 0, new Date(q.created_at))
 
-  const extras = (q.extras_json || {}) as Record<string, number>
+  const typedRooms = (rooms || []) as QuoteRoom[]
   const typedLineItems = (lineItems || []) as QuoteLineItem[]
   const settings = (settingsRow as CompanySettings | null) ?? null
   const terms = [
@@ -68,6 +262,16 @@ export default async function QuoteDetailPage({
     settings?.terms_scheduling?.trim(),
     settings?.terms_scope?.trim(),
   ].filter((t): t is string => !!t && t.length > 0)
+
+  const itemRows = buildRows(q, typedRooms, typedLineItems)
+  const showSubtotal = (q.tax_enabled && q.tax_amount > 0) || q.markup_amount > 0
+  const showDeposit = q.deposit_pct > 0 && q.deposit_amount > 0
+
+  const dateStr = new Date(q.created_at).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+  })
 
   return (
     <div className="max-w-3xl space-y-5">
@@ -82,7 +286,7 @@ export default async function QuoteDetailPage({
         </div>
       )}
 
-      {/* Header */}
+      {/* Header chrome */}
       <div>
         <Link
           href={q.status === 'measurement' ? '/measurements' : '/quotes'}
@@ -100,11 +304,7 @@ export default async function QuoteDetailPage({
             >
               {statusCfg.label}
             </span>
-            <span className="text-sm" style={{ color: 'var(--text-3)' }}>
-              {new Date(q.created_at).toLocaleDateString('en-US', {
-                year: 'numeric', month: 'long', day: 'numeric',
-              })}
-            </span>
+            <span className="text-sm" style={{ color: 'var(--text-3)' }}>{dateStr}</span>
             {q.quote_number && (
               <span className="text-sm" style={{ color: 'var(--text-3)' }}>· #{q.quote_number}</span>
             )}
@@ -138,234 +338,216 @@ export default async function QuoteDetailPage({
         </div>
       </div>
 
-      {/* Customer & Job */}
-      <div className="bg-white rounded-xl p-4 sm:p-5" style={cardStyle}>
-        <h2 className="text-xs font-bold uppercase tracking-wide mb-4" style={{ color: 'var(--text-3)' }}>Customer & Job</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Detail label="Name" value={q.customer_name} />
-          {q.customer_phone && <Detail label="Phone" value={q.customer_phone} />}
-          {q.customer_email && <Detail label="Email" value={q.customer_email} />}
-          {q.job_address && <Detail label="Address" value={q.job_address} />}
-          <Detail label="Flooring Type" value={flooringTypeLabel(q.flooring_type, q.section_flooring_types)} />
-          <Detail label="Valid For" value={`${q.valid_days} days${expirationLabel ? ` · expires ${expirationLabel}` : ''}`} />
-        </div>
-      </div>
+      {/* Estimate document — mirrors PDF layout */}
+      <div className="bg-white rounded-xl p-4 sm:p-6" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
+        {/* Top row: company block + Estimate title + meta table */}
+        <div className="flex flex-col sm:flex-row sm:items-stretch sm:justify-between gap-4 mb-5">
+          <div
+            className="flex items-start gap-3 p-3 sm:w-1/2"
+            style={{ border: FRAME_BORDER }}
+          >
+            {settings?.logo_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={settings.logo_url}
+                alt={settings.company_name || 'Company logo'}
+                className="w-12 h-12 object-contain flex-shrink-0"
+              />
+            ) : null}
+            <div className="min-w-0">
+              <p className="text-sm font-bold" style={{ color: '#0f172a' }}>
+                {settings?.company_name || 'Flooring Company'}
+              </p>
+              {settings?.phone ? (
+                <p className="text-xs mt-0.5" style={{ color: '#334155' }}>T: {settings.phone}</p>
+              ) : null}
+              {settings?.email ? (
+                <p className="text-xs" style={{ color: '#334155' }}>{settings.email}</p>
+              ) : null}
+              {settings?.website ? (
+                <p className="text-xs" style={{ color: '#334155' }}>{settings.website}</p>
+              ) : null}
+            </div>
+          </div>
 
-      {/* Measurements */}
-      <div className="bg-white rounded-xl p-4 sm:p-5" style={cardStyle}>
-        <h2 className="text-xs font-bold uppercase tracking-wide mb-4" style={{ color: 'var(--text-3)' }}>Measurements</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
-          <Detail label="Base SqFt" value={`${q.base_sqft.toLocaleString()} sqft`} />
-          <Detail label="Waste" value={`${q.waste_pct}%`} />
-          <Detail label="Adjusted SqFt" value={`${q.adjusted_sqft.toLocaleString()} sqft`} accent />
+          <div className="sm:w-1/2 flex flex-col sm:items-end">
+            <p
+              className="text-3xl sm:text-4xl italic font-bold mb-2"
+              style={{ color: '#0f172a' }}
+            >
+              Estimate
+            </p>
+            <div
+              className="w-full sm:w-56 text-xs"
+              style={{ border: FRAME_BORDER }}
+            >
+              <div className="flex" style={{ borderBottom: FRAME_BORDER }}>
+                <span
+                  className="flex-1 px-2 py-1 text-center"
+                  style={{ borderRight: FRAME_BORDER, background: '#f1f5f9' }}
+                >
+                  Date
+                </span>
+                <span className="flex-1 px-2 py-1 text-center">{dateStr}</span>
+              </div>
+              <div className="flex">
+                <span
+                  className="flex-1 px-2 py-1 text-center"
+                  style={{ borderRight: FRAME_BORDER, background: '#f1f5f9' }}
+                >
+                  Estimate #
+                </span>
+                <span className="flex-1 px-2 py-1 text-center">
+                  {q.quote_number || '—'}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
-        {rooms && rooms.length > 0 && (
-          <div className="border-t pt-4" style={{ borderColor: 'var(--border)' }}>
-            <p className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: 'var(--text-3)' }}>Rooms</p>
-            {(() => {
-              const typedRooms = rooms as QuoteRoom[]
-              const sections = Array.from(new Set(typedRooms.map(r => r.section || 'Other')))
-              return sections.map(section => (
-                <div key={section} className="mb-3">
-                  {sections.length > 1 && (
-                    <p className="text-xs font-bold uppercase tracking-wide mb-1.5" style={{ color: 'var(--text-2)' }}>{section}</p>
-                  )}
-                  <div className="space-y-1.5">
-                    {typedRooms.filter(r => (r.section || 'Other') === section).map((room, i) => {
-                      const lft = Math.floor(room.length)
-                      const lin = Math.round((room.length - lft) * 12)
-                      const wft = Math.floor(room.width)
-                      const win = Math.round((room.width - wft) * 12)
-                      const lStr = lin > 0 ? `${lft}'${lin}"` : `${lft}'`
-                      const wStr = win > 0 ? `${wft}'${win}"` : `${wft}'`
-                      return (
-                        <div key={room.id} className="flex flex-col sm:flex-row sm:justify-between text-sm rounded-xl px-3 py-2 gap-0.5" style={{ background: '#f9fafb' }}>
-                          <span className="font-medium" style={{ color: 'var(--text)' }}>{room.name || `Room ${i + 1}`}</span>
-                          <span className="text-xs sm:self-center" style={{ color: 'var(--text-3)' }}>
-                            {lStr} × {wStr} = <span className="font-semibold" style={{ color: 'var(--text-2)' }}>{room.sqft.toFixed(0)} sqft</span>
-                          </span>
-                        </div>
-                      )
-                    })}
-                  </div>
+
+        {/* Customer + Job boxes */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+          <div style={{ border: FRAME_BORDER }}>
+            <div
+              className="px-3 py-1.5 text-sm italic font-bold text-center"
+              style={{ background: BAND_BG, color: '#0f172a', borderBottom: FRAME_BORDER }}
+            >
+              Customer Name
+            </div>
+            <div className="p-3 min-h-[64px] text-sm" style={{ color: '#0f172a' }}>
+              <p>{q.customer_name}</p>
+              {q.customer_phone ? <p>{q.customer_phone}</p> : null}
+              {q.customer_email ? <p className="break-all">{q.customer_email}</p> : null}
+            </div>
+          </div>
+          <div style={{ border: FRAME_BORDER }}>
+            <div
+              className="px-3 py-1.5 text-sm italic font-bold text-center"
+              style={{ background: BAND_BG, color: '#0f172a', borderBottom: FRAME_BORDER }}
+            >
+              Job Location
+            </div>
+            <div className="p-3 min-h-[64px] text-sm" style={{ color: '#0f172a' }}>
+              <p className="whitespace-pre-wrap">{q.job_address || '—'}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Items table */}
+        <div className="text-sm">
+          <div
+            className="grid items-center px-2 py-1.5 italic font-bold"
+            style={{
+              gridTemplateColumns: '5fr 1fr 1fr 1fr',
+              background: BAND_BG,
+              color: '#0f172a',
+            }}
+          >
+            <span className="text-center">Description</span>
+            <span className="text-center">Qty</span>
+            <span className="text-center">Rate</span>
+            <span className="text-center">Total</span>
+          </div>
+          {itemRows.map((row, i) => (
+            <div
+              key={i}
+              className="grid items-start px-2 py-2"
+              style={{
+                gridTemplateColumns: '5fr 1fr 1fr 1fr',
+                borderBottom: ROW_BORDER,
+                color: '#0f172a',
+              }}
+            >
+              <span className="pr-2 break-words whitespace-pre-wrap">{row.description}</span>
+              <span className="text-right">{row.qty || ''}</span>
+              <span className="text-right">{row.rate || ''}</span>
+              <span className="text-right">{row.total || ''}</span>
+            </div>
+          ))}
+          {/* Inline signature row */}
+          <div
+            className="grid px-2 py-3 break-words"
+            style={{ gridTemplateColumns: '5fr 1fr 1fr 1fr', borderBottom: ROW_BORDER, color: '#0f172a' }}
+          >
+            <span className="break-all">
+              READ CAREFULLY SIGN &amp; EMAIL BACK________________________&nbsp;&nbsp;Date____________
+            </span>
+            <span />
+            <span />
+            <span />
+          </div>
+        </div>
+
+        {/* Bottom row: scope/notes + totals */}
+        <div className="flex flex-col sm:flex-row gap-4 mt-5">
+          <div className="flex-1 text-sm" style={{ color: '#0f172a' }}>
+            {q.scope_of_work?.trim() ? (
+              <p className="whitespace-pre-wrap leading-relaxed mb-2">{q.scope_of_work.trim()}</p>
+            ) : null}
+            {q.notes?.trim() ? (
+              <p className="whitespace-pre-wrap leading-relaxed mb-2">{q.notes.trim()}</p>
+            ) : null}
+            {settings?.payment_terms?.trim() ? (
+              <p className="text-xs whitespace-pre-wrap leading-relaxed mt-1" style={{ color: '#475569' }}>
+                {settings.payment_terms.trim()}
+              </p>
+            ) : null}
+          </div>
+
+          <div className="sm:w-64 text-sm" style={{ color: '#0f172a' }}>
+            {showSubtotal && (
+              <div className="flex justify-between py-0.5">
+                <span>Subtotal</span>
+                <span>{fmt(q.subtotal)}</span>
+              </div>
+            )}
+            {q.tax_enabled && q.tax_amount > 0 && (
+              <div className="flex justify-between py-0.5">
+                <span>Tax ({q.tax_pct}%)</span>
+                <span>{fmt(q.tax_amount)}</span>
+              </div>
+            )}
+            {q.markup_amount > 0 && (
+              <div className="flex justify-between py-0.5">
+                <span>Profit ({q.markup_pct}%)</span>
+                <span>{fmt(q.markup_amount)}</span>
+              </div>
+            )}
+            <div className="flex justify-between items-center mt-2 mb-2">
+              <span className="text-lg italic font-bold">Total</span>
+              <span
+                className="text-base font-bold px-3 py-1 min-w-[120px] text-right"
+                style={{ border: FRAME_BORDER }}
+              >
+                {fmt(q.final_total)}
+              </span>
+            </div>
+            {showDeposit && (
+              <>
+                <div className="flex justify-between py-0.5">
+                  <span>Deposit Due ({q.deposit_pct}%)</span>
+                  <span>{fmt(q.deposit_amount)}</span>
                 </div>
-              ))
-            })()}
+                <div className="flex justify-between py-0.5">
+                  <span>Remaining Balance</span>
+                  <span>{fmt(remainingBalance)}</span>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Italic disclaimer footer */}
+        {terms.length > 0 && (
+          <div className="mt-6">
+            {terms.map((t, i) => (
+              <p key={i} className="text-xs italic font-semibold leading-snug" style={{ color: '#0f172a' }}>
+                {t}
+              </p>
+            ))}
           </div>
         )}
       </div>
-
-      {/* Estimate Breakdown */}
-      <div className="bg-white rounded-xl p-4 sm:p-5" style={cardStyle}>
-        <h2 className="text-xs font-bold uppercase tracking-wide mb-4" style={{ color: 'var(--text-3)' }}>Estimate Breakdown</h2>
-        <div className="space-y-2.5">
-          {q.material_description && q.material_description.trim() && (
-            <p className="text-xs leading-relaxed whitespace-pre-wrap" style={{ color: '#475569', lineHeight: 1.4 }}>
-              {q.material_description.trim()}
-            </p>
-          )}
-          <LineItem
-            label={`Material (${q.adjusted_sqft.toFixed(0)} sqft × $${q.material_cost_per_sqft}/sqft)`}
-            value={q.material_total}
-          />
-          <LineItem
-            label={`Labor (${q.adjusted_sqft.toFixed(0)} sqft × $${q.labor_cost_per_sqft}/sqft)`}
-            value={q.labor_total}
-          />
-          {q.removal_fee > 0 && <LineItem label="Removal Fee" value={q.removal_fee} />}
-          {q.furniture_fee > 0 && <LineItem label="Furniture Moving" value={q.furniture_fee} />}
-          {q.stairs_fee > 0 && (
-            <LineItem
-              label={q.stair_count ? `Stairs (${q.stair_count})` : 'Stairs Fee'}
-              value={q.stairs_fee}
-            />
-          )}
-          {q.quarter_round_fee > 0 && <LineItem label="Quarter Round / Moldings" value={q.quarter_round_fee} />}
-          {q.reducers_fee > 0 && <LineItem label="Reducers / Saddles" value={q.reducers_fee} />}
-          {q.delivery_fee > 0 && <LineItem label="Delivery Fee" value={q.delivery_fee} />}
-          {extras.subfloor_prep > 0 && <LineItem label="Subfloor Prep" value={extras.subfloor_prep} />}
-          {extras.underlayment_per_sqft > 0 && <LineItem label={`Underlayment (${q.adjusted_sqft.toFixed(0)} sqft × $${extras.underlayment_per_sqft}/sqft)`} value={extras.underlayment_per_sqft * q.adjusted_sqft} />}
-          {extras.transition_qty > 0 && extras.transition_unit > 0 && (
-            <LineItem label={`Transition Strips (${extras.transition_qty} × $${extras.transition_unit})`} value={extras.transition_qty * extras.transition_unit} />
-          )}
-          {extras.floor_protection > 0 && <LineItem label="Floor Protection" value={extras.floor_protection} />}
-          {extras.disposal_fee > 0 && <LineItem label="Disposal / Dump Fee" value={extras.disposal_fee} />}
-          {q.custom_fee_amount > 0 && (
-            <LineItem label={q.custom_fee_label || 'Other'} value={q.custom_fee_amount} />
-          )}
-          {typedLineItems.length > 0 && (
-            <div className="pt-3 mt-1">
-              <p className="text-[11px] font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--text-3)' }}>Additional Line Items</p>
-              <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
-                <div className="grid grid-cols-12 gap-2 px-3 py-2 text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-3)', background: '#f9fafb', borderBottom: '1px solid var(--border)' }}>
-                  <span className="col-span-6 sm:col-span-7">Description</span>
-                  <span className="col-span-1 text-right">Qty</span>
-                  <span className="col-span-2 text-right">Rate</span>
-                  <span className="col-span-3 sm:col-span-2 text-right">Total</span>
-                </div>
-                {typedLineItems.map(li => {
-                  const qty = Number(li.qty) || 0
-                  const rate = Number(li.unit_price) || 0
-                  const total = Number(li.total) || qty * rate
-                  return (
-                    <div key={li.id} className="grid grid-cols-12 gap-2 px-3 py-2 text-sm border-t" style={{ borderColor: 'var(--border)' }}>
-                      <span className="col-span-6 sm:col-span-7 break-words" style={{ color: 'var(--text)' }}>{li.description || '—'}</span>
-                      <span className="col-span-1 text-right" style={{ color: 'var(--text-2)' }}>{qty}</span>
-                      <span className="col-span-2 text-right" style={{ color: 'var(--text-2)' }}>{fmt(rate)}</span>
-                      <span className="col-span-3 sm:col-span-2 text-right font-semibold" style={{ color: 'var(--text)' }}>{fmt(total)}</span>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          )}
-          {q.scope_of_work && q.scope_of_work.trim() && (
-            <div className="rounded-xl px-4 py-3 mt-3" style={{ background: '#fef3c7', borderLeft: '3px solid #d97706' }}>
-              <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: '#92400e' }}>Scope of Work / Exclusions</p>
-              <p className="text-sm whitespace-pre-wrap leading-relaxed" style={{ color: '#0f172a' }}>{q.scope_of_work.trim()}</p>
-            </div>
-          )}
-          <div className="border-t pt-2.5" style={{ borderColor: 'var(--border)' }}>
-            <LineItem label="Subtotal" value={q.subtotal} bold />
-          </div>
-          {q.tax_enabled && q.tax_amount > 0 && (
-            <LineItem label={`Tax (${q.tax_pct}%)`} value={q.tax_amount} />
-          )}
-          {q.markup_amount > 0 && (
-            <LineItem label={`Profit (${q.markup_pct}%)`} value={q.markup_amount} />
-          )}
-          <div className="border-t-2 pt-3 mt-1" style={{ borderColor: 'var(--text)' }}>
-            <div className="flex justify-between">
-              <span className="text-base font-bold" style={{ color: 'var(--text)' }}>Total</span>
-              <span className="text-xl font-bold" style={{ color: 'var(--text)' }}>{fmt(q.final_total)}</span>
-            </div>
-          </div>
-          <div className="bg-teal-50 rounded-xl p-4 space-y-2 mt-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-teal-700 font-semibold">Deposit ({q.deposit_pct}%)</span>
-              <span className="font-bold text-teal-700">{fmt(q.deposit_amount)}</span>
-            </div>
-            <div className="flex justify-between text-xs" style={{ color: 'var(--text-3)' }}>
-              <span>Remaining balance</span>
-              <span className="font-semibold" style={{ color: 'var(--text-2)' }}>{fmt(remainingBalance)}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Notes */}
-      {q.notes && (
-        <div className="bg-white rounded-xl p-4 sm:p-5" style={cardStyle}>
-          <h2 className="text-xs font-bold uppercase tracking-wide mb-3" style={{ color: 'var(--text-3)' }}>Notes</h2>
-          <p className="text-sm whitespace-pre-wrap leading-relaxed" style={{ color: 'var(--text)' }}>{q.notes}</p>
-        </div>
-      )}
-
-      {/* Terms & Disclaimers */}
-      {terms.length > 0 && (
-        <div className="bg-white rounded-xl p-4 sm:p-5" style={cardStyle}>
-          <h2 className="text-xs font-bold uppercase tracking-wide mb-3" style={{ color: 'var(--text-3)' }}>Terms & Disclaimers</h2>
-          <ul className="space-y-2">
-            {terms.map((t, i) => (
-              <li key={i} className="flex gap-2 text-sm leading-relaxed" style={{ color: 'var(--text-2)' }}>
-                <span aria-hidden="true" style={{ color: 'var(--text-3)' }}>•</span>
-                <span className="flex-1">{t}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {/* Signature line (print-style) — customer-only on the customer's copy */}
-      <div className="bg-white rounded-xl p-4 sm:p-5" style={cardStyle}>
-        <h2 className="text-xs font-bold uppercase tracking-wide mb-4" style={{ color: 'var(--text-3)' }}>Signature</h2>
-        <div className="sm:max-w-[60%]">
-          <SignatureBlock label="Customer Signature" />
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function SignatureBlock({ label }: { label: string }) {
-  return (
-    <div>
-      <div className="flex items-end gap-3">
-        <div className="flex-1">
-          <div className="border-b" style={{ borderColor: 'var(--text)', height: 32 }} />
-          <p className="text-[10px] font-bold uppercase tracking-widest mt-1.5" style={{ color: 'var(--text-3)' }}>{label}</p>
-        </div>
-        <div className="w-24">
-          <div className="border-b" style={{ borderColor: 'var(--text)', height: 32 }} />
-          <p className="text-[10px] font-bold uppercase tracking-widest mt-1.5" style={{ color: 'var(--text-3)' }}>Date</p>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function Detail({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
-  return (
-    <div>
-      <p className="text-xs font-medium mb-1" style={{ color: 'var(--text-3)' }}>{label}</p>
-      <p className="text-sm font-semibold" style={{ color: accent ? 'var(--primary)' : 'var(--text)' }}>{value}</p>
-    </div>
-  )
-}
-
-function LineItem({
-  label,
-  value,
-  bold,
-}: {
-  label: string
-  value: number
-  bold?: boolean
-}) {
-  return (
-    <div className={`flex justify-between items-start gap-2 text-sm ${bold ? 'font-semibold' : ''}`} style={{ color: bold ? 'var(--text)' : 'var(--text-2)' }}>
-      <span className="min-w-0 break-words">{label}</span>
-      <span className="font-semibold flex-shrink-0">{fmt(value)}</span>
     </div>
   )
 }
