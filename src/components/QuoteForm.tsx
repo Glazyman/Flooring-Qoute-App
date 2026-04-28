@@ -165,6 +165,7 @@ export interface QuoteInitialData {
   deposit_pct?: number
   notes?: string | null
   scope_of_work?: string | null
+  material_description?: string | null
   valid_days?: number
   section_flooring_types?: Record<string, FlooringType> | null
   section_pricing?: Record<string, { material: number; labor: number }> | null
@@ -289,6 +290,7 @@ export default function QuoteForm({
   const [reducersFee, setReducersFee] = useState(initialData?.reducers_fee ? String(initialData.reducers_fee) : '')
   const [finishType, setFinishType] = useState(initialData?.finish_type ?? '')
   const [woodSpecies, setWoodSpecies] = useState(initialData?.wood_species ?? '')
+  const [materialDescription, setMaterialDescription] = useState(initialData?.material_description ?? '')
   const [customFeeLabel, setCustomFeeLabel] = useState(initialData?.custom_fee_label ?? '')
   const [customFeeAmount, setCustomFeeAmount] = useState(initialData?.custom_fee_amount ? String(initialData.custom_fee_amount) : '')
 
@@ -706,6 +708,7 @@ export default function QuoteForm({
       ...(isEditing ? {} : { status: statusForCreate }),
       notes: [notes, blueprintNotes].filter(Boolean).join('\n\n') || null,
       scope_of_work: scopeOfWork.trim() || null,
+      material_description: materialDescription.trim() || null,
       valid_days: n(validDays) || 30,
       extras_json: extrasJson,
       rooms: roomsForApi,
@@ -1259,6 +1262,22 @@ export default function QuoteForm({
                 </div>
               </div>
             )}
+
+            {/* Material description — free-form details about the main flooring line */}
+            <div className="mt-4 pt-4 border-t" style={{ borderColor: 'var(--border)' }}>
+              <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--text-2)' }}>Material Description</label>
+              <textarea
+                value={materialDescription}
+                onChange={(e) => setMaterialDescription(e.target.value)}
+                rows={3}
+                placeholder={'e.g. Install and supply #1 3-1/4" red oak hardwood flooring, waste is included, finish w/ 2 coats poly (oil base), stain is included.'}
+                className="w-full px-3.5 py-3.5 rounded-xl border text-[16px] focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none placeholder:text-gray-300 bg-white"
+                style={{ color: 'var(--text)', borderColor: 'var(--border)' }}
+              />
+              <p className="text-xs mt-1.5" style={{ color: 'var(--text-3)' }}>
+                Optional descriptive detail shown above the Material line on the quote PDF and in the on-screen breakdown.
+              </p>
+            </div>
 
             <div className="mt-4 pt-4 border-t grid grid-cols-2 gap-4" style={{ borderColor: 'var(--border)' }}>
               <Input label="Custom Fee Label" value={customFeeLabel} onChange={setCustomFeeLabel} placeholder="Other" />

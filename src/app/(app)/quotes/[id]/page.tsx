@@ -199,6 +199,11 @@ export default async function QuoteDetailPage({
       <div className="bg-white rounded-xl p-4 sm:p-5" style={cardStyle}>
         <h2 className="text-xs font-bold uppercase tracking-wide mb-4" style={{ color: 'var(--text-3)' }}>Estimate Breakdown</h2>
         <div className="space-y-2.5">
+          {q.material_description && q.material_description.trim() && (
+            <p className="text-xs leading-relaxed whitespace-pre-wrap" style={{ color: '#475569', lineHeight: 1.4 }}>
+              {q.material_description.trim()}
+            </p>
+          )}
           <LineItem
             label={`Material (${q.adjusted_sqft.toFixed(0)} sqft × $${q.material_cost_per_sqft}/sqft)`}
             value={q.material_total}
@@ -311,12 +316,11 @@ export default async function QuoteDetailPage({
         </div>
       )}
 
-      {/* Signature lines (print-style) */}
+      {/* Signature line (print-style) — customer-only on the customer's copy */}
       <div className="bg-white rounded-xl p-4 sm:p-5" style={cardStyle}>
-        <h2 className="text-xs font-bold uppercase tracking-wide mb-4" style={{ color: 'var(--text-3)' }}>Signatures</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <h2 className="text-xs font-bold uppercase tracking-wide mb-4" style={{ color: 'var(--text-3)' }}>Signature</h2>
+        <div className="sm:max-w-[60%]">
           <SignatureBlock label="Customer Signature" />
-          <SignatureBlock label="Authorized Representative" />
         </div>
       </div>
     </div>

@@ -152,6 +152,7 @@ export interface Quote {
   status: QuoteStatus
   notes: string | null
   scope_of_work: string | null
+  material_description: string | null
   valid_days: number
   section_flooring_types: Record<string, FlooringType> | null
   extras_json: Record<string, number> | null

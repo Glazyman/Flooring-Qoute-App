@@ -285,6 +285,12 @@ const styles = StyleSheet.create({
   signatureDateCol: {
     flex: 1,
   },
+  materialDescription: {
+    fontSize: 9,
+    color: '#475569',
+    lineHeight: 1.4,
+    marginBottom: 6,
+  },
 })
 
 function fmt(value: number): string {
@@ -440,6 +446,10 @@ export function QuotePdfDocument({ quote: q, rooms, lineItems = [], settings }: 
         {/* Line Items */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Estimate Breakdown</Text>
+
+          {q.material_description && q.material_description.trim() && (
+            <Text style={styles.materialDescription}>{q.material_description.trim()}</Text>
+          )}
 
           <View style={styles.lineRow}>
             <Text style={styles.lineLabel}>
@@ -621,25 +631,13 @@ export function QuotePdfDocument({ quote: q, rooms, lineItems = [], settings }: 
           </View>
         )}
 
-        {/* Signature block */}
+        {/* Signature block — customer-only on the customer's copy */}
         <View style={styles.signatureSection}>
-          <View style={styles.signatureBlock}>
+          <View style={[styles.signatureBlock, { flex: 0, width: '60%' }]}>
             <View style={styles.signatureRow}>
               <View style={styles.signatureNameCol}>
                 <View style={styles.signatureLine} />
                 <Text style={styles.signatureLabel}>Customer Signature</Text>
-              </View>
-              <View style={styles.signatureDateCol}>
-                <View style={styles.signatureLine} />
-                <Text style={styles.signatureLabel}>Date</Text>
-              </View>
-            </View>
-          </View>
-          <View style={styles.signatureBlock}>
-            <View style={styles.signatureRow}>
-              <View style={styles.signatureNameCol}>
-                <View style={styles.signatureLine} />
-                <Text style={styles.signatureLabel}>Authorized Representative</Text>
               </View>
               <View style={styles.signatureDateCol}>
                 <View style={styles.signatureLine} />

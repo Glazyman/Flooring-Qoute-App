@@ -73,6 +73,7 @@ export default async function EditQuotePage({
     deposit_pct: q.deposit_pct,
     notes: q.notes,
     scope_of_work: q.scope_of_work,
+    material_description: q.material_description,
     valid_days: q.valid_days,
     extras_json: q.extras_json ?? null,
     line_items: typedLineItems.map(li => ({
