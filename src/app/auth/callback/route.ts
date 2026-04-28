@@ -13,27 +13,38 @@ export async function GET(request: NextRequest) {
   }
 
   const cookieStore = await cookies()
+
+  // Build the redirect response first so we can attach cookies to it
+  const redirectResponse = NextResponse.redirect(`${origin}${next}`)
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll() { return cookieStore.getAll() },
+        getAll() {
+          return cookieStore.getAll()
+        },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
-          )
+          // Write to both the cookie store AND the redirect response
+          cookiesToSet.forEach(({ name, value, options }) => {
+            try { cookieStore.set(name, value, options) } catch {}
+            redirectResponse.cookies.set(name, value, options ?? {})
+          })
         },
       },
     }
   )
 
   const { error } = await supabase.auth.exchangeCodeForSession(code)
+
   if (error) {
+    console.error('OAuth callback error:', error.message)
     return NextResponse.redirect(`${origin}/login?error=exchange_failed`)
   }
 
   const { data: { user } } = await supabase.auth.getUser()
+
   if (!user) {
     return NextResponse.redirect(`${origin}/login?error=no_user`)
   }
@@ -91,5 +102,5 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  return NextResponse.redirect(`${origin}${next}`)
+  return redirectResponse
 }
