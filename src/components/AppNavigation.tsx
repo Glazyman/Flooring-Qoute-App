@@ -190,8 +190,8 @@ export default function AppNavigation({
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex flex-col w-64 min-h-screen bg-white border-r border-gray-100 fixed left-0 top-0" style={{ boxShadow: '1px 0 0 #f0f0f5' }}>
         <div className="flex items-center gap-3 px-5 pt-6 pb-3">
-          <div className="w-12 h-12 flex-shrink-0">
-            <Image src="/logo.png" alt="FloorQuote Pro" width={48} height={48} className="w-full h-full object-contain" style={{ mixBlendMode: 'multiply' }} />
+          <div className="w-12 h-12 rounded-2xl overflow-hidden flex-shrink-0 shadow-sm">
+            <Image src="/logo.png" alt="FloorQuote Pro" width={48} height={48} className="w-full h-full object-cover" />
           </div>
           <div>
             <span className="font-extrabold text-gray-900 text-[17px] tracking-tight leading-tight block">FloorQuote Pro</span>
@@ -210,7 +210,7 @@ export default function AppNavigation({
           <Menu className="w-5 h-5" />
         </button>
         <div className="flex items-center gap-2.5">
-          <Image src="/logo.png" alt="FloorQuote Pro" width={36} height={36} style={{ mixBlendMode: 'multiply' }} />
+          <Image src="/logo.png" alt="FloorQuote Pro" width={36} height={36} className="rounded-xl" />
           <span className="font-extrabold text-gray-900 text-base tracking-tight">FloorQuote Pro</span>
         </div>
         <div className="w-9" />
@@ -225,7 +225,7 @@ export default function AppNavigation({
           <aside className="absolute left-0 top-0 bottom-0 w-72 bg-white shadow-2xl flex flex-col" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
             <div className="flex items-center justify-between px-5 pt-4 pb-2">
               <div className="flex items-center gap-2.5">
-                <Image src="/logo.png" alt="FloorQuote Pro" width={28} height={28} style={{ mixBlendMode: 'multiply' }} />
+                <Image src="/logo.png" alt="FloorQuote Pro" width={28} height={28} className="rounded-lg" />
                 <span className="font-bold text-gray-900 text-sm">FloorQuote Pro</span>
               </div>
               <button

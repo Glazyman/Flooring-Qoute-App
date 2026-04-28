@@ -12,7 +12,7 @@ export default async function MarketingLayout({ children }: { children: React.Re
       <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100">
         <div className="max-w-5xl mx-auto px-5 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <Image src="/logo.png" alt="FloorQuote Pro" width={32} height={32} style={{ mixBlendMode: 'multiply' }} />
+            <Image src="/logo.png" alt="FloorQuote Pro" width={32} height={32} className="rounded-xl" />
             <span className="font-extrabold text-gray-900 text-[15px] tracking-tight">FloorQuote Pro</span>
           </Link>
           <div className="flex items-center gap-2">
@@ -41,7 +41,7 @@ export default async function MarketingLayout({ children }: { children: React.Re
       <footer className="border-t border-gray-100 mt-24">
         <div className="max-w-5xl mx-auto px-5 py-10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <Image src="/logo.png" alt="FloorQuote Pro" width={24} height={24} style={{ mixBlendMode: 'multiply' }} />
+            <Image src="/logo.png" alt="FloorQuote Pro" width={24} height={24} className="rounded-lg" />
             <span className="text-sm font-semibold text-gray-700">FloorQuote Pro</span>
           </div>
           <p className="text-sm text-gray-400">© {new Date().getFullYear()} FloorQuote Pro. All rights reserved.</p>

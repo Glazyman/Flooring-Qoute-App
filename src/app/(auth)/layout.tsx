@@ -11,10 +11,9 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <Image
             src="/logo.png"
             alt="FloorQuote Pro"
-            width={80}
-            height={80}
-            className="mx-auto mb-3"
-            style={{ mixBlendMode: 'multiply' }}
+            width={56}
+            height={56}
+            className="rounded-2xl mx-auto mb-3"
           />
           <h1 className="text-2xl font-bold text-teal-600">FloorQuote Pro</h1>
           <p className="text-sm text-gray-400 mt-1">Professional estimates in under 2 minutes</p>
