@@ -229,7 +229,7 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
                 </th>
               )}
               {['Customer', 'Type', 'Area', 'Total', 'Status', 'Date', ''].map((h) => (
-                <th key={h} className={`px-5 py-4 text-[11px] font-bold uppercase tracking-widest ${h === 'Total' ? 'text-right' : 'text-left'}`} style={{ color: 'var(--text-3)' }}>
+                <th key={h} className={`px-5 py-3 text-[11px] font-semibold uppercase tracking-widest ${h === 'Total' ? 'text-right' : 'text-left'}`} style={{ color: 'var(--text-3)' }}>
                   {h}
                 </th>
               ))}
@@ -257,28 +257,20 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
                       </button>
                     </td>
                   )}
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-                        style={{ background: avatarColor }}>
-                        {(q.customer_name || '?').split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2)}
-                      </div>
-                      <div>
-                        <p className="font-semibold" style={{ color: 'var(--text)' }}>{q.customer_name}</p>
-                        {q.job_address && <p className="text-xs truncate max-w-40 mt-0.5" style={{ color: 'var(--text-3)' }}>{q.job_address}</p>}
-                      </div>
-                    </div>
+                  <td className="px-5 py-3.5">
+                    <p className="font-semibold text-sm" style={{ color: 'var(--text)' }}>{q.customer_name}</p>
+                    {q.job_address && <p className="text-xs truncate max-w-44 mt-0.5" style={{ color: 'var(--text-3)' }}>{q.job_address}</p>}
                   </td>
-                  <td className="px-5 py-4">
+                  <td className="px-5 py-3.5">
                     <span className="capitalize text-sm" style={{ color: 'var(--text-2)' }}>{q.flooring_type}</span>
                   </td>
-                  <td className="px-5 py-4 text-sm" style={{ color: 'var(--text-2)' }}>
+                  <td className="px-5 py-3.5 text-sm" style={{ color: 'var(--text-2)' }}>
                     {Math.round(q.adjusted_sqft).toLocaleString()} sqft
                   </td>
-                  <td className="px-5 py-4 text-right font-bold" style={{ color: 'var(--text)' }}>
+                  <td className="px-5 py-3.5 text-right font-bold text-sm" style={{ color: 'var(--text)' }}>
                     {fmt(q.final_total)}
                   </td>
-                  <td className="px-5 py-4">
+                  <td className="px-5 py-3.5">
                     <select
                       value={q.status}
                       onChange={(e) => updateStatus(q.id, e.target.value as QuoteStatus)}
@@ -291,10 +283,10 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
                       ))}
                     </select>
                   </td>
-                  <td className="px-5 py-4 text-xs" style={{ color: 'var(--text-3)' }}>
+                  <td className="px-5 py-3.5 text-xs" style={{ color: 'var(--text-3)' }}>
                     {new Date(q.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                   </td>
-                  <td className="px-5 py-4">
+                  <td className="px-5 py-3.5">
                     <div className="flex items-center gap-3">
                       <button onClick={() => router.push(`/quotes/${q.id}`)} className="text-xs font-semibold" style={{ color: 'var(--primary)' }}>
                         View →
@@ -313,98 +305,60 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
         </table>
       </div>
 
-      {/* Mobile cards */}
-      <div className="md:hidden space-y-3">
-        {localQuotes.map((q) => {
+      {/* Mobile rows */}
+      <div className="md:hidden bg-white rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+        {localQuotes.map((q, idx) => {
           const isSelected = selected.has(q.id)
           return (
             <div
               key={q.id}
-              className="bg-white rounded-xl overflow-hidden"
+              className="transition-colors"
               style={{
-                boxShadow: isSelected ? '0 0 0 2px #A78BFA' : 'var(--shadow-card)',
-                border: `1px solid ${isSelected ? '#A78BFA' : 'var(--border)'}`,
+                borderBottom: idx < localQuotes.length - 1 ? '1px solid var(--border)' : 'none',
+                background: isSelected ? '#F0FDFA' : undefined,
               }}
             >
               {selecting ? (
-                <button
-                  onClick={() => toggleSelect(q.id)}
-                  className="w-full text-left p-4 active:bg-gray-50"
-                >
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className="flex-shrink-0 pt-0.5">
-                      {isSelected
-                        ? <CheckSquare className="w-5 h-5 text-teal-600" />
-                        : <Square className="w-5 h-5 text-gray-300" />
-                      }
-                    </div>
-                    <div className="w-11 h-11 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
-                      style={{ background: avatarColor }}>
-                      {(q.customer_name || '?').split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-base leading-tight" style={{ color: 'var(--text)' }}>{q.customer_name}</p>
-                      {q.job_address && <p className="text-sm truncate mt-0.5" style={{ color: 'var(--text-2)' }}>{q.job_address}</p>}
-                    </div>
-                    <StatusBadge status={q.status} />
-                  </div>
-                  <div className="flex items-center justify-between pl-10">
-                    <span className="text-sm capitalize" style={{ color: 'var(--text-2)' }}>
+                <button onClick={() => toggleSelect(q.id)} className="w-full text-left px-4 py-3 flex items-center gap-3 active:bg-gray-50">
+                  {isSelected
+                    ? <CheckSquare className="w-4 h-4 text-teal-600 flex-shrink-0" />
+                    : <Square className="w-4 h-4 text-gray-300 flex-shrink-0" />
+                  }
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-sm" style={{ color: 'var(--text)' }}>{q.customer_name}</p>
+                    <p className="text-xs mt-0.5 capitalize" style={{ color: 'var(--text-2)' }}>
                       {q.flooring_type} · {Math.round(q.adjusted_sqft).toLocaleString()} sqft
-                    </span>
-                    <span className="text-lg font-bold" style={{ color: 'var(--text)' }}>{fmt(q.final_total)}</span>
+                    </p>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <p className="font-bold text-sm" style={{ color: 'var(--text)' }}>{fmt(q.final_total)}</p>
+                    <StatusBadge status={q.status} />
                   </div>
                 </button>
               ) : (
-                <button
-                  onClick={() => router.push(`/quotes/${q.id}`)}
-                  className="w-full text-left p-4 active:bg-gray-50 transition-colors"
-                >
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className="w-11 h-11 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
-                      style={{ background: avatarColor }}>
-                      {(q.customer_name || '?').split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-base leading-tight" style={{ color: 'var(--text)' }}>{q.customer_name}</p>
-                      {q.job_address && <p className="text-sm truncate mt-0.5" style={{ color: 'var(--text-2)' }}>{q.job_address}</p>}
-                    </div>
-                    <StatusBadge status={q.status} />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm capitalize" style={{ color: 'var(--text-2)' }}>
+                <div className="flex items-center px-4 py-3 gap-3">
+                  <button onClick={() => router.push(`/quotes/${q.id}`)} className="flex-1 min-w-0 text-left">
+                    <p className="font-semibold text-sm" style={{ color: 'var(--text)' }}>{q.customer_name}</p>
+                    <p className="text-xs mt-0.5 capitalize" style={{ color: 'var(--text-2)' }}>
                       {q.flooring_type} · {Math.round(q.adjusted_sqft).toLocaleString()} sqft
-                    </span>
-                    <span className="text-lg font-bold" style={{ color: 'var(--text)' }}>{fmt(q.final_total)}</span>
-                  </div>
-                </button>
-              )}
-
-              {!selecting && (
-                <div className="flex gap-0" style={{ borderTop: '1px solid var(--border)' }}>
-                  <select
-                    value={q.status}
-                    onChange={(e) => updateStatus(q.id, e.target.value as QuoteStatus)}
-                    disabled={updating === q.id}
-                    className="flex-1 text-sm font-medium px-4 py-3.5 focus:outline-none"
-                    style={{ color: 'var(--text-2)', background: 'transparent', borderRight: '1px solid var(--border)' }}
-                  >
-                    {STATUS_OPTIONS.map((s) => (
-                      <option key={s} value={s}>{STATUS_CONFIG[s].label}</option>
-                    ))}
-                  </select>
-                  <button
-                    onClick={() => router.push(`/quotes/${q.id}`)}
-                    className="px-5 py-3.5 text-sm font-semibold transition-colors active:bg-teal-50"
-                    style={{ color: 'var(--primary)', borderRight: '1px solid var(--border)' }}
-                  >
-                    View
+                    </p>
                   </button>
-                  <button
-                    onClick={() => setConfirmDelete(q.id)}
-                    className="px-4 py-3.5 text-gray-300 hover:text-red-400 transition-colors active:bg-red-50"
-                  >
-                    <Trash2 className="w-4 h-4" />
+                  <div className="text-right flex-shrink-0 mr-1">
+                    <p className="font-bold text-sm" style={{ color: 'var(--text)' }}>{fmt(q.final_total)}</p>
+                    <select
+                      value={q.status}
+                      onChange={(e) => updateStatus(q.id, e.target.value as QuoteStatus)}
+                      disabled={updating === q.id}
+                      className="text-xs font-semibold rounded-full px-2 py-0.5 mt-0.5 focus:outline-none border-0 appearance-none"
+                      style={{ background: STATUS_CONFIG[q.status].bg, color: STATUS_CONFIG[q.status].text }}
+                    >
+                      {STATUS_OPTIONS.map((s) => (
+                        <option key={s} value={s}>{STATUS_CONFIG[s].label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <button onClick={() => setConfirmDelete(q.id)} className="p-1.5 text-gray-300 hover:text-red-400 flex-shrink-0">
+                    <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
               )}

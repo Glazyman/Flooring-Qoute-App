@@ -451,7 +451,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
 
       {/* Contact List */}
       {filtered.length === 0 ? (
-        <div className="bg-white rounded-xl p-12 text-center" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
+        <div className="bg-white rounded-xl p-12 text-center" style={{ border: '1px solid var(--border)' }}>
           <p className="text-sm font-medium mb-1" style={{ color: 'var(--text-2)' }}>
             {search ? 'No contacts match your search' : 'No contacts yet'}
           </p>
@@ -462,75 +462,45 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
           )}
         </div>
       ) : (
-        <div className="space-y-2.5">
-          {filtered.map(c => {
+        <div className="bg-white rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+          {filtered.map((c, idx) => {
             const isSelected = selected.has(c.id)
+            const meta = [c.phone, c.email, c.address].filter(Boolean).join(' · ')
             return (
-            <div
-              key={c.id}
-              className="bg-white rounded-xl p-4 sm:p-5"
-              style={{
-                border: `1px solid ${isSelected ? '#A78BFA' : 'var(--border)'}`,
-                boxShadow: isSelected ? '0 0 0 2px #DDD6FE' : 'var(--shadow-card)',
-              }}
-            >
-              <div className="flex items-start gap-3">
+              <div
+                key={c.id}
+                className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-gray-50"
+                style={{
+                  borderBottom: idx < filtered.length - 1 ? '1px solid var(--border)' : 'none',
+                  background: isSelected ? '#F0FDFA' : undefined,
+                }}
+              >
                 {selecting && (
-                  <button onClick={() => toggleSelect(c.id)} className="flex-shrink-0 mt-0.5 p-0.5">
+                  <button onClick={() => toggleSelect(c.id)} className="flex-shrink-0">
                     {isSelected
-                      ? <CheckSquare className="w-5 h-5 text-teal-600" />
-                      : <Square className="w-5 h-5 text-gray-300" />
+                      ? <CheckSquare className="w-4 h-4 text-teal-600" />
+                      : <Square className="w-4 h-4 text-gray-300" />
                     }
                   </button>
                 )}
-                <div
-                  className="w-10 h-10 rounded-2xl flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
-                  style={{ background: 'var(--primary)' }}
-                >
-                  {c.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)}
-                </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm" style={{ color: 'var(--text)' }}>{c.name}</p>
-                  <div className="mt-1.5 space-y-1">
-                    {c.phone && (
-                      <p className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-2)' }}>
-                        <Phone className="w-3 h-3 flex-shrink-0" />
-                        {c.phone}
-                      </p>
-                    )}
-                    {c.email && (
-                      <p className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-2)' }}>
-                        <Mail className="w-3 h-3 flex-shrink-0" />
-                        {c.email}
-                      </p>
-                    )}
-                    {c.address && (
-                      <p className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-2)' }}>
-                        <MapPin className="w-3 h-3 flex-shrink-0" />
-                        {c.address}
-                      </p>
-                    )}
-                    {c.notes && (
-                      <p className="flex items-start gap-1.5 text-xs" style={{ color: 'var(--text-3)' }}>
-                        <FileText className="w-3 h-3 flex-shrink-0 mt-0.5" />
-                        <span className="line-clamp-2">{c.notes}</span>
-                      </p>
-                    )}
-                  </div>
+                  <p className="text-sm font-semibold truncate" style={{ color: 'var(--text)' }}>{c.name}</p>
+                  {meta && <p className="text-xs truncate mt-0.5" style={{ color: 'var(--text-2)' }}>{meta}</p>}
+                  {c.notes && <p className="text-xs truncate mt-0.5 italic" style={{ color: 'var(--text-3)' }}>{c.notes}</p>}
                 </div>
                 {selecting ? (
-                  <button onClick={() => toggleSelect(c.id)} className="p-2 flex-shrink-0">
+                  <button onClick={() => toggleSelect(c.id)} className="flex-shrink-0 p-1">
                     {isSelected
-                      ? <CheckSquare className="w-5 h-5 text-teal-600" />
-                      : <Square className="w-5 h-5 text-gray-300" />
+                      ? <CheckSquare className="w-4 h-4 text-teal-600" />
+                      : <Square className="w-4 h-4 text-gray-300" />
                     }
                   </button>
                 ) : (
-                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                  <div className="flex items-center gap-1 flex-shrink-0">
                     {mode === 'picker' && onSelectContact && (
                       <button
                         onClick={() => onSelectContact({ name: c.name, phone: c.phone || '', email: c.email || '', address: c.address || '' })}
-                        className="text-white font-semibold px-3 py-1.5 rounded-xl text-xs active:scale-95"
+                        className="text-white font-semibold px-3 py-1.5 rounded-lg text-xs active:scale-95"
                         style={{ background: 'var(--primary)' }}
                       >
                         Select
@@ -538,21 +508,20 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
                     )}
                     <button
                       onClick={() => startEdit(c)}
-                      className="p-2 rounded-xl hover:bg-gray-50 active:scale-95 text-gray-400 hover:text-gray-600 transition-colors"
+                      className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
                     >
-                      <Pencil className="w-4 h-4" />
+                      <Pencil className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={() => handleDelete(c.id)}
                       disabled={deletingId === c.id}
-                      className="p-2 rounded-xl hover:bg-red-50 active:scale-95 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-40"
+                      className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-40"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 )}
               </div>
-            </div>
             )
           })}
         </div>

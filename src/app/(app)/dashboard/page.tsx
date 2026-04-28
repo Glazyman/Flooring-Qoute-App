@@ -55,10 +55,10 @@ export default async function DashboardPage() {
         return (
           <div className="grid grid-cols-2 gap-3">
             {tiles.map(({ label, value, sub }) => (
-              <div key={label} className="bg-white rounded-xl px-5 py-5 overflow-hidden min-w-0" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
-                <p className="text-[11px] font-semibold uppercase tracking-widest mb-1.5 truncate" style={{ color: 'var(--text-3)' }}>{label}</p>
-                <p className="text-xl font-extrabold tracking-tight leading-tight truncate" style={{ color: 'var(--text)' }}>{value}</p>
-                {sub && <p className="text-[11px] mt-1 font-medium" style={{ color: 'var(--text-3)' }}>{sub}</p>}
+              <div key={label} className="bg-white rounded-xl px-4 py-4 overflow-hidden min-w-0" style={{ border: '1px solid var(--border)' }}>
+                <p className="text-[10px] font-semibold uppercase tracking-widest mb-1 truncate" style={{ color: 'var(--text-3)' }}>{label}</p>
+                <p className="text-xl font-bold tracking-tight leading-tight truncate" style={{ color: 'var(--text)' }}>{value}</p>
+                {sub && <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-3)' }}>{sub}</p>}
               </div>
             ))}
           </div>
@@ -80,25 +80,21 @@ export default async function DashboardPage() {
         ) : (
           quotes.slice(0, 8).map((q, i, arr) => {
             const date = new Date(q.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-            const initials = (q.customer_name || '?').split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2)
             const statusColor: Record<string, string> = { accepted: '#16a34a', pending: '#d97706', lost: '#ff3b30' }
             return (
               <Link
                 key={q.id}
                 href={`/quotes/${q.id}`}
-                className="quote-row flex items-center gap-3.5 px-5 py-4 active:bg-gray-50"
+                className="quote-row flex items-center gap-3 px-5 py-3 active:bg-gray-50"
                 style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none' }}
               >
-                <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-white text-xs font-bold" style={{ background: '#1c1c1e' }}>
-                  {initials}
-                </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold truncate" style={{ color: 'var(--text)' }}>{q.customer_name}</p>
-                  <p className="text-xs truncate capitalize" style={{ color: 'var(--text-2)' }}>{q.flooring_type} · {q.job_address || date}</p>
+                  <p className="text-xs truncate capitalize mt-0.5" style={{ color: 'var(--text-2)' }}>{q.flooring_type} · {q.job_address || date}</p>
                 </div>
                 <div className="text-right flex-shrink-0">
                   <p className="text-sm font-bold" style={{ color: 'var(--text)' }}>{fmt(q.final_total)}</p>
-                  <p className="text-xs font-medium capitalize" style={{ color: statusColor[q.status] || 'var(--text-3)' }}>{q.status}</p>
+                  <p className="text-xs font-medium capitalize mt-0.5" style={{ color: statusColor[q.status] || 'var(--text-3)' }}>{q.status}</p>
                 </div>
               </Link>
             )

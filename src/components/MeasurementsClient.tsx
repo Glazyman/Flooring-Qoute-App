@@ -162,61 +162,47 @@ export default function MeasurementsClient({ initialMeasurements }: { initialMea
           </Link>
         </div>
       ) : (
-        <div className="space-y-2.5">
-          {items.map(m => {
+        <div className="bg-white rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+          {items.map((m, idx) => {
             const isSelected = selected.has(m.id)
             return (
               <div
                 key={m.id}
-                className={`bg-white rounded-2xl flex items-center gap-3 px-4 sm:px-5 py-4 transition-all ${
-                  isSelected ? '' : 'hover:bg-gray-50'
-                }`}
+                className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-gray-50"
                 style={{
-                  border: `1px solid ${isSelected ? '#A78BFA' : 'var(--border)'}`,
-                  boxShadow: isSelected ? '0 0 0 2px #DDD6FE' : 'var(--shadow-card)',
+                  borderBottom: idx < items.length - 1 ? '1px solid var(--border)' : 'none',
+                  background: isSelected ? '#F0FDFA' : undefined,
                 }}
               >
                 {selecting && (
-                  <button onClick={() => toggleSelect(m.id)} className="flex-shrink-0 p-0.5">
+                  <button onClick={() => toggleSelect(m.id)} className="flex-shrink-0">
                     {isSelected
-                      ? <CheckSquare className="w-5 h-5 text-teal-600" />
-                      : <Square className="w-5 h-5 text-gray-300" />
+                      ? <CheckSquare className="w-4 h-4 text-teal-600" />
+                      : <Square className="w-4 h-4 text-gray-300" />
                     }
                   </button>
                 )}
 
                 {selecting ? (
-                  <button
-                    onClick={() => toggleSelect(m.id)}
-                    className="flex items-center gap-4 flex-1 min-w-0 text-left"
-                  >
-                    <div className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 text-white text-sm font-bold" style={{ background: 'var(--primary)' }}>
-                      {m.customer_name.charAt(0).toUpperCase()}
-                    </div>
+                  <button onClick={() => toggleSelect(m.id)} className="flex items-center gap-3 flex-1 min-w-0 text-left">
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm" style={{ color: 'var(--text)' }}>{m.customer_name}</p>
-                      <p className="text-xs mt-0.5" style={{ color: 'var(--text-2)' }}>
+                      <p className="text-sm font-semibold truncate" style={{ color: 'var(--text)' }}>{m.customer_name}</p>
+                      <p className="text-xs truncate mt-0.5" style={{ color: 'var(--text-2)' }}>
                         {m.flooring_type} · {m.adjusted_sqft.toFixed(0)} sqft · {fmtDate(m.created_at)}
                       </p>
                     </div>
-                    <p className="font-bold text-sm flex-shrink-0" style={{ color: 'var(--text)' }}>{fmt(m.final_total)}</p>
+                    <p className="text-sm font-bold flex-shrink-0" style={{ color: 'var(--text)' }}>{fmt(m.final_total)}</p>
                   </button>
                 ) : (
-                  <Link href={`/quotes/${m.id}/edit`} className="flex items-center gap-4 flex-1 min-w-0 active:scale-[0.99]">
-                    <div className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 text-white text-sm font-bold" style={{ background: 'var(--primary)' }}>
-                      {m.customer_name.charAt(0).toUpperCase()}
-                    </div>
+                  <Link href={`/quotes/${m.id}/edit`} className="flex items-center gap-3 flex-1 min-w-0">
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm flex items-center gap-1.5" style={{ color: 'var(--text)' }}>
-                        {m.customer_name}
-                        <Pencil className="w-3 h-3 opacity-30" />
-                      </p>
-                      <p className="text-xs mt-0.5" style={{ color: 'var(--text-2)' }}>
+                      <p className="text-sm font-semibold truncate" style={{ color: 'var(--text)' }}>{m.customer_name}</p>
+                      <p className="text-xs truncate mt-0.5" style={{ color: 'var(--text-2)' }}>
                         {m.flooring_type} · {m.adjusted_sqft.toFixed(0)} sqft · {fmtDate(m.created_at)}
                         {m.job_address && ` · ${m.job_address}`}
                       </p>
                     </div>
-                    <p className="font-bold text-sm flex-shrink-0 mr-2" style={{ color: 'var(--text)' }}>{fmt(m.final_total)}</p>
+                    <p className="text-sm font-bold flex-shrink-0 mr-2" style={{ color: 'var(--text)' }}>{fmt(m.final_total)}</p>
                   </Link>
                 )}
 
