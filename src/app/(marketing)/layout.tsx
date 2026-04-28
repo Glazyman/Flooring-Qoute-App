@@ -45,8 +45,10 @@ export default async function MarketingLayout({ children }: { children: React.Re
             <span className="text-sm font-semibold text-gray-700">FloorQuote Pro</span>
           </div>
           <p className="text-sm text-gray-400">© {new Date().getFullYear()} FloorQuote Pro. All rights reserved.</p>
-          <div className="flex items-center gap-5 text-sm text-gray-400">
+          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-gray-400">
             <Link href="/contact" className="hover:text-gray-700 transition-colors">Contact</Link>
+            <Link href="/privacy" className="hover:text-gray-700 transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-gray-700 transition-colors">Terms</Link>
             {user
               ? <Link href="/dashboard" className="hover:text-gray-700 transition-colors">Dashboard</Link>
               : <Link href="/signup" className="hover:text-gray-700 transition-colors">Sign Up</Link>}
