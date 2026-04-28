@@ -1,13 +1,15 @@
 'use client'
 
+import Link from 'next/link'
 import { useState } from 'react'
 
 interface Props {
   quoteId: string
   customerEmail: string | null
+  emailConnected: boolean
 }
 
-export default function EmailQuoteButton({ quoteId, customerEmail }: Props) {
+export default function EmailQuoteButton({ quoteId, customerEmail, emailConnected }: Props) {
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
 
@@ -28,6 +30,20 @@ export default function EmailQuoteButton({ quoteId, customerEmail }: Props) {
         {emailIcon}
         No Email
       </button>
+    )
+  }
+
+  if (!emailConnected) {
+    return (
+      <Link
+        href="/settings?tab=email"
+        className="flex items-center justify-center gap-1.5 text-white font-semibold px-4 py-3 sm:py-2.5 rounded-2xl text-sm active:scale-95 transition-transform focus:outline-none"
+        style={{ background: 'var(--primary)', boxShadow: '0 2px 8px rgba(13,148,136,0.25)' }}
+        title="Connect a Gmail account in Settings to send quotes"
+      >
+        {emailIcon}
+        Set up Email
+      </Link>
     )
   }
 
@@ -101,7 +117,7 @@ export default function EmailQuoteButton({ quoteId, customerEmail }: Props) {
       ) : (
         <>
           {emailIcon}
-          Email Customer
+          Send Email
         </>
       )}
     </button>

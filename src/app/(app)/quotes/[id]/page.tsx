@@ -37,18 +37,30 @@ export default async function QuoteDetailPage({
 
   if (!membership) redirect('/billing/setup')
 
-  const [{ data: quote }, { data: rooms }, { data: lineItems }, { data: settingsRow }] =
-    await Promise.all([
-      supabase
-        .from('quotes')
-        .select('*')
-        .eq('id', id)
-        .eq('company_id', membership.company_id)
-        .single(),
-      supabase.from('quote_rooms').select('*').eq('quote_id', id).order('id'),
-      supabase.from('quote_line_items').select('*').eq('quote_id', id).order('position'),
-      supabase.from('company_settings').select('*').eq('company_id', membership.company_id).single(),
-    ])
+  const [
+    { data: quote },
+    { data: rooms },
+    { data: lineItems },
+    { data: settingsRow },
+    { data: emailConnection },
+  ] = await Promise.all([
+    supabase
+      .from('quotes')
+      .select('*')
+      .eq('id', id)
+      .eq('company_id', membership.company_id)
+      .single(),
+    supabase.from('quote_rooms').select('*').eq('quote_id', id).order('id'),
+    supabase.from('quote_line_items').select('*').eq('quote_id', id).order('position'),
+    supabase.from('company_settings').select('*').eq('company_id', membership.company_id).single(),
+    supabase
+      .from('email_connections')
+      .select('id')
+      .eq('company_id', membership.company_id)
+      .maybeSingle(),
+  ])
+
+  const emailConnected = !!emailConnection
 
   if (!quote) notFound()
 
@@ -137,7 +149,7 @@ export default async function QuoteDetailPage({
             Edit Quote
           </Link>
           <DuplicateButton quoteId={id} />
-          <EmailQuoteButton quoteId={id} customerEmail={q.customer_email} />
+          <EmailQuoteButton quoteId={id} customerEmail={q.customer_email} emailConnected={emailConnected} />
           <a
             href={`/api/quotes/${id}/pdf`}
             target="_blank"

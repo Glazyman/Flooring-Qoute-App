@@ -5,6 +5,7 @@ import { QuotePdfDocument } from '@/components/QuotePdf'
 import type { Quote, QuoteRoom, QuoteLineItem, CompanySettings } from '@/lib/types'
 import React from 'react'
 import { Resend } from 'resend'
+import { getValidGmailAccessToken, sendGmailMessage } from '@/lib/gmail'
 
 export const runtime = 'nodejs'
 
@@ -111,13 +112,6 @@ export async function POST(
 ) {
   const { id } = await params
 
-  if (!process.env.RESEND_API_KEY) {
-    return NextResponse.json(
-      { error: 'Email not configured. Add RESEND_API_KEY to Vercel.' },
-      { status: 503 }
-    )
-  }
-
   const supabase = await createClient()
   const {
     data: { user },
@@ -175,6 +169,40 @@ export async function POST(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const pdfBuffer: Buffer = await (renderToBuffer as any)(element)
 
+  const pdfFilename = `FloorQuote-${safeName}.pdf`
+
+  // Prefer the company's connected Gmail account if available — sends from
+  // the company's own address rather than the shared Resend domain.
+  const gmail = await getValidGmailAccessToken(membership.company_id)
+  if (gmail) {
+    const result = await sendGmailMessage({
+      accessToken: gmail.accessToken,
+      fromName: companyName,
+      fromEmail: gmail.emailAddress,
+      to: q.customer_email,
+      bcc: companyEmail || undefined,
+      subject,
+      htmlBody,
+      attachment: {
+        filename: pdfFilename,
+        contentBase64: pdfBuffer.toString('base64'),
+        mimeType: 'application/pdf',
+      },
+    })
+
+    if (result.ok) {
+      return NextResponse.json({ ok: true, via: 'gmail', from: gmail.emailAddress })
+    }
+    // Otherwise fall through to the Resend fallback below.
+  }
+
+  if (!process.env.RESEND_API_KEY) {
+    return NextResponse.json(
+      { error: 'Email not configured. Connect Gmail in Settings or add RESEND_API_KEY to Vercel.' },
+      { status: 503 }
+    )
+  }
+
   const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev'
   const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -186,7 +214,7 @@ export async function POST(
       html: htmlBody,
       attachments: [
         {
-          filename: `FloorQuote-${safeName}.pdf`,
+          filename: pdfFilename,
           content: pdfBuffer,
         },
       ],

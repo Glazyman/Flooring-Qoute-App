@@ -144,10 +144,12 @@ function Input({
   )
 }
 
-function Tabs({ tab, setTab }: { tab: 'company' | 'account'; setTab: (t: 'company' | 'account') => void }) {
+type SettingsTab = 'company' | 'account' | 'email'
+
+function Tabs({ tab, setTab }: { tab: SettingsTab; setTab: (t: SettingsTab) => void }) {
   return (
-    <div className="flex gap-1 rounded-xl p-1 max-w-sm" style={{ background: '#f9f9fb', border: '1px solid var(--border)' }}>
-      {(['company', 'account'] as const).map(t => (
+    <div className="flex gap-1 rounded-xl p-1 max-w-md" style={{ background: '#f9f9fb', border: '1px solid var(--border)' }}>
+      {(['company', 'account', 'email'] as const).map(t => (
         <button
           key={t}
           type="button"
@@ -249,17 +251,143 @@ function AccountTab() {
   )
 }
 
+function EmailTab() {
+  const searchParams = useSearchParams()
+  const [loading, setLoading] = useState(true)
+  const [connection, setConnection] = useState<{
+    connected: boolean
+    provider?: string
+    email_address?: string
+  }>({ connected: false })
+  const [disconnecting, setDisconnecting] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+
+  useEffect(() => {
+    if (searchParams.get('connected') === '1') {
+      setSuccess('Gmail account connected.')
+    }
+    const oauthError = searchParams.get('error')
+    if (oauthError) {
+      setError(`Connection failed: ${oauthError.replace(/_/g, ' ')}`)
+    }
+  }, [searchParams])
+
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const res = await fetch('/api/email/connection')
+        if (!res.ok) throw new Error('Failed to load')
+        const data = await res.json()
+        if (!cancelled) setConnection(data)
+      } catch {
+        if (!cancelled) setError('Failed to load connection status')
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [])
+
+  async function disconnect() {
+    if (!confirm('Disconnect this Gmail account? Future quotes will fall back to the default email sender.')) {
+      return
+    }
+    setDisconnecting(true)
+    setError('')
+    try {
+      const res = await fetch('/api/email/oauth/google/disconnect', { method: 'POST' })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        setError(data.error || 'Failed to disconnect')
+      } else {
+        setConnection({ connected: false })
+        setSuccess('Gmail account disconnected.')
+      }
+    } catch {
+      setError('Network error while disconnecting')
+    } finally {
+      setDisconnecting(false)
+    }
+  }
+
+  return (
+    <div className="space-y-4 max-w-2xl">
+      <Card title="Email Sending" description="Connect your Gmail account so quote emails are sent from your own address. If no account is connected, quotes are sent from FloorQuote's shared sender.">
+        {loading ? (
+          <p className="text-sm" style={{ color: 'var(--text-2)' }}>Loading…</p>
+        ) : connection.connected ? (
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 rounded-xl border border-green-200 bg-green-50 px-4 py-3">
+              <svg className="w-5 h-5 text-green-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+              </svg>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-green-800">
+                  Connected as {connection.email_address}
+                </p>
+                <p className="text-xs text-green-700">
+                  {connection.provider === 'gmail' ? 'Gmail' : connection.provider}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={disconnect}
+              disabled={disconnecting}
+              className="px-4 py-2 text-sm font-semibold rounded-xl transition-colors disabled:opacity-50"
+              style={{ color: '#b91c1c', border: '1px solid #fecaca', background: '#fef2f2' }}
+            >
+              {disconnecting ? 'Disconnecting…' : 'Disconnect'}
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <p className="text-sm" style={{ color: 'var(--text-2)' }}>
+              Connect your Gmail account to send quotes directly from your email. Customers will see
+              your address in their inbox, and replies come straight back to you.
+            </p>
+            <a
+              href="/api/email/oauth/google/start"
+              className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white rounded-xl transition-colors"
+              style={{ background: 'var(--primary)' }}
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4.236-8 5.143-8-5.143V6l8 5.143L20 6z" />
+              </svg>
+              Connect Gmail
+            </a>
+          </div>
+        )}
+      </Card>
+
+      {success && (
+        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-2xl text-sm font-medium">{success}</div>
+      )}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl text-sm font-medium">{error}</div>
+      )}
+    </div>
+  )
+}
+
 export default function SettingsForm({ settings: initial }: { settings: CompanySettings }) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const initialTab = (searchParams.get('tab') === 'account' ? 'account' : 'company') as 'company' | 'account'
-  const [tab, setTab] = useState<'company' | 'account'>(initialTab)
+  const tabParam = searchParams.get('tab')
+  const initialTab: SettingsTab =
+    tabParam === 'account' ? 'account' : tabParam === 'email' ? 'email' : 'company'
+  const [tab, setTab] = useState<SettingsTab>(initialTab)
 
-  function switchTab(t: 'company' | 'account') {
+  function switchTab(t: SettingsTab) {
     setTab(t)
     const url = new URL(window.location.href)
     if (t === 'company') url.searchParams.delete('tab')
     else url.searchParams.set('tab', t)
+    // Strip transient OAuth flags when changing tabs.
+    url.searchParams.delete('connected')
+    url.searchParams.delete('error')
     window.history.replaceState({}, '', url.toString())
   }
 
@@ -373,6 +501,15 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
       <div className="space-y-4">
         <Tabs tab={tab} setTab={switchTab} />
         <AccountTab />
+      </div>
+    )
+  }
+
+  if (tab === 'email') {
+    return (
+      <div className="space-y-4">
+        <Tabs tab={tab} setTab={switchTab} />
+        <EmailTab />
       </div>
     )
   }
