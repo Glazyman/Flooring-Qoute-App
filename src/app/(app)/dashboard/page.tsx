@@ -55,51 +55,55 @@ export default async function DashboardPage() {
         return (
           <div className="grid grid-cols-2 gap-3">
             {tiles.map(({ label, value, sub }) => (
-              <div key={label} className="bg-white rounded-xl px-4 py-4 overflow-hidden min-w-0" style={{ border: '1px solid var(--border)' }}>
-                <p className="text-[10px] font-semibold uppercase tracking-widest mb-1 truncate" style={{ color: 'var(--text-3)' }}>{label}</p>
-                <p className="text-xl font-bold tracking-tight leading-tight truncate" style={{ color: 'var(--text)' }}>{value}</p>
-                {sub && <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-3)' }}>{sub}</p>}
+              <div key={label} className="rounded-xl px-4 py-4 overflow-hidden min-w-0" style={{ background: 'var(--sidebar-bg)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <p className="text-[10px] font-semibold uppercase tracking-widest mb-1.5 truncate" style={{ color: 'rgba(255,255,255,0.35)' }}>{label}</p>
+                <p className="text-xl font-bold tracking-tight leading-tight truncate" style={{ color: 'rgba(255,255,255,0.92)' }}>{value}</p>
+                {sub && <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.3)' }}>{sub}</p>}
               </div>
             ))}
           </div>
         )
       })()}
 
-      {/* Recent Quotes */}
-      <div className="bg-white rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
-        <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
-          <p className="font-semibold text-sm" style={{ color: 'var(--text)' }}>Recent Estimates</p>
-          <Link href="/quotes" className="text-sm font-medium" style={{ color: 'var(--primary)' }}>See all</Link>
+      {/* Recent Estimates */}
+      <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)', background: 'var(--sidebar-bg)' }}>
+        {/* Dark header */}
+        <div className="flex items-center justify-between px-5 py-3.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+          <p className="font-semibold text-sm" style={{ color: 'rgba(255,255,255,0.85)' }}>Recent Estimates</p>
+          <Link href="/quotes" className="text-xs font-semibold px-2.5 py-1 rounded-lg transition-colors" style={{ color: 'var(--primary)', background: 'rgba(13,148,136,0.12)' }}>See all</Link>
         </div>
 
-        {quotes.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-sm font-medium mb-1" style={{ color: 'var(--text-2)' }}>No quotes yet</p>
-            <Link href="/quotes/new" className="text-sm font-semibold" style={{ color: 'var(--primary)' }}>Create your first →</Link>
-          </div>
-        ) : (
-          quotes.slice(0, 8).map((q, i, arr) => {
-            const date = new Date(q.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-            const statusColor: Record<string, string> = { accepted: '#16a34a', pending: '#d97706', lost: '#ff3b30' }
-            return (
-              <Link
-                key={q.id}
-                href={`/quotes/${q.id}`}
-                className="quote-row flex items-center gap-3 px-5 py-3 active:bg-gray-50"
-                style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none' }}
-              >
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold truncate" style={{ color: 'var(--text)' }}>{q.customer_name}</p>
-                  <p className="text-xs truncate capitalize mt-0.5" style={{ color: 'var(--text-2)' }}>{q.flooring_type} · {q.job_address || date}</p>
-                </div>
-                <div className="text-right flex-shrink-0">
-                  <p className="text-sm font-bold" style={{ color: 'var(--text)' }}>{fmt(q.final_total)}</p>
-                  <p className="text-xs font-medium capitalize mt-0.5" style={{ color: statusColor[q.status] || 'var(--text-3)' }}>{q.status}</p>
-                </div>
-              </Link>
-            )
-          })
-        )}
+        {/* White list body */}
+        <div className="bg-white">
+          {quotes.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-sm font-medium mb-1" style={{ color: 'var(--text-2)' }}>No quotes yet</p>
+              <Link href="/quotes/new" className="text-sm font-semibold" style={{ color: 'var(--primary)' }}>Create your first →</Link>
+            </div>
+          ) : (
+            quotes.slice(0, 8).map((q, i, arr) => {
+              const date = new Date(q.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+              const statusColor: Record<string, string> = { accepted: '#16a34a', pending: '#d97706', lost: '#ff3b30' }
+              return (
+                <Link
+                  key={q.id}
+                  href={`/quotes/${q.id}`}
+                  className="quote-row flex items-center gap-3 px-5 py-3 active:bg-gray-50"
+                  style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none' }}
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold truncate" style={{ color: 'var(--text)' }}>{q.customer_name}</p>
+                    <p className="text-xs truncate capitalize mt-0.5" style={{ color: 'var(--text-2)' }}>{q.flooring_type} · {q.job_address || date}</p>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <p className="text-sm font-bold" style={{ color: 'var(--text)' }}>{fmt(q.final_total)}</p>
+                    <p className="text-xs font-medium capitalize mt-0.5" style={{ color: statusColor[q.status] || 'var(--text-3)' }}>{q.status}</p>
+                  </div>
+                </Link>
+              )
+            })
+          )}
+        </div>
       </div>
     </div>
   )
