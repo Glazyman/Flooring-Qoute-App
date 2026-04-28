@@ -36,6 +36,7 @@ export default async function EditQuotePage({
     job_address: q.job_address,
     flooring_type: q.flooring_type,
     section_flooring_types: q.section_flooring_types ?? null,
+    section_pricing: (q as unknown as { section_pricing?: Record<string, { material: number; labor: number }> }).section_pricing ?? null,
     measurement_type: q.measurement_type,
     base_sqft: q.base_sqft,
     waste_pct: q.waste_pct,

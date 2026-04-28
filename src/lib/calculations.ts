@@ -14,6 +14,9 @@ export interface QuoteInputs {
   tax_pct: number
   markup_pct: number
   deposit_pct: number
+  // Optional overrides for per-section pricing
+  material_total_override?: number
+  labor_total_override?: number
 }
 
 export interface QuoteCalculations {
@@ -31,8 +34,8 @@ export interface QuoteCalculations {
 
 export function calculateQuote(inputs: QuoteInputs): QuoteCalculations {
   const adjusted_sqft = inputs.base_sqft * (1 + inputs.waste_pct / 100)
-  const material_total = adjusted_sqft * inputs.material_cost_per_sqft
-  const labor_total = adjusted_sqft * inputs.labor_cost_per_sqft
+  const material_total = inputs.material_total_override ?? adjusted_sqft * inputs.material_cost_per_sqft
+  const labor_total = inputs.labor_total_override ?? adjusted_sqft * inputs.labor_cost_per_sqft
   const extras_total =
     (inputs.removal_fee || 0) +
     (inputs.furniture_fee || 0) +
