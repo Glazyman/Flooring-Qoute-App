@@ -22,11 +22,12 @@ export default async function MarketingLayout({ children }: { children: React.Re
               </Link>
             ) : (
               <>
-                <Link href="/login" className="text-sm font-medium text-gray-500 hover:text-gray-900 px-4 py-2 rounded-xl hover:bg-gray-50 transition-colors">
+                <Link href="/login" className="text-sm font-medium text-gray-500 hover:text-gray-900 px-3 py-2 rounded-xl hover:bg-gray-50 transition-colors">
                   Sign In
                 </Link>
-                <Link href="/signup" className="text-sm font-semibold text-white px-4 py-2 rounded-xl transition-colors" style={{ background: 'var(--primary)' }}>
-                  Get Started Free
+                <Link href="/signup" className="text-sm font-semibold text-white px-3 sm:px-4 py-2 rounded-xl transition-colors whitespace-nowrap" style={{ background: 'var(--primary)' }}>
+                  <span className="hidden sm:inline">Get Started Free</span>
+                  <span className="sm:hidden">Start Free</span>
                 </Link>
               </>
             )}

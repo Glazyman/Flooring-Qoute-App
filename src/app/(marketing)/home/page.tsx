@@ -58,18 +58,18 @@ export default function HomePage() {
     <main className="marketing-page">
 
       {/* ── Hero ── */}
-      <section className="max-w-5xl mx-auto px-5 pt-20 pb-16 text-center">
-        <div className="inline-flex items-center gap-2 border border-gray-200 text-gray-500 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-8">
+      <section className="max-w-5xl mx-auto px-5 pt-14 pb-12 sm:pt-20 sm:pb-16 text-center">
+        <div className="inline-flex items-center gap-2 border border-gray-200 text-gray-500 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-6 sm:mb-8">
           <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--primary)' }} />
           3 free quotes — no credit card needed
         </div>
 
-        <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-gray-900 leading-[1.05] tracking-tight mb-6">
+        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-gray-900 leading-[1.08] tracking-tight mb-5 sm:mb-6">
           Floor estimates.<br />
           <span style={{ color: 'var(--primary)' }}>Done in 2 minutes.</span>
         </h1>
 
-        <p className="text-xl text-gray-500 max-w-2xl mx-auto mb-10 leading-relaxed">
+        <p className="text-base sm:text-xl text-gray-500 max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed">
           FloorQuote Pro lets flooring contractors quote fast, look professional, and win more jobs — from any phone or computer.
         </p>
 
@@ -95,21 +95,21 @@ export default function HomePage() {
       </section>
 
       {/* ── App mockup ── */}
-      <section className="max-w-4xl mx-auto px-5 mb-24">
-        <div className="bg-gray-50 rounded-3xl border border-gray-100 p-6 sm:p-10">
-          <div className="grid sm:grid-cols-2 gap-4">
+      <section className="max-w-4xl mx-auto px-5 mb-16 sm:mb-24">
+        <div className="bg-gray-50 rounded-3xl border border-gray-100 p-5 sm:p-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Left — quote info */}
-            <div className="space-y-3">
-              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-4">Customer & Job</p>
+            <div className="space-y-2.5">
+              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Customer & Job</p>
               {[
                 { label: 'Customer', value: 'John Smith' },
                 { label: 'Address',  value: '274 Cornwall Rd' },
                 { label: 'Flooring', value: 'Hardwood · Red Oak' },
                 { label: 'Area',     value: '1,247 sqft (10% waste)' },
               ].map(({ label, value }) => (
-                <div key={label} className="bg-white rounded-2xl px-4 py-3.5 border border-gray-100 flex justify-between items-center">
-                  <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{label}</span>
-                  <span className="text-sm font-semibold text-gray-900">{value}</span>
+                <div key={label} className="bg-white rounded-2xl px-4 py-3 border border-gray-100 flex justify-between items-center gap-3">
+                  <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide shrink-0">{label}</span>
+                  <span className="text-sm font-semibold text-gray-900 text-right">{value}</span>
                 </div>
               ))}
             </div>
@@ -124,9 +124,9 @@ export default function HomePage() {
                   { label: 'Stairs (14)',             value: '$280'  },
                   { label: 'Quarter Round',           value: '$180'  },
                 ].map(({ label, value }) => (
-                  <div key={label} className="flex justify-between text-sm">
+                  <div key={label} className="flex justify-between text-sm gap-2">
                     <span className="text-gray-500">{label}</span>
-                    <span className="font-semibold text-gray-900">{value}</span>
+                    <span className="font-semibold text-gray-900 shrink-0">{value}</span>
                   </div>
                 ))}
               </div>
@@ -143,37 +143,39 @@ export default function HomePage() {
       </section>
 
       {/* ── How it works ── */}
-      <section className="max-w-5xl mx-auto px-5 mb-24">
-        <div className="text-center mb-14">
+      <section className="max-w-5xl mx-auto px-5 mb-16 sm:mb-24">
+        <div className="text-center mb-10 sm:mb-14">
           <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--primary)' }}>How it works</p>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">Three steps to a winning quote</h2>
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">Three steps to a winning quote</h2>
         </div>
-        <div className="grid sm:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {STEPS.map(({ n, title, desc }) => (
-            <div key={n} className="bg-white rounded-3xl border border-gray-100 p-6" style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-              <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-white font-extrabold text-base mb-5" style={{ background: 'var(--primary)' }}>
+            <div key={n} className="bg-white rounded-2xl sm:rounded-3xl border border-gray-100 p-5 sm:p-6 flex gap-4 sm:block" style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+              <div className="w-10 h-10 rounded-2xl flex-shrink-0 flex items-center justify-center text-white font-extrabold text-base sm:mb-5" style={{ background: 'var(--primary)' }}>
                 {n}
               </div>
-              <h3 className="font-bold text-gray-900 mb-2 text-[15px]">{title}</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">{desc}</p>
+              <div>
+                <h3 className="font-bold text-gray-900 mb-1 sm:mb-2 text-[14px] sm:text-[15px]">{title}</h3>
+                <p className="text-sm text-gray-500 leading-relaxed">{desc}</p>
+              </div>
             </div>
           ))}
         </div>
       </section>
 
       {/* ── Features ── */}
-      <section className="max-w-5xl mx-auto px-5 mb-24">
-        <div className="text-center mb-14">
+      <section className="max-w-5xl mx-auto px-5 mb-16 sm:mb-24">
+        <div className="text-center mb-10 sm:mb-14">
           <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--primary)' }}>Features</p>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">Everything a flooring pro needs</h2>
-          <p className="text-lg text-gray-400 mt-3 max-w-xl mx-auto">No complicated software. No training. Just fast, accurate quotes.</p>
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">Everything a flooring pro needs</h2>
+          <p className="text-base sm:text-lg text-gray-400 mt-3 max-w-xl mx-auto">No complicated software. No training. Just fast, accurate quotes.</p>
         </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {FEATURES.map(({ icon, title, desc }) => (
-            <div key={title} className="bg-white rounded-3xl border border-gray-100 p-6" style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-              <div className="text-2xl mb-4">{icon}</div>
-              <h3 className="font-bold text-gray-900 mb-1.5 text-[15px]">{title}</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">{desc}</p>
+            <div key={title} className="bg-white rounded-2xl sm:rounded-3xl border border-gray-100 p-4 sm:p-6" style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+              <div className="text-2xl mb-3">{icon}</div>
+              <h3 className="font-bold text-gray-900 mb-1 text-[13px] sm:text-[15px]">{title}</h3>
+              <p className="text-xs sm:text-sm text-gray-500 leading-relaxed">{desc}</p>
             </div>
           ))}
         </div>
@@ -183,13 +185,13 @@ export default function HomePage() {
       <PricingSection />
 
       {/* ── CTA ── */}
-      <section className="max-w-5xl mx-auto px-5 mb-24">
-        <div className="bg-gray-50 rounded-3xl border border-gray-100 px-8 py-16 text-center">
+      <section className="max-w-5xl mx-auto px-5 mb-16 sm:mb-24">
+        <div className="bg-gray-50 rounded-3xl border border-gray-100 px-5 py-12 sm:px-8 sm:py-16 text-center">
           <div className="flex justify-center mb-6">
             <Image src="/logo.png" alt="FloorQuote Pro" width={56} height={56} className="rounded-2xl" />
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight mb-3">Ready to quote faster?</h2>
-          <p className="text-lg text-gray-400 mb-8 max-w-lg mx-auto">Join flooring contractors already using FloorQuote Pro to win more jobs.</p>
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-gray-900 tracking-tight mb-3">Ready to quote faster?</h2>
+          <p className="text-base sm:text-lg text-gray-400 mb-8 max-w-lg mx-auto">Join flooring contractors already using FloorQuote Pro to win more jobs.</p>
           <Link
             href="/signup"
             className="inline-flex items-center gap-2 text-white font-bold px-8 py-4 rounded-2xl text-base"
