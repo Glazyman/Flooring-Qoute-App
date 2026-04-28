@@ -85,7 +85,7 @@ export default function SignupPage() {
       }
     }
 
-    window.location.href = '/dashboard'
+    window.location.href = '/'
   }
 
   const passwordsMatch = !form.confirmPassword || form.password === form.confirmPassword
