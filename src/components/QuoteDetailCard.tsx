@@ -249,6 +249,7 @@ export default function QuoteDetailCard({
 
   // Line items
   const [items, setItems] = useState<QuoteLineItem[]>(initialLineItems)
+  const [addingRow, setAddingRow] = useState(false)
 
   // Edit/save state
   const [editing, setEditing] = useState<string | null>(null)
@@ -319,6 +320,37 @@ export default function QuoteDetailCard({
   }
 
   const onEdit = (key: string) => setEditing(key || null)
+
+  async function addLineItem() {
+    setAddingRow(true)
+    try {
+      const res = await fetch(`/api/quotes/${q.id}/line-items`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ description: '', qty: 0, unit_price: 0, total: 0, position: items.length }),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        if (data.id) {
+          const newItem: QuoteLineItem = {
+            id: data.id,
+            quote_id: q.id,
+            position: items.length,
+            description: '',
+            qty: 0,
+            unit_price: 0,
+            total: 0,
+            created_at: new Date().toISOString(),
+          }
+          setItems(prev => [...prev, newItem])
+          // Auto-focus the new row's description
+          setTimeout(() => setEditing(`li-${data.id}-description`), 50)
+        }
+      }
+    } finally {
+      setAddingRow(false)
+    }
+  }
 
   // ---- Section pricing logic ----
   const sectionPricing =
@@ -712,6 +744,21 @@ export default function QuoteDetailCard({
               </div>
             )
           })}
+
+          {/* Add row button */}
+          <div className="px-2 py-1.5" style={{ borderBottom: ROW_BORDER }}>
+            <button
+              onClick={addLineItem}
+              disabled={addingRow}
+              className="flex items-center gap-1.5 text-xs font-semibold py-1 px-2 rounded-lg transition-colors disabled:opacity-50"
+              style={{ color: TEAL, background: 'rgba(13,148,136,0.06)' }}
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+              </svg>
+              {addingRow ? 'Adding…' : 'Add row'}
+            </button>
+          </div>
 
           {/* Fixed fee rows (static) */}
           {q.removal_fee > 0 && (
