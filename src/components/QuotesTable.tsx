@@ -118,7 +118,7 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
 
   if (localQuotes.length === 0) {
     return (
-      <div className="bg-white rounded-3xl p-14 text-center" style={{ boxShadow: 'var(--shadow-card)', border: '1px solid var(--border)' }}>
+      <div className="bg-white rounded-xl p-14 text-center" style={{ boxShadow: 'var(--shadow-card)', border: '1px solid var(--border)' }}>
         <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4" style={{ background: 'var(--bg)' }}>
           <svg className="w-8 h-8" style={{ color: 'var(--text-3)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -135,7 +135,7 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
       {/* Confirm single delete */}
       {confirmDelete && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
-          <div className="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-sm">
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm">
             <h3 className="font-bold text-lg mb-2" style={{ color: 'var(--text)' }}>Delete quote?</h3>
             <p className="text-sm mb-6" style={{ color: 'var(--text-2)' }}>This cannot be undone. The quote will be permanently removed.</p>
             <div className="flex gap-3">
@@ -161,7 +161,7 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
       {/* Confirm bulk delete */}
       {confirmBulkDelete && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
-          <div className="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-sm">
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm">
             <h3 className="font-bold text-lg mb-2" style={{ color: 'var(--text)' }}>
               Delete {selCount} estimate{selCount !== 1 ? 's' : ''}?
             </h3>
@@ -214,7 +214,7 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
       </div>
 
       {/* Desktop table */}
-      <div className="hidden md:block bg-white rounded-3xl overflow-hidden" style={{ boxShadow: 'var(--shadow-card)', border: '1px solid var(--border)' }}>
+      <div className="hidden md:block bg-white rounded-xl overflow-hidden" style={{ boxShadow: 'var(--shadow-card)', border: '1px solid var(--border)' }}>
         <table className="w-full text-sm">
           <thead>
             <tr style={{ borderBottom: '1px solid var(--border)' }}>
@@ -320,7 +320,7 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
           return (
             <div
               key={q.id}
-              className="bg-white rounded-3xl overflow-hidden"
+              className="bg-white rounded-xl overflow-hidden"
               style={{
                 boxShadow: isSelected ? '0 0 0 2px #A78BFA' : 'var(--shadow-card)',
                 border: `1px solid ${isSelected ? '#A78BFA' : 'var(--border)'}`,

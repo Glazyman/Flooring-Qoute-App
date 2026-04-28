@@ -1,37 +1,35 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #F4F3F8;
+  --bg: #F5F5F7;
   --card: #ffffff;
   --card-alt: #FAFAFA;
-  --border: #E8E5F0;
+  --border: #E5E5EA;
   --primary: #7C3AED;
   --primary-hover: #6D28D9;
   --primary-light: #F5F3FF;
   --accent: #f97316;
   --accent-light: #fff7ed;
-  --text: #0F0E17;
-  --text-2: #6B7280;
-  --text-3: #9CA3AF;
-  --success: #16a34a;
-  --success-bg: #f0fdf4;
-  --warning: #d97706;
-  --warning-bg: #fffbeb;
-  --danger: #dc2626;
-  --danger-bg: #fef2f2;
-  --radius: 8px;
-  --radius-lg: 12px;
-  --shadow-card: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-lifted: 0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
+  --text: #1C1C1E;
+  --text-2: #6C6C70;
+  --text-3: #AEAEB2;
+  --success: #34C759;
+  --success-bg: #F0FDF4;
+  --warning: #FF9500;
+  --warning-bg: #FFFBEB;
+  --danger: #FF3B30;
+  --danger-bg: #FFF1F0;
+  --shadow-card: none;
+  --shadow-lifted: 0 4px 16px rgba(0,0,0,0.08);
 
-  /* Dark sidebar */
-  --sidebar-bg: #1B1825;
-  --sidebar-border: rgba(255,255,255,0.07);
-  --sidebar-text: rgba(255,255,255,0.55);
-  --sidebar-text-active: #FFFFFF;
-  --sidebar-active-bg: rgba(124,58,237,0.18);
-  --sidebar-hover-bg: rgba(255,255,255,0.06);
-  --sidebar-section-label: rgba(255,255,255,0.3);
+  /* Dark sidebar — Apple #1C1C1E */
+  --sidebar-bg: #1C1C1E;
+  --sidebar-border: rgba(255,255,255,0.08);
+  --sidebar-text: rgba(255,255,255,0.5);
+  --sidebar-text-active: rgba(255,255,255,0.95);
+  --sidebar-active-bg: rgba(124,58,237,0.2);
+  --sidebar-hover-bg: rgba(255,255,255,0.05);
+  --sidebar-section-label: rgba(255,255,255,0.28);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -44,10 +42,21 @@ html {
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Segoe UI', sans-serif;
+  font-family: var(--font-inter), 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+}
+
+/* Normalize border-radius to Apple/Linear levels */
+.rounded-3xl { border-radius: 12px !important; }
+.rounded-2xl { border-radius: 10px !important; }
+
+/* Headings — tight letter spacing like SF Pro Display */
+h1, h2, h3, h4 {
+  letter-spacing: -0.02em;
 }
 
 /* iOS safe area bottom padding */
@@ -63,20 +72,17 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 input[type="number"] { -moz-appearance: textfield; }
 
-/* iOS-style input base */
 input, select, textarea {
   font-family: inherit;
-  font-size: 16px;
+  font-size: 15px;
+  letter-spacing: -0.01em;
 }
 
-/* Smooth transitions */
-a, button { transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease; }
+/* Clean transitions */
+a, button { transition: background 0.12s ease, color 0.12s ease, opacity 0.12s ease; }
 
-/* Active press state for cards */
-.press-card:active { transform: scale(0.98); }
-
-/* Quote row hover */
+.press-card:active { transform: scale(0.99); }
 .quote-row:hover { background: var(--card-alt); }
 
-/* Marketing pages — white background */
-.marketing-page { background: #ffffff; color: #0F0E17; }
+/* Marketing pages */
+.marketing-page { background: #ffffff; color: #1C1C1E; }

@@ -152,7 +152,7 @@ export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'for
       {tab === 'form' ? (
         <div className="space-y-4">
           {/* Customer info */}
-          <div className="bg-white rounded-3xl p-5 space-y-4" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
+          <div className="bg-white rounded-xl p-5 space-y-4" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
             <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Customer Info</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
@@ -214,7 +214,7 @@ export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'for
           </div>
 
           {/* Line items */}
-          <div className="bg-white rounded-3xl p-5 space-y-3" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
+          <div className="bg-white rounded-xl p-5 space-y-3" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
             <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Line Items</p>
             {lineItems.map((item, i) => (
               <div key={i} className="grid grid-cols-12 gap-2 items-center">
@@ -289,7 +289,7 @@ export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'for
           </div>
 
           {/* Notes */}
-          <div className="bg-white rounded-3xl p-5" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
+          <div className="bg-white rounded-xl p-5" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
             <label className="block text-[11px] font-bold uppercase tracking-wide text-gray-400 mb-2">Notes (optional)</label>
             <textarea
               value={notes}
@@ -313,7 +313,7 @@ export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'for
       ) : (
         /* Upload tab */
         <div className="space-y-4">
-          <div className="bg-white rounded-3xl p-5 space-y-4" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
+          <div className="bg-white rounded-xl p-5 space-y-4" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
             <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Invoice Details</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
@@ -343,7 +343,7 @@ export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'for
 
           <div
             onClick={() => fileRef.current?.click()}
-            className={`bg-white rounded-3xl p-10 text-center cursor-pointer transition-colors ${
+            className={`bg-white rounded-xl p-10 text-center cursor-pointer transition-colors ${
               uploadFile ? 'border-violet-300' : 'border-dashed border-gray-200 hover:border-violet-300'
             }`}
             style={{ border: uploadFile ? '2px solid var(--primary)' : undefined, boxShadow: 'var(--shadow-card)' }}

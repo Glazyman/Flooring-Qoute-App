@@ -55,7 +55,7 @@ export default async function DashboardPage() {
         return (
           <div className="grid grid-cols-2 gap-3">
             {tiles.map(({ label, value, sub }) => (
-              <div key={label} className="bg-white rounded-3xl px-5 py-5 overflow-hidden min-w-0" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
+              <div key={label} className="bg-white rounded-xl px-5 py-5 overflow-hidden min-w-0" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
                 <p className="text-[11px] font-semibold uppercase tracking-widest mb-1.5 truncate" style={{ color: 'var(--text-3)' }}>{label}</p>
                 <p className="text-xl font-extrabold tracking-tight leading-tight truncate" style={{ color: 'var(--text)' }}>{value}</p>
                 {sub && <p className="text-[11px] mt-1 font-medium" style={{ color: 'var(--text-3)' }}>{sub}</p>}
@@ -66,7 +66,7 @@ export default async function DashboardPage() {
       })()}
 
       {/* Recent Quotes */}
-      <div className="bg-white rounded-3xl overflow-hidden" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
+      <div className="bg-white rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
         <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
           <p className="font-semibold text-sm" style={{ color: 'var(--text)' }}>Recent Quotes</p>
           <Link href="/quotes" className="text-sm font-medium" style={{ color: 'var(--primary)' }}>See all</Link>

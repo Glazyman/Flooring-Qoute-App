@@ -68,7 +68,7 @@ export default async function InvoiceDetailPage({
 
       {/* Uploaded PDF */}
       {inv.file_url && (
-        <div className="bg-white rounded-3xl p-5 flex items-center gap-4" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
+        <div className="bg-white rounded-xl p-5 flex items-center gap-4" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
           <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'var(--primary-light)' }}>
             <FileText className="w-6 h-6" style={{ color: 'var(--primary)' }} />
           </div>
@@ -90,7 +90,7 @@ export default async function InvoiceDetailPage({
       )}
 
       {/* Customer info */}
-      <div className="bg-white rounded-3xl p-5 space-y-3" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
+      <div className="bg-white rounded-xl p-5 space-y-3" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
         <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Customer Info</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {[
@@ -111,7 +111,7 @@ export default async function InvoiceDetailPage({
 
       {/* Line items */}
       {lineItems.length > 0 && (
-        <div className="bg-white rounded-3xl p-5" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
+        <div className="bg-white rounded-xl p-5" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
           <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-4">Line Items</p>
           <div className="space-y-2">
             {lineItems.map((item, i) => (
@@ -146,7 +146,7 @@ export default async function InvoiceDetailPage({
 
       {/* Notes */}
       {inv.notes && (
-        <div className="bg-white rounded-3xl p-5" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
+        <div className="bg-white rounded-xl p-5" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
           <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">Notes</p>
           <p className="text-sm text-gray-700 leading-relaxed">{inv.notes}</p>
         </div>

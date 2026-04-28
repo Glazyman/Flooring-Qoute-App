@@ -96,7 +96,7 @@ export default function HomePage() {
 
       {/* ── App mockup ── */}
       <section className="max-w-4xl mx-auto px-5 mb-16 sm:mb-24">
-        <div className="bg-gray-50 rounded-3xl border border-gray-100 p-5 sm:p-10">
+        <div className="bg-gray-50 rounded-xl border border-gray-100 p-5 sm:p-10">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Left — quote info */}
             <div className="space-y-2.5">
@@ -150,7 +150,7 @@ export default function HomePage() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {STEPS.map(({ n, title, desc }) => (
-            <div key={n} className="bg-white rounded-2xl sm:rounded-3xl border border-gray-100 p-5 sm:p-6 flex gap-4 sm:block" style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+            <div key={n} className="bg-white rounded-2xl sm:rounded-xl border border-gray-100 p-5 sm:p-6 flex gap-4 sm:block" style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
               <div className="w-10 h-10 rounded-2xl flex-shrink-0 flex items-center justify-center text-white font-extrabold text-base sm:mb-5" style={{ background: 'var(--primary)' }}>
                 {n}
               </div>
@@ -172,7 +172,7 @@ export default function HomePage() {
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {FEATURES.map(({ icon, title, desc }) => (
-            <div key={title} className="bg-white rounded-2xl sm:rounded-3xl border border-gray-100 p-4 sm:p-6" style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+            <div key={title} className="bg-white rounded-2xl sm:rounded-xl border border-gray-100 p-4 sm:p-6" style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
               <div className="text-2xl mb-3">{icon}</div>
               <h3 className="font-bold text-gray-900 mb-1 text-[13px] sm:text-[15px]">{title}</h3>
               <p className="text-xs sm:text-sm text-gray-500 leading-relaxed">{desc}</p>
@@ -186,7 +186,7 @@ export default function HomePage() {
 
       {/* ── CTA ── */}
       <section className="max-w-5xl mx-auto px-5 mb-16 sm:mb-24">
-        <div className="bg-gray-50 rounded-3xl border border-gray-100 px-5 py-12 sm:px-8 sm:py-16 text-center">
+        <div className="bg-gray-50 rounded-xl border border-gray-100 px-5 py-12 sm:px-8 sm:py-16 text-center">
           <div className="flex justify-center mb-6">
             <Image src="/logo.png" alt="FloorQuote Pro" width={56} height={56} className="rounded-2xl" />
           </div>

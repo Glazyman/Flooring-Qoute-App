@@ -64,7 +64,7 @@ export default async function NewQuotePage() {
             <h1 className="text-2xl font-bold text-gray-900">New Quote</h1>
             <p className="text-sm text-gray-400 mt-0.5">Fill in the details to generate your estimate</p>
           </div>
-          <div className="bg-amber-50 border border-amber-200 rounded-3xl p-8 text-center max-w-lg mx-auto">
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-8 text-center max-w-lg mx-auto">
             <div className="w-14 h-14 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-5">
               <svg className="w-7 h-7 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />

@@ -60,7 +60,7 @@ export default function ContactModal({
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={handleClose} />
 
       {/* Panel */}
-      <div className="relative bg-white w-full sm:w-[560px] sm:rounded-3xl shadow-2xl flex flex-col rounded-t-3xl" style={{ maxHeight: '92dvh' }}>
+      <div className="relative bg-white w-full sm:w-[560px] sm:rounded-xl shadow-2xl flex flex-col rounded-t-3xl" style={{ maxHeight: '92dvh' }}>
         {/* Drag handle (mobile) */}
         <div className="flex justify-center pt-3 pb-1 sm:hidden">
           <div className="w-10 h-1 rounded-full bg-gray-200" />

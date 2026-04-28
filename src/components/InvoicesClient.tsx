@@ -76,7 +76,7 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
       {/* Confirm bulk delete */}
       {confirmDelete && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
-          <div className="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-sm">
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm">
             <h3 className="font-bold text-lg mb-2" style={{ color: 'var(--text)' }}>
               Delete {selCount} invoice{selCount !== 1 ? 's' : ''}?
             </h3>
@@ -155,7 +155,7 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
       )}
 
       {items.length === 0 ? (
-        <div className="bg-white rounded-3xl p-16 text-center" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
+        <div className="bg-white rounded-xl p-16 text-center" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
           <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4" style={{ background: 'var(--primary-light)' }}>
             <FileText className="w-7 h-7" style={{ color: 'var(--primary)' }} />
           </div>

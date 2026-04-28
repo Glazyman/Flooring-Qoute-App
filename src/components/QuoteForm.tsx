@@ -98,7 +98,7 @@ function Input({
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white rounded-3xl p-5 lg:p-6" style={{ boxShadow: 'var(--shadow-card)', border: '1px solid var(--border)' }}>
+    <div className="bg-white rounded-xl p-5 lg:p-6" style={{ boxShadow: 'var(--shadow-card)', border: '1px solid var(--border)' }}>
       <h2 className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--text-2)' }}>{title}</h2>
       {children}
     </div>
@@ -905,7 +905,7 @@ export default function QuoteForm({
         {/* Right — live totals (desktop only) */}
         <div className="hidden lg:block lg:col-span-1">
           <div className="sticky top-4 space-y-4">
-            <div className="bg-white rounded-3xl p-5" style={{ boxShadow: 'var(--shadow-card)', border: '1px solid var(--border)' }}>
+            <div className="bg-white rounded-xl p-5" style={{ boxShadow: 'var(--shadow-card)', border: '1px solid var(--border)' }}>
               <h2 className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--text-2)' }}>Live Estimate</h2>
 
               {/* Section breakdown */}

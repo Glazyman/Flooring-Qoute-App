@@ -64,11 +64,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         website={settingsResult.data?.website ?? null}
         trialExhausted={trialExhausted}
       />
-      <main className="lg:ml-60 pt-14 lg:pt-0">
+      <main className="lg:ml-56 pt-12 lg:pt-0">
         {freeQuotesRemaining !== null && (
           <TrialBanner remaining={freeQuotesRemaining} />
         )}
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 lg:px-8 lg:py-8">{children}</div>
+        <div className="max-w-5xl mx-auto px-5 py-6 lg:px-8 lg:py-7">{children}</div>
       </main>
     </div>
   )

@@ -73,7 +73,7 @@ export default function PricingSection() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
 
         {/* Starter */}
-        <div className="bg-white rounded-3xl border border-gray-200 p-6 sm:p-8 flex flex-col" style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+        <div className="bg-white rounded-xl border border-gray-200 p-6 sm:p-8 flex flex-col" style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
           <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Starter</p>
           {annual ? (
             <>
@@ -104,7 +104,7 @@ export default function PricingSection() {
         </div>
 
         {/* Pro — highlighted */}
-        <div className="rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden flex flex-col" style={{ background: 'var(--primary)', boxShadow: '0 8px 30px rgba(124,58,237,0.3)' }}>
+        <div className="rounded-xl p-6 sm:p-8 text-white relative overflow-hidden flex flex-col" style={{ background: 'var(--primary)', boxShadow: '0 8px 30px rgba(124,58,237,0.3)' }}>
           <div className="absolute top-5 right-5 bg-white/20 text-white text-xs font-bold px-2.5 py-1 rounded-full">Most Popular</div>
           <p className="text-xs font-bold text-violet-200 uppercase tracking-widest mb-3">Pro</p>
           {annual ? (
@@ -137,7 +137,7 @@ export default function PricingSection() {
         </div>
 
         {/* Business */}
-        <div className="bg-white rounded-3xl border border-gray-200 p-6 sm:p-8 flex flex-col" style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+        <div className="bg-white rounded-xl border border-gray-200 p-6 sm:p-8 flex flex-col" style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
           <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Business</p>
           <p className="text-4xl font-extrabold text-gray-900 mb-0.5">Custom</p>
           <p className="text-sm text-gray-400 mb-1">Contact us for pricing</p>

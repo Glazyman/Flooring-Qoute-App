@@ -228,7 +228,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
       {/* Confirm bulk delete */}
       {confirmBulkDelete && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
-          <div className="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-sm">
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm">
             <h3 className="font-bold text-lg mb-2" style={{ color: 'var(--text)' }}>
               Delete {selCount} contact{selCount !== 1 ? 's' : ''}?
             </h3>
@@ -308,7 +308,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
 
       {/* QuickBooks CSV Import Panel */}
       {showImport && mode === 'page' && (
-        <div className="bg-white rounded-3xl p-5 space-y-4" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
+        <div className="bg-white rounded-xl p-5 space-y-4" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-semibold text-sm text-gray-900">Import from QuickBooks</h3>
@@ -391,7 +391,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
 
       {/* Add/Edit Form */}
       {showForm && (
-        <div className="bg-white rounded-3xl p-5 space-y-4" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
+        <div className="bg-white rounded-xl p-5 space-y-4" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
           <div className="flex items-center justify-between mb-1">
             <h3 className="font-semibold text-sm" style={{ color: 'var(--text)' }}>
               {editingId ? 'Edit Contact' : 'New Contact'}
@@ -451,7 +451,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
 
       {/* Contact List */}
       {filtered.length === 0 ? (
-        <div className="bg-white rounded-3xl p-12 text-center" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
+        <div className="bg-white rounded-xl p-12 text-center" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
           <p className="text-sm font-medium mb-1" style={{ color: 'var(--text-2)' }}>
             {search ? 'No contacts match your search' : 'No contacts yet'}
           </p>
@@ -468,7 +468,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
             return (
             <div
               key={c.id}
-              className="bg-white rounded-3xl p-4 sm:p-5"
+              className="bg-white rounded-xl p-4 sm:p-5"
               style={{
                 border: `1px solid ${isSelected ? '#A78BFA' : 'var(--border)'}`,
                 boxShadow: isSelected ? '0 0 0 2px #DDD6FE' : 'var(--shadow-card)',

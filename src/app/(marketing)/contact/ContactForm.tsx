@@ -52,7 +52,7 @@ export default function ContactForm({ prefill }: { prefill: Prefill }) {
 
   if (status === 'success') {
     return (
-      <div className="bg-green-50 border border-green-100 rounded-3xl p-12 text-center">
+      <div className="bg-green-50 border border-green-100 rounded-xl p-12 text-center">
         <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
@@ -68,7 +68,7 @@ export default function ContactForm({ prefill }: { prefill: Prefill }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8 space-y-5">
+    <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-gray-100 shadow-sm p-8 space-y-5">
 
       <div className="grid sm:grid-cols-2 gap-5">
         <div>
