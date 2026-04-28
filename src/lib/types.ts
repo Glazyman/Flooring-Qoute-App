@@ -27,7 +27,7 @@ export interface Invoice {
   created_at: string
 }
 export type MeasurementType = 'manual' | 'rooms'
-export type FlooringType = 'hardwood' | 'vinyl' | 'tile' | 'carpet' | 'laminate'
+export type FlooringType = 'hardwood' | 'vinyl' | 'lvt' | 'tile' | 'carpet' | 'laminate'
 
 export interface Profile {
   id: string

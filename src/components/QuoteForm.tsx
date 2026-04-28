@@ -17,12 +17,13 @@ interface CustomerContact {
 const FLOORING_TYPES: { value: FlooringType; label: string }[] = [
   { value: 'hardwood', label: 'Hardwood' },
   { value: 'vinyl', label: 'Vinyl' },
+  { value: 'lvt', label: 'LVT' },
   { value: 'tile', label: 'Tile' },
   { value: 'carpet', label: 'Carpet' },
   { value: 'laminate', label: 'Laminate' },
 ]
 
-const SECTIONS = ['Upstairs', 'Downstairs', 'Kitchen', 'Foyer', 'Other'] as const
+const SECTIONS = ['Upstairs', 'Downstairs'] as const
 type Section = typeof SECTIONS[number]
 
 interface Room {
@@ -108,10 +109,7 @@ function LineItem({ label, value, bold, muted }: { label: string; value: number;
 
 const SECTION_COLORS: Record<Section, string> = {
   Upstairs: 'bg-teal-50 text-teal-700 border-teal-200',
-  Downstairs: 'bg-purple-50 text-purple-700 border-purple-200',
-  Kitchen: 'bg-orange-50 text-orange-700 border-orange-200',
-  Foyer: 'bg-green-50 text-green-700 border-green-200',
-  Other: 'bg-gray-50 text-gray-600 border-gray-200',
+  Downstairs: 'bg-indigo-50 text-indigo-700 border-indigo-200',
 }
 
 export interface QuoteInitialData {
@@ -152,7 +150,7 @@ function initialRoomsFromData(data: QuoteInitialData): Room[] {
     const lin = Math.round((r.length - lft) * 12)
     const wft = Math.floor(r.width)
     const win = Math.round((r.width - wft) * 12)
-    const section = (SECTIONS.includes(r.section as Section) ? r.section : 'Other') as Section
+    const section = (SECTIONS.includes(r.section as Section) ? r.section : 'Upstairs') as Section
     return { id: crypto.randomUUID(), name: r.name || '', section, lengthFt: String(lft), lengthIn: String(lin), widthFt: String(wft), widthIn: String(win) }
   })
 }
@@ -316,7 +314,7 @@ export default function QuoteForm({
         }) => ({
           id: crypto.randomUUID(),
           name: r.name,
-          section: (SECTIONS.includes(r.section as Section) ? r.section : 'Other') as Section,
+          section: (SECTIONS.includes(r.section as Section) ? r.section : 'Upstairs') as Section,
           lengthFt: String(r.lengthFt),
           lengthIn: String(r.lengthIn || 0),
           widthFt: String(r.widthFt),
@@ -577,140 +575,116 @@ export default function QuoteForm({
                   </div>
                 )}
 
-                {/* Rooms grouped by section */}
-                <div className="space-y-3">
-                  {activeSections.map(section => {
+                {/* Rooms grouped by section — Upstairs & Downstairs */}
+                <div className="space-y-4">
+                  {SECTIONS.map(section => {
                     const sectionRooms = rooms.filter(r => r.section === section)
-                    const collapsed = collapsedSections.has(section)
                     const sectionTotal = sectionRooms.reduce((s, r) => s + roomSqft(r), 0)
+                    const isUp = section === 'Upstairs'
 
                     return (
-                      <div key={section} className="border border-gray-100 rounded-xl overflow-hidden">
+                      <div key={section} className="rounded-2xl overflow-hidden" style={{ border: `1px solid ${isUp ? '#99f6e4' : '#c7d2fe'}` }}>
                         {/* Section header */}
-                        <button
-                          type="button"
-                          onClick={() => toggleSection(section)}
-                          className="w-full flex items-center justify-between px-4 py-2.5 bg-gray-50 hover:bg-gray-100 transition-colors"
-                        >
+                        <div className={`flex items-center justify-between px-4 py-3 ${isUp ? 'bg-teal-50' : 'bg-indigo-50'}`}>
                           <div className="flex items-center gap-2">
-                            {collapsed ? <ChevronRight className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
-                            <span className={`text-xs font-bold uppercase tracking-wide px-2 py-0.5 rounded-full border ${SECTION_COLORS[section]}`}>
+                            <span className={`text-xs font-bold uppercase tracking-widest ${isUp ? 'text-teal-700' : 'text-indigo-700'}`}>
                               {section}
                             </span>
-                            <span className="text-xs text-gray-400">{sectionRooms.length} room{sectionRooms.length !== 1 ? 's' : ''}</span>
+                            <span className={`text-xs ${isUp ? 'text-teal-500' : 'text-indigo-400'}`}>
+                              {sectionRooms.length} room{sectionRooms.length !== 1 ? 's' : ''}
+                            </span>
                           </div>
-                          <span className="text-xs font-semibold text-gray-600">{sectionTotal.toFixed(0)} sqft</span>
-                        </button>
+                          {sectionTotal > 0 && (
+                            <span className={`text-xs font-bold ${isUp ? 'text-teal-700' : 'text-indigo-700'}`}>
+                              {sectionTotal.toFixed(1)} sqft
+                            </span>
+                          )}
+                        </div>
 
-                        {!collapsed && (
-                          <div className="p-3 space-y-2">
-                            {sectionRooms.map((room, idx) => (
-                              <div key={room.id} className="bg-gray-50 rounded-xl p-3 border border-gray-100">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <input
-                                    type="text"
-                                    value={room.name}
-                                    onChange={(e) => updateRoom(room.id, 'name', e.target.value)}
-                                    placeholder={`Room ${idx + 1}`}
-                                    className="flex-1 min-w-0 px-2.5 py-2 rounded-lg border border-gray-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
-                                  />
-                                  <select
-                                    value={room.section}
-                                    onChange={(e) => updateRoom(room.id, 'section', e.target.value)}
-                                    className="text-xs border border-gray-200 rounded-lg px-2 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-600 flex-shrink-0"
-                                  >
-                                    {SECTIONS.map(s => <option key={s} value={s}>{s}</option>)}
-                                  </select>
-                                  <button
-                                    type="button"
-                                    onClick={() => removeRoom(room.id)}
-                                    disabled={rooms.length === 1}
-                                    className="p-2 text-gray-300 hover:text-red-500 disabled:opacity-20 transition-colors rounded-lg hover:bg-red-50 flex-shrink-0"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </button>
-                                </div>
+                        {/* Room cards */}
+                        <div className="p-3 space-y-2 bg-white">
+                          {sectionRooms.map((room, idx) => (
+                            <div key={room.id} className="rounded-xl p-3 space-y-2.5" style={{ background: '#f9fafb', border: '1px solid #f0f0f5' }}>
+                              {/* Name row */}
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="text"
+                                  value={room.name}
+                                  onChange={(e) => updateRoom(room.id, 'name', e.target.value)}
+                                  placeholder={`Room ${idx + 1}`}
+                                  className="flex-1 min-w-0 px-3 py-2 rounded-xl border border-gray-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => removeRoom(room.id)}
+                                  disabled={rooms.length === 1}
+                                  className="p-2 text-gray-300 hover:text-red-400 disabled:opacity-20 transition-colors rounded-xl hover:bg-red-50 flex-shrink-0"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
 
-                                {/* Ft + In inputs — mobile optimized */}
-                                <div className="grid grid-cols-2 gap-2">
-                                  {(['length', 'width'] as const).map(dim => (
-                                    <div key={dim}>
-                                      <label className="block text-xs text-gray-400 mb-1 capitalize">{dim}</label>
-                                      <div className="flex gap-1">
-                                        <div className="flex items-center flex-1 rounded-lg border border-gray-200 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-teal-500">
-                                          <input
-                                            type="number"
-                                            inputMode="numeric"
-                                            value={dim === 'length' ? room.lengthFt : room.widthFt}
-                                            onChange={(e) => updateRoom(room.id, dim === 'length' ? 'lengthFt' : 'widthFt', e.target.value)}
-                                            placeholder="0"
-                                            className="w-full px-2 py-2.5 text-base font-semibold focus:outline-none bg-transparent text-center"
-                                          />
-                                          <span className="pr-2 text-xs text-gray-400 font-medium">ft</span>
-                                        </div>
-                                        <div className="flex items-center w-14 rounded-lg border border-gray-200 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-teal-500">
-                                          <input
-                                            type="number"
-                                            inputMode="numeric"
-                                            value={dim === 'length' ? room.lengthIn : room.widthIn}
-                                            onChange={(e) => updateRoom(room.id, dim === 'length' ? 'lengthIn' : 'widthIn', e.target.value)}
-                                            placeholder="0" min="0" max="11"
-                                            className="w-full px-1.5 py-2.5 text-base font-semibold focus:outline-none bg-transparent text-center"
-                                          />
-                                          <span className="pr-1.5 text-xs text-gray-400 font-medium">in</span>
-                                        </div>
+                              {/* Dimensions */}
+                              <div className="grid grid-cols-2 gap-2">
+                                {(['length', 'width'] as const).map(dim => (
+                                  <div key={dim}>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">{dim}</p>
+                                    <div className="flex gap-1.5">
+                                      <div className="flex items-center flex-1 rounded-xl border border-gray-200 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-teal-400">
+                                        <input
+                                          type="number"
+                                          inputMode="numeric"
+                                          value={dim === 'length' ? room.lengthFt : room.widthFt}
+                                          onChange={(e) => updateRoom(room.id, dim === 'length' ? 'lengthFt' : 'widthFt', e.target.value)}
+                                          placeholder="0"
+                                          className="w-full px-2.5 py-3 text-lg font-bold focus:outline-none bg-transparent text-center"
+                                        />
+                                        <span className="pr-2.5 text-xs text-gray-400 font-semibold">ft</span>
+                                      </div>
+                                      <div className="flex items-center w-16 rounded-xl border border-gray-200 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-teal-400">
+                                        <input
+                                          type="number"
+                                          inputMode="numeric"
+                                          value={dim === 'length' ? room.lengthIn : room.widthIn}
+                                          onChange={(e) => updateRoom(room.id, dim === 'length' ? 'lengthIn' : 'widthIn', e.target.value)}
+                                          placeholder="0" min="0" max="11"
+                                          className="w-full px-1.5 py-3 text-lg font-bold focus:outline-none bg-transparent text-center"
+                                        />
+                                        <span className="pr-2 text-xs text-gray-400 font-semibold">in</span>
                                       </div>
                                     </div>
-                                  ))}
-                                </div>
-
-                                {/* Calculated sqft */}
-                                {roomSqft(room) > 0 && (
-                                  <div className="mt-2 text-right">
-                                    <span className="text-xs text-gray-500">{fmtDim(room)} = </span>
-                                    <span className="text-xs font-bold text-gray-900">{roomSqft(room).toFixed(1)} sqft</span>
                                   </div>
-                                )}
+                                ))}
                               </div>
-                            ))}
 
-                            <button
-                              type="button"
-                              onClick={() => addRoom(section)}
-                              className="flex items-center gap-1.5 text-xs text-teal-600 hover:text-teal-700 font-semibold px-1"
-                            >
-                              <PlusCircle className="w-3.5 h-3.5" />
-                              Add room to {section}
-                            </button>
-                          </div>
-                        )}
+                              {/* Sqft result */}
+                              {roomSqft(room) > 0 && (
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs text-gray-400">{fmtDim(room)}</span>
+                                  <span className="text-sm font-bold" style={{ color: 'var(--primary)' }}>{roomSqft(room).toFixed(1)} sqft</span>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+
+                          <button
+                            type="button"
+                            onClick={() => addRoom(section)}
+                            className={`w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-semibold transition-colors ${isUp ? 'text-teal-600 hover:bg-teal-50' : 'text-indigo-600 hover:bg-indigo-50'}`}
+                          >
+                            <PlusCircle className="w-3.5 h-3.5" />
+                            Add room
+                          </button>
+                        </div>
                       </div>
                     )
                   })}
 
-                  {/* Add to new section */}
-                  <div className="flex flex-wrap gap-2 pt-1">
-                    {SECTIONS.filter(s => !activeSections.includes(s)).map(section => (
-                      <button
-                        key={section}
-                        type="button"
-                        onClick={() => addRoom(section)}
-                        className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors hover:shadow-sm ${SECTION_COLORS[section]}`}
-                      >
-                        <PlusCircle className="w-3 h-3" />
-                        + {section}
-                      </button>
-                    ))}
-                    {activeSections.length > 0 && SECTIONS.filter(s => !activeSections.includes(s)).length > 0 && (
-                      <span className="text-xs text-gray-400 self-center">Add section</span>
-                    )}
-                  </div>
-
                   {/* Total bar */}
                   {roomsSqft > 0 && (
-                    <div className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-2.5 border border-gray-100">
-                      <span className="text-sm text-gray-500">Total measured</span>
-                      <span className="text-sm font-bold text-gray-900">{roomsSqft.toFixed(1)} sqft</span>
+                    <div className="flex items-center justify-between rounded-2xl px-4 py-3" style={{ background: 'var(--primary-light)', border: '1px solid #99f6e4' }}>
+                      <span className="text-sm font-semibold" style={{ color: 'var(--primary)' }}>Total measured</span>
+                      <span className="text-sm font-extrabold" style={{ color: 'var(--primary)' }}>{roomsSqft.toFixed(1)} sqft</span>
                     </div>
                   )}
                 </div>
