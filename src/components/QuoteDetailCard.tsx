@@ -803,6 +803,7 @@ export default function QuoteDetailCard({
 
       {/* Customer + Job boxes */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+        {/* Client Information */}
         <div style={{ border: FRAME_BORDER, borderRadius: 4 }}>
           <div
             className="px-3 py-2 text-sm font-bold"
@@ -810,27 +811,27 @@ export default function QuoteDetailCard({
           >
             Client Information:
           </div>
-          <div className="p-4 min-h-[80px] text-sm" style={{ color: '#0f172a' }}>
-            <EditableField
-              fieldKey="customer_name"
-              value={customerName}
-              editing={editing}
-              saved={saved}
-              onEdit={onEdit}
-              onSave={handleSave}
-              placeholder="Customer name"
-            />
-            <EditableField
-              fieldKey="customer_phone"
-              value={customerPhone}
-              editing={editing}
-              saved={saved}
-              onEdit={onEdit}
-              onSave={handleSave}
-              placeholder="Phone"
-            />
+          <div className="p-4 min-h-[90px] text-sm" style={{ color: '#0f172a' }}>
+            <div className="flex gap-1 mb-0.5">
+              <span className="font-semibold text-xs w-14 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Name:</span>
+              <EditableField fieldKey="customer_name" value={customerName} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="Customer name" />
+            </div>
+            <div className="flex gap-1 mb-0.5">
+              <span className="font-semibold text-xs w-14 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Phone:</span>
+              <EditableField fieldKey="customer_phone" value={customerPhone} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="Phone number" />
+            </div>
+            <div className="flex gap-1 mb-0.5">
+              <span className="font-semibold text-xs w-14 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Email:</span>
+              <EditableField fieldKey="customer_email" value={q.customer_email || ''} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="Email address" />
+            </div>
+            <div className="flex gap-1">
+              <span className="font-semibold text-xs w-14 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Address:</span>
+              <EditableField fieldKey="job_address" value={jobAddress} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} multiline placeholder="Job address" textStyle={{ whiteSpace: 'pre-wrap' }} />
+            </div>
           </div>
         </div>
+
+        {/* Project Details */}
         <div style={{ border: FRAME_BORDER, borderRadius: 4 }}>
           <div
             className="px-3 py-2 text-sm font-bold"
@@ -838,18 +839,47 @@ export default function QuoteDetailCard({
           >
             Project Details:
           </div>
-          <div className="p-4 min-h-[80px] text-sm" style={{ color: '#0f172a' }}>
-            <EditableField
-              fieldKey="job_address"
-              value={jobAddress}
-              editing={editing}
-              saved={saved}
-              onEdit={onEdit}
-              onSave={handleSave}
-              multiline
-              placeholder="Job address / project location"
-              textStyle={{ whiteSpace: 'pre-wrap' }}
-            />
+          <div className="p-4 min-h-[90px] text-sm" style={{ color: '#0f172a' }}>
+            {/* Flooring type(s) */}
+            {canRenderPerSection && sectionKeys.length > 0 ? (
+              sectionKeys.map(sec => {
+                const secType = q.section_flooring_types?.[sec]
+                const secLabel = secType ? (FLOORING_LABEL[secType] || secType) : flooringLabel
+                const baseSqft = roomsBySection[sec] ?? 0
+                const adjSqft = baseSqft * wasteFactor
+                return (
+                  <div key={sec} className="flex gap-1 mb-0.5">
+                    <span className="font-semibold text-xs flex-shrink-0" style={{ color: '#475569', paddingTop: 1, minWidth: '4rem' }}>{sec}:</span>
+                    <span>{secLabel} — {fmtQty(adjSqft)} sqft</span>
+                  </div>
+                )
+              })
+            ) : (
+              <>
+                <div className="flex gap-1 mb-0.5">
+                  <span className="font-semibold text-xs w-28 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Flooring Type:</span>
+                  <span>{flooringLabel}</span>
+                </div>
+                <div className="flex gap-1 mb-0.5">
+                  <span className="font-semibold text-xs w-28 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Area (sq ft):</span>
+                  <span>{fmtQty(adjustedSqft)} sqft</span>
+                </div>
+              </>
+            )}
+            {/* Material description if set */}
+            {q.material_description?.trim() && (
+              <div className="flex gap-1 mb-0.5">
+                <span className="font-semibold text-xs w-28 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Material:</span>
+                <span>{q.material_description}</span>
+              </div>
+            )}
+            {/* Waste % if non-zero */}
+            {Number(q.waste_pct) > 0 && (
+              <div className="flex gap-1">
+                <span className="font-semibold text-xs w-28 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Waste %:</span>
+                <span>{q.waste_pct}%</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
