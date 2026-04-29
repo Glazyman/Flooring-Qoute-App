@@ -377,7 +377,9 @@ export default function QuoteDetailCard({
   const [exclusions, setExclusions] = useState(q.exclusions ?? defaultExclusions ?? '')
   const validDays = q.valid_days || 0
   const defaultValidityText = validDays > 0 ? `Price is valid for ${validDays} days from date of proposal.` : ''
-  const [qualifications, setQualifications] = useState(q.qualifications ?? defaultQualifications ?? defaultValidityText)
+  const [qualifications, setQualifications] = useState(
+    q.qualifications?.trim() || defaultQualifications?.trim() || defaultValidityText
+  )
 
   // Edit/save state
   const [editing, setEditing] = useState<string | null>(null)
