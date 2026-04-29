@@ -30,6 +30,7 @@ export default async function DashboardPage() {
       .select('id, status, final_total, created_at, customer_name, job_address, flooring_type, section_flooring_types')
       .eq('company_id', membership.company_id)
       .neq('status', 'measurement')
+      .neq('status', 'draft')
       .order('created_at', { ascending: false }),
     supabase
       .from('quotes')

@@ -27,6 +27,7 @@ export default async function QuotesPage() {
     .select('*')
     .eq('company_id', membership.company_id)
     .neq('status', 'measurement')
+    .neq('status', 'draft')
     .order('created_at', { ascending: false })
 
   return (

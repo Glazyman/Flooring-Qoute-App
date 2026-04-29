@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import {
   LayoutDashboard, FileText, Settings,
-  LogOut, CreditCard, Menu, X, HelpCircle, Users, Receipt, Ruler, Plus,
+  LogOut, CreditCard, Menu, X, HelpCircle, Users, Receipt, Ruler, Plus, FileEdit,
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -29,21 +29,30 @@ const bottomNavItems: NavItem[] = [
   { href: '/help', label: 'Help & Support', icon: HelpCircle },
 ]
 
-function NavLink({ item, onClick, badge }: { item: NavItem; onClick?: () => void; badge?: number }) {
+function NavLink({ item, onClick, badge, sub }: { item: NavItem; onClick?: () => void; badge?: number; sub?: boolean }) {
   const pathname = usePathname()
-  const isActive =
-    item.href === '/quotes/new'
-      ? pathname === '/quotes/new'
-      : pathname === item.href ||
-        (item.href !== '/dashboard' && pathname.startsWith(item.href) && item.href !== '/quotes/new')
+  const isActive = (() => {
+    if (item.href === '/quotes/new') return pathname === '/quotes/new'
+    if (item.href === '/quotes') {
+      // Active on /quotes and /quotes/[id] but NOT /quotes/drafts or /quotes/new
+      return pathname === '/quotes' ||
+        (pathname.startsWith('/quotes/') && !pathname.startsWith('/quotes/drafts') && pathname !== '/quotes/new')
+    }
+    if (item.href === '/quotes/drafts') return pathname.startsWith('/quotes/drafts')
+    if (item.href === '/dashboard') return pathname === '/dashboard'
+    return pathname === item.href || pathname.startsWith(item.href + '/')
+  })()
+
+  const fontSize = sub ? 12 : 13
+  const paddingLeft = sub ? 28 : 11
 
   return (
     <Link
       href={item.href}
       onClick={onClick}
       style={isActive
-        ? { background: '#f2f2f7', color: '#1d1d1f', fontWeight: 600, borderRadius: 9, display: 'flex', alignItems: 'center', gap: 8, padding: '7px 11px', fontSize: 13, textDecoration: 'none' }
-        : { background: 'transparent', color: '#6e6e73', fontWeight: 400, borderRadius: 9, display: 'flex', alignItems: 'center', gap: 8, padding: '7px 11px', fontSize: 13, textDecoration: 'none' }
+        ? { background: '#f2f2f7', color: '#1d1d1f', fontWeight: 600, borderRadius: 9, display: 'flex', alignItems: 'center', gap: 8, padding: `6px 11px 6px ${paddingLeft}px`, fontSize, textDecoration: 'none' }
+        : { background: 'transparent', color: '#6e6e73', fontWeight: 400, borderRadius: 9, display: 'flex', alignItems: 'center', gap: 8, padding: `6px 11px 6px ${paddingLeft}px`, fontSize, textDecoration: 'none' }
       }
       onMouseEnter={e => {
         if (!isActive) {
@@ -76,7 +85,7 @@ function NavLink({ item, onClick, badge }: { item: NavItem; onClick?: () => void
 }
 
 export default function AppNavigation({
-  companyName, logoUrl, website, trialExhausted = false, planLabel, pendingMeasurements = 0,
+  companyName, logoUrl, website, trialExhausted = false, planLabel, pendingMeasurements = 0, draftCount = 0,
 }: {
   companyName: string
   logoUrl?: string | null
@@ -84,6 +93,7 @@ export default function AppNavigation({
   trialExhausted?: boolean
   planLabel?: string
   pendingMeasurements?: number
+  draftCount?: number
 }) {
   const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -182,12 +192,22 @@ export default function AppNavigation({
         <p style={{ fontSize: 10, fontWeight: 700, color: '#aeaeb2', textTransform: 'uppercase', letterSpacing: '0.09em', margin: '0 0 4px 2px' }}>MAIN</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           {navItems.map((item) => (
-            <NavLink
-              key={item.href}
-              item={item}
-              onClick={() => setMobileOpen(false)}
-              badge={item.href === '/measurements' ? pendingMeasurements : undefined}
-            />
+            <div key={item.href}>
+              <NavLink
+                item={item}
+                onClick={() => setMobileOpen(false)}
+                badge={item.href === '/measurements' ? pendingMeasurements : undefined}
+              />
+              {/* Drafts sub-item under Estimates */}
+              {item.href === '/quotes' && (
+                <NavLink
+                  item={{ href: '/quotes/drafts', label: 'Drafts', icon: FileEdit }}
+                  onClick={() => setMobileOpen(false)}
+                  badge={draftCount > 0 ? draftCount : undefined}
+                  sub
+                />
+              )}
+            </div>
           ))}
         </div>
       </div>
