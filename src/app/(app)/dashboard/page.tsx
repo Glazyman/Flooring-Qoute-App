@@ -90,7 +90,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Bottom two-col: Recent Estimates + Pending Measurements */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-3">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
 
         {/* Recent Estimates */}
         <div style={{ background: 'white', borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
