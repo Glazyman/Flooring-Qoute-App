@@ -14,6 +14,7 @@ interface Customer {
   phone: string | null
   email: string | null
   address: string | null
+  company: string | null
   notes: string | null
   created_at: string
 }
@@ -23,13 +24,14 @@ interface FormState {
   phone: string
   email: string
   address: string
+  company: string
   notes: string
 }
 
-const empty: FormState = { name: '', phone: '', email: '', address: '', notes: '' }
+const empty: FormState = { name: '', phone: '', email: '', address: '', company: '', notes: '' }
 
 function toForm(c: Customer): FormState {
-  return { name: c.name, phone: c.phone || '', email: c.email || '', address: c.address || '', notes: c.notes || '' }
+  return { name: c.name, phone: c.phone || '', email: c.email || '', address: c.address || '', company: c.company || '', notes: c.notes || '' }
 }
 
 interface Props {
@@ -445,6 +447,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
               { key: 'phone', label: 'Phone', placeholder: '(555) 000-0000', type: 'tel' },
               { key: 'email', label: 'Email', placeholder: 'john@example.com', type: 'email' },
               { key: 'address', label: 'Address', placeholder: '123 Main St', type: 'text' },
+              { key: 'company', label: 'Company', placeholder: 'Acme Corp', type: 'text' },
             ].map(({ key, label, placeholder, type }) => (
               <div key={key}>
                 <label className="block text-[11px] font-bold uppercase tracking-wide mb-1.5" style={{ color: 'var(--text-3)' }}>{label}</label>

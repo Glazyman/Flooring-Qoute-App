@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
   if (!membership) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await request.json()
-  const { name, phone, email, address, notes } = body
+  const { name, phone, email, address, company, notes } = body
 
   if (!name?.trim()) return NextResponse.json({ error: 'Name is required' }, { status: 400 })
 
@@ -48,6 +48,7 @@ export async function POST(request: NextRequest) {
       phone: phone || null,
       email: email || null,
       address: address || null,
+      company: company || null,
       notes: notes || null,
     })
     .select()

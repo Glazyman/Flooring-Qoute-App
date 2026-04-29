@@ -57,13 +57,13 @@ export async function syncCustomerFromQuote(supabase: SupabaseClient<any, any, a
   }
 
   if (existing) {
-    const patch: Record<string, string> = {}
-    if (!existing.phone && phone) patch.phone = phone
-    if (!existing.email && email) patch.email = email
-    if (!existing.address && address) patch.address = address
-    if (Object.keys(patch).length > 0) {
-      await supabase.from('customers').update(patch).eq('id', existing.id)
-    }
+    // Always update name; update phone/email/address when the quote provides a value
+    // (preserve existing values when the quote field is empty/null).
+    const patch: Record<string, string | null> = { name }
+    if (phone) patch.phone = phone
+    if (email) patch.email = email
+    if (address) patch.address = address
+    await supabase.from('customers').update(patch).eq('id', existing.id)
     return
   }
 
