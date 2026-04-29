@@ -1003,19 +1003,19 @@ export default function QuoteForm({
   const selectedCheckCount = Object.values(jobOptions).filter(v => v === true).length
 
   const jobSpecChecklist = (
-    <div className="mt-4 pt-4" style={{ borderTop: '1px solid #F1F1F4' }}>
-      {/* Mobile-only toggle header */}
+    <div>
+      {/* Header — tap to expand on mobile */}
       <div
         role="button"
         tabIndex={0}
         onClick={() => setChecklistOpen(v => !v)}
         onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && setChecklistOpen(v => !v)}
-        className="flex items-center justify-between py-1 mb-2 select-none cursor-pointer lg:cursor-default lg:pointer-events-none"
+        className="flex items-center justify-between select-none cursor-pointer lg:cursor-default lg:pointer-events-none"
       >
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Job scope</span>
+          <h2 className="text-sm font-semibold text-gray-900">Job scope</h2>
           {selectedCheckCount > 0 && (
-            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full text-white lg:hidden" style={{ background: '#1d1d1f' }}>
+            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full text-white" style={{ background: '#1d1d1f' }}>
               {selectedCheckCount}
             </span>
           )}
@@ -1026,7 +1026,7 @@ export default function QuoteForm({
       </div>
 
       {/* Checklist body — always visible on desktop, toggleable on mobile */}
-      <div className={`space-y-5 ${checklistOpen ? 'block' : 'hidden'} lg:block`}>
+      <div className={`mt-4 space-y-5 ${checklistOpen ? 'block' : 'hidden'} lg:block`}>
         {specGroups.map(group => (
           <div key={group.id}>
             <div className="flex items-baseline gap-2 mb-3">
@@ -1228,7 +1228,6 @@ export default function QuoteForm({
                     </div>
                   )}
                 </div>
-                {jobSpecChecklist}
               </div>
             ) : (
               <div className="space-y-4">
@@ -1492,10 +1491,14 @@ export default function QuoteForm({
                     </div>
                   )}
                 </div>
-                {jobSpecChecklist}
               </div>
             )}
           </Card>
+
+          {/* Job scope — standalone card below Project settings */}
+          <div className="bg-white rounded-xl p-5" style={{ border: '1px solid var(--border)' }}>
+            {jobSpecChecklist}
+          </div>
 
           {/* Pricing */}
           <Card title="Pricing">
