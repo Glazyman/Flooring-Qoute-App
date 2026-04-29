@@ -2,43 +2,48 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { openai } from '@ai-sdk/openai'
 import { generateText } from 'ai'
+import { isAdminUser } from '@/lib/admin'
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  // Gate AI blueprint scan on Pro tier
-  const { data: membership } = await supabase
-    .from('company_members')
-    .select('company_id')
-    .eq('user_id', user.id)
-    .single()
+  const isAdmin = isAdminUser(user)
 
-  if (membership) {
-    const { data: company } = await supabase
-      .from('companies')
-      .select('subscription_status, stripe_price_id')
-      .eq('id', membership.company_id)
+  // Gate AI blueprint scan on Pro tier (admins bypass)
+  if (!isAdmin) {
+    const { data: membership } = await supabase
+      .from('company_members')
+      .select('company_id')
+      .eq('user_id', user.id)
       .single()
 
-    const isSubscribed =
-      company?.subscription_status === 'active' ||
-      company?.subscription_status === 'trialing'
+    if (membership) {
+      const { data: company } = await supabase
+        .from('companies')
+        .select('subscription_status, stripe_price_id')
+        .eq('id', membership.company_id)
+        .single()
 
-    const proPriceIds = new Set([
-      process.env.STRIPE_PRO_MONTHLY_PRICE_ID,
-      process.env.STRIPE_PRO_ANNUAL_PRICE_ID,
-    ].filter(Boolean))
+      const isSubscribed =
+        company?.subscription_status === 'active' ||
+        company?.subscription_status === 'trialing'
 
-    const companyPriceId = company?.stripe_price_id ?? null
-    const isOnPro = isSubscribed && companyPriceId !== null && proPriceIds.has(companyPriceId)
+      const proPriceIds = new Set([
+        process.env.STRIPE_PRO_MONTHLY_PRICE_ID,
+        process.env.STRIPE_PRO_ANNUAL_PRICE_ID,
+      ].filter(Boolean))
 
-    if (!isOnPro) {
-      return NextResponse.json(
-        { error: 'AI blueprint scanning requires a Pro plan. Please upgrade.' },
-        { status: 403 }
-      )
+      const companyPriceId = company?.stripe_price_id ?? null
+      const isOnPro = isSubscribed && companyPriceId !== null && proPriceIds.has(companyPriceId)
+
+      if (!isOnPro) {
+        return NextResponse.json(
+          { error: 'AI blueprint scanning requires a Pro plan. Please upgrade.' },
+          { status: 403 }
+        )
+      }
     }
   }
 

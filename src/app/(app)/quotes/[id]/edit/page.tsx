@@ -2,6 +2,7 @@ import { redirect, notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import QuoteForm, { QuoteInitialData } from '@/components/QuoteForm'
 import type { Quote, QuoteRoom, QuoteLineItem, CompanySettings } from '@/lib/types'
+import { isAdminUser } from '@/lib/admin'
 
 export default async function EditQuotePage({
   params,
@@ -25,7 +26,9 @@ export default async function EditQuotePage({
     supabase.from('companies').select('subscription_status, stripe_price_id').eq('id', membership.company_id).single(),
   ])
 
+  const isAdmin = isAdminUser(user)
   const isSubscribed =
+    isAdmin ||
     company?.subscription_status === 'active' ||
     company?.subscription_status === 'trialing'
   const proPriceIds = new Set([
@@ -33,7 +36,7 @@ export default async function EditQuotePage({
     process.env.STRIPE_PRO_ANNUAL_PRICE_ID,
   ].filter(Boolean))
   const companyPriceId = company?.stripe_price_id ?? null
-  const isOnPro = isSubscribed && companyPriceId !== null && proPriceIds.has(companyPriceId)
+  const isOnPro = isAdmin || (isSubscribed && companyPriceId !== null && proPriceIds.has(companyPriceId))
 
   if (!quote) notFound()
 

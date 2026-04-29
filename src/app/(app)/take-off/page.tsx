@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import TakeOffCalculator from './TakeOffCalculator'
+import { isAdminUser } from '@/lib/admin'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,9 +34,10 @@ export default async function TakeOffPage() {
   ].filter(Boolean))
 
   const isOnPro =
-    isSubscribed &&
-    company?.stripe_price_id != null &&
-    proPriceIds.has(company.stripe_price_id)
+    isAdminUser(user) ||
+    (isSubscribed &&
+      company?.stripe_price_id != null &&
+      proPriceIds.has(company.stripe_price_id))
 
   return <TakeOffCalculator isPro={!!isOnPro} />
 }

@@ -6,6 +6,7 @@ import AppNavigation from '@/components/AppNavigation'
 import TrialBanner from '@/components/TrialBanner'
 import Breadcrumb from '@/components/Breadcrumb'
 import GlobalSearch from '@/components/GlobalSearch'
+import { isAdminUser } from '@/lib/admin'
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -103,7 +104,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const company = companyResult.data
   if (!company) redirect('/billing/setup')
 
+  const isAdmin = isAdminUser(user)
+
   const isSubscribed =
+    isAdmin ||
     company.subscription_status === 'active' ||
     company.subscription_status === 'trialing'
 
@@ -117,8 +121,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   ].filter(Boolean))
 
   const companyPriceId = (company as { stripe_price_id?: string | null }).stripe_price_id ?? null
-  const isOnStarter = isSubscribed && companyPriceId !== null && starterPriceIds.has(companyPriceId)
-  const isOnPro = isSubscribed && companyPriceId !== null && proPriceIds.has(companyPriceId)
+  const isOnStarter = !isAdmin && isSubscribed && companyPriceId !== null && starterPriceIds.has(companyPriceId)
+  const isOnPro = isAdmin || (isSubscribed && companyPriceId !== null && proPriceIds.has(companyPriceId))
 
   let freeQuotesRemaining: number | null = null
 
@@ -140,8 +144,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     starterMonthlyUsed = count ?? 0
   }
 
-  const planLabel = isOnPro ? 'Pro' : isOnStarter ? 'Starter' : isSubscribed ? 'Active' : 'Free Trial'
-  const trialExhausted = !isSubscribed && (countResult.count ?? 0) >= 3
+  const planLabel = isAdmin ? 'Admin' : isOnPro ? 'Pro' : isOnStarter ? 'Starter' : isSubscribed ? 'Active' : 'Free Trial'
+  const trialExhausted = !isAdmin && !isSubscribed && (countResult.count ?? 0) >= 3
   const pendingMeasurementCount = pendingResult.count ?? 0
   const draftCount = draftResult.count ?? 0
 

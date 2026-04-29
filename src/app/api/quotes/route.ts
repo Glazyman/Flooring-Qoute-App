@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { syncCustomerFromQuote } from '@/lib/customerSync'
+import { isAdminUser } from '@/lib/admin'
 
 // Columns the client may write at create time. Anything else is dropped so a
 // stale field in the form payload doesn't surface as a "column does not exist"
@@ -94,7 +95,10 @@ export async function POST(request: NextRequest) {
     .eq('id', membership.company_id)
     .single()
 
+  const isAdmin = isAdminUser(user)
+
   const isSubscribed =
+    isAdmin ||
     company?.subscription_status === 'active' ||
     company?.subscription_status === 'trialing'
 
@@ -109,10 +113,10 @@ export async function POST(request: NextRequest) {
   ].filter(Boolean))
 
   const companyPriceId = company?.stripe_price_id ?? null
-  const isOnStarter = isSubscribed && companyPriceId !== null && starterPriceIds.has(companyPriceId)
-  const isOnPro = isSubscribed && companyPriceId !== null && proPriceIds.has(companyPriceId)
+  const isOnStarter = !isAdmin && isSubscribed && companyPriceId !== null && starterPriceIds.has(companyPriceId)
+  const isOnPro = isAdmin || (isSubscribed && companyPriceId !== null && proPriceIds.has(companyPriceId))
 
-  if (!isDraftSave) {
+  if (!isDraftSave && !isAdmin) {
     if (!isSubscribed) {
       // Free trial: 3 non-draft quotes total
       const { count } = await supabase

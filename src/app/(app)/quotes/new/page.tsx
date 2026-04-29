@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import QuoteForm from '@/components/QuoteForm'
 import type { CompanySettings } from '@/lib/types'
+import { isAdminUser } from '@/lib/admin'
 
 export default async function NewQuotePage() {
   const supabase = await createClient()
@@ -26,7 +27,10 @@ export default async function NewQuotePage() {
     .eq('id', membership.company_id)
     .single()
 
+  const isAdmin = isAdminUser(user)
+
   const isSubscribed =
+    isAdmin ||
     company?.subscription_status === 'active' ||
     company?.subscription_status === 'trialing'
 
@@ -41,10 +45,10 @@ export default async function NewQuotePage() {
   ].filter(Boolean))
 
   const companyPriceId = company?.stripe_price_id ?? null
-  const isOnStarter = isSubscribed && companyPriceId !== null && starterPriceIds.has(companyPriceId)
-  const isOnPro = isSubscribed && companyPriceId !== null && proPriceIds.has(companyPriceId)
+  const isOnStarter = !isAdmin && isSubscribed && companyPriceId !== null && starterPriceIds.has(companyPriceId)
+  const isOnPro = isAdmin || (isSubscribed && companyPriceId !== null && proPriceIds.has(companyPriceId))
 
-  if (!isSubscribed) {
+  if (!isAdmin && !isSubscribed) {
     // Free trial limit check
     const { count } = await supabase
       .from('quotes')
