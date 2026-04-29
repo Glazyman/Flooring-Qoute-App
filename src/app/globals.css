@@ -93,6 +93,14 @@ h1, h2, h3, h4 {
 /* Dashboard recent quote row hover */
 .dashboard-recent-row:hover { background: #f9f9fb !important; }
 
+/* Nav link tap targets — larger on mobile, compact on desktop */
+.nav-link     { padding: 12px 11px; }
+.nav-link-sub { padding: 10px 11px; }
+@media (min-width: 1024px) {
+  .nav-link     { padding: 7px 11px; }
+  .nav-link-sub { padding: 5px 11px; }
+}
+
 .safe-bottom {
   padding-bottom: max(1rem, env(safe-area-inset-bottom));
 }

@@ -50,9 +50,10 @@ function NavLink({ item, onClick, badge, sub }: { item: NavItem; onClick?: () =>
     <Link
       href={item.href}
       onClick={onClick}
+      className={sub ? 'nav-link-sub' : 'nav-link'}
       style={isActive
-        ? { background: '#f2f2f7', color: '#1d1d1f', fontWeight: 600, borderRadius: 9, display: 'flex', alignItems: 'center', gap: 8, padding: `6px 11px 6px ${paddingLeft}px`, fontSize, textDecoration: 'none' }
-        : { background: 'transparent', color: '#6e6e73', fontWeight: 400, borderRadius: 9, display: 'flex', alignItems: 'center', gap: 8, padding: `6px 11px 6px ${paddingLeft}px`, fontSize, textDecoration: 'none' }
+        ? { background: '#f2f2f7', color: '#1d1d1f', fontWeight: 600, borderRadius: 10, display: 'flex', alignItems: 'center', gap: 10, paddingLeft, fontSize, textDecoration: 'none' }
+        : { background: 'transparent', color: '#6e6e73', fontWeight: 400, borderRadius: 10, display: 'flex', alignItems: 'center', gap: 10, paddingLeft, fontSize, textDecoration: 'none' }
       }
       onMouseEnter={e => {
         if (!isActive) {
@@ -67,7 +68,7 @@ function NavLink({ item, onClick, badge, sub }: { item: NavItem; onClick?: () =>
         }
       }}
     >
-      <item.icon size={14} strokeWidth={isActive ? 2 : 1.7} color={isActive ? '#1d1d1f' : '#aeaeb2'} />
+      <item.icon size={sub ? 13 : 15} strokeWidth={isActive ? 2 : 1.7} color={isActive ? '#1d1d1f' : '#aeaeb2'} />
       <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.label}</span>
       {badge != null && badge > 0 && (
         <span style={{
