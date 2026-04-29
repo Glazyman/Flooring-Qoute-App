@@ -116,5 +116,8 @@ a, button { transition: background 0.12s ease, color 0.12s ease, opacity 0.12s e
 .press-card:active { transform: scale(0.99); }
 .quote-row:hover { background: var(--surface-hover); }
 
+/* Quote card — alternating data rows (even = very light gray) */
+.quote-rows > div:nth-child(even):not([style*="rgba"]) { background-color: #f9fafb; }
+
 .marketing-page { background: #ffffff; color: #1d1d1f; }
 

@@ -863,8 +863,8 @@ export default function QuoteDetailCard({
         {/* Stacked title + date/number */}
         <div className="sm:text-right flex-shrink-0">
           <div className="mb-3 leading-none">
-            <p className="font-extrabold leading-none" style={{ color: '#1e293b', fontSize: 38 }}>Flooring</p>
-            <p className="font-bold tracking-wide" style={{ color: '#475569', fontSize: 20 }}>Estimate</p>
+            <p className="font-extrabold leading-none" style={{ color: '#1e293b', fontSize: 40 }}>Flooring</p>
+            <p className="font-bold tracking-wide" style={{ color: '#64748b', fontSize: 20 }}>Estimate</p>
           </div>
           {/* Date row */}
           <div className="flex sm:justify-end items-center gap-1.5 text-xs pb-1 mb-1 whitespace-nowrap" style={{ borderBottom: '1px solid #e2e8f0' }}>
@@ -893,12 +893,12 @@ export default function QuoteDetailCard({
       {/* Customer + Job boxes */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
         {/* Client Information */}
-        <div style={{ border: FRAME_BORDER, borderRadius: 4 }}>
+        <div style={{ borderRadius: 6, border: '1px solid #e2e8f0', borderLeft: '3px solid #1e293b' }}>
           <div
-            className="px-3 py-2 text-sm font-bold"
-            style={{ background: BAND_BG, color: BAND_TEXT, borderBottom: '1px solid #334155', borderRadius: '4px 4px 0 0' }}
+            className="px-3 py-2"
+            style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', borderRadius: '4px 4px 0 0' }}
           >
-            Client Information:
+            <span style={{ color: '#1e293b', fontWeight: 700, fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Client Information</span>
           </div>
           <div className="p-4 min-h-[90px] text-sm" style={{ color: '#0f172a' }}>
             <div className="flex gap-1 mb-0.5">
@@ -921,12 +921,12 @@ export default function QuoteDetailCard({
         </div>
 
         {/* Project Details */}
-        <div style={{ border: FRAME_BORDER, borderRadius: 4 }}>
+        <div style={{ borderRadius: 6, border: '1px solid #e2e8f0', borderLeft: '3px solid #1e293b' }}>
           <div
-            className="px-3 py-2 text-sm font-bold"
-            style={{ background: BAND_BG, color: BAND_TEXT, borderBottom: '1px solid #334155', borderRadius: '4px 4px 0 0' }}
+            className="px-3 py-2"
+            style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', borderRadius: '4px 4px 0 0' }}
           >
-            Project Details:
+            <span style={{ color: '#1e293b', fontWeight: 700, fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Project Details</span>
           </div>
           <div className="p-4 min-h-[90px] text-sm" style={{ color: '#0f172a' }}>
             {canRenderPerSection && sectionKeys.length > 0 ? (
@@ -1041,8 +1041,8 @@ export default function QuoteDetailCard({
       </div>
 
       {/* Items table */}
-      <p className="text-sm font-bold mb-2 mt-1" style={{ color: '#1e293b' }}>Cost Breakdown</p>
-      <div className="text-sm overflow-x-auto" style={{ border: FRAME_BORDER, borderRadius: 4 }}>
+      <p className="mb-2 mt-1 pb-1.5" style={{ color: '#0f172a', fontSize: 14, fontWeight: 700, borderBottom: '1.5px solid #e2e8f0' }}>Cost Breakdown</p>
+      <div className="text-sm overflow-x-auto" style={{ border: '1px solid #e2e8f0', borderRadius: 4 }}>
         <div style={{ minWidth: 480 }}>
           {/* Header */}
           <div
@@ -1061,6 +1061,7 @@ export default function QuoteDetailCard({
             <span className="text-right">Total</span>
           </div>
 
+          <div className="quote-rows">
           {/* Section pricing rows (editable — material rate, labor rate, description) */}
           {canRenderPerSection && sectionPricingState &&
             sectionKeys.map(sectionName => {
@@ -1087,7 +1088,7 @@ export default function QuoteDetailCard({
               return (
                 <div key={sectionName}>
                   <div
-                    className="grid items-start px-2 py-2.5"
+                    className="grid items-start px-2 py-3"
                     style={{
                       gridTemplateColumns: GRID_COLS,
                       borderBottom: ROW_BORDER,
@@ -1129,7 +1130,7 @@ export default function QuoteDetailCard({
                   </div>
                   {labRate > 0 && (
                     <div
-                      className="grid items-start px-2 py-2.5"
+                      className="grid items-start px-2 py-3"
                       style={{
                         gridTemplateColumns: GRID_COLS,
                         borderBottom: ROW_BORDER,
@@ -1180,7 +1181,7 @@ export default function QuoteDetailCard({
             <>
               {/* Material row */}
               <div
-                className="grid items-start px-2 py-2.5"
+                className="grid items-start px-2 py-3"
                 style={{
                   gridTemplateColumns: GRID_COLS,
                   borderBottom: ROW_BORDER,
@@ -1234,7 +1235,7 @@ export default function QuoteDetailCard({
               {/* Labor row (only if rate > 0) */}
               {laborRate > 0 && (
                 <div
-                  className="grid items-start px-2 py-2.5"
+                  className="grid items-start px-2 py-3"
                   style={{
                     gridTemplateColumns: GRID_COLS,
                     borderBottom: ROW_BORDER,
@@ -1280,7 +1281,7 @@ export default function QuoteDetailCard({
             return (
               <div
                 key={li.id}
-                className="grid items-center px-2 py-2.5"
+                className="grid items-center px-2 py-3"
                 style={{
                   gridTemplateColumns: GRID_COLS,
                   borderBottom: ROW_BORDER,
@@ -1346,7 +1347,7 @@ export default function QuoteDetailCard({
           {/* Fixed fee rows (editable + selectable) */}
           {removalFee > 0 && (
             <div
-              className="grid items-center px-2 py-2.5"
+              className="grid items-center px-2 py-3"
               style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-removal') ? 'rgba(0,113,227,0.06)' : undefined }}
             >
               <span className="pr-3 flex items-center">
@@ -1384,7 +1385,7 @@ export default function QuoteDetailCard({
           )}
           {furnitureFee > 0 && (
             <div
-              className="grid items-center px-2 py-2.5"
+              className="grid items-center px-2 py-3"
               style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-furniture') ? 'rgba(0,113,227,0.06)' : undefined }}
             >
               <span className="pr-3 flex items-center">
@@ -1424,7 +1425,7 @@ export default function QuoteDetailCard({
             const perUnit = stairCount ? stairsFee / stairCount : stairsFee
             return (
               <div
-                className="grid items-center px-2 py-2.5"
+                className="grid items-center px-2 py-3"
                 style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-stairs') ? 'rgba(0,113,227,0.06)' : undefined }}
               >
                 <span className="pr-3 flex items-center">
@@ -1463,7 +1464,7 @@ export default function QuoteDetailCard({
           })()}
           {quarterRoundFee > 0 && (
             <div
-              className="grid items-center px-2 py-2.5"
+              className="grid items-center px-2 py-3"
               style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-quarterround') ? 'rgba(0,113,227,0.06)' : undefined }}
             >
               <span className="pr-3 flex items-center">
@@ -1501,7 +1502,7 @@ export default function QuoteDetailCard({
           )}
           {reducersFee > 0 && (
             <div
-              className="grid items-center px-2 py-2.5"
+              className="grid items-center px-2 py-3"
               style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-reducers') ? 'rgba(0,113,227,0.06)' : undefined }}
             >
               <span className="pr-3 flex items-center">
@@ -1539,7 +1540,7 @@ export default function QuoteDetailCard({
           )}
           {deliveryFee > 0 && (
             <div
-              className="grid items-center px-2 py-2.5"
+              className="grid items-center px-2 py-3"
               style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-delivery') ? 'rgba(0,113,227,0.06)' : undefined }}
             >
               <span className="pr-3 flex items-center">
@@ -1577,7 +1578,7 @@ export default function QuoteDetailCard({
           )}
           {customFeeAmount > 0 && customFeeLabel.trim() && (
             <div
-              className="grid items-center px-2 py-2.5"
+              className="grid items-center px-2 py-3"
               style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-custom') ? 'rgba(0,113,227,0.06)' : undefined }}
             >
               <span className="pr-3 flex items-center">
@@ -1620,7 +1621,7 @@ export default function QuoteDetailCard({
               <>
                 {(extrasJson.subfloor_prep ?? 0) > 0 && (
                   <div
-                    className="grid items-center px-2 py-2.5"
+                    className="grid items-center px-2 py-3"
                     style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-subfloor') ? 'rgba(0,113,227,0.06)' : undefined }}
                   >
                     <span className="pr-3 flex items-center">
@@ -1658,7 +1659,7 @@ export default function QuoteDetailCard({
                 )}
                 {(extrasJson.underlayment_per_sqft ?? 0) > 0 && adjustedSqft > 0 && (
                   <div
-                    className="grid items-start px-2 py-2.5"
+                    className="grid items-start px-2 py-3"
                     style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-underlayment') ? 'rgba(0,113,227,0.06)' : undefined }}
                   >
                     <span className="pr-3 flex items-center">
@@ -1673,7 +1674,7 @@ export default function QuoteDetailCard({
                 )}
                 {(extrasJson.transition_qty ?? 0) > 0 && (extrasJson.transition_unit ?? 0) > 0 && (
                   <div
-                    className="grid items-center px-2 py-2.5"
+                    className="grid items-center px-2 py-3"
                     style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-transition') ? 'rgba(0,113,227,0.06)' : undefined }}
                   >
                     <span className="pr-3 flex items-center">
@@ -1688,7 +1689,7 @@ export default function QuoteDetailCard({
                 )}
                 {(extrasJson.floor_protection ?? 0) > 0 && (
                   <div
-                    className="grid items-center px-2 py-2.5"
+                    className="grid items-center px-2 py-3"
                     style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-floorprotection') ? 'rgba(0,113,227,0.06)' : undefined }}
                   >
                     <span className="pr-3 flex items-center">
@@ -1726,7 +1727,7 @@ export default function QuoteDetailCard({
                 )}
                 {(extrasJson.disposal_fee ?? 0) > 0 && (
                   <div
-                    className="grid items-center px-2 py-2.5"
+                    className="grid items-center px-2 py-3"
                     style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-disposal') ? 'rgba(0,113,227,0.06)' : undefined }}
                   >
                     <span className="pr-3 flex items-center">
@@ -1766,6 +1767,8 @@ export default function QuoteDetailCard({
             )
           })()}
 
+          </div>{/* end quote-rows */}
+
           {/* Add row button — always at bottom of table */}
           <div className="px-2 py-1.5" style={{ borderBottom: ROW_BORDER }}>
             <button
@@ -1783,8 +1786,8 @@ export default function QuoteDetailCard({
 
           {/* Signature row */}
           <div className="px-2 py-3" style={{ borderBottom: ROW_BORDER, color: '#475569' }}>
-            <p className="text-sm font-semibold text-gray-700 mb-1">READ CAREFULLY SIGN &amp; EMAIL BACK</p>
-            <p className="text-xs text-gray-500 mb-2">You are authorized to do work as is specified above.</p>
+            <p className="mb-1" style={{ color: '#1e293b', fontWeight: 700, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase' }}>Please Review, Sign &amp; Return</p>
+            <p className="text-xs mb-2" style={{ color: '#64748b' }}>You are authorized to do work as specified above.</p>
             <div className="flex gap-8 items-end">
               <div className="flex-1">
                 <div className="border-b border-gray-700 h-6 mb-1" />
@@ -1840,41 +1843,36 @@ export default function QuoteDetailCard({
 
         <div className="sm:w-64 text-sm border-t border-gray-200 pt-3 sm:border-t-0 sm:pt-0" style={{ color: '#0f172a' }}>
           {showSubtotal && (
-            <div className="flex justify-between py-0.5">
-              <span>Subtotal</span>
+            <div className="flex justify-between py-1">
+              <span style={{ color: '#475569' }}>Subtotal</span>
               <span>{fmt(displaySubtotal)}</span>
             </div>
           )}
           {q.tax_enabled && displayTax > 0 && (
-            <div className="flex justify-between py-0.5">
-              <span>Tax ({q.tax_pct}%)</span>
+            <div className="flex justify-between py-1">
+              <span style={{ color: '#475569' }}>Tax ({q.tax_pct}%)</span>
               <span>{fmt(displayTax)}</span>
             </div>
           )}
           {displayMarkup > 0 && (
-            <div className="flex justify-between py-0.5">
-              <span>Profit ({q.markup_pct}%)</span>
+            <div className="flex justify-between py-1">
+              <span style={{ color: '#475569' }}>Profit ({q.markup_pct}%)</span>
               <span>{fmt(displayMarkup)}</span>
             </div>
           )}
-          <div className="flex justify-between items-center mt-2 mb-2">
-            <span className="text-lg italic font-bold">Total</span>
-            <span
-              className="text-base font-bold px-3 py-1 min-w-[120px] text-right"
-              style={{ border: FRAME_BORDER }}
-            >
-              {fmt(displayFinalTotal)}
-            </span>
+          <div className="flex justify-between items-center pt-2.5 mt-1.5" style={{ borderTop: '2px solid #1e293b' }}>
+            <span style={{ fontWeight: 700, fontSize: 15, color: '#0f172a' }}>Total</span>
+            <span style={{ fontWeight: 700, fontSize: 15, color: '#0f172a' }}>{fmt(displayFinalTotal)}</span>
           </div>
           {showDeposit && (
             <>
-              <div className="flex justify-between py-0.5">
-                <span>Deposit Due ({q.deposit_pct}%)</span>
-                <span>{fmt(displayDeposit)}</span>
+              <div className="flex justify-between pt-2 pb-0.5">
+                <span style={{ color: '#64748b', fontSize: 12 }}>Deposit Due ({q.deposit_pct}%)</span>
+                <span style={{ color: '#64748b', fontSize: 12 }}>{fmt(displayDeposit)}</span>
               </div>
               <div className="flex justify-between py-0.5">
-                <span>Remaining Balance</span>
-                <span>{fmt(remainingBalance)}</span>
+                <span style={{ color: '#64748b', fontSize: 12 }}>Remaining Balance</span>
+                <span style={{ color: '#64748b', fontSize: 12 }}>{fmt(remainingBalance)}</span>
               </div>
             </>
           )}
@@ -1884,8 +1882,8 @@ export default function QuoteDetailCard({
       {/* Inclusions / Exclusions / Qualifications */}
       {(inclusions || exclusions || qualifications || true) && (
         <div className="mt-5 text-sm" style={{ color: '#0f172a' }}>
-          <div className="mb-3">
-            <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Inclusions</p>
+          <div className="mb-3 pl-2.5" style={{ borderLeft: '3px solid #e2e8f0' }}>
+            <p className="mb-1" style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#94a3b8' }}>Inclusions</p>
             <EditableField
               fieldKey="inclusions"
               value={inclusions}
@@ -1895,11 +1893,11 @@ export default function QuoteDetailCard({
               onSave={handleSave}
               multiline
               placeholder="Add inclusions (e.g. One year warranty on installation labor, Final clean up of job site…)"
-              textStyle={{ whiteSpace: 'pre-wrap', lineHeight: '1.6', fontSize: 13 }}
+              textStyle={{ whiteSpace: 'pre-wrap', lineHeight: '1.7', fontSize: 13, color: '#334155' }}
             />
           </div>
-          <div className="mb-3">
-            <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Exclusions</p>
+          <div className="mb-3 pl-2.5" style={{ borderLeft: '3px solid #e2e8f0' }}>
+            <p className="mb-1" style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#94a3b8' }}>Exclusions</p>
             <EditableField
               fieldKey="exclusions"
               value={exclusions}
@@ -1909,11 +1907,11 @@ export default function QuoteDetailCard({
               onSave={handleSave}
               multiline
               placeholder="Add exclusions (e.g. Rip/Haul, Furniture or stairs not included unless outlined above…)"
-              textStyle={{ whiteSpace: 'pre-wrap', lineHeight: '1.6', fontSize: 13 }}
+              textStyle={{ whiteSpace: 'pre-wrap', lineHeight: '1.7', fontSize: 13, color: '#334155' }}
             />
           </div>
-          <div className="mb-1">
-            <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Qualifications</p>
+          <div className="mb-1 pl-2.5" style={{ borderLeft: '3px solid #e2e8f0' }}>
+            <p className="mb-1" style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#94a3b8' }}>Qualifications</p>
             <EditableField
               fieldKey="qualifications"
               value={qualifications}
@@ -1923,7 +1921,7 @@ export default function QuoteDetailCard({
               onSave={handleSave}
               multiline
               placeholder="Add qualifications (e.g. Price is valid for 60 days from date of proposal…)"
-              textStyle={{ whiteSpace: 'pre-wrap', lineHeight: '1.6', fontSize: 13 }}
+              textStyle={{ whiteSpace: 'pre-wrap', lineHeight: '1.7', fontSize: 13, color: '#334155' }}
             />
           </div>
         </div>
