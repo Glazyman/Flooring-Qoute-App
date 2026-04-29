@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Plus, Calendar } from 'lucide-react'
 import { fmt } from '@/lib/calculations'
 import { flooringTypeLabel } from '@/lib/flooringLabels'
+import ApproveMeasurementButton from '@/components/ApproveMeasurementButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -162,19 +163,19 @@ export default async function DashboardPage() {
                 const date = new Date(m.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
                 const initials = (m.customer_name || '?').charAt(0).toUpperCase()
                 return (
-                  <Link key={m.id} href={`/quotes/${m.id}`} className="dashboard-recent-row"
-                    style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 18px', borderBottom: '1px solid rgba(0,0,0,0.04)', textDecoration: 'none', transition: 'background 0.12s' }}>
-                    <div style={{ width: 28, height: 28, borderRadius: '50%', flexShrink: 0, background: '#fff7ed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 600, color: '#ff9f0a' }}>
-                      {initials}
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontSize: 12.5, fontWeight: 500, color: '#1d1d1f', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.customer_name}</p>
-                      <p style={{ fontSize: 11, color: '#aeaeb2', margin: 0 }}>{date}</p>
-                    </div>
-                    <span style={{ fontSize: 10.5, fontWeight: 600, color: '#ff9f0a', background: '#fff7ed', padding: '2px 8px', borderRadius: 20, flexShrink: 0 }}>
-                      Pending
-                    </span>
-                  </Link>
+                  <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 18px', borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
+                    <Link href={`/quotes/${m.id}`} className="dashboard-recent-row"
+                      style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 0, textDecoration: 'none', transition: 'background 0.12s' }}>
+                      <div style={{ width: 28, height: 28, borderRadius: '50%', flexShrink: 0, background: '#f2f2f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 600, color: '#6e6e73' }}>
+                        {initials}
+                      </div>
+                      <div style={{ minWidth: 0 }}>
+                        <p style={{ fontSize: 12.5, fontWeight: 500, color: '#1d1d1f', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.customer_name}</p>
+                        <p style={{ fontSize: 11, color: '#aeaeb2', margin: 0 }}>{date}</p>
+                      </div>
+                    </Link>
+                    <ApproveMeasurementButton quoteId={m.id} />
+                  </div>
                 )
               })}
             </div>
