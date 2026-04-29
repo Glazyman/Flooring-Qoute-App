@@ -1417,14 +1417,14 @@ export default function QuoteForm({
                                 </button>
                               </div>
 
-                              {/* Dimensions — LENGTH | WIDTH two-column grid */}
-                              <div className="grid grid-cols-2 gap-2 px-3 pb-3 pt-1">
+                              {/* Dimensions — LENGTH then WIDTH stacked */}
+                              <div className="flex flex-col gap-1.5 px-3 pb-3 pt-1">
                                 {(['length', 'width'] as const).map(dim => (
-                                  <div key={dim}>
-                                    <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400 mb-1.5">
+                                  <div key={dim} className="flex items-center gap-2">
+                                    <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-400 w-10 flex-shrink-0">
                                       {dim === 'length' ? 'Length' : 'Width'}
-                                    </p>
-                                    <div className="flex gap-1.5">
+                                    </span>
+                                    <div className="flex gap-1.5 flex-1">
                                       <div className="flex items-center flex-1 rounded-lg overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
                                         <input
                                           type="number" inputMode="numeric"
@@ -1435,7 +1435,7 @@ export default function QuoteForm({
                                         />
                                         <span className="px-1.5 text-xs text-gray-400 self-stretch flex items-center flex-shrink-0" style={{ background: '#FAFAFA', borderLeft: '1px solid #E5E7EB' }}>ft</span>
                                       </div>
-                                      <div className="flex items-center w-14 rounded-lg overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
+                                      <div className="flex items-center w-20 rounded-lg overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
                                         <input
                                           type="number" inputMode="numeric"
                                           value={dim === 'length' ? room.lengthIn : room.widthIn}
