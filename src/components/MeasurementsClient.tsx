@@ -231,22 +231,25 @@ export default function MeasurementsClient({ initialMeasurements }: { initialMea
                 <div key={m.id}>
                   {/* Mobile card — hidden sm+ */}
                   <div
-                    className="sm:hidden"
+                    className="sm:hidden cursor-pointer"
                     style={{
                       borderBottom: '1px solid #F5F5F7',
                       background: isSelected ? 'rgba(239,246,255,0.4)' : undefined,
                     }}
+                    onClick={() => router.push(`/quotes/${m.id}`)}
                   >
                     <div className="flex items-center gap-3 px-4 py-3.5">
                       {/* Checkbox */}
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={() => toggleSelect(m.id)}
-                        className="w-3.5 h-3.5 flex-shrink-0 cursor-pointer"
-                        style={{ accentColor: '#1C1C1E' }}
-                        aria-label={`Select ${m.customer_name}`}
-                      />
+                      <div onClick={e => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleSelect(m.id)}
+                          className="w-3.5 h-3.5 flex-shrink-0 cursor-pointer"
+                          style={{ accentColor: '#1C1C1E' }}
+                          aria-label={`Select ${m.customer_name}`}
+                        />
+                      </div>
 
                       {/* Avatar */}
                       <div
@@ -258,16 +261,14 @@ export default function MeasurementsClient({ initialMeasurements }: { initialMea
 
                       {/* Main info — grows to fill */}
                       <div className="flex-1 min-w-0">
-                        <Link href={`/quotes/${m.id}/edit`}>
-                          <p className="text-sm font-semibold text-gray-900 truncate leading-snug">{m.customer_name}</p>
-                        </Link>
+                        <p className="text-sm font-semibold text-gray-900 truncate leading-snug">{m.customer_name}</p>
                         <p className="text-xs text-gray-400 truncate mt-0.5 leading-snug">
                           {[m.flooring_type, m.adjusted_sqft ? `${m.adjusted_sqft.toFixed(0)} sqft` : null, fmtDate(m.created_at)].filter(Boolean).join(' · ')}
                         </p>
                       </div>
 
                       {/* Right: total + approve stacked, right-aligned */}
-                      <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+                      <div className="flex flex-col items-end gap-1.5 flex-shrink-0" onClick={e => e.stopPropagation()}>
                         <p className="text-sm font-semibold text-gray-900 leading-snug">{fmt(m.final_total)}</p>
                         <ApproveMeasurementButton
                           quoteId={m.id}
@@ -279,15 +280,16 @@ export default function MeasurementsClient({ initialMeasurements }: { initialMea
 
                   {/* Desktop grid row — hidden on mobile */}
                   <div
-                    className="hidden sm:grid group px-4 py-3 items-center hover:bg-gray-50/60 transition-colors"
+                    className="hidden sm:grid group px-4 py-3 items-center hover:bg-gray-50/60 transition-colors cursor-pointer"
                     style={{
                       gridTemplateColumns: COL_TEMPLATE,
                       borderBottom: '1px solid #F5F5F7',
                       background: isSelected ? 'rgba(239,246,255,0.4)' : undefined,
                     }}
+                    onClick={() => router.push(`/quotes/${m.id}`)}
                   >
                     {/* Checkbox */}
-                    <div>
+                    <div onClick={e => e.stopPropagation()}>
                       <input
                         type="checkbox"
                         checked={isSelected}
@@ -307,9 +309,7 @@ export default function MeasurementsClient({ initialMeasurements }: { initialMea
                         {initials}
                       </div>
                       <div className="min-w-0">
-                        <Link href={`/quotes/${m.id}/edit`}>
-                          <p className="text-sm font-normal text-gray-800 truncate hover:text-gray-900">{m.customer_name}</p>
-                        </Link>
+                        <p className="text-sm font-normal text-gray-800 truncate">{m.customer_name}</p>
                         {m.job_address && (
                           <p className="text-xs text-gray-400 truncate">{m.job_address}</p>
                         )}
@@ -338,7 +338,7 @@ export default function MeasurementsClient({ initialMeasurements }: { initialMea
                     </div>
 
                     {/* Actions */}
-                    <div className="flex items-center justify-end">
+                    <div className="flex items-center justify-end" onClick={e => e.stopPropagation()}>
                       <ApproveMeasurementButton
                         quoteId={m.id}
                         onApprove={() => setItems(prev => prev.filter(i => i.id !== m.id))}
