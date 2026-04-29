@@ -195,7 +195,7 @@ export default function MeasurementsClient({ initialMeasurements }: { initialMea
           {/* Column headers — desktop */}
           <div
             style={{ gridTemplateColumns: COL_TEMPLATE, borderBottom: '1px solid #F1F1F4' }}
-            className="hidden lg:grid bg-white px-4 py-2.5 items-center"
+            className="hidden sm:grid bg-white px-4 py-2.5 items-center"
           >
             <div className="flex items-center">
               <input
@@ -226,7 +226,7 @@ export default function MeasurementsClient({ initialMeasurements }: { initialMea
               <div key={m.id}>
                 {/* Mobile */}
                 <div
-                  className="lg:hidden flex items-center gap-3 px-4 py-3 hover:bg-gray-50/60 transition-colors"
+                  className="sm:hidden flex items-center gap-3 px-4 py-3 hover:bg-gray-50/60 transition-colors"
                   style={{ borderBottom: '1px solid #F5F5F7', background: rowBg }}
                 >
                   <input
@@ -264,7 +264,7 @@ export default function MeasurementsClient({ initialMeasurements }: { initialMea
                     background: rowBg,
                     borderBottom: '1px solid #F5F5F7',
                   }}
-                  className="hidden lg:grid group px-4 py-3 items-center hover:bg-gray-50/60 transition-colors"
+                  className="hidden sm:grid group px-4 py-3 items-center hover:bg-gray-50/60 transition-colors"
                 >
                   <div className="flex items-center">
                     <input

@@ -638,7 +638,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
             {/* Column header row — desktop only */}
             <div
               style={{ gridTemplateColumns: COL_TEMPLATE, borderBottom: '1px solid #F5F5F7' }}
-              className="hidden lg:grid bg-white px-4 py-2.5 items-center"
+              className="hidden sm:grid bg-white px-4 py-2.5 items-center"
             >
               <div className="flex items-center">
                 {mode === 'page' && (
@@ -688,7 +688,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
                 <div key={c.id}>
                   {/* Mobile card row — hidden on lg+ */}
                   <div
-                    className="lg:hidden flex items-center gap-3 px-4 py-3 hover:bg-gray-50/60 transition-colors"
+                    className="sm:hidden flex items-center gap-3 px-4 py-3 hover:bg-gray-50/60 transition-colors"
                     style={{ borderBottom: '1px solid #F5F5F7', background: rowBg }}
                   >
                     {mode === 'page' && (
