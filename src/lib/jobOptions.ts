@@ -47,19 +47,6 @@ export const JOB_OPTION_GROUPS: JobOptionGroup[] = [
     ],
   },
   {
-    id: 'wood_type',
-    label: 'Wood type',
-    options: [
-      { key: 'red_oak', label: 'Red Oak' },
-      { key: 'white_oak', label: 'White Oak' },
-      { key: 'engineered_finished', label: 'Engineered (finished)' },
-      { key: 'engineered_unfinished', label: 'Engineered (unfinished)' },
-      { key: 'pre_finished', label: 'Pre-finished' },
-      { key: 'unfinished', label: 'Unfinished' },
-      { key: 'lvt', label: 'LVT' },
-    ],
-  },
-  {
     id: 'finish',
     label: 'Finish & coatings',
     options: [
@@ -98,18 +85,6 @@ export const JOB_OPTION_GROUPS: JobOptionGroup[] = [
       { key: 'glue_liquid_nail', label: 'Glue / Liquid Nail' },
       { key: 'floating', label: 'Floating' },
       { key: 'staple', label: 'Staple' },
-    ],
-  },
-  {
-    id: 'rooms',
-    label: 'Rooms involved',
-    options: [
-      { key: 'kitchen', label: 'Kitchen' },
-      { key: 'foyer', label: 'Foyer' },
-      { key: 'mud_room', label: 'Mud room' },
-      { key: 'stairs', label: 'Stairs' },
-      { key: 'full_stair', label: 'Full stair' },
-      { key: 'basement_concrete', label: 'Basement / concrete' },
     ],
   },
   {

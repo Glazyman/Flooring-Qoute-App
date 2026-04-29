@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback, useMemo, useEffect } from 'react'
+import { useState, useRef, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { calculateQuote, fmt, type QuoteExtras } from '@/lib/calculations'
 import type { CompanySettings, FlooringType, MeasurementType } from '@/lib/types'
@@ -365,54 +365,6 @@ export default function QuoteForm({
     })
   }
 
-  // Auto-sync: room names → "Rooms involved" checkboxes (additive only — never removes manual ticks)
-  const ROOM_KEYWORD_MAP: Array<{ re: RegExp; key: string }> = [
-    { re: /kitchen/i, key: 'kitchen' },
-    { re: /foyer|entry|entrance/i, key: 'foyer' },
-    { re: /mud[\s-]?room|mudroom/i, key: 'mud_room' },
-    { re: /stair/i, key: 'stairs' },
-    { re: /basement|concrete/i, key: 'basement_concrete' },
-  ]
-  useEffect(() => {
-    const detected = new Set<string>()
-    rooms.forEach(r => {
-      ROOM_KEYWORD_MAP.forEach(({ re, key }) => { if (re.test(r.name)) detected.add(key) })
-    })
-    if (detected.size === 0) return
-    setJobOptions(prev => {
-      const next = { ...prev }
-      detected.forEach(k => { next[k] = true })
-      return next
-    })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rooms])
-
-  // Auto-sync: primary flooring type → wood-type checkbox (replaces previous auto-set key)
-  const FLOORING_TO_WOOD: Partial<Record<FlooringType, string>> = {
-    unfinished: 'unfinished',
-    prefinished: 'pre_finished',
-    engineered: 'engineered_unfinished',
-    prefinished_engineered: 'engineered_finished',
-    unfinished_engineered: 'engineered_unfinished',
-    vinyl: 'lvt',
-  }
-  const prevAutoWoodKey = useRef<string | null>(null)
-  useEffect(() => {
-    const primaryType = sectionFlooring[firstSection]
-    const newKey = FLOORING_TO_WOOD[primaryType] ?? null
-    if (newKey === prevAutoWoodKey.current) return
-    setJobOptions(prev => {
-      const next = { ...prev }
-      // Remove the previously auto-set key (only if user hasn't changed it)
-      if (prevAutoWoodKey.current && next[prevAutoWoodKey.current] === true) {
-        delete next[prevAutoWoodKey.current]
-      }
-      if (newKey) next[newKey] = true
-      prevAutoWoodKey.current = newKey
-      return next
-    })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [firstSection, sectionFlooring])
 
   // Default tax behavior:
   // - if editing and quote already has tax_enabled => keep
