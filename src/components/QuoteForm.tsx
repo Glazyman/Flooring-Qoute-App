@@ -1298,8 +1298,9 @@ export default function QuoteForm({
                       <div key={section} className="rounded-xl overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
                         {/* Section header */}
                         <div className="px-4 pt-3 pb-3" style={{ background: '#FAFAFA', borderBottom: '1px solid #F1F1F4' }}>
-                          <div className="flex items-center justify-between mb-2 gap-2">
-                            <div className="flex items-center gap-2 min-w-0 flex-1">
+                          {/* Name row — matches flooring dropdown in size */}
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="flex-1 min-w-0">
                               {editingSection === section ? (
                                 <input
                                   autoFocus
@@ -1310,43 +1311,38 @@ export default function QuoteForm({
                                     if (e.key === 'Enter') { e.preventDefault(); commitEditSection() }
                                     if (e.key === 'Escape') { setEditingSection(null) }
                                   }}
-                                  className="text-sm font-semibold bg-white rounded-md px-2 py-1 focus:outline-none flex-1 min-w-0 text-gray-900"
-                                  style={{ border: '1px solid #E5E7EB' }}
+                                  className="w-full px-3 py-2 rounded-lg text-sm font-semibold focus:outline-none text-gray-900"
+                                  style={{ border: '1.5px solid #1d1d1f', background: 'white' }}
                                 />
                               ) : (
                                 <button
                                   type="button"
                                   onClick={() => startEditSection(section)}
-                                  className="flex items-center gap-1 group min-w-0"
-                                  title="Click to rename"
+                                  className="flex items-center justify-between w-full px-3 py-2 rounded-lg text-sm font-semibold transition-all select-none"
+                                  style={{ background: 'white', border: '1.5px solid #E5E7EB', color: '#1d1d1f' }}
+                                  title="Tap to rename"
                                 >
-                                  <span className="text-sm font-semibold text-gray-900 truncate">
-                                    {section}
+                                  <span className="flex items-center gap-2 min-w-0">
+                                    <span className="truncate">{section}</span>
+                                    <span className="text-xs font-normal text-gray-400 flex-shrink-0">
+                                      · {sectionRooms.length} room{sectionRooms.length !== 1 ? 's' : ''}
+                                      {sectionTotal > 0 ? ` · ${sectionTotal.toFixed(1)} sqft` : ''}
+                                    </span>
                                   </span>
-                                  <Pencil className="w-3 h-3 opacity-30 group-hover:opacity-80 flex-shrink-0 text-gray-500" />
-                                </button>
-                              )}
-                              <span className="text-xs flex-shrink-0 text-gray-400">
-                                · {sectionRooms.length} room{sectionRooms.length !== 1 ? 's' : ''}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              {sectionTotal > 0 && (
-                                <span className="text-xs font-medium whitespace-nowrap text-gray-700">
-                                  {sectionTotal.toFixed(1)} sqft
-                                </span>
-                              )}
-                              {sections.length > 1 && (
-                                <button
-                                  type="button"
-                                  onClick={() => removeSection(section)}
-                                  className="text-gray-400 hover:text-red-500 p-1 rounded transition-colors"
-                                  title="Remove section"
-                                >
-                                  <X className="w-3.5 h-3.5" />
+                                  <Pencil className="w-3.5 h-3.5 text-gray-400 flex-shrink-0 ml-2" />
                                 </button>
                               )}
                             </div>
+                            {sections.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => removeSection(section)}
+                                className="text-gray-400 hover:text-red-500 p-1.5 rounded transition-colors flex-shrink-0"
+                                title="Remove section"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            )}
                           </div>
                           {/* Flooring type — collapsed picker */}
                           <div className="mt-1">
