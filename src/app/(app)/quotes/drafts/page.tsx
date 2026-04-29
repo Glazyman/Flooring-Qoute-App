@@ -31,7 +31,7 @@ export default async function DraftsPage() {
         <h1 className="text-base font-semibold text-gray-900">Drafts</h1>
         <Link
           href="/quotes/new"
-          className="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-md text-white transition-colors"
+          className="lg:hidden inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-md text-white transition-colors"
           style={{ background: 'var(--button-dark)' }}
         >
           <Plus className="w-3.5 h-3.5" />
