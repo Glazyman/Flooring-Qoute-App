@@ -10,7 +10,7 @@ import ApproveMeasurementButton from '@/components/ApproveMeasurementButton'
 
 const PAGE_SIZE = 10
 
-const COL_TEMPLATE = '32px 1fr 110px 100px 110px 130px'
+const COL_TEMPLATE = '32px 1fr 110px 90px 100px 120px 110px'
 const COL_HEAD = 'text-xs text-gray-400 font-normal'
 
 function fmtDate(d: string) {
@@ -215,6 +215,7 @@ export default function MeasurementsClient({ initialMeasurements }: { initialMea
               <Calendar className="w-3.5 h-3.5 text-gray-400 mr-1.5" />
               Date
             </div>
+            <div className={COL_HEAD}></div>
           </div>
 
           {paginated.map(m => {
@@ -298,17 +299,15 @@ export default function MeasurementsClient({ initialMeasurements }: { initialMea
                   <div className="text-sm font-semibold text-gray-900 text-right pr-2">
                     {fmt(m.final_total)}
                   </div>
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="flex items-center text-sm text-gray-500">
-                      <Calendar className="w-3.5 h-3.5 text-gray-400 mr-1.5 flex-shrink-0" />
-                      <span className="truncate">{fmtDate(m.created_at)}</span>
-                    </span>
-                    <div>
-                      <ApproveMeasurementButton
-                        quoteId={m.id}
-                        onApprove={() => setItems(prev => prev.filter(i => i.id !== m.id))}
-                      />
-                    </div>
+                  <div className="flex items-center text-sm text-gray-500">
+                    <Calendar className="w-3.5 h-3.5 text-gray-400 mr-1.5 flex-shrink-0" />
+                    <span className="truncate">{fmtDate(m.created_at)}</span>
+                  </div>
+                  <div className="flex items-center justify-end">
+                    <ApproveMeasurementButton
+                      quoteId={m.id}
+                      onApprove={() => setItems(prev => prev.filter(i => i.id !== m.id))}
+                    />
                   </div>
                 </div>
               </div>
