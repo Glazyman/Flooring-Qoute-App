@@ -713,30 +713,33 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
 
               return (
                 <div key={q.id}>
-                  {/* Mobile row */}
+                  {/* Mobile row — entire row is tappable */}
                   <div
-                    className="sm:hidden flex items-center gap-3 px-4 py-3 hover:bg-gray-50/60 transition-colors"
+                    className="sm:hidden flex items-center gap-3 px-4 py-3 hover:bg-gray-50/60 transition-colors cursor-pointer"
                     style={{ borderBottom: '1px solid #F5F5F7', background: rowBg }}
+                    onClick={() => router.push(rowHref)}
                   >
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={() => toggleSelect(q.id)}
-                      className="w-3.5 h-3.5 cursor-pointer flex-shrink-0"
-                      style={{ accentColor: '#1C1C1E' }}
-                    />
+                    <div onClick={e => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleSelect(q.id)}
+                        className="w-3.5 h-3.5 cursor-pointer flex-shrink-0"
+                        style={{ accentColor: '#1C1C1E' }}
+                      />
+                    </div>
                     <div
                       className="w-8 h-8 rounded-full flex items-center justify-center text-gray-700 text-xs font-semibold flex-shrink-0"
                       style={{ background: '#E5E7EB' }}
                     >
                       {initials}
                     </div>
-                    <button onClick={() => router.push(rowHref)} className="flex-1 min-w-0 text-left">
+                    <div className="flex-1 min-w-0 text-left">
                       <p className="text-sm font-normal text-gray-800 truncate">{q.customer_name}</p>
                       <p className="text-xs text-gray-400 truncate">
                         {flooringTypeLabel(q.flooring_type, q.section_flooring_types)} · {Math.round(q.adjusted_sqft).toLocaleString()} sqft
                       </p>
-                    </button>
+                    </div>
                     <div className="text-right flex-shrink-0">
                       <p className="text-sm font-semibold text-gray-900">{fmt(q.final_total)}</p>
                       <span className="text-xs flex items-center gap-1.5 justify-end" style={{ color: cfg.color }}>
@@ -746,16 +749,17 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
                     </div>
                   </div>
 
-                  {/* Desktop row */}
+                  {/* Desktop row — entire row is clickable */}
                   <div
                     style={{
                       gridTemplateColumns: COL_TEMPLATE,
                       background: rowBg,
                       borderBottom: '1px solid #F5F5F7',
                     }}
-                    className="hidden sm:grid group px-4 py-3 items-center hover:bg-gray-50/60 transition-colors last:border-b-0"
+                    className="hidden sm:grid group px-4 py-3 items-center hover:bg-gray-50/60 transition-colors cursor-pointer last:border-b-0"
+                    onClick={() => router.push(rowHref)}
                   >
-                    <div className="flex items-center">
+                    <div className="flex items-center" onClick={e => e.stopPropagation()}>
                       <input
                         type="checkbox"
                         checked={isSelected}
@@ -764,12 +768,9 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
                         style={{ accentColor: '#1C1C1E' }}
                       />
                     </div>
-                    <button
-                      onClick={() => router.push(rowHref)}
-                      className="min-w-0 pr-2 text-left"
-                    >
+                    <div className="min-w-0 pr-2">
                       {nameCell}
-                    </button>
+                    </div>
                     <div className="text-sm text-gray-600 truncate pr-2">
                       {flooringTypeLabel(q.flooring_type, q.section_flooring_types) || <span className="text-gray-300">—</span>}
                     </div>
@@ -783,7 +784,7 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
                       <Calendar className="w-3.5 h-3.5 text-gray-400 mr-1.5 flex-shrink-0" />
                       <span className="truncate">{formatDate(q.created_at)}</span>
                     </div>
-                    <div className="flex items-center justify-end relative">
+                    <div className="flex items-center justify-end relative" onClick={e => e.stopPropagation()}>
                       <button
                         onClick={() => setOpenMenuId(prev => prev === q.id ? null : q.id)}
                         className={`w-7 h-7 flex items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-all ${openMenuId === q.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
