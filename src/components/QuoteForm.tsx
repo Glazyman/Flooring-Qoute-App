@@ -454,6 +454,9 @@ export default function QuoteForm({
   // Section editing UI state (per-section X/edit confirm)
   const [editingSection, setEditingSection] = useState<string | null>(null)
   const [editingSectionDraft, setEditingSectionDraft] = useState<string>('')
+  // Which section's flooring picker is expanded (null = all collapsed)
+  const [openFlooringSection, setOpenFlooringSection] = useState<string | null>(null)
+  const [manualFlooringOpen, setManualFlooringOpen] = useState(false)
   const [confirmRemoveSection, setConfirmRemoveSection] = useState<string | null>(null)
 
   const roomsSqft = rooms.reduce((sum, r) => sum + roomSqft(r), 0)
@@ -978,26 +981,40 @@ export default function QuoteForm({
                 <Input label="Total square footage" value={manualSqft} onChange={setManualSqft} type="number" suffix="sqft" placeholder="500" decimal />
                 <div>
                   <label className="block text-xs font-medium text-gray-500 mb-2">Flooring type</label>
-                  <div className="flex flex-wrap gap-1.5">
-                    {FLOORING_TYPES.map(t => {
-                      const active = (sectionFlooring[firstSection] || 'unfinished') === t.value
-                      return (
-                        <button
-                          key={t.value}
-                          type="button"
-                          onClick={() => setSectionFlooringType(firstSection, t.value)}
-                          className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-medium transition-all select-none"
-                          style={active
-                            ? { background: '#1d1d1f', color: 'white', border: '1.5px solid #1d1d1f' }
-                            : { background: 'white', color: '#374151', border: '1.5px solid #E5E7EB' }
-                          }
-                        >
-                          {active && <Check className="w-3 h-3 flex-shrink-0" />}
-                          {t.label}
-                        </button>
-                      )
-                    })}
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setManualFlooringOpen(v => !v)}
+                    className="flex items-center justify-between w-full px-3 py-2 rounded-lg text-sm font-medium transition-all select-none"
+                    style={{ background: 'white', border: '1.5px solid #1d1d1f', color: '#1d1d1f' }}
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <Check className="w-3.5 h-3.5 flex-shrink-0" />
+                      {FLOORING_TYPES.find(t => t.value === (sectionFlooring[firstSection] || 'unfinished'))?.label ?? 'Select type'}
+                    </span>
+                    <ChevronDown className={`w-3.5 h-3.5 flex-shrink-0 transition-transform ${manualFlooringOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  {manualFlooringOpen && (
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {FLOORING_TYPES.map(t => {
+                        const active = (sectionFlooring[firstSection] || 'unfinished') === t.value
+                        return (
+                          <button
+                            key={t.value}
+                            type="button"
+                            onClick={() => { setSectionFlooringType(firstSection, t.value); setManualFlooringOpen(false) }}
+                            className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-medium transition-all select-none"
+                            style={active
+                              ? { background: '#1d1d1f', color: 'white', border: '1.5px solid #1d1d1f' }
+                              : { background: 'white', color: '#374151', border: '1.5px solid #E5E7EB' }
+                            }
+                          >
+                            {active && <Check className="w-3 h-3 flex-shrink-0" />}
+                            {t.label}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
                 </div>
                 {jobSpecChecklist}
               </div>
@@ -1120,23 +1137,39 @@ export default function QuoteForm({
                               )}
                             </div>
                           </div>
-                          {/* Flooring type — pill buttons */}
-                          <div className="flex flex-wrap gap-1.5 mt-1">
-                            {FLOORING_TYPES.map(t => (
-                              <button
-                                key={t.value}
-                                type="button"
-                                onClick={() => setSectionFlooringType(section, t.value)}
-                                className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-medium transition-all select-none"
-                                style={secFlooring === t.value
-                                  ? { background: '#1d1d1f', color: 'white', border: '1.5px solid #1d1d1f' }
-                                  : { background: 'white', color: '#374151', border: '1.5px solid #E5E7EB' }
-                                }
-                              >
-                                {secFlooring === t.value && <Check className="w-3 h-3 flex-shrink-0" />}
-                                {t.label}
-                              </button>
-                            ))}
+                          {/* Flooring type — collapsed picker */}
+                          <div className="mt-1">
+                            <button
+                              type="button"
+                              onClick={() => setOpenFlooringSection(openFlooringSection === section ? null : section)}
+                              className="flex items-center justify-between w-full px-3 py-2 rounded-lg text-sm font-medium transition-all select-none"
+                              style={{ background: 'white', border: '1.5px solid #1d1d1f', color: '#1d1d1f' }}
+                            >
+                              <span className="flex items-center gap-1.5">
+                                <Check className="w-3.5 h-3.5 flex-shrink-0" />
+                                {FLOORING_TYPES.find(t => t.value === secFlooring)?.label ?? 'Select type'}
+                              </span>
+                              <ChevronDown className={`w-3.5 h-3.5 flex-shrink-0 transition-transform ${openFlooringSection === section ? 'rotate-180' : ''}`} />
+                            </button>
+                            {openFlooringSection === section && (
+                              <div className="flex flex-wrap gap-1.5 mt-2">
+                                {FLOORING_TYPES.map(t => (
+                                  <button
+                                    key={t.value}
+                                    type="button"
+                                    onClick={() => { setSectionFlooringType(section, t.value); setOpenFlooringSection(null) }}
+                                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-medium transition-all select-none"
+                                    style={secFlooring === t.value
+                                      ? { background: '#1d1d1f', color: 'white', border: '1.5px solid #1d1d1f' }
+                                      : { background: 'white', color: '#374151', border: '1.5px solid #E5E7EB' }
+                                    }
+                                  >
+                                    {secFlooring === t.value && <Check className="w-3 h-3 flex-shrink-0" />}
+                                    {t.label}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
                           </div>
 
                         </div>
