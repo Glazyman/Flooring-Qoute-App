@@ -1,13 +1,11 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import dynamic from 'next/dynamic'
 import { Plus, Upload } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import AppNavigation from '@/components/AppNavigation'
 import TrialBanner from '@/components/TrialBanner'
 import Breadcrumb from '@/components/Breadcrumb'
-
-const GlobalSearch = dynamic(() => import('@/components/GlobalSearch'), { ssr: false })
+import GlobalSearch from '@/components/GlobalSearch'
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()

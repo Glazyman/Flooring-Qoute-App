@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { Plus } from 'lucide-react'
 import QuotesTable from '@/components/QuotesTable'
 import type { Quote } from '@/lib/types'
 
