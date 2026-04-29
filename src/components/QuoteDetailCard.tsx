@@ -738,9 +738,10 @@ export default function QuoteDetailCard({
       className="bg-white rounded-xl p-4 sm:p-6 pb-2 relative"
       style={{ border: '1px solid #e2e8f0', boxShadow: '0 1px 4px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.05)' }}
     >
-      {/* Top row: company block + Estimate title + meta table */}
-      <div className="flex flex-col sm:flex-row sm:items-stretch sm:justify-between gap-4 mb-5">
-        <div className="flex items-start gap-3 p-3 sm:w-1/2" style={{ border: FRAME_BORDER }}>
+      {/* Top row: company block + stacked title */}
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
+        {/* Company info — no box */}
+        <div className="flex items-start gap-3">
           {settings?.logo_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -750,83 +751,75 @@ export default function QuoteDetailCard({
             />
           ) : null}
           <div className="min-w-0">
-            <p className="text-base font-bold mb-1" style={{ color: '#0f172a' }}>
+            <p className="text-base font-bold mb-0.5" style={{ color: '#0f172a' }}>
               {settings?.company_name || 'Flooring Company'}
             </p>
             {(settings?.address_line1 || settings?.address_line2) && (
-              <p className="text-xs" style={{ color: '#334155' }}>
+              <p className="text-xs" style={{ color: '#475569' }}>
                 {[settings?.address_line1, settings?.address_line2].filter(Boolean).join(', ')}
               </p>
             )}
             {(settings?.city || settings?.state || settings?.zip) && (
-              <p className="text-xs" style={{ color: '#334155' }}>
+              <p className="text-xs" style={{ color: '#475569' }}>
                 {[settings?.city, settings?.state, settings?.zip].filter(Boolean).join(', ')}
               </p>
             )}
-            {settings?.phone ? (
-              <p className="text-xs mt-1" style={{ color: '#334155' }}>
-                <span className="font-medium" style={{ color: '#0f172a' }}>Office: </span>{settings.phone}
+            {settings?.phone && (
+              <p className="text-xs mt-0.5" style={{ color: '#475569' }}>
+                <span className="font-semibold" style={{ color: '#1e293b' }}>Office: </span>{settings.phone}
               </p>
-            ) : null}
-            {settings?.email ? (
-              <p className="text-xs" style={{ color: '#334155' }}>
-                <span className="font-medium" style={{ color: '#0f172a' }}>Email: </span>{settings.email}
+            )}
+            {settings?.email && (
+              <p className="text-xs" style={{ color: '#475569' }}>
+                <span className="font-semibold" style={{ color: '#1e293b' }}>Email: </span>{settings.email}
               </p>
-            ) : null}
-            {settings?.website ? (
-              <p className="text-xs" style={{ color: '#334155' }}>
-                <span className="font-medium" style={{ color: '#0f172a' }}>Web: </span>{settings.website}
+            )}
+            {settings?.website && (
+              <p className="text-xs" style={{ color: '#475569' }}>
+                <span className="font-semibold" style={{ color: '#1e293b' }}>Web: </span>{settings.website}
               </p>
-            ) : null}
+            )}
           </div>
         </div>
 
-        <div className="sm:w-1/2 flex flex-col sm:items-end">
-          <p className="text-3xl sm:text-4xl italic font-bold mb-2" style={{ color: '#0f172a' }}>
-            Estimate
-          </p>
-          <div className="w-full sm:w-56 text-xs" style={{ border: FRAME_BORDER }}>
-            <div className="flex" style={{ borderBottom: FRAME_BORDER }}>
-              <span
-                className="flex-1 px-2 py-1 text-center"
-                style={{ borderRight: '1px solid #334155', background: BAND_BG, color: BAND_TEXT }}
-              >
-                Date
-              </span>
-              <span className="flex-1 px-2 py-1 text-center">{dateStr}</span>
-            </div>
-            <div className="flex">
-              <span
-                className="flex-1 px-2 py-1 text-center"
-                style={{ borderRight: '1px solid #334155', background: BAND_BG, color: BAND_TEXT }}
-              >
-                Estimate #
-              </span>
-              <span className="flex-1 px-2 py-1 text-center">
-                <EditableField
-                  fieldKey="quote_number"
-                  value={quoteNumber}
-                  editing={editing}
-                  saved={saved}
-                  onEdit={onEdit}
-                  onSave={handleSave}
-                  placeholder="—"
-                  textStyle={{ fontSize: 'inherit', color: '#0f172a' }}
-                />
-              </span>
-            </div>
+        {/* Stacked title + date/number */}
+        <div className="sm:text-right">
+          <div className="mb-3">
+            <p className="text-4xl sm:text-5xl font-extrabold leading-none" style={{ color: '#1e293b' }}>Flooring</p>
+            <p className="text-xl sm:text-2xl font-bold tracking-wide" style={{ color: '#475569' }}>Estimate</p>
+          </div>
+          {/* Date row */}
+          <div className="flex sm:justify-end items-center gap-2 text-sm pb-1 mb-1" style={{ borderBottom: '1px solid #e2e8f0' }}>
+            <span style={{ color: BAND_BG, fontSize: 10 }}>◆</span>
+            <span className="font-semibold" style={{ color: '#1e293b' }}>Estimate Date:</span>
+            <span style={{ color: '#475569' }}>{dateStr}</span>
+          </div>
+          {/* Estimate # row */}
+          <div className="flex sm:justify-end items-center gap-2 text-sm pb-1" style={{ borderBottom: '1px solid #e2e8f0' }}>
+            <span style={{ color: BAND_BG, fontSize: 10 }}>◆</span>
+            <span className="font-semibold" style={{ color: '#1e293b' }}>Estimate #:</span>
+            <EditableField
+              fieldKey="quote_number"
+              value={quoteNumber}
+              editing={editing}
+              saved={saved}
+              onEdit={onEdit}
+              onSave={handleSave}
+              placeholder="—"
+              textStyle={{ fontSize: 'inherit', color: '#475569' }}
+            />
           </div>
         </div>
       </div>
 
       {/* Customer + Job boxes */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
-        <div style={{ border: FRAME_BORDER }}>
+        <div style={{ border: FRAME_BORDER, borderRadius: 4 }}>
           <div
-            className="px-3 py-1.5 text-sm italic font-bold text-center"
-            style={{ background: BAND_BG, color: BAND_TEXT, borderBottom: '1px solid #334155' }}
+            className="px-3 py-2 text-sm font-bold"
+            style={{ background: BAND_BG, color: BAND_TEXT, borderBottom: '1px solid #334155', borderRadius: '4px 4px 0 0' }}
           >
-            Customer Name
+            Client Information:
           </div>
           <div className="p-4 min-h-[80px] text-sm" style={{ color: '#0f172a' }}>
             <EditableField
@@ -849,12 +842,12 @@ export default function QuoteDetailCard({
             />
           </div>
         </div>
-        <div style={{ border: FRAME_BORDER }}>
+        <div style={{ border: FRAME_BORDER, borderRadius: 4 }}>
           <div
-            className="px-3 py-1.5 text-sm italic font-bold text-center"
-            style={{ background: BAND_BG, color: BAND_TEXT, borderBottom: '1px solid #334155' }}
+            className="px-3 py-2 text-sm font-bold"
+            style={{ background: BAND_BG, color: BAND_TEXT, borderBottom: '1px solid #334155', borderRadius: '4px 4px 0 0' }}
           >
-            Job Location
+            Project Details:
           </div>
           <div className="p-4 min-h-[80px] text-sm" style={{ color: '#0f172a' }}>
             <EditableField
@@ -865,7 +858,7 @@ export default function QuoteDetailCard({
               onEdit={onEdit}
               onSave={handleSave}
               multiline
-              placeholder="Job address"
+              placeholder="Job address / project location"
               textStyle={{ whiteSpace: 'pre-wrap' }}
             />
           </div>
@@ -913,21 +906,23 @@ export default function QuoteDetailCard({
       </div>
 
       {/* Items table */}
-      <div className="text-sm overflow-x-auto">
+      <p className="text-sm font-bold mb-2 mt-1" style={{ color: '#1e293b' }}>Cost Breakdown</p>
+      <div className="text-sm overflow-x-auto" style={{ border: FRAME_BORDER, borderRadius: 4 }}>
         <div style={{ minWidth: 480 }}>
           {/* Header */}
           <div
-            className="grid items-center px-2 py-2 italic font-bold"
+            className="grid items-center px-2 py-2 font-bold"
             style={{
               gridTemplateColumns: GRID_COLS,
               background: BAND_BG,
               color: BAND_TEXT,
+              borderRadius: '4px 4px 0 0',
             }}
           >
-            <span>Description</span>
-            <span className="text-right">Sqft</span>
+            <span>Item Description</span>
+            <span className="text-right">Quantity</span>
             <span className="text-right">UoM</span>
-            <span className="text-right">Rate</span>
+            <span className="text-right">Unit Price</span>
             <span className="text-right">Total</span>
           </div>
 
@@ -1801,12 +1796,25 @@ export default function QuoteDetailCard({
 
       {/* Terms footer */}
       {terms.length > 0 && (
-        <div className="mt-6">
+        <div className="mt-4">
           {terms.map((t, i) => (
             <p key={i} className="text-xs italic font-semibold leading-snug" style={{ color: '#0f172a' }}>
               {t}
             </p>
           ))}
+        </div>
+      )}
+
+      {/* Contact footer bar */}
+      {(settings?.email || settings?.phone) && (
+        <div
+          className="mt-6 -mx-4 sm:-mx-6 px-6 py-3 text-center text-xs"
+          style={{ background: BAND_BG, color: BAND_TEXT, borderRadius: '0 0 12px 12px' }}
+        >
+          For any questions, contact:{' '}
+          {settings?.email && <span className="font-semibold">{settings.email}</span>}
+          {settings?.email && settings?.phone && ' or '}
+          {settings?.phone && <span className="font-semibold">{settings.phone}</span>}
         </div>
       )}
     </div>
