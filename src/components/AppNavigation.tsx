@@ -63,7 +63,7 @@ function NavLink({ item, onClick, badge }: { item: NavItem; onClick?: () => void
       {badge != null && badge > 0 && (
         <span style={{
           minWidth: 18, height: 18, borderRadius: 9, padding: '0 5px',
-          background: '#ff9f0a', color: 'white',
+          background: '#1d1d1f', color: 'white',
           fontSize: 10, fontWeight: 700,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           flexShrink: 0,
