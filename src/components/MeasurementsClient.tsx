@@ -303,7 +303,7 @@ export default function MeasurementsClient({ initialMeasurements }: { initialMea
                       <Calendar className="w-3.5 h-3.5 text-gray-400 mr-1.5 flex-shrink-0" />
                       <span className="truncate">{fmtDate(m.created_at)}</span>
                     </span>
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div>
                       <ApproveMeasurementButton
                         quoteId={m.id}
                         onApprove={() => setItems(prev => prev.filter(i => i.id !== m.id))}
