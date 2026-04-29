@@ -119,23 +119,46 @@ a, button { transition: background 0.12s ease, color 0.12s ease, opacity 0.12s e
 .marketing-page { background: #ffffff; color: #1d1d1f; }
 
 @media print {
-  /* Hide everything except the quote card */
-  body > * { display: none !important; }
-  .print-quote-area { display: block !important; }
-
-  /* Show just the quote card area */
+  /* Hide everything */
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+  }
+  body * {
+    visibility: hidden !important;
+  }
+  /* Show only the quote card */
   .print-quote-area,
-  .print-quote-area * { display: revert !important; }
-
-  /* Remove shadows/borders that look bad on paper */
-  .print-quote-area [class*="rounded"] { border-radius: 0 !important; }
-  .print-quote-area { box-shadow: none !important; border: none !important; }
-
-  /* Hide edit UI */
-  .print-hide { display: none !important; }
+  .print-quote-area * {
+    visibility: visible !important;
+  }
+  /* Position quote area at top of page */
+  .print-quote-area {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .print-quote-area > div {
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .print-hide,
+  .print-hide * {
+    visibility: hidden !important;
+    display: none !important;
+  }
 
   @page {
-    margin: 0.6in;
+    margin: 0.5in;
     size: letter;
   }
 }
