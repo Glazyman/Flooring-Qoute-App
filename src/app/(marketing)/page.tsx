@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { redirect } from 'next/navigation'
 import PricingSection from '@/components/PricingSection'
 import HomePageAuthHandler from '@/components/HomePageAuthHandler'
 
@@ -54,7 +55,24 @@ const FEATURES = [
   },
 ]
 
-export default function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}) {
+  // If Supabase falls back to the Site URL (because /auth/callback isn't in
+  // its Redirect URLs allow list yet), it will land here with `?code=...`.
+  // Forward to the proper server-side OAuth handler.
+  const params = await searchParams
+  const code = typeof params.code === 'string' ? params.code : null
+  if (code) {
+    const qs = new URLSearchParams()
+    for (const [k, v] of Object.entries(params)) {
+      if (typeof v === 'string') qs.set(k, v)
+    }
+    redirect(`/auth/callback?${qs.toString()}`)
+  }
+
   return (
     <main className="marketing-page">
       <HomePageAuthHandler />
