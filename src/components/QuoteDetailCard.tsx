@@ -891,108 +891,86 @@ export default function QuoteDetailCard({
       </div>
 
       {/* Customer + Job boxes */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
         {/* Client Information */}
-        <div style={{ borderRadius: 6, border: '1px solid #e2e8f0', borderLeft: '3px solid #1e293b' }}>
-          <div
-            className="px-3 py-2"
-            style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', borderRadius: '4px 4px 0 0' }}
-          >
-            <span style={{ color: '#1e293b', fontWeight: 700, fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Client Information</span>
-          </div>
-          <div className="p-4 min-h-[90px] text-sm" style={{ color: '#0f172a' }}>
-            <div className="flex gap-1 mb-0.5">
-              <span className="font-semibold text-xs w-14 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Name:</span>
-              <EditableField fieldKey="customer_name" value={customerName} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="Customer name" />
-            </div>
-            <div className="flex gap-1 mb-0.5">
-              <span className="font-semibold text-xs w-14 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Phone:</span>
-              <EditableField fieldKey="customer_phone" value={customerPhone} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="Phone number" />
-            </div>
-            <div className="flex gap-1 mb-0.5">
-              <span className="font-semibold text-xs w-14 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Email:</span>
-              <EditableField fieldKey="customer_email" value={customerEmail} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="Email address" />
+        <div className="p-4" style={{ border: '1px solid #e2e8f0', borderRadius: 8 }}>
+          <p className="font-bold text-sm mb-3" style={{ color: '#0f172a' }}>Client Information:</p>
+          <div className="space-y-1 text-sm">
+            <div className="flex gap-1">
+              <span className="font-bold flex-shrink-0" style={{ color: '#0f172a', minWidth: '3.5rem' }}>Name:</span>
+              <EditableField fieldKey="customer_name" value={customerName} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="Customer name" textStyle={{ color: '#334155' }} />
             </div>
             <div className="flex gap-1">
-              <span className="font-semibold text-xs w-14 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Address:</span>
-              <EditableField fieldKey="job_address" value={jobAddress} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} multiline placeholder="Job address" textStyle={{ whiteSpace: 'pre-wrap' }} />
+              <span className="font-bold flex-shrink-0" style={{ color: '#0f172a', minWidth: '3.5rem' }}>Address:</span>
+              <EditableField fieldKey="job_address" value={jobAddress} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} multiline placeholder="Job address" textStyle={{ color: '#334155', whiteSpace: 'pre-wrap' }} />
+            </div>
+            <div className="flex gap-1">
+              <span className="font-bold flex-shrink-0" style={{ color: '#0f172a', minWidth: '3.5rem' }}>Phone:</span>
+              <EditableField fieldKey="customer_phone" value={customerPhone} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="Phone number" textStyle={{ color: '#334155' }} />
+            </div>
+            <div className="flex gap-1">
+              <span className="font-bold flex-shrink-0" style={{ color: '#0f172a', minWidth: '3.5rem' }}>Email:</span>
+              <EditableField fieldKey="customer_email" value={customerEmail} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="Email address" textStyle={{ color: '#334155' }} />
             </div>
           </div>
         </div>
 
         {/* Project Details */}
-        <div style={{ borderRadius: 6, border: '1px solid #e2e8f0', borderLeft: '3px solid #1e293b' }}>
-          <div
-            className="px-3 py-2"
-            style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', borderRadius: '4px 4px 0 0' }}
-          >
-            <span style={{ color: '#1e293b', fontWeight: 700, fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Project Details</span>
-          </div>
-          <div className="p-4 min-h-[90px] text-sm" style={{ color: '#0f172a' }}>
+        <div className="p-4" style={{ border: '1px solid #e2e8f0', borderRadius: 8 }}>
+          <p className="font-bold text-sm mb-3" style={{ color: '#0f172a' }}>Project Details:</p>
+          <div className="space-y-1 text-sm">
             {canRenderPerSection && sectionKeys.length > 0 ? (
               <>
-                {/* Total sqft */}
-                <div className="flex gap-1 mb-1 pb-1" style={{ borderBottom: '1px dashed #e2e8f0' }}>
-                  <span className="font-semibold text-xs w-28 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Total Area:</span>
-                  <span className="font-semibold">{fmtQty(sectionKeys.reduce((s, k) => s + (roomsBySection[k] ?? 0) * wasteFactor, 0))} sqft</span>
+                <div className="flex gap-1">
+                  <span className="font-bold flex-shrink-0" style={{ color: '#0f172a', minWidth: '6rem' }}>Total Area:</span>
+                  <span style={{ color: '#334155' }}>{fmtQty(sectionKeys.reduce((s, k) => s + (roomsBySection[k] ?? 0) * wasteFactor, 0))} sq ft</span>
                 </div>
-                {/* Per-section breakdown */}
                 {sectionKeys.map(sec => {
                   const secType = q.section_flooring_types?.[sec]
                   const secLabel = secType ? (FLOORING_LABEL[secType] || secType) : flooringLabel
-                  const baseSqft = roomsBySection[sec] ?? 0
-                  const adjSqft = baseSqft * wasteFactor
+                  const adjSqft = (roomsBySection[sec] ?? 0) * wasteFactor
                   return (
-                    <div key={sec} className="flex gap-1 mb-0.5">
-                      <span className="font-semibold text-xs flex-shrink-0" style={{ color: '#475569', paddingTop: 1, minWidth: '4.5rem' }}>{sec}:</span>
-                      <span>{secLabel} — {fmtQty(adjSqft)} sqft</span>
+                    <div key={sec} className="flex gap-1">
+                      <span className="font-bold flex-shrink-0" style={{ color: '#0f172a', minWidth: '6rem' }}>{sec}:</span>
+                      <span style={{ color: '#334155' }}>{secLabel} — {fmtQty(adjSqft)} sq ft</span>
                     </div>
                   )
                 })}
-                <div className="flex gap-1 mt-0.5">
-                  <span className="font-semibold text-xs w-28 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Wood Species:</span>
-                  <EditableField fieldKey="wood_species" value={woodSpecies} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="e.g. Oak, Maple (if applicable)" />
-                </div>
-                <div className="flex gap-1 mb-0.5">
-                  <span className="font-semibold text-xs w-28 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Color / Style:</span>
-                  <EditableField fieldKey="material_description" value={materialDescription} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="Color or style name" />
+                <div className="flex gap-1">
+                  <span className="font-bold flex-shrink-0" style={{ color: '#0f172a', minWidth: '6rem' }}>Wood Species:</span>
+                  <EditableField fieldKey="wood_species" value={woodSpecies} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="e.g. Oak, Maple" textStyle={{ color: '#334155' }} />
                 </div>
                 <div className="flex gap-1">
-                  <span className="font-semibold text-xs w-28 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Notes:</span>
-                  <EditableField fieldKey="additional_details" value={additionalDetails} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} multiline placeholder="Add any extra details about the project" textStyle={{ whiteSpace: 'pre-wrap' }} />
+                  <span className="font-bold flex-shrink-0" style={{ color: '#0f172a', minWidth: '6rem' }}>Material:</span>
+                  <EditableField fieldKey="material_description" value={materialDescription} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="Color or style name" textStyle={{ color: '#334155' }} />
+                </div>
+                <div className="flex gap-1">
+                  <span className="font-bold flex-shrink-0" style={{ color: '#0f172a', minWidth: '6rem' }}>Notes:</span>
+                  <EditableField fieldKey="additional_details" value={additionalDetails} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} multiline placeholder="Any extra project details" textStyle={{ color: '#334155', whiteSpace: 'pre-wrap' }} />
                 </div>
               </>
             ) : (
               <>
-                <div className="flex gap-1 mb-0.5">
-                  <span className="font-semibold text-xs w-28 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Total Area:</span>
-                  <EditableField fieldKey="adjusted_sqft" value={adjustedSqft > 0 ? String(adjustedSqft) : ''} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="0" />
-                  <span className="text-xs" style={{ color: '#475569', paddingTop: 2 }}>sqft</span>
-                </div>
-                <div className="flex gap-1 mb-0.5">
-                  <span className="font-semibold text-xs w-28 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Flooring Type:</span>
-                  <EditableSelect
-                    fieldKey="flooring_type"
-                    value={flooringType}
-                    options={Object.entries(FLOORING_LABEL).map(([value, label]) => ({ value, label }))}
-                    editing={editing}
-                    saved={saved}
-                    onEdit={onEdit}
-                    onSave={handleSave}
-                    placeholder="Select flooring type"
-                  />
-                </div>
-                <div className="flex gap-1 mb-0.5">
-                  <span className="font-semibold text-xs w-28 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Wood Species:</span>
-                  <EditableField fieldKey="wood_species" value={woodSpecies} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="e.g. Oak, Maple (if applicable)" />
-                </div>
-                <div className="flex gap-1 mb-0.5">
-                  <span className="font-semibold text-xs w-28 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Color / Style:</span>
-                  <EditableField fieldKey="material_description" value={materialDescription} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="Color or style name" />
+                <div className="flex gap-1">
+                  <span className="font-bold flex-shrink-0" style={{ color: '#0f172a', minWidth: '6rem' }}>Type of Flooring:</span>
+                  <EditableSelect fieldKey="flooring_type" value={flooringType} options={Object.entries(FLOORING_LABEL).map(([value, label]) => ({ value, label }))} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="Select type" />
                 </div>
                 <div className="flex gap-1">
-                  <span className="font-semibold text-xs w-28 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Notes:</span>
-                  <EditableField fieldKey="additional_details" value={additionalDetails} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} multiline placeholder="Add any extra details about the project" textStyle={{ whiteSpace: 'pre-wrap' }} />
+                  <span className="font-bold flex-shrink-0" style={{ color: '#0f172a', minWidth: '6rem' }}>Area (sq ft):</span>
+                  <EditableField fieldKey="adjusted_sqft" value={adjustedSqft > 0 ? String(adjustedSqft) : ''} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="0" textStyle={{ color: '#334155' }} />
+                  <span style={{ color: '#475569', paddingTop: 2, fontSize: 12 }}>sq ft</span>
+                </div>
+                <div className="flex gap-1">
+                  <span className="font-bold flex-shrink-0" style={{ color: '#0f172a', minWidth: '6rem' }}>Wood Species:</span>
+                  <EditableField fieldKey="wood_species" value={woodSpecies} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="e.g. Oak, Maple" textStyle={{ color: '#334155' }} />
+                </div>
+                <div className="flex gap-1">
+                  <span className="font-bold flex-shrink-0" style={{ color: '#0f172a', minWidth: '6rem' }}>Material:</span>
+                  <EditableField fieldKey="material_description" value={materialDescription} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="Color or style name" textStyle={{ color: '#334155' }} />
+                </div>
+                <div className="flex gap-1">
+                  <span className="font-bold flex-shrink-0" style={{ color: '#0f172a', minWidth: '6rem' }}>Notes:</span>
+                  <EditableField fieldKey="additional_details" value={additionalDetails} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} multiline placeholder="Any extra project details" textStyle={{ color: '#334155', whiteSpace: 'pre-wrap' }} />
                 </div>
               </>
             )}
