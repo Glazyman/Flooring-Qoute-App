@@ -153,7 +153,7 @@ export default async function QuoteDetailPage({
             </svg>
             Download PDF
           </a>
-          <PrintButton />
+          <PrintButton quoteId={id} />
         </div>
       </div>
 
