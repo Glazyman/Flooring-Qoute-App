@@ -375,7 +375,9 @@ export default function QuoteDetailCard({
   // Inclusions / Exclusions / Qualifications (fall back to company defaults if quote has none)
   const [inclusions, setInclusions] = useState(q.inclusions ?? defaultInclusions ?? '')
   const [exclusions, setExclusions] = useState(q.exclusions ?? defaultExclusions ?? '')
-  const [qualifications, setQualifications] = useState(q.qualifications ?? defaultQualifications ?? '')
+  const validDays = q.valid_days || 0
+  const defaultValidityText = validDays > 0 ? `Price is valid for ${validDays} days from date of proposal.` : ''
+  const [qualifications, setQualifications] = useState(q.qualifications ?? defaultQualifications ?? defaultValidityText)
 
   // Edit/save state
   const [editing, setEditing] = useState<string | null>(null)
@@ -1907,7 +1909,7 @@ export default function QuoteDetailCard({
               onEdit={onEdit}
               onSave={handleSave}
               multiline
-              placeholder="Add qualifications (e.g. Price is valid for 60 days from date of proposal…)"
+              placeholder={`Add qualifications (e.g. Price is valid for ${validDays || 30} days from date of proposal…)`}
               textStyle={{ whiteSpace: 'pre-wrap', lineHeight: '1.7', fontSize: 13, color: '#334155' }}
             />
           </div>
