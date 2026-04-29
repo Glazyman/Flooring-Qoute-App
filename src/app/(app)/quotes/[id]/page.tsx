@@ -1,5 +1,5 @@
 import { redirect, notFound } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, getCurrentUser } from '@/lib/supabase/server'
 import Link from 'next/link'
 import type { Quote, QuoteRoom, QuoteLineItem, CompanySettings } from '@/lib/types'
 import DuplicateButton from '@/components/DuplicateButton'
@@ -9,6 +9,14 @@ import QuoteDetailCard from '@/components/QuoteDetailCard'
 import PrintButton from '@/components/PrintButton'
 
 export const dynamic = 'force-dynamic'
+
+// Re-thrown by Next.js navigation helpers (`redirect`, `notFound`). We must
+// let these bubble — catching them turns a redirect into a 500.
+function isNextRedirectOrNotFound(err: unknown): boolean {
+  if (!err || typeof err !== 'object') return false
+  const digest = (err as { digest?: unknown }).digest
+  return typeof digest === 'string' && digest.startsWith('NEXT_')
+}
 
 const STATUS_DOT: Record<string, { color: string; label: string }> = {
   measurement: { color: '#3B82F6', label: 'Measurement' },
@@ -24,53 +32,80 @@ export default async function QuoteDetailPage({
 }) {
   const { id } = await params
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
 
+  // Auth: never let a thrown getUser bubble into a 500. The proxy will already
+  // have cleared bad cookies on the previous request loop; if we still don't
+  // have a user, send the visitor to /login.
+  const user = await getCurrentUser(supabase)
   if (!user) redirect('/login')
 
-  const { data: membership } = await supabase
-    .from('company_members')
-    .select('company_id')
-    .eq('user_id', user.id)
-    .single()
+  let membership: { company_id: string } | null = null
+  let quote: Quote | null = null
+  let rooms: QuoteRoom[] = []
+  let lineItems: QuoteLineItem[] = []
+  let settings: CompanySettings | null = null
+  let emailConnected = false
 
-  if (!membership) redirect('/billing/setup')
+  try {
+    const { data: m, error: mErr } = await supabase
+      .from('company_members')
+      .select('company_id')
+      .eq('user_id', user.id)
+      .single()
+    if (mErr && mErr.code !== 'PGRST116') throw mErr
+    membership = (m as { company_id: string } | null) ?? null
 
-  const [
-    { data: quote },
-    { data: rooms },
-    { data: lineItems },
-    { data: settingsRow },
-    { data: emailConnection },
-  ] = await Promise.all([
-    supabase
-      .from('quotes')
-      .select('*')
-      .eq('id', id)
-      .eq('company_id', membership.company_id)
-      .single(),
-    supabase.from('quote_rooms').select('*').eq('quote_id', id).order('id'),
-    supabase.from('quote_line_items').select('*').eq('quote_id', id).order('position'),
-    supabase.from('company_settings').select('*').eq('company_id', membership.company_id).single(),
-    supabase
-      .from('email_connections')
-      .select('id')
-      .eq('company_id', membership.company_id)
-      .maybeSingle(),
-  ])
+    if (!membership) redirect('/billing/setup')
 
-  const emailConnected = !!emailConnection
+    const [
+      quoteRes,
+      roomsRes,
+      lineItemsRes,
+      settingsRes,
+      emailRes,
+    ] = await Promise.all([
+      supabase
+        .from('quotes')
+        .select('*')
+        .eq('id', id)
+        .eq('company_id', membership.company_id)
+        .maybeSingle(),
+      supabase.from('quote_rooms').select('*').eq('quote_id', id).order('id'),
+      supabase.from('quote_line_items').select('*').eq('quote_id', id).order('position'),
+      supabase
+        .from('company_settings')
+        .select('*')
+        .eq('company_id', membership.company_id)
+        .maybeSingle(),
+      supabase
+        .from('email_connections')
+        .select('id')
+        .eq('company_id', membership.company_id)
+        .maybeSingle(),
+    ])
+
+    if (quoteRes.error && quoteRes.error.code !== 'PGRST116') throw quoteRes.error
+    quote = (quoteRes.data as Quote | null) ?? null
+    rooms = ((roomsRes.data ?? []) as QuoteRoom[])
+    lineItems = ((lineItemsRes.data ?? []) as QuoteLineItem[])
+    settings = (settingsRes.data as CompanySettings | null) ?? null
+    emailConnected = !!emailRes.data
+  } catch (err) {
+    if (isNextRedirectOrNotFound(err)) throw err
+    // Surface a friendly error UI via the route's error boundary instead of
+    // crashing with a generic 500. The boundary lets the user retry or sign
+    // out without manually clearing cookies.
+    console.error('[quotes/[id]] data fetch failed', err)
+    throw new Error('Failed to load quote')
+  }
 
   if (!quote) notFound()
 
-  const q = quote as Quote
+  const q = quote
   const statusCfg = STATUS_DOT[q.status] || { color: '#9CA3AF', label: q.status }
 
-  const typedRooms = (rooms || []) as QuoteRoom[]
-  const typedLineItems = (lineItems || []) as QuoteLineItem[]
-  const settings = (settingsRow as CompanySettings | null) ?? null
+  const typedRooms = rooms
+  const typedLineItems = lineItems
 
   const terms = [
     settings?.terms_validity?.trim(),

@@ -9,201 +9,251 @@ import {
 import type { Quote, QuoteRoom, QuoteLineItem, CompanySettings } from '@/lib/types'
 import { flooringTypeLabel, FLOORING_LABEL } from '@/lib/flooringLabels'
 
-const BORDER = '#0f172a'
-const BAND = '#94a3b8'
-const ROW_BORDER = '#e2e8f0'
+// Palette — mirrors src/components/QuoteDetailCard.tsx
+const BAND_BG = '#1e293b'
+const BAND_TEXT = '#ffffff'
+const FRAME_BORDER_COLOR = '#cbd5e1'
+const ROW_BORDER_COLOR = '#e2e8f0'
+const BODY_COLOR = '#0f172a'
+const MUTED_COLOR = '#475569'
 
 const styles = StyleSheet.create({
   page: {
     fontFamily: 'Helvetica',
-    fontSize: 10,
-    color: '#0f172a',
-    padding: 28,
+    fontSize: 9.5,
+    color: BODY_COLOR,
+    paddingTop: 28,
+    paddingBottom: 0,
+    paddingLeft: 28,
+    paddingRight: 28,
     backgroundColor: '#ffffff',
   },
 
-  // Top header row
+  // ---- Top header (company info + stacked title) ----
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'flex-start',
     marginBottom: 16,
+    gap: 12,
   },
   companyBlock: {
-    width: '48%',
-    borderWidth: 1,
-    borderColor: BORDER,
-    padding: 10,
     flexDirection: 'row',
+    alignItems: 'flex-start',
+    flex: 1,
+  },
+  logoImg: {
+    width: 50,
+    height: 50,
+    marginRight: 10,
+    objectFit: 'contain',
   },
   companyTextCol: {
     flex: 1,
   },
-  logoImg: {
-    width: 44,
-    height: 44,
-    marginRight: 10,
-    objectFit: 'contain',
-  },
   companyName: {
-    fontSize: 13,
+    fontSize: 12,
     fontFamily: 'Helvetica-Bold',
-    color: '#0f172a',
-    marginBottom: 4,
+    color: BODY_COLOR,
+    marginBottom: 2,
   },
   companyDetail: {
     fontSize: 8.5,
-    color: '#334155',
-    marginBottom: 1.5,
+    color: MUTED_COLOR,
+    marginBottom: 1,
+    lineHeight: 1.35,
   },
-  estimateBlock: {
-    width: '48%',
-    alignItems: 'flex-end',
-  },
-  estimateTitle: {
-    fontSize: 26,
-    fontFamily: 'Helvetica-BoldOblique',
-    color: '#0f172a',
-    marginBottom: 6,
-  },
-  metaTable: {
-    width: 200,
-    borderWidth: 1,
-    borderColor: BORDER,
-  },
-  metaRow: {
-    flexDirection: 'row',
-  },
-  metaCell: {
-    flex: 1,
-    paddingVertical: 3,
-    paddingHorizontal: 6,
-    fontSize: 9.5,
-    textAlign: 'center',
-  },
-  metaCellLabel: {
-    backgroundColor: '#f1f5f9',
-  },
-  metaCellDivider: {
-    borderRightWidth: 1,
-    borderRightColor: BORDER,
-  },
-  metaCellBottomDivider: {
-    borderBottomWidth: 1,
-    borderBottomColor: BORDER,
+  companyLabel: {
+    fontFamily: 'Helvetica-Bold',
+    color: BAND_BG,
   },
 
-  // Customer / Job boxes
+  titleBlock: {
+    width: 220,
+    alignItems: 'flex-end',
+  },
+  titleFlooring: {
+    fontSize: 32,
+    fontFamily: 'Helvetica-Bold',
+    color: BAND_BG,
+    lineHeight: 1,
+  },
+  titleEstimate: {
+    fontSize: 16,
+    fontFamily: 'Helvetica-Bold',
+    color: MUTED_COLOR,
+    marginTop: 2,
+    marginBottom: 8,
+  },
+  metaLineWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    paddingBottom: 2,
+    marginTop: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: ROW_BORDER_COLOR,
+    width: '100%',
+    gap: 4,
+  },
+  metaDiamond: {
+    fontSize: 7,
+    color: BAND_BG,
+  },
+  metaLabel: {
+    fontSize: 9.5,
+    fontFamily: 'Helvetica-Bold',
+    color: BODY_COLOR,
+  },
+  metaValue: {
+    fontSize: 9.5,
+    color: MUTED_COLOR,
+  },
+
+  // ---- Customer / Project boxes ----
   boxesRow: {
     flexDirection: 'row',
-    gap: 12,
-    marginBottom: 18,
+    gap: 10,
+    marginBottom: 14,
   },
   box: {
     flex: 1,
     borderWidth: 1,
-    borderColor: BORDER,
+    borderColor: FRAME_BORDER_COLOR,
+    borderRadius: 4,
   },
   boxHeader: {
-    backgroundColor: BAND,
-    paddingVertical: 4,
+    backgroundColor: BAND_BG,
+    paddingVertical: 5,
     paddingHorizontal: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: BORDER,
+    borderTopLeftRadius: 4,
+    borderTopRightRadius: 4,
   },
   boxHeaderText: {
-    fontFamily: 'Helvetica-BoldOblique',
-    fontSize: 10,
-    color: '#0f172a',
-    textAlign: 'center',
+    fontFamily: 'Helvetica-Bold',
+    fontSize: 9.5,
+    color: BAND_TEXT,
   },
   boxBody: {
     padding: 8,
-    minHeight: 64,
+    minHeight: 50,
   },
   boxBodyText: {
-    fontSize: 10,
-    color: '#0f172a',
+    fontSize: 9.5,
+    color: BODY_COLOR,
     marginBottom: 2,
+    lineHeight: 1.35,
   },
 
-  // Items table
-  itemsTable: {
+  // ---- Cost Breakdown label ----
+  costBreakdownLabel: {
+    fontFamily: 'Helvetica-Bold',
+    fontSize: 9.5,
+    color: BAND_BG,
     marginBottom: 4,
+    marginTop: 2,
+  },
+
+  // ---- Items table ----
+  itemsTable: {
+    borderWidth: 1,
+    borderColor: FRAME_BORDER_COLOR,
+    borderRadius: 4,
   },
   itemsHeaderRow: {
     flexDirection: 'row',
-    backgroundColor: BAND,
+    backgroundColor: BAND_BG,
     paddingVertical: 5,
     paddingHorizontal: 6,
+    borderTopLeftRadius: 4,
+    borderTopRightRadius: 4,
   },
   itemsHeaderCell: {
-    fontFamily: 'Helvetica-BoldOblique',
-    fontSize: 10,
-    color: '#0f172a',
+    fontFamily: 'Helvetica-Bold',
+    fontSize: 9.5,
+    color: BAND_TEXT,
   },
   itemsRow: {
     flexDirection: 'row',
-    paddingVertical: 5,
+    paddingVertical: 5.5,
     paddingHorizontal: 6,
     borderBottomWidth: 0.5,
-    borderBottomColor: ROW_BORDER,
+    borderBottomColor: ROW_BORDER_COLOR,
   },
   itemsCell: {
-    fontSize: 9.5,
-    color: '#0f172a',
+    fontSize: 9,
+    color: BODY_COLOR,
   },
-  cellDescription: {
-    flex: 5,
-    paddingRight: 8,
+  cellDescription: { width: '46%', paddingRight: 6 },
+  cellQty: { width: '13%', textAlign: 'right' },
+  cellUom: { width: '11%', textAlign: 'right' },
+  cellRate: { width: '14%', textAlign: 'right' },
+  cellTotal: { width: '16%', textAlign: 'right' },
+  cellTotalBold: { fontFamily: 'Helvetica-Bold' },
+
+  // ---- Signature row (inside items table) ----
+  signatureRow: {
+    paddingVertical: 8,
+    paddingHorizontal: 6,
+    borderBottomWidth: 0.5,
+    borderBottomColor: ROW_BORDER_COLOR,
   },
-  cellQty: {
+  signatureTitle: {
+    fontFamily: 'Helvetica-Bold',
+    fontSize: 9,
+    color: '#374151',
+    marginBottom: 2,
+  },
+  signatureSub: {
+    fontSize: 8.5,
+    color: '#6b7280',
+    marginBottom: 8,
+  },
+  signatureLineRow: {
+    flexDirection: 'row',
+    gap: 16,
+    alignItems: 'flex-end',
+  },
+  signaturePartFull: {
     flex: 1,
-    textAlign: 'right',
   },
-  cellRate: {
-    flex: 1,
-    textAlign: 'right',
+  signaturePartShort: {
+    width: 100,
   },
-  cellTotal: {
-    flex: 1,
-    textAlign: 'right',
+  signatureUnderline: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#374151',
+    height: 18,
+    marginBottom: 2,
   },
-  cellHeaderQty: {
-    flex: 1,
-    textAlign: 'center',
-  },
-  cellHeaderRate: {
-    flex: 1,
-    textAlign: 'center',
-  },
-  cellHeaderTotal: {
-    flex: 1,
-    textAlign: 'center',
+  signatureSubLabel: {
+    fontSize: 7,
+    color: '#9ca3af',
   },
 
-  // Bottom row (scope + totals)
+  // ---- Bottom row (scope + totals) ----
   bottomRow: {
     flexDirection: 'row',
-    marginTop: 18,
-    gap: 16,
+    marginTop: 14,
+    gap: 14,
   },
   scopeCol: {
     flex: 1,
   },
   scopeText: {
-    fontSize: 9.5,
-    color: '#0f172a',
-    lineHeight: 1.4,
+    fontSize: 9,
+    color: BODY_COLOR,
+    lineHeight: 1.5,
     marginBottom: 6,
   },
   paymentTermsText: {
-    fontSize: 8.5,
-    color: '#475569',
-    lineHeight: 1.35,
+    fontSize: 8,
+    color: MUTED_COLOR,
+    lineHeight: 1.4,
     marginTop: 4,
   },
   totalsCol: {
-    width: 240,
+    width: 200,
   },
   totalsRow: {
     flexDirection: 'row',
@@ -212,11 +262,11 @@ const styles = StyleSheet.create({
   },
   totalsLabel: {
     fontSize: 9.5,
-    color: '#0f172a',
+    color: BODY_COLOR,
   },
   totalsValue: {
     fontSize: 9.5,
-    color: '#0f172a',
+    color: BODY_COLOR,
   },
   totalRowBox: {
     flexDirection: 'row',
@@ -226,33 +276,72 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   totalLabelLg: {
-    fontSize: 14,
+    fontSize: 13,
     fontFamily: 'Helvetica-BoldOblique',
-    color: '#0f172a',
+    color: BODY_COLOR,
   },
   totalValueBox: {
     borderWidth: 1,
-    borderColor: BORDER,
-    paddingVertical: 3,
+    borderColor: FRAME_BORDER_COLOR,
+    paddingVertical: 4,
     paddingHorizontal: 10,
     minWidth: 110,
   },
   totalValueText: {
-    fontSize: 13,
+    fontSize: 11,
     fontFamily: 'Helvetica-Bold',
-    color: '#0f172a',
+    color: BODY_COLOR,
     textAlign: 'right',
   },
 
-  // Disclaimer footer
+  // ---- Inclusions / Exclusions / Qualifications ----
+  ixqWrapper: {
+    marginTop: 14,
+  },
+  ixqSection: {
+    marginBottom: 8,
+  },
+  ixqLabel: {
+    fontFamily: 'Helvetica-Bold',
+    fontSize: 8,
+    color: '#64748b',
+    marginBottom: 3,
+  },
+  ixqText: {
+    fontSize: 9,
+    color: BODY_COLOR,
+    lineHeight: 1.5,
+  },
+
+  // ---- Disclaimer terms ----
   disclaimerFooter: {
-    marginTop: 22,
+    marginTop: 12,
   },
   disclaimerLine: {
-    fontSize: 8.5,
+    fontSize: 8,
     fontFamily: 'Helvetica-Oblique',
-    color: '#0f172a',
+    color: BODY_COLOR,
     lineHeight: 1.4,
+  },
+
+  // ---- Bottom contact bar (charcoal full-width) ----
+  contactBar: {
+    backgroundColor: BAND_BG,
+    paddingVertical: 10,
+    paddingHorizontal: 28,
+    marginTop: 18,
+    marginLeft: -28,
+    marginRight: -28,
+    marginBottom: 0,
+  },
+  contactBarText: {
+    color: BAND_TEXT,
+    textAlign: 'center',
+    fontSize: 9,
+  },
+  contactBarBold: {
+    fontFamily: 'Helvetica-Bold',
+    color: BAND_TEXT,
   },
 })
 
@@ -273,7 +362,6 @@ function fmtNumber(value: number, decimals = 2): string {
 }
 
 function fmtQty(value: number): string {
-  // Render qty without decimals if integer-valued, else 2 decimals.
   const rounded = Math.round(value * 100) / 100
   if (Number.isInteger(rounded)) {
     return new Intl.NumberFormat('en-US').format(rounded)
@@ -281,17 +369,12 @@ function fmtQty(value: number): string {
   return fmtNumber(rounded, 2)
 }
 
-function fallbackDescription(q: Quote): string {
-  const label = flooringTypeLabel(q.flooring_type, q.section_flooring_types) || 'flooring'
-  return `Install and supply ${label}`
-}
-
 interface ItemRow {
   description: string
   qty?: string
+  uom?: string
   rate?: string
   total?: string
-  isSignature?: boolean
 }
 
 interface QuotePdfDocumentProps {
@@ -301,107 +384,109 @@ interface QuotePdfDocumentProps {
   settings: CompanySettings | null
 }
 
-export function QuotePdfDocument({ quote: q, rooms, lineItems = [], settings }: QuotePdfDocumentProps) {
-  const remainingBalance = q.final_total - q.deposit_amount
-  const terms = [
-    settings?.terms_validity?.trim(),
-    settings?.terms_scheduling?.trim(),
-    settings?.terms_scope?.trim(),
-  ].filter((t): t is string => !!t && t.length > 0)
+export function QuotePdfDocument({
+  quote: q,
+  rooms,
+  lineItems = [],
+  settings,
+}: QuotePdfDocumentProps) {
+  // ---- Inputs (mirror QuoteDetailCard live computation) ----
+  const wasteFactor = 1 + (Number(q.waste_pct) || 0) / 100
+  const adjustedSqft = Number(q.adjusted_sqft) || 0
+  const matRate = Number(q.material_cost_per_sqft) || 0
+  const labRate = Number(q.labor_cost_per_sqft) || 0
+  const stairCount = q.stair_count && q.stair_count > 0 ? q.stair_count : null
+  const extrasJson = (q.extras_json ?? {}) as Record<string, number>
 
   const sectionPricing =
     (q as unknown as {
       section_pricing?: Record<string, { material: number; labor: number }> | null
     }).section_pricing ?? null
-
-  const rows: ItemRow[] = []
-
-  // Main flooring row(s).
-  // If multiple sections with per-section pricing exist and we can compute
-  // per-section sqft from rooms, render one row per section. Otherwise the
-  // single combined row (skipped when adjusted_sqft is 0).
   const sectionKeys = sectionPricing ? Object.keys(sectionPricing) : []
   const roomsBySection: Record<string, number> = {}
   rooms.forEach((r) => {
     const key = r.section || 'Main Floor'
     roomsBySection[key] = (roomsBySection[key] ?? 0) + (Number(r.sqft) || 0)
   })
-
   const canRenderPerSection =
-    sectionKeys.length > 1 &&
-    sectionKeys.every((k) => (roomsBySection[k] ?? 0) > 0)
+    sectionKeys.length > 1 && sectionKeys.every((k) => (roomsBySection[k] ?? 0) > 0)
+
+  const flooringLabel =
+    flooringTypeLabel(q.flooring_type, q.section_flooring_types) || 'flooring'
+  const baseDesc = q.material_description?.trim()
+
+  // ---- Build display rows ----
+  const rows: ItemRow[] = []
 
   if (canRenderPerSection && sectionPricing) {
-    const wasteFactor = 1 + (Number(q.waste_pct) || 0) / 100
     sectionKeys.forEach((sectionName) => {
       const baseSqft = roomsBySection[sectionName] ?? 0
       const adjSqft = baseSqft * wasteFactor
       const sp = sectionPricing[sectionName] || { material: 0, labor: 0 }
-      const matRate = Number(sp.material) || 0
-      const labRate = Number(sp.labor) || 0
       const sectionType = q.section_flooring_types?.[sectionName]
       const sectionLabel = sectionType
         ? FLOORING_LABEL[sectionType] || sectionType
         : flooringTypeLabel(q.flooring_type, q.section_flooring_types)
-      const baseDesc = q.material_description?.trim()
-      // Material row
+      const matDesc = baseDesc
+        ? `${sectionName} — ${baseDesc}`
+        : `${sectionName}: supply ${sectionLabel}`
+      const sMat = Number(sp.material) || 0
+      const sLab = Number(sp.labor) || 0
       rows.push({
-        description: baseDesc
-          ? `${sectionName} — ${baseDesc}`
-          : `${sectionName}: supply ${sectionLabel}`,
+        description: matDesc,
         qty: fmtQty(adjSqft),
-        rate: fmtNumber(matRate, 2),
-        total: fmtNumber(adjSqft * matRate, 2),
+        uom: 'SF',
+        rate: fmtNumber(sMat, 2),
+        total: fmtNumber(adjSqft * sMat, 2),
       })
-      // Labor row
-      if (labRate > 0) {
+      if (sLab > 0) {
         rows.push({
           description: `${sectionName}: labor / installation`,
           qty: fmtQty(adjSqft),
-          rate: fmtNumber(labRate, 2),
-          total: fmtNumber(adjSqft * labRate, 2),
+          uom: 'SF',
+          rate: fmtNumber(sLab, 2),
+          total: fmtNumber(adjSqft * sLab, 2),
         })
       }
     })
-  } else if (q.adjusted_sqft > 0) {
-    const matRate = Number(q.material_cost_per_sqft) || 0
-    const labRate = Number(q.labor_cost_per_sqft) || 0
-    const materialDesc = q.material_description?.trim() || fallbackDescription(q)
-    // Material row
+  } else if (adjustedSqft > 0) {
     rows.push({
-      description: materialDesc,
-      qty: fmtQty(q.adjusted_sqft),
+      description: baseDesc || `Supply ${flooringLabel}`,
+      qty: fmtQty(adjustedSqft),
+      uom: 'SF',
       rate: fmtNumber(matRate, 2),
-      total: fmtNumber(Number(q.material_total) || q.adjusted_sqft * matRate, 2),
+      total: fmtNumber(adjustedSqft * matRate, 2),
     })
-    // Labor row
     if (labRate > 0) {
       rows.push({
         description: 'Labor / installation',
-        qty: fmtQty(q.adjusted_sqft),
+        qty: fmtQty(adjustedSqft),
+        uom: 'SF',
         rate: fmtNumber(labRate, 2),
-        total: fmtNumber(Number(q.labor_total) || q.adjusted_sqft * labRate, 2),
+        total: fmtNumber(adjustedSqft * labRate, 2),
       })
     }
   }
 
-  // Quote line items.
+  // Custom line items
   lineItems.forEach((li) => {
-    const qty = Number(li.qty) || 0
-    const rate = Number(li.unit_price) || 0
-    const total = Number(li.total) || qty * rate
+    const liQty = Number(li.qty) || 0
+    const liRate = Number(li.unit_price) || 0
+    const liTotal = Number(li.total) || liQty * liRate
     rows.push({
       description: li.description?.trim() || '—',
-      qty: qty > 0 ? fmtQty(qty) : '',
-      rate: fmtNumber(rate, 2),
-      total: fmtNumber(total, 2),
+      qty: liQty > 0 ? fmtQty(liQty) : '',
+      uom: li.uom || 'SF',
+      rate: fmtNumber(liRate, 2),
+      total: fmtNumber(liTotal, 2),
     })
   })
 
-  // Fixed extras.
+  // Fixed fees
   if (q.removal_fee > 0) {
     rows.push({
       description: 'Removal of existing flooring',
+      uom: 'LS',
       rate: fmtNumber(q.removal_fee, 2),
       total: fmtNumber(q.removal_fee, 2),
     })
@@ -409,16 +494,17 @@ export function QuotePdfDocument({ quote: q, rooms, lineItems = [], settings }: 
   if (q.furniture_fee > 0) {
     rows.push({
       description: 'Furniture moving',
+      uom: 'LS',
       rate: fmtNumber(q.furniture_fee, 2),
       total: fmtNumber(q.furniture_fee, 2),
     })
   }
   if (q.stairs_fee > 0) {
-    const count = q.stair_count && q.stair_count > 0 ? q.stair_count : null
-    const perUnit = count ? q.stairs_fee / count : q.stairs_fee
+    const perUnit = stairCount ? q.stairs_fee / stairCount : q.stairs_fee
     rows.push({
-      description: count ? `Stairs (${count})` : 'Stairs',
-      qty: count ? String(count) : '',
+      description: stairCount ? `Stairs (${stairCount})` : 'Stairs',
+      qty: stairCount ? String(stairCount) : '',
+      uom: 'EA',
       rate: fmtNumber(perUnit, 2),
       total: fmtNumber(q.stairs_fee, 2),
     })
@@ -426,6 +512,7 @@ export function QuotePdfDocument({ quote: q, rooms, lineItems = [], settings }: 
   if (q.quarter_round_fee > 0) {
     rows.push({
       description: 'Quarter round / moldings',
+      uom: 'LS',
       rate: fmtNumber(q.quarter_round_fee, 2),
       total: fmtNumber(q.quarter_round_fee, 2),
     })
@@ -433,6 +520,7 @@ export function QuotePdfDocument({ quote: q, rooms, lineItems = [], settings }: 
   if (q.reducers_fee > 0) {
     rows.push({
       description: 'Reducers / saddles',
+      uom: 'LS',
       rate: fmtNumber(q.reducers_fee, 2),
       total: fmtNumber(q.reducers_fee, 2),
     })
@@ -440,6 +528,7 @@ export function QuotePdfDocument({ quote: q, rooms, lineItems = [], settings }: 
   if (q.delivery_fee > 0) {
     rows.push({
       description: 'Delivery',
+      uom: 'LS',
       rate: fmtNumber(q.delivery_fee, 2),
       total: fmtNumber(q.delivery_fee, 2),
     })
@@ -447,63 +536,110 @@ export function QuotePdfDocument({ quote: q, rooms, lineItems = [], settings }: 
   if (q.custom_fee_amount > 0 && q.custom_fee_label?.trim()) {
     rows.push({
       description: q.custom_fee_label.trim(),
+      uom: 'LS',
       rate: fmtNumber(q.custom_fee_amount, 2),
       total: fmtNumber(q.custom_fee_amount, 2),
     })
   }
 
-  // extras_json items.
-  const ex = (q.extras_json || {}) as Record<string, number>
-  if (ex.subfloor_prep > 0) {
+  // extras_json
+  if ((extrasJson.subfloor_prep ?? 0) > 0) {
     rows.push({
       description: 'Subfloor prep',
-      rate: fmtNumber(ex.subfloor_prep, 2),
-      total: fmtNumber(ex.subfloor_prep, 2),
+      uom: 'LS',
+      rate: fmtNumber(extrasJson.subfloor_prep, 2),
+      total: fmtNumber(extrasJson.subfloor_prep, 2),
     })
   }
-  if (ex.underlayment_per_sqft > 0 && q.adjusted_sqft > 0) {
-    const total = ex.underlayment_per_sqft * q.adjusted_sqft
+  if ((extrasJson.underlayment_per_sqft ?? 0) > 0 && adjustedSqft > 0) {
     rows.push({
       description: 'Underlayment',
-      qty: fmtQty(q.adjusted_sqft),
-      rate: fmtNumber(ex.underlayment_per_sqft, 2),
-      total: fmtNumber(total, 2),
+      qty: fmtQty(adjustedSqft),
+      uom: 'SF',
+      rate: fmtNumber(extrasJson.underlayment_per_sqft, 2),
+      total: fmtNumber(extrasJson.underlayment_per_sqft * adjustedSqft, 2),
     })
   }
-  if (ex.transition_qty > 0 && ex.transition_unit > 0) {
-    const total = ex.transition_qty * ex.transition_unit
+  if ((extrasJson.transition_qty ?? 0) > 0 && (extrasJson.transition_unit ?? 0) > 0) {
     rows.push({
       description: 'Transition strips',
-      qty: fmtQty(ex.transition_qty),
-      rate: fmtNumber(ex.transition_unit, 2),
-      total: fmtNumber(total, 2),
+      qty: fmtQty(extrasJson.transition_qty),
+      uom: 'EA',
+      rate: fmtNumber(extrasJson.transition_unit, 2),
+      total: fmtNumber(extrasJson.transition_qty * extrasJson.transition_unit, 2),
     })
   }
-  if (ex.floor_protection > 0) {
+  if ((extrasJson.floor_protection ?? 0) > 0) {
     rows.push({
       description: 'Floor protection',
-      rate: fmtNumber(ex.floor_protection, 2),
-      total: fmtNumber(ex.floor_protection, 2),
+      uom: 'LS',
+      rate: fmtNumber(extrasJson.floor_protection, 2),
+      total: fmtNumber(extrasJson.floor_protection, 2),
     })
   }
-  if (ex.disposal_fee > 0) {
+  if ((extrasJson.disposal_fee ?? 0) > 0) {
     rows.push({
       description: 'Disposal / dump fee',
-      rate: fmtNumber(ex.disposal_fee, 2),
-      total: fmtNumber(ex.disposal_fee, 2),
+      uom: 'LS',
+      rate: fmtNumber(extrasJson.disposal_fee, 2),
+      total: fmtNumber(extrasJson.disposal_fee, 2),
     })
   }
 
-  // Inline signature row at end of items table.
-  rows.push({
-    description:
-      'READ CAREFULLY SIGN & EMAIL BACK________________________  Date____________',
-    isSignature: true,
-  })
+  // ---- Live totals (mirror QuoteDetailCard.tsx exactly) ----
+  const liveFixedFees =
+    (q.removal_fee || 0) +
+    (q.furniture_fee || 0) +
+    (q.stairs_fee || 0) +
+    (q.quarter_round_fee || 0) +
+    (q.reducers_fee || 0) +
+    (q.delivery_fee || 0) +
+    (q.custom_fee_amount || 0)
+  const liveExtrasSum =
+    (extrasJson.subfloor_prep ?? 0) +
+    (extrasJson.floor_protection ?? 0) +
+    (extrasJson.disposal_fee ?? 0) +
+    (extrasJson.underlayment_per_sqft ?? 0) * adjustedSqft +
+    (extrasJson.transition_qty ?? 0) * (extrasJson.transition_unit ?? 0)
+  const lineItemsSum = lineItems.reduce(
+    (s, li) =>
+      s +
+      (Number(li.total) || (Number(li.qty) || 0) * (Number(li.unit_price) || 0)),
+    0
+  )
 
-  const showSubtotal =
-    (q.tax_enabled && q.tax_amount > 0) || q.markup_amount > 0
-  const showDeposit = q.deposit_pct > 0 && q.deposit_amount > 0
+  let displaySubtotal: number
+  if (canRenderPerSection && sectionPricing) {
+    const sectionMatLab = sectionKeys.reduce((sum, sectionName) => {
+      const baseSqft = roomsBySection[sectionName] ?? 0
+      const adjSqft = baseSqft * wasteFactor
+      const sp = sectionPricing[sectionName] || { material: 0, labor: 0 }
+      return (
+        sum +
+        adjSqft * (Number(sp.material) || 0) +
+        adjSqft * (Number(sp.labor) || 0)
+      )
+    }, 0)
+    displaySubtotal = sectionMatLab + liveFixedFees + liveExtrasSum + lineItemsSum
+  } else {
+    displaySubtotal =
+      adjustedSqft * matRate +
+      adjustedSqft * labRate +
+      liveFixedFees +
+      liveExtrasSum +
+      lineItemsSum
+  }
+
+  const displayMarkup = q.markup_pct > 0 ? displaySubtotal * (q.markup_pct / 100) : 0
+  const taxBase = displaySubtotal + displayMarkup
+  const displayTax = q.tax_enabled ? taxBase * (q.tax_pct / 100) : 0
+  const displayFinalTotal = displaySubtotal + displayMarkup + displayTax
+  const displayDeposit =
+    q.deposit_pct > 0 ? displayFinalTotal * (q.deposit_pct / 100) : 0
+  const remainingBalance = displayFinalTotal - displayDeposit
+
+  const showSubtotal = (q.tax_enabled && displayTax > 0) || displayMarkup > 0
+  const showDeposit = q.deposit_pct > 0 && displayDeposit > 0
 
   const dateStr = new Date(q.created_at).toLocaleDateString('en-US', {
     year: 'numeric',
@@ -511,10 +647,30 @@ export function QuotePdfDocument({ quote: q, rooms, lineItems = [], settings }: 
     day: 'numeric',
   })
 
+  // Inclusions / Exclusions / Qualifications — fall back to company defaults
+  const inclusions = (q.inclusions ?? settings?.default_inclusions ?? '').trim()
+  const exclusions = (q.exclusions ?? settings?.default_exclusions ?? '').trim()
+  const qualifications =
+    (q.qualifications ?? settings?.default_qualifications ?? '').trim()
+
+  const terms = [
+    settings?.terms_validity?.trim(),
+    settings?.terms_scheduling?.trim(),
+    settings?.terms_scope?.trim(),
+  ].filter((t): t is string => !!t && t.length > 0)
+
+  // Address blocks
+  const addrLine1 = [settings?.address_line1, settings?.address_line2]
+    .filter(Boolean)
+    .join(', ')
+  const cityLine = [settings?.city, settings?.state, settings?.zip]
+    .filter(Boolean)
+    .join(', ')
+
   return (
     <Document>
       <Page size="LETTER" style={styles.page}>
-        {/* Header row */}
+        {/* ---- Top: company info (left) + stacked title (right) ---- */}
         <View style={styles.headerRow}>
           <View style={styles.companyBlock}>
             {settings?.logo_url ? (
@@ -524,91 +680,87 @@ export function QuotePdfDocument({ quote: q, rooms, lineItems = [], settings }: 
               <Text style={styles.companyName}>
                 {settings?.company_name || 'Flooring Company'}
               </Text>
+              {addrLine1 ? (
+                <Text style={styles.companyDetail}>{addrLine1}</Text>
+              ) : null}
+              {cityLine ? (
+                <Text style={styles.companyDetail}>{cityLine}</Text>
+              ) : null}
               {settings?.phone ? (
-                <Text style={styles.companyDetail}>T: {settings.phone}</Text>
+                <Text style={styles.companyDetail}>
+                  <Text style={styles.companyLabel}>Office: </Text>
+                  {settings.phone}
+                </Text>
               ) : null}
               {settings?.email ? (
-                <Text style={styles.companyDetail}>{settings.email}</Text>
+                <Text style={styles.companyDetail}>
+                  <Text style={styles.companyLabel}>Email: </Text>
+                  {settings.email}
+                </Text>
               ) : null}
               {settings?.website ? (
-                <Text style={styles.companyDetail}>{settings.website}</Text>
+                <Text style={styles.companyDetail}>
+                  <Text style={styles.companyLabel}>Web: </Text>
+                  {settings.website}
+                </Text>
               ) : null}
             </View>
           </View>
 
-          <View style={styles.estimateBlock}>
-            <Text style={styles.estimateTitle}>Estimate</Text>
-            <View style={styles.metaTable}>
-              <View style={styles.metaRow}>
-                <Text
-                  style={[
-                    styles.metaCell,
-                    styles.metaCellLabel,
-                    styles.metaCellDivider,
-                    styles.metaCellBottomDivider,
-                  ]}
-                >
-                  Date
-                </Text>
-                <Text style={[styles.metaCell, styles.metaCellBottomDivider]}>
-                  {dateStr}
-                </Text>
-              </View>
-              <View style={styles.metaRow}>
-                <Text
-                  style={[
-                    styles.metaCell,
-                    styles.metaCellLabel,
-                    styles.metaCellDivider,
-                  ]}
-                >
-                  Estimate #
-                </Text>
-                <Text style={styles.metaCell}>{q.quote_number || '—'}</Text>
-              </View>
+          <View style={styles.titleBlock}>
+            <Text style={styles.titleFlooring}>Flooring</Text>
+            <Text style={styles.titleEstimate}>Estimate</Text>
+            <View style={styles.metaLineWrapper}>
+              <Text style={styles.metaDiamond}>◆</Text>
+              <Text style={styles.metaLabel}>Estimate Date:</Text>
+              <Text style={styles.metaValue}>{dateStr}</Text>
+            </View>
+            <View style={styles.metaLineWrapper}>
+              <Text style={styles.metaDiamond}>◆</Text>
+              <Text style={styles.metaLabel}>Estimate #:</Text>
+              <Text style={styles.metaValue}>{q.quote_number || '—'}</Text>
             </View>
           </View>
         </View>
 
-        {/* Customer + Job boxes */}
+        {/* ---- Customer / Project boxes ---- */}
         <View style={styles.boxesRow}>
           <View style={styles.box}>
             <View style={styles.boxHeader}>
-              <Text style={styles.boxHeaderText}>Customer Name</Text>
+              <Text style={styles.boxHeaderText}>Client Information:</Text>
             </View>
             <View style={styles.boxBody}>
-              <Text style={styles.boxBodyText}>{q.customer_name}</Text>
+              {q.customer_name ? (
+                <Text style={styles.boxBodyText}>{q.customer_name}</Text>
+              ) : null}
               {q.customer_phone ? (
                 <Text style={styles.boxBodyText}>{q.customer_phone}</Text>
-              ) : null}
-              {q.customer_email ? (
-                <Text style={styles.boxBodyText}>{q.customer_email}</Text>
               ) : null}
             </View>
           </View>
           <View style={styles.box}>
             <View style={styles.boxHeader}>
-              <Text style={styles.boxHeaderText}>Job Location</Text>
+              <Text style={styles.boxHeaderText}>Project Details:</Text>
             </View>
             <View style={styles.boxBody}>
               {q.job_address ? (
                 <Text style={styles.boxBodyText}>{q.job_address}</Text>
-              ) : (
-                <Text style={styles.boxBodyText}>—</Text>
-              )}
+              ) : null}
             </View>
           </View>
         </View>
 
-        {/* Items table */}
+        {/* ---- Cost Breakdown table ---- */}
+        <Text style={styles.costBreakdownLabel}>Cost Breakdown</Text>
         <View style={styles.itemsTable}>
           <View style={styles.itemsHeaderRow}>
-            <Text style={[styles.itemsHeaderCell, styles.cellDescription, { textAlign: 'center' }]}>
-              Description
+            <Text style={[styles.itemsHeaderCell, styles.cellDescription]}>
+              Item Description
             </Text>
-            <Text style={[styles.itemsHeaderCell, styles.cellHeaderQty]}>Sqft</Text>
-            <Text style={[styles.itemsHeaderCell, styles.cellHeaderRate]}>Rate</Text>
-            <Text style={[styles.itemsHeaderCell, styles.cellHeaderTotal]}>Total</Text>
+            <Text style={[styles.itemsHeaderCell, styles.cellQty]}>Quantity</Text>
+            <Text style={[styles.itemsHeaderCell, styles.cellUom]}>UoM</Text>
+            <Text style={[styles.itemsHeaderCell, styles.cellRate]}>Unit Price</Text>
+            <Text style={[styles.itemsHeaderCell, styles.cellTotal]}>Total</Text>
           </View>
 
           {rows.map((row, i) => (
@@ -619,17 +771,42 @@ export function QuotePdfDocument({ quote: q, rooms, lineItems = [], settings }: 
               <Text style={[styles.itemsCell, styles.cellQty]}>
                 {row.qty ?? ''}
               </Text>
+              <Text style={[styles.itemsCell, styles.cellUom]}>
+                {row.uom ?? ''}
+              </Text>
               <Text style={[styles.itemsCell, styles.cellRate]}>
                 {row.rate ?? ''}
               </Text>
-              <Text style={[styles.itemsCell, styles.cellTotal]}>
+              <Text
+                style={[styles.itemsCell, styles.cellTotal, styles.cellTotalBold]}
+              >
                 {row.total ?? ''}
               </Text>
             </View>
           ))}
+
+          {/* Authorization + signature lines */}
+          <View style={styles.signatureRow}>
+            <Text style={styles.signatureTitle}>
+              READ CAREFULLY SIGN &amp; EMAIL BACK
+            </Text>
+            <Text style={styles.signatureSub}>
+              You are authorized to do work as is specified above.
+            </Text>
+            <View style={styles.signatureLineRow}>
+              <View style={styles.signaturePartFull}>
+                <View style={styles.signatureUnderline} />
+                <Text style={styles.signatureSubLabel}>AUTHORIZED SIGNATURE</Text>
+              </View>
+              <View style={styles.signaturePartShort}>
+                <View style={styles.signatureUnderline} />
+                <Text style={styles.signatureSubLabel}>DATE</Text>
+              </View>
+            </View>
+          </View>
         </View>
 
-        {/* Bottom row: scope/notes left, totals right */}
+        {/* ---- Bottom row: scope/notes + totals ---- */}
         <View style={styles.bottomRow}>
           <View style={styles.scopeCol}>
             {q.scope_of_work?.trim() ? (
@@ -649,26 +826,28 @@ export function QuotePdfDocument({ quote: q, rooms, lineItems = [], settings }: 
             {showSubtotal ? (
               <View style={styles.totalsRow}>
                 <Text style={styles.totalsLabel}>Subtotal</Text>
-                <Text style={styles.totalsValue}>{fmtMoney(q.subtotal)}</Text>
+                <Text style={styles.totalsValue}>{fmtMoney(displaySubtotal)}</Text>
               </View>
             ) : null}
-            {q.tax_enabled && q.tax_amount > 0 ? (
+            {q.tax_enabled && displayTax > 0 ? (
               <View style={styles.totalsRow}>
                 <Text style={styles.totalsLabel}>Tax ({q.tax_pct}%)</Text>
-                <Text style={styles.totalsValue}>{fmtMoney(q.tax_amount)}</Text>
+                <Text style={styles.totalsValue}>{fmtMoney(displayTax)}</Text>
               </View>
             ) : null}
-            {q.markup_amount > 0 ? (
+            {displayMarkup > 0 ? (
               <View style={styles.totalsRow}>
                 <Text style={styles.totalsLabel}>Profit ({q.markup_pct}%)</Text>
-                <Text style={styles.totalsValue}>{fmtMoney(q.markup_amount)}</Text>
+                <Text style={styles.totalsValue}>{fmtMoney(displayMarkup)}</Text>
               </View>
             ) : null}
 
             <View style={styles.totalRowBox}>
               <Text style={styles.totalLabelLg}>Total</Text>
               <View style={styles.totalValueBox}>
-                <Text style={styles.totalValueText}>{fmtMoney(q.final_total)}</Text>
+                <Text style={styles.totalValueText}>
+                  {fmtMoney(displayFinalTotal)}
+                </Text>
               </View>
             </View>
 
@@ -679,7 +858,7 @@ export function QuotePdfDocument({ quote: q, rooms, lineItems = [], settings }: 
                     Deposit Due ({q.deposit_pct}%)
                   </Text>
                   <Text style={styles.totalsValue}>
-                    {fmtMoney(q.deposit_amount)}
+                    {fmtMoney(displayDeposit)}
                   </Text>
                 </View>
                 <View style={styles.totalsRow}>
@@ -693,7 +872,31 @@ export function QuotePdfDocument({ quote: q, rooms, lineItems = [], settings }: 
           </View>
         </View>
 
-        {/* Disclaimer footer */}
+        {/* ---- Inclusions / Exclusions / Qualifications ---- */}
+        {inclusions || exclusions || qualifications ? (
+          <View style={styles.ixqWrapper}>
+            {inclusions ? (
+              <View style={styles.ixqSection}>
+                <Text style={styles.ixqLabel}>INCLUSIONS</Text>
+                <Text style={styles.ixqText}>{inclusions}</Text>
+              </View>
+            ) : null}
+            {exclusions ? (
+              <View style={styles.ixqSection}>
+                <Text style={styles.ixqLabel}>EXCLUSIONS</Text>
+                <Text style={styles.ixqText}>{exclusions}</Text>
+              </View>
+            ) : null}
+            {qualifications ? (
+              <View style={styles.ixqSection}>
+                <Text style={styles.ixqLabel}>QUALIFICATIONS</Text>
+                <Text style={styles.ixqText}>{qualifications}</Text>
+              </View>
+            ) : null}
+          </View>
+        ) : null}
+
+        {/* ---- Disclaimer terms ---- */}
         {terms.length > 0 ? (
           <View style={styles.disclaimerFooter}>
             {terms.map((t, i) => (
@@ -701,6 +904,22 @@ export function QuotePdfDocument({ quote: q, rooms, lineItems = [], settings }: 
                 {t}
               </Text>
             ))}
+          </View>
+        ) : null}
+
+        {/* ---- Contact footer bar (charcoal full-width) ---- */}
+        {settings?.email || settings?.phone ? (
+          <View style={styles.contactBar}>
+            <Text style={styles.contactBarText}>
+              For any questions, contact:{' '}
+              {settings?.email ? (
+                <Text style={styles.contactBarBold}>{settings.email}</Text>
+              ) : null}
+              {settings?.email && settings?.phone ? ' or ' : null}
+              {settings?.phone ? (
+                <Text style={styles.contactBarBold}>{settings.phone}</Text>
+              ) : null}
+            </Text>
           </View>
         ) : null}
       </Page>

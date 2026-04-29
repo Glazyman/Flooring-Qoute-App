@@ -13,6 +13,11 @@ export async function createClient() {
           return cookieStore.getAll()
         },
         setAll(cookiesToSet) {
+          // Next.js 16 forbids setting cookies in Server Components — only
+          // proxy/middleware, Route Handlers, and Server Actions may write
+          // cookies. The proxy already refreshes the session on every request
+          // (see src/proxy.ts → updateSession), so silently dropping any
+          // attempted writes here is safe.
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, {
@@ -23,7 +28,7 @@ export async function createClient() {
               })
             )
           } catch {
-            // Server component — cookies can't be set; middleware handles refresh
+            // Called from a Server Component — ignore.
           }
         },
       },
@@ -56,4 +61,26 @@ export async function createServiceClient() {
       },
     }
   )
+}
+
+/**
+ * Resolve the current Supabase user without throwing.
+ *
+ * `auth.getUser()` can throw on transient network errors or reject with an
+ * `AuthApiError` for things like a revoked / chunked / corrupt refresh token.
+ * Letting that bubble up to a Server Component crashes the page with a 500.
+ * This helper guarantees a `User | null` and never throws — pages should
+ * `redirect('/login')` on `null` (which the proxy will also re-confirm and
+ * use to clear bad cookies in the same request loop).
+ */
+export async function getCurrentUser(
+  supabase: Awaited<ReturnType<typeof createClient>>
+) {
+  try {
+    const { data, error } = await supabase.auth.getUser()
+    if (error) return null
+    return data.user
+  } catch {
+    return null
+  }
 }
