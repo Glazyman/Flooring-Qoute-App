@@ -89,91 +89,98 @@ export default async function DashboardPage() {
         ))}
       </div>
 
-      {/* Recent Estimates */}
-      <div style={{ background: 'white', borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.04)' }}>
-        <div
-          style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '14px 20px', borderBottom: '1px solid rgba(0,0,0,0.05)',
-            background: '#fafafa',
-          }}
-        >
-          <p style={{ fontSize: 13.5, fontWeight: 700, color: '#1d1d1f', margin: 0 }}>Recent Estimates</p>
-          <Link
-            href="/quotes"
-            style={{ fontSize: 12, fontWeight: 500, color: '#aeaeb2', textDecoration: 'none' }}
-          >
-            See all →
-          </Link>
+      {/* Bottom two-col: Recent Estimates + Pending Measurements */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-3">
+
+        {/* Recent Estimates */}
+        <div style={{ background: 'white', borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', borderBottom: '1px solid rgba(0,0,0,0.05)', background: '#fafafa' }}>
+            <p style={{ fontSize: 13.5, fontWeight: 700, color: '#1d1d1f', margin: 0 }}>Recent Estimates</p>
+            <Link href="/quotes" style={{ fontSize: 12, fontWeight: 500, color: '#aeaeb2', textDecoration: 'none' }}>See all →</Link>
+          </div>
+          {quotes.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '48px 0' }}>
+              <p style={{ fontSize: 13, color: '#6e6e73', marginBottom: 12 }}>No quotes yet</p>
+              <Link href="/quotes/new" style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 600, color: 'white', background: '#1d1d1f', padding: '7px 14px', borderRadius: 8, textDecoration: 'none' }}>
+                <Plus size={12} strokeWidth={2.5} />
+                Create your first quote
+              </Link>
+            </div>
+          ) : (
+            <div>
+              {quotes.slice(0, 8).map((q) => {
+                const date = new Date(q.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                const cfg = STATUS_CFG[q.status] || { color: '#aeaeb2', label: q.status }
+                const initials = (q.customer_name || '?').charAt(0).toUpperCase()
+                return (
+                  <Link key={q.id} href={`/quotes/${q.id}`} className="dashboard-recent-row"
+                    style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 20px', borderBottom: '1px solid rgba(0,0,0,0.04)', textDecoration: 'none', transition: 'background 0.12s' }}>
+                    <div style={{ width: 30, height: 30, borderRadius: '50%', flexShrink: 0, background: '#f2f2f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 600, color: '#6e6e73' }}>
+                      {initials}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontSize: 13, fontWeight: 500, color: '#1d1d1f', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{q.customer_name}</p>
+                      <p style={{ fontSize: 11.5, color: '#aeaeb2', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {flooringTypeLabel(q.flooring_type, q.section_flooring_types as Record<string, string> | null)}
+                        {q.job_address ? ` · ${q.job_address}` : ''}
+                      </p>
+                    </div>
+                    <div className="hidden sm:flex" style={{ alignItems: 'center', fontSize: 11.5, color: '#aeaeb2', gap: 4, marginRight: 4 }}>
+                      <Calendar size={12} color="#aeaeb2" />
+                      {date}
+                    </div>
+                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: '#1d1d1f', margin: '0 0 2px' }}>{fmt(q.final_total)}</p>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 600, color: cfg.color }}>
+                        <span style={{ width: 5, height: 5, borderRadius: '50%', background: cfg.color, display: 'inline-block' }} />
+                        {cfg.label}
+                      </span>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          )}
         </div>
 
-        {quotes.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '48px 0' }}>
-            <p style={{ fontSize: 13, color: '#6e6e73', marginBottom: 12 }}>No quotes yet</p>
-            <Link
-              href="/quotes/new"
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: 5,
-                fontSize: 12, fontWeight: 600, color: 'white',
-                background: '#1d1d1f', padding: '7px 14px', borderRadius: 8,
-                textDecoration: 'none',
-              }}
-            >
-              <Plus size={12} strokeWidth={2.5} />
-              Create your first quote
-            </Link>
+        {/* Pending Measurements */}
+        <div style={{ background: 'white', borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 18px', borderBottom: '1px solid rgba(0,0,0,0.05)', background: '#fafafa' }}>
+            <p style={{ fontSize: 13.5, fontWeight: 700, color: '#1d1d1f', margin: 0 }}>Needs Approval</p>
+            <Link href="/measurements" style={{ fontSize: 12, fontWeight: 500, color: '#aeaeb2', textDecoration: 'none' }}>View all →</Link>
           </div>
-        ) : (
-          <div>
-            {quotes.slice(0, 8).map((q) => {
-              const date = new Date(q.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-              const cfg = STATUS_CFG[q.status] || { color: '#aeaeb2', label: q.status }
-              const initials = (q.customer_name || '?').charAt(0).toUpperCase()
-              return (
-                <Link
-                  key={q.id}
-                  href={`/quotes/${q.id}`}
-                  className="dashboard-recent-row"
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 12,
-                    padding: '12px 20px', borderBottom: '1px solid rgba(0,0,0,0.04)',
-                    textDecoration: 'none', transition: 'background 0.12s',
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 30, height: 30, borderRadius: '50%', flexShrink: 0,
-                      background: '#f2f2f7', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 12, fontWeight: 600, color: '#6e6e73',
-                    }}
-                  >
-                    {initials}
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontSize: 13, fontWeight: 500, color: '#1d1d1f', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {q.customer_name}
-                    </p>
-                    <p style={{ fontSize: 11.5, color: '#aeaeb2', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {flooringTypeLabel(q.flooring_type, q.section_flooring_types as Record<string, string> | null)}
-                      {q.job_address ? ` · ${q.job_address}` : ''}
-                    </p>
-                  </div>
-                  <div className="hidden sm:flex" style={{ alignItems: 'center', fontSize: 11.5, color: '#aeaeb2', gap: 4, marginRight: 4 }}>
-                    <Calendar size={12} color="#aeaeb2" />
-                    {date}
-                  </div>
-                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                    <p style={{ fontSize: 13, fontWeight: 700, color: '#1d1d1f', margin: '0 0 2px' }}>{fmt(q.final_total)}</p>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 600, color: cfg.color }}>
-                      <span style={{ width: 5, height: 5, borderRadius: '50%', background: cfg.color, display: 'inline-block' }} />
-                      {cfg.label}
+          {!pendingMeasurements || pendingMeasurements.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '36px 16px' }}>
+              <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#f2f2f7', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px' }}>
+                <span style={{ fontSize: 16 }}>✓</span>
+              </div>
+              <p style={{ fontSize: 13, color: '#aeaeb2', margin: 0 }}>All caught up</p>
+            </div>
+          ) : (
+            <div style={{ flex: 1, overflowY: 'auto' }}>
+              {pendingMeasurements.map((m) => {
+                const date = new Date(m.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                const initials = (m.customer_name || '?').charAt(0).toUpperCase()
+                return (
+                  <Link key={m.id} href={`/quotes/${m.id}`} className="dashboard-recent-row"
+                    style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 18px', borderBottom: '1px solid rgba(0,0,0,0.04)', textDecoration: 'none', transition: 'background 0.12s' }}>
+                    <div style={{ width: 28, height: 28, borderRadius: '50%', flexShrink: 0, background: '#fff7ed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 600, color: '#ff9f0a' }}>
+                      {initials}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontSize: 12.5, fontWeight: 500, color: '#1d1d1f', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.customer_name}</p>
+                      <p style={{ fontSize: 11, color: '#aeaeb2', margin: 0 }}>{date}</p>
+                    </div>
+                    <span style={{ fontSize: 10.5, fontWeight: 600, color: '#ff9f0a', background: '#fff7ed', padding: '2px 8px', borderRadius: 20, flexShrink: 0 }}>
+                      Pending
                     </span>
-                  </div>
-                </Link>
-              )
-            })}
-          </div>
-        )}
+                  </Link>
+                )
+              })}
+            </div>
+          )}
+        </div>
+
       </div>
     </div>
   )
