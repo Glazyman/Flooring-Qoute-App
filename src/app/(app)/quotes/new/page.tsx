@@ -66,7 +66,7 @@ export default async function NewQuotePage() {
     if ((count ?? 0) >= 25) {
       return (
         <div className="space-y-5">
-          <h1 className="text-base font-semibold text-gray-900">New quote</h1>
+          <h1 className="text-base font-semibold text-gray-900">New project</h1>
           <div className="bg-white rounded-xl p-8 text-center max-w-lg mx-auto" style={{ border: '1px solid var(--border)' }}>
             <div className="w-12 h-12 rounded-md flex items-center justify-center mx-auto mb-4" style={{ background: 'var(--warning-bg)' }}>
               <svg className="w-6 h-6" style={{ color: 'var(--warning)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -101,7 +101,7 @@ export default async function NewQuotePage() {
 
   return (
     <div className="space-y-5">
-      <h1 className="text-base font-semibold text-gray-900">New quote</h1>
+      <h1 className="text-base font-semibold text-gray-900">New project</h1>
       <QuoteForm settings={settings as CompanySettings | null} isPro={!!isOnPro} />
     </div>
   )

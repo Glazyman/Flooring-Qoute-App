@@ -105,7 +105,7 @@ export default async function DashboardPage() {
               <p style={{ fontSize: 13, color: '#6e6e73', marginBottom: 12 }}>No quotes yet</p>
               <Link href="/quotes/new" style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 600, color: 'white', background: '#1d1d1f', padding: '7px 14px', borderRadius: 8, textDecoration: 'none' }}>
                 <Plus size={12} strokeWidth={2.5} />
-                Create your first quote
+                Create your first project
               </Link>
             </div>
           ) : (

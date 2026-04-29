@@ -35,7 +35,7 @@ export default async function DraftsPage() {
           style={{ background: 'var(--button-dark)' }}
         >
           <Plus className="w-3.5 h-3.5" />
-          New quote
+          New project
         </Link>
       </div>
 

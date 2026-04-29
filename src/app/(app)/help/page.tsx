@@ -7,8 +7,8 @@ const FORMSPREE_ID = 'meevwpea'
 
 const FAQS = [
   {
-    q: 'How do I create a new quote?',
-    a: 'Click "New Quote" in the sidebar or the + button on the dashboard. Fill in customer details, add rooms for upstairs and/or downstairs, set your pricing, then save as a measurement or approve it as an estimate.',
+    q: 'How do I start a new project?',
+    a: 'Click "New Project" in the sidebar or the + button on the dashboard. Fill in customer details, add rooms for upstairs and/or downstairs, set your pricing, then save as a measurement or approve it as an estimate.',
   },
   {
     q: 'What is the difference between Saved Measurements and Estimates?',

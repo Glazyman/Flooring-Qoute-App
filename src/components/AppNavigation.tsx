@@ -174,7 +174,7 @@ export default function AppNavigation({
         </div>
       </div>
 
-      {/* New Quote CTA */}
+      {/* New Project CTA */}
       <div style={{ padding: '12px 12px 8px' }}>
         <Link
           href={trialExhausted ? '/billing/setup' : '/quotes/new'}
@@ -188,7 +188,7 @@ export default function AppNavigation({
           }}
         >
           <Plus size={14} strokeWidth={2.5} color="white" />
-          New Quote
+          New Project
           {trialExhausted && <span style={{ fontSize: 11, background: 'rgba(255,255,255,0.2)', padding: '2px 6px', borderRadius: 4 }}>Upgrade</span>}
         </Link>
       </div>

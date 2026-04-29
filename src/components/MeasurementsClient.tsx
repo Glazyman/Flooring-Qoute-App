@@ -191,7 +191,7 @@ export default function MeasurementsClient({ initialMeasurements }: { initialMea
               className="text-sm font-medium text-white px-4 py-2 rounded-md"
               style={{ background: '#1d1d1f' }}
             >
-              + New Quote
+              + New Project
             </Link>
           </div>
         ) : (

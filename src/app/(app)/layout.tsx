@@ -190,7 +190,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             Import
           </Link>
 
-          {/* New Quote pill */}
+          {/* New Project pill */}
           <Link
             href="/quotes/new"
             className="topbar-new-quote"
@@ -204,7 +204,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             }}
           >
             <Plus size={13} strokeWidth={2.5} color="white" />
-            New Quote
+            New Project
           </Link>
         </header>
         {freeQuotesRemaining !== null && (

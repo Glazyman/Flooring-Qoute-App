@@ -306,8 +306,8 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
         className="bg-white rounded-xl py-16 text-center"
         style={{ border: '1px solid var(--border)' }}
       >
-        <p className="text-sm text-gray-500 mb-2">No quotes yet</p>
-        <p className="text-xs text-gray-400">Create your first quote to get started.</p>
+        <p className="text-sm text-gray-500 mb-2">No estimates yet</p>
+        <p className="text-xs text-gray-400">Create your first project to get started.</p>
       </div>
     )
   }
