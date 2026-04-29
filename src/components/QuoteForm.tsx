@@ -457,7 +457,7 @@ export default function QuoteForm({
   // Which section's flooring picker is expanded (null = all collapsed)
   const [openFlooringSection, setOpenFlooringSection] = useState<string | null>(null)
   const [manualFlooringOpen, setManualFlooringOpen] = useState(false)
-  const [settingsOpen, setSettingsOpen] = useState(false)
+  const [checklistOpen, setChecklistOpen] = useState(false)
   const [confirmRemoveSection, setConfirmRemoveSection] = useState<string | null>(null)
 
   // Auto-draft state (new quotes only)
@@ -1000,43 +1000,69 @@ export default function QuoteForm({
 
   // Reusable checklist block — pill/chip buttons for easy mobile tapping
   const specGroups = JOB_OPTION_GROUPS
+  const selectedCheckCount = Object.values(jobOptions).filter(v => v === true).length
+
   const jobSpecChecklist = (
-    <div className="mt-4 pt-4 space-y-5" style={{ borderTop: '1px solid #F1F1F4' }}>
-      {specGroups.map(group => (
-        <div key={group.id}>
-          <div className="flex items-baseline gap-2 mb-3">
-            <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">{group.label}</span>
-            {group.description && <p className="text-xs text-gray-400">{group.description}</p>}
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {group.options.map(opt => {
-              const checked = jobOptions[opt.key] === true
-              return (
-                <button
-                  key={opt.key}
-                  type="button"
-                  onClick={() => group.exclusive ? setExclusiveJobOption(group.id, opt.key) : toggleJobOption(opt.key)}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium transition-all select-none"
-                  style={checked
-                    ? { background: '#1d1d1f', color: 'white', border: '1.5px solid #1d1d1f' }
-                    : { background: 'white', color: '#374151', border: '1.5px solid #E5E7EB' }
-                  }
-                >
-                  {checked && <Check className="w-3.5 h-3.5 flex-shrink-0" />}
-                  {opt.label}
-                </button>
-              )
-            })}
-          </div>
+    <div className="mt-4 pt-4" style={{ borderTop: '1px solid #F1F1F4' }}>
+      {/* Mobile-only toggle header */}
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => setChecklistOpen(v => !v)}
+        onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && setChecklistOpen(v => !v)}
+        className="flex items-center justify-between py-1 mb-2 select-none cursor-pointer lg:cursor-default lg:pointer-events-none"
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Job scope</span>
+          {selectedCheckCount > 0 && (
+            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full text-white lg:hidden" style={{ background: '#1d1d1f' }}>
+              {selectedCheckCount}
+            </span>
+          )}
         </div>
-      ))}
-      <div className="pt-3" style={{ borderTop: '1px solid #F1F1F4' }}>
-        <Input
-          label="Plank width"
-          value={(jobOptions.width as string | undefined) ?? ''}
-          onChange={(v) => setJobOptionValue('width', v)}
-          placeholder='e.g. 5"'
+        <ChevronDown
+          className={`w-4 h-4 text-gray-400 transition-transform flex-shrink-0 lg:hidden ${checklistOpen ? 'rotate-180' : ''}`}
         />
+      </div>
+
+      {/* Checklist body — always visible on desktop, toggleable on mobile */}
+      <div className={`space-y-5 ${checklistOpen ? 'block' : 'hidden'} lg:block`}>
+        {specGroups.map(group => (
+          <div key={group.id}>
+            <div className="flex items-baseline gap-2 mb-3">
+              <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">{group.label}</span>
+              {group.description && <p className="text-xs text-gray-400">{group.description}</p>}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {group.options.map(opt => {
+                const checked = jobOptions[opt.key] === true
+                return (
+                  <button
+                    key={opt.key}
+                    type="button"
+                    onClick={() => group.exclusive ? setExclusiveJobOption(group.id, opt.key) : toggleJobOption(opt.key)}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium transition-all select-none"
+                    style={checked
+                      ? { background: '#1d1d1f', color: 'white', border: '1.5px solid #1d1d1f' }
+                      : { background: 'white', color: '#374151', border: '1.5px solid #E5E7EB' }
+                    }
+                  >
+                    {checked && <Check className="w-3.5 h-3.5 flex-shrink-0" />}
+                    {opt.label}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        ))}
+        <div className="pt-3" style={{ borderTop: '1px solid #F1F1F4' }}>
+          <Input
+            label="Plank width"
+            value={(jobOptions.width as string | undefined) ?? ''}
+            onChange={(v) => setJobOptionValue('width', v)}
+            placeholder='e.g. 5"'
+          />
+        </div>
       </div>
     </div>
   )
@@ -1143,34 +1169,7 @@ export default function QuoteForm({
           </Card>
 
           {/* Project Settings */}
-          {/* Project settings — collapsible on mobile */}
-          <div className="bg-white rounded-xl" style={{ border: '1px solid var(--border)' }}>
-            {/* Header — tap to expand on mobile */}
-            <div
-              role="button"
-              tabIndex={0}
-              onClick={() => setSettingsOpen(v => !v)}
-              onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && setSettingsOpen(v => !v)}
-              className="flex items-center justify-between px-5 pt-5 pb-4 select-none lg:cursor-default"
-            >
-              <div>
-                <h2 className="text-sm font-semibold text-gray-900">Project settings</h2>
-                {!settingsOpen && (
-                  <p className="text-xs text-gray-400 mt-0.5 lg:hidden">
-                    {measurementType === 'manual'
-                      ? (FLOORING_TYPES.find(t => t.value === (sectionFlooring[firstSection] || 'unfinished'))?.label ?? 'Select type') + (manualSqft ? ` · ${manualSqft} sqft` : '')
-                      : (roomsSqft > 0 ? `${roomsSqft.toFixed(1)} sqft · ` : '') + `${sections.length} section${sections.length !== 1 ? 's' : ''}`
-                    }
-                  </p>
-                )}
-              </div>
-              <ChevronDown
-                className={`w-4 h-4 text-gray-400 transition-transform flex-shrink-0 lg:hidden ${settingsOpen ? 'rotate-180' : ''}`}
-              />
-            </div>
-
-            {/* Content */}
-            <div className={`px-5 pb-5 ${settingsOpen ? 'block' : 'hidden'} lg:block`}>
+          <Card title="Project settings">
 
             {/* Method toggle */}
             <div className="mb-5">
@@ -1496,8 +1495,7 @@ export default function QuoteForm({
                 {jobSpecChecklist}
               </div>
             )}
-            </div>{/* end collapsible content */}
-          </div>{/* end Project settings card */}
+          </Card>
 
           {/* Pricing */}
           <Card title="Pricing">
