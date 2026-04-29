@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
+import { Loader2 } from 'lucide-react'
 
 const STARTER_FEATURES = [
   '25 quotes / month',
@@ -33,6 +34,7 @@ export default function BillingSetupPage() {
   const router = useRouter()
   const [annual, setAnnual] = useState(false)
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
+  const [redirectingPlan, setRedirectingPlan] = useState<string | null>(null)
   const [portalLoading, setPortalLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -40,27 +42,50 @@ export default function BillingSetupPage() {
     setLoadingPlan(plan)
     setError('')
 
-    const res = await fetch('/api/billing/checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ plan, billing: annual ? 'annual' : 'monthly' }),
-    })
-    const data = await res.json()
-    if (data.url) {
-      window.location.href = data.url
-    } else {
-      setError(data.error || 'Something went wrong')
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 25000)
+
+    try {
+      const res = await fetch('/api/billing/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan, billing: annual ? 'annual' : 'monthly' }),
+        signal: controller.signal,
+      })
+      clearTimeout(timeout)
+      const data = await res.json()
+      if (data.url) {
+        setLoadingPlan(null)
+        setRedirectingPlan(plan)
+        window.location.href = data.url
+      } else {
+        setError(data.error || 'Something went wrong. Please try again.')
+        setLoadingPlan(null)
+      }
+    } catch (err) {
+      clearTimeout(timeout)
+      if ((err as Error).name === 'AbortError') {
+        setError('Request timed out. Please check your connection and try again.')
+      } else {
+        setError('Could not connect to billing. Please try again.')
+      }
       setLoadingPlan(null)
     }
   }
 
   async function handlePortal() {
     setPortalLoading(true)
-    const res = await fetch('/api/billing/portal', { method: 'POST' })
-    const data = await res.json()
-    if (data.url) {
-      window.location.href = data.url
-    } else {
+    try {
+      const res = await fetch('/api/billing/portal', { method: 'POST' })
+      const data = await res.json()
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        setError(data.error || 'Could not open billing portal.')
+        setPortalLoading(false)
+      }
+    } catch {
+      setError('Could not connect to billing portal. Please try again.')
       setPortalLoading(false)
     }
   }
@@ -141,10 +166,11 @@ export default function BillingSetupPage() {
             </ul>
             <button
               onClick={() => handleSubscribe('starter')}
-              disabled={loadingPlan !== null}
-              className="w-full border border-gray-200 hover:bg-gray-50 disabled:opacity-50 text-gray-700 font-semibold py-3 px-4 rounded-2xl text-sm transition-colors"
+              disabled={loadingPlan !== null || redirectingPlan !== null}
+              className="w-full border border-gray-200 hover:bg-gray-50 disabled:opacity-50 text-gray-700 font-semibold py-3 px-4 rounded-2xl text-sm transition-colors flex items-center justify-center gap-2"
             >
-              {loadingPlan === 'starter' ? 'Redirecting…' : 'Subscribe to Starter'}
+              {loadingPlan === 'starter' && <Loader2 className="w-4 h-4 animate-spin" />}
+              {loadingPlan === 'starter' ? 'Setting up checkout…' : redirectingPlan === 'starter' ? 'Redirecting to Stripe…' : 'Subscribe to Starter'}
             </button>
           </div>
 
@@ -179,11 +205,12 @@ export default function BillingSetupPage() {
             </ul>
             <button
               onClick={() => handleSubscribe('pro')}
-              disabled={loadingPlan !== null}
-              className="w-full bg-white hover:bg-gray-50 disabled:opacity-50 font-bold py-3 px-4 rounded-2xl text-sm transition-colors"
+              disabled={loadingPlan !== null || redirectingPlan !== null}
+              className="w-full bg-white hover:bg-gray-50 disabled:opacity-50 font-bold py-3 px-4 rounded-2xl text-sm transition-colors flex items-center justify-center gap-2"
               style={{ color: 'var(--button-dark)' }}
             >
-              {loadingPlan === 'pro' ? 'Redirecting…' : 'Subscribe to Pro'}
+              {loadingPlan === 'pro' && <Loader2 className="w-4 h-4 animate-spin" style={{ color: 'var(--primary)' }} />}
+              {loadingPlan === 'pro' ? 'Setting up checkout…' : redirectingPlan === 'pro' ? 'Redirecting to Stripe…' : 'Subscribe to Pro'}
             </button>
           </div>
         </div>
@@ -193,9 +220,10 @@ export default function BillingSetupPage() {
           <button
             onClick={handlePortal}
             disabled={portalLoading}
-            className="w-full sm:w-auto bg-white hover:bg-gray-50 border border-gray-200 text-gray-600 font-medium py-2.5 px-4 rounded-xl text-sm transition-colors"
+            className="w-full sm:w-auto bg-white hover:bg-gray-50 border border-gray-200 text-gray-600 font-medium py-2.5 px-4 rounded-xl text-sm transition-colors flex items-center justify-center gap-2"
           >
-            {portalLoading ? 'Loading…' : 'Manage existing subscription'}
+            {portalLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+            {portalLoading ? 'Opening portal…' : 'Manage existing subscription'}
           </button>
           <div className="flex items-center gap-4">
             <Link href="/dashboard" className="text-gray-400 hover:text-gray-600 text-xs transition-colors">

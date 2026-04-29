@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getStripe } from '@/lib/stripe'
 
+export const maxDuration = 30
+
 const ALLOWED_PRICE_IDS = new Set([
   process.env.STRIPE_STARTER_MONTHLY_PRICE_ID,
   process.env.STRIPE_STARTER_ANNUAL_PRICE_ID,
