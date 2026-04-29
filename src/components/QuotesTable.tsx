@@ -6,7 +6,7 @@ import { fmt } from '@/lib/calculations'
 import { flooringTypeLabel, FLOORING_LABEL } from '@/lib/flooringLabels'
 import type { Quote, QuoteStatus } from '@/lib/types'
 import {
-  Search, X, SlidersHorizontal, ArrowUpDown, MoreHorizontal,
+  Search, X, SlidersHorizontal, ArrowDownUp, ArrowUpDown, MoreHorizontal,
   Calendar, ChevronLeft, ChevronRight, Trash2, Check,
 } from 'lucide-react'
 
@@ -558,14 +558,15 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
             {/* Sort */}
             <button
               onClick={() => setSortNewest(v => !v)}
-              className={ICON_BTN_ACTIVE}
-              title={sortNewest ? 'Sorted newest first (click for oldest)' : 'Sorted oldest first (click for newest)'}
-              aria-label="Sort"
+              className="flex items-center gap-1.5 h-8 px-2.5 rounded-md text-xs font-medium transition-colors text-gray-600 hover:bg-gray-100 border border-gray-200 bg-white"
+              title={sortNewest ? 'Click to sort oldest first' : 'Click to sort newest first'}
+              aria-label="Sort by date"
             >
-              <ArrowUpDown
-                className="w-4 h-4"
-                style={{ transform: sortNewest ? 'none' : 'scaleY(-1)' }}
-              />
+              {sortNewest
+                ? <ArrowDownUp className="w-3.5 h-3.5 flex-shrink-0" />
+                : <ArrowUpDown className="w-3.5 h-3.5 flex-shrink-0" />
+              }
+              <span className="hidden sm:inline">{sortNewest ? 'Newest' : 'Oldest'}</span>
             </button>
           </div>
 
