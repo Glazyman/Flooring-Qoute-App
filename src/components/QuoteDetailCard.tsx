@@ -225,6 +225,9 @@ export interface QuoteDetailCardProps {
   settings: CompanySettings | null
   terms: string[]
   dateStr: string
+  defaultInclusions?: string | null
+  defaultExclusions?: string | null
+  defaultQualifications?: string | null
 }
 
 export default function QuoteDetailCard({
@@ -234,6 +237,9 @@ export default function QuoteDetailCard({
   settings,
   terms,
   dateStr,
+  defaultInclusions,
+  defaultExclusions,
+  defaultQualifications,
 }: QuoteDetailCardProps) {
   // Precompute stair count for state initializer
   const stairCount = q.stair_count && q.stair_count > 0 ? q.stair_count : null
@@ -282,10 +288,10 @@ export default function QuoteDetailCard({
   const [items, setItems] = useState<QuoteLineItem[]>(initialLineItems)
   const [addingRow, setAddingRow] = useState(false)
 
-  // Inclusions / Exclusions / Qualifications
-  const [inclusions, setInclusions] = useState(q.inclusions ?? '')
-  const [exclusions, setExclusions] = useState(q.exclusions ?? '')
-  const [qualifications, setQualifications] = useState(q.qualifications ?? '')
+  // Inclusions / Exclusions / Qualifications (fall back to company defaults if quote has none)
+  const [inclusions, setInclusions] = useState(q.inclusions ?? defaultInclusions ?? '')
+  const [exclusions, setExclusions] = useState(q.exclusions ?? defaultExclusions ?? '')
+  const [qualifications, setQualifications] = useState(q.qualifications ?? defaultQualifications ?? '')
 
   // Edit/save state
   const [editing, setEditing] = useState<string | null>(null)
@@ -499,6 +505,17 @@ export default function QuoteDetailCard({
         total: newItem.total,
       }),
     }).then(() => flashSaved(saveKey)).catch(() => {})
+  }
+
+  // Save UoM for a line item
+  async function handleLineItemUomSave(id: string, val: string) {
+    setItems(prev => prev.map(li => li.id === id ? { ...li, uom: val } : li))
+    setEditing(null)
+    fetch(`/api/quote-line-items/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uom: val }),
+    }).then(() => flashSaved(`li-${id}-uom`)).catch(() => {})
   }
 
   // Delete a custom line item
@@ -932,6 +949,7 @@ export default function QuoteDetailCard({
                     align="right"
                   />
                 </span>
+                <span className="text-right tabular-nums">SF</span>
                 <span className="text-right tabular-nums">
                   <EditableCell
                     fieldKey="material_cost_per_sqft"
@@ -967,6 +985,7 @@ export default function QuoteDetailCard({
                     Labor / installation
                   </span>
                   <span className="text-right tabular-nums">{fmtQty(adjustedSqft)}</span>
+                  <span className="text-right tabular-nums">SF</span>
                   <span className="text-right tabular-nums">
                     <EditableCell
                       fieldKey="labor_cost_per_sqft"
@@ -1032,6 +1051,17 @@ export default function QuoteDetailCard({
                 </span>
                 <span className="text-right tabular-nums">
                   <EditableCell
+                    fieldKey={`${liKey}-uom`}
+                    value={li.uom ?? 'SF'}
+                    editing={editing}
+                    saved={saved}
+                    onEdit={onEdit}
+                    onSave={(key, val) => handleLineItemUomSave(li.id, val)}
+                    align="right"
+                  />
+                </span>
+                <span className="text-right tabular-nums">
+                  <EditableCell
                     fieldKey={`${liKey}-rate`}
                     value={fmtNumber(liRate, 2)}
                     editing={editing}
@@ -1070,6 +1100,7 @@ export default function QuoteDetailCard({
                 />
               </span>
               <span />
+              <span className="text-right tabular-nums">LS</span>
               <span className="text-right tabular-nums">
                 <EditableCell
                   fieldKey="removal_fee"
@@ -1107,6 +1138,7 @@ export default function QuoteDetailCard({
                 />
               </span>
               <span />
+              <span className="text-right tabular-nums">LS</span>
               <span className="text-right tabular-nums">
                 <EditableCell
                   fieldKey="furniture_fee"
@@ -1146,6 +1178,7 @@ export default function QuoteDetailCard({
                   />
                 </span>
                 <span className="text-right tabular-nums">{stairCount ? String(stairCount) : ''}</span>
+                <span className="text-right tabular-nums">EA</span>
                 <span className="text-right tabular-nums">
                   <EditableCell
                     fieldKey="stairs_fee_rate"
@@ -1184,6 +1217,7 @@ export default function QuoteDetailCard({
                 />
               </span>
               <span />
+              <span className="text-right tabular-nums">LS</span>
               <span className="text-right tabular-nums">
                 <EditableCell
                   fieldKey="quarter_round_fee"
@@ -1221,6 +1255,7 @@ export default function QuoteDetailCard({
                 />
               </span>
               <span />
+              <span className="text-right tabular-nums">LS</span>
               <span className="text-right tabular-nums">
                 <EditableCell
                   fieldKey="reducers_fee"
@@ -1258,6 +1293,7 @@ export default function QuoteDetailCard({
                 />
               </span>
               <span />
+              <span className="text-right tabular-nums">LS</span>
               <span className="text-right tabular-nums">
                 <EditableCell
                   fieldKey="delivery_fee"
@@ -1295,6 +1331,7 @@ export default function QuoteDetailCard({
                 />
               </span>
               <span />
+              <span className="text-right tabular-nums">LS</span>
               <span className="text-right tabular-nums">
                 <EditableCell
                   fieldKey="custom_fee_amount"
@@ -1337,6 +1374,7 @@ export default function QuoteDetailCard({
                       />
                     </span>
                     <span />
+                    <span className="text-right tabular-nums">LS</span>
                     <span className="text-right tabular-nums">
                       <EditableCell
                         fieldKey="extras_subfloor_prep"
@@ -1366,6 +1404,7 @@ export default function QuoteDetailCard({
                       <span>Underlayment</span>
                     </span>
                     <span className="text-right tabular-nums">{fmtQty(adjustedSqft)}</span>
+                    <span className="text-right tabular-nums">SF</span>
                     <span className="text-right tabular-nums">{fmtNumber(extrasJson.underlayment_per_sqft, 2)}</span>
                     <span className="text-right tabular-nums font-semibold">{fmtNumber(extrasJson.underlayment_per_sqft * adjustedSqft, 2)}</span>
                   </div>
@@ -1380,6 +1419,7 @@ export default function QuoteDetailCard({
                       <span>Transition strips</span>
                     </span>
                     <span className="text-right tabular-nums">{fmtQty(extrasJson.transition_qty)}</span>
+                    <span className="text-right tabular-nums">EA</span>
                     <span className="text-right tabular-nums">{fmtNumber(extrasJson.transition_unit, 2)}</span>
                     <span className="text-right tabular-nums font-semibold">{fmtNumber(extrasJson.transition_qty * extrasJson.transition_unit, 2)}</span>
                   </div>
@@ -1402,6 +1442,7 @@ export default function QuoteDetailCard({
                       />
                     </span>
                     <span />
+                    <span className="text-right tabular-nums">LS</span>
                     <span className="text-right tabular-nums">
                       <EditableCell
                         fieldKey="extras_floor_protection"
@@ -1439,6 +1480,7 @@ export default function QuoteDetailCard({
                       />
                     </span>
                     <span />
+                    <span className="text-right tabular-nums">LS</span>
                     <span className="text-right tabular-nums">
                       <EditableCell
                         fieldKey="extras_disposal_fee"
@@ -1479,11 +1521,12 @@ export default function QuoteDetailCard({
 
           {/* Signature row */}
           <div className="px-2 py-3" style={{ borderBottom: ROW_BORDER, color: '#475569' }}>
-            <p className="text-sm font-semibold text-gray-700 mb-2">READ CAREFULLY SIGN &amp; EMAIL BACK</p>
+            <p className="text-sm font-semibold text-gray-700 mb-1">READ CAREFULLY SIGN &amp; EMAIL BACK</p>
+            <p className="text-xs text-gray-500 mb-2">You are authorized to do work as is specified above.</p>
             <div className="flex gap-8 items-end">
               <div className="flex-1">
                 <div className="border-b border-gray-700 h-6 mb-1" />
-                <span className="text-xs text-gray-400 uppercase tracking-wide">Customer Signature</span>
+                <span className="text-xs text-gray-400 uppercase tracking-wide">Authorized Signature</span>
               </div>
               <div className="w-32">
                 <div className="border-b border-gray-700 h-6 mb-1" />
@@ -1575,6 +1618,54 @@ export default function QuoteDetailCard({
           )}
         </div>
       </div>
+
+      {/* Inclusions / Exclusions / Qualifications */}
+      {(inclusions || exclusions || qualifications || true) && (
+        <div className="mt-5 text-sm" style={{ color: '#0f172a' }}>
+          <div className="mb-3">
+            <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Inclusions</p>
+            <EditableField
+              fieldKey="inclusions"
+              value={inclusions}
+              editing={editing}
+              saved={saved}
+              onEdit={onEdit}
+              onSave={handleSave}
+              multiline
+              placeholder="Add inclusions (e.g. One year warranty on installation labor, Final clean up of job site…)"
+              textStyle={{ whiteSpace: 'pre-wrap', lineHeight: '1.6', fontSize: 13 }}
+            />
+          </div>
+          <div className="mb-3">
+            <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Exclusions</p>
+            <EditableField
+              fieldKey="exclusions"
+              value={exclusions}
+              editing={editing}
+              saved={saved}
+              onEdit={onEdit}
+              onSave={handleSave}
+              multiline
+              placeholder="Add exclusions (e.g. Rip/Haul, Furniture or stairs not included unless outlined above…)"
+              textStyle={{ whiteSpace: 'pre-wrap', lineHeight: '1.6', fontSize: 13 }}
+            />
+          </div>
+          <div className="mb-1">
+            <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Qualifications</p>
+            <EditableField
+              fieldKey="qualifications"
+              value={qualifications}
+              editing={editing}
+              saved={saved}
+              onEdit={onEdit}
+              onSave={handleSave}
+              multiline
+              placeholder="Add qualifications (e.g. Price is valid for 60 days from date of proposal…)"
+              textStyle={{ whiteSpace: 'pre-wrap', lineHeight: '1.6', fontSize: 13 }}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Terms footer */}
       {terms.length > 0 && (

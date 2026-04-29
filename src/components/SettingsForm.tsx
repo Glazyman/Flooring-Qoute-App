@@ -55,6 +55,9 @@ interface FormState {
   terms_validity: string
   terms_scheduling: string
   terms_scope: string
+  default_inclusions: string
+  default_exclusions: string
+  default_qualifications: string
 }
 
 const DEFAULT_TERMS_VALIDITY = 'Prices subject to change without notice after 30 days of estimate.'
@@ -86,6 +89,9 @@ function buildInitialForm(initial: CompanySettings): FormState {
     terms_validity: initial.terms_validity ?? DEFAULT_TERMS_VALIDITY,
     terms_scheduling: initial.terms_scheduling ?? DEFAULT_TERMS_SCHEDULING,
     terms_scope: initial.terms_scope ?? DEFAULT_TERMS_SCOPE,
+    default_inclusions: initial.default_inclusions ?? '',
+    default_exclusions: initial.default_exclusions ?? '',
+    default_qualifications: initial.default_qualifications ?? '',
   }
 }
 
@@ -686,6 +692,44 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
               onChange={(e) => set('terms_scope', e.target.value)}
               rows={2}
               placeholder={DEFAULT_TERMS_SCOPE}
+              className="w-full px-3 py-2 rounded-md text-sm focus:outline-none resize-none min-h-[80px] bg-white text-gray-900 placeholder-gray-400"
+              style={{ border: '1px solid #E5E7EB' }}
+            />
+          </div>
+        </div>
+      </Card>
+
+      <Card title="Default inclusions / exclusions / qualifications" description="These pre-fill the Inclusions, Exclusions, and Qualifications sections on new quotes. Leave blank to start empty on each quote.">
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">Default Inclusions</label>
+            <textarea
+              value={form.default_inclusions}
+              onChange={(e) => set('default_inclusions', e.target.value)}
+              rows={3}
+              placeholder="e.g. One year warranty on installation labor, Final clean up of job site…"
+              className="w-full px-3 py-2 rounded-md text-sm focus:outline-none resize-none min-h-[80px] bg-white text-gray-900 placeholder-gray-400"
+              style={{ border: '1px solid #E5E7EB' }}
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">Default Exclusions</label>
+            <textarea
+              value={form.default_exclusions}
+              onChange={(e) => set('default_exclusions', e.target.value)}
+              rows={3}
+              placeholder="e.g. Rip/Haul, Furniture or stairs not included unless outlined above…"
+              className="w-full px-3 py-2 rounded-md text-sm focus:outline-none resize-none min-h-[80px] bg-white text-gray-900 placeholder-gray-400"
+              style={{ border: '1px solid #E5E7EB' }}
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">Default Qualifications</label>
+            <textarea
+              value={form.default_qualifications}
+              onChange={(e) => set('default_qualifications', e.target.value)}
+              rows={3}
+              placeholder="e.g. Price is valid for 60 days from date of proposal…"
               className="w-full px-3 py-2 rounded-md text-sm focus:outline-none resize-none min-h-[80px] bg-white text-gray-900 placeholder-gray-400"
               style={{ border: '1px solid #E5E7EB' }}
             />

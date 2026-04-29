@@ -31,7 +31,7 @@ export async function POST(
 
   const { data, error } = await supabase
     .from('quote_line_items')
-    .insert({ quote_id: quoteId, description, qty, unit_price, total, position })
+    .insert({ quote_id: quoteId, description, qty, unit_price, total, position, uom: body.uom ?? 'SF' })
     .select('id')
     .single()
 

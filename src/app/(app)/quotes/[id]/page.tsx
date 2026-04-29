@@ -168,6 +168,9 @@ export default async function QuoteDetailPage({
         settings={settings}
         terms={terms}
         dateStr={dateStr}
+        defaultInclusions={settings?.default_inclusions}
+        defaultExclusions={settings?.default_exclusions}
+        defaultQualifications={settings?.default_qualifications}
       />
     </div>
   )

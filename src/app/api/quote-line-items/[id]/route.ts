@@ -8,7 +8,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await request.json()
-  const { description, qty, unit_price, total } = body
+  const { description, qty, unit_price, total, uom } = body
 
   const { data: item } = await supabase
     .from('quote_line_items')
@@ -34,6 +34,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   if (qty !== undefined) updates.qty = qty
   if (unit_price !== undefined) updates.unit_price = unit_price
   if (total !== undefined) updates.total = total
+  if (uom !== undefined) updates.uom = uom
 
   const { error } = await supabase.from('quote_line_items').update(updates).eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
