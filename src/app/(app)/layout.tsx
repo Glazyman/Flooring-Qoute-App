@@ -1,10 +1,13 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Search, Plus, Upload } from 'lucide-react'
+import dynamic from 'next/dynamic'
+import { Plus, Upload } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import AppNavigation from '@/components/AppNavigation'
 import TrialBanner from '@/components/TrialBanner'
 import Breadcrumb from '@/components/Breadcrumb'
+
+const GlobalSearch = dynamic(() => import('@/components/GlobalSearch'), { ssr: false })
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -156,23 +159,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </div>
 
           {/* Search — center */}
-          <div
-            style={{
-              display: 'flex', alignItems: 'center', gap: 8,
-              background: 'rgba(120,120,128,0.08)', borderRadius: 10,
-              padding: '6px 12px', width: 200,
-            }}
-          >
-            <Search size={13} color="#aeaeb2" strokeWidth={2} />
-            <input
-              type="text"
-              placeholder="Search"
-              style={{
-                background: 'transparent', border: 'none', outline: 'none',
-                fontSize: 13, color: '#1d1d1f', flex: 1, minWidth: 0,
-              }}
-            />
-          </div>
+          <GlobalSearch />
 
           {/* Import pill */}
           <Link

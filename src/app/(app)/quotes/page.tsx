@@ -34,14 +34,6 @@ export default async function QuotesPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-base font-semibold text-gray-900">Estimates</h1>
-        <Link
-          href="/quotes/new"
-          className="flex items-center gap-1.5 text-white text-sm font-semibold px-3.5 py-2 transition-colors"
-          style={{ background: '#1d1d1f', borderRadius: 10 }}
-        >
-          <Plus className="w-4 h-4" />
-          New Quote
-        </Link>
       </div>
 
       <QuotesTable quotes={(quotes as Quote[]) || []} />

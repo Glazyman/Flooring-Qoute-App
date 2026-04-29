@@ -128,14 +128,6 @@ export default function MeasurementsClient({ initialMeasurements }: { initialMea
       {/* Page header */}
       <div className="flex items-start justify-between gap-3">
         <h1 className="text-base font-semibold text-gray-900">Measurements</h1>
-        <Link
-          href="/quotes/new"
-          className="flex items-center gap-1.5 text-white text-sm font-medium px-3.5 py-2 rounded-md transition-colors"
-          style={{ background: '#1d1d1f' }}
-        >
-          <Plus className="w-4 h-4" />
-          New Quote
-        </Link>
       </div>
 
       {/* Table card */}

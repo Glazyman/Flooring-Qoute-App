@@ -24,7 +24,6 @@ export default async function ContactsPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-base font-semibold text-gray-900">Contacts</h1>
       <ContactsClient initialCustomers={customers ?? []} />
     </div>
   )

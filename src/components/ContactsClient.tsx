@@ -326,6 +326,21 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
 
   return (
     <div className="space-y-4">
+      {/* Page header — only in page mode */}
+      {mode === 'page' && (
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="text-base font-semibold text-gray-900">Contacts</h1>
+          <button
+            onClick={startAdd}
+            className="flex items-center gap-1.5 text-white text-sm font-semibold px-3.5 py-2 transition-colors"
+            style={{ background: '#1d1d1f', borderRadius: 9999 }}
+          >
+            <Plus className="w-4 h-4" />
+            New Contact
+          </button>
+        </div>
+      )}
+
       {/* Confirm bulk delete modal */}
       {confirmBulkDelete && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
