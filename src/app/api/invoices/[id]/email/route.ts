@@ -231,10 +231,6 @@ export async function POST(
       html: htmlBody,
     }
 
-    if (companyEmail && companyEmail !== to) {
-      payload.bcc = companyEmail
-    }
-
     const { error } = await resend.emails.send(payload)
     if (error) {
       let msg = error.message

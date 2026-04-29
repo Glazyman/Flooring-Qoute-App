@@ -180,7 +180,6 @@ export async function POST(
       fromName: companyName,
       fromEmail: gmail.emailAddress,
       to: q.customer_email,
-      bcc: companyEmail || undefined,
       subject,
       htmlBody,
       attachment: {
@@ -218,10 +217,6 @@ export async function POST(
           content: pdfBuffer,
         },
       ],
-    }
-
-    if (companyEmail) {
-      payload.bcc = companyEmail
     }
 
     const { error } = await resend.emails.send(payload)
