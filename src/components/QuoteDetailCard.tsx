@@ -379,6 +379,29 @@ export default function QuoteDetailCard({
       )
     }
 
+    // Handle section pricing row deletions (zero out material or labor per section)
+    const sectionMatKeys = keys.filter(k => k.startsWith('section-mat-'))
+    const sectionLabKeys = keys.filter(k => k.startsWith('section-lab-'))
+    if ((sectionMatKeys.length > 0 || sectionLabKeys.length > 0) && sectionPricingState) {
+      let updatedSP = { ...sectionPricingState }
+      sectionMatKeys.forEach(k => {
+        const name = k.slice('section-mat-'.length)
+        updatedSP = { ...updatedSP, [name]: { ...(updatedSP[name] ?? { material: 0, labor: 0 }), material: 0 } }
+      })
+      sectionLabKeys.forEach(k => {
+        const name = k.slice('section-lab-'.length)
+        updatedSP = { ...updatedSP, [name]: { ...(updatedSP[name] ?? { material: 0, labor: 0 }), labor: 0 } }
+      })
+      setSectionPricingState(updatedSP)
+      apiCalls.push(
+        fetch(`/api/quotes/${q.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ section_pricing: updatedSP }),
+        })
+      )
+    }
+
     // Optimistic state updates
     const liIds = keys.filter(k => k.startsWith('li-')).map(k => k.slice(3))
     if (liIds.length > 0) setItems(prev => prev.filter(li => !liIds.includes(li.id)))
@@ -593,6 +616,7 @@ export default function QuoteDetailCard({
 
   const [sectionPricingState, setSectionPricingState] = useState<Record<string, { material: number; labor: number }> | null>(sectionPricing)
   const [sectionDescriptions, setSectionDescriptions] = useState<Record<string, string>>({})
+  const [sectionLabDescriptions, setSectionLabDescriptions] = useState<Record<string, string>>({})
 
   const sectionKeys = sectionPricingState ? Object.keys(sectionPricingState) : []
   const roomsBySection: Record<string, number> = {}
@@ -625,6 +649,12 @@ export default function QuoteDetailCard({
     setSectionDescriptions(prev => ({ ...prev, [sectionName]: newDesc }))
     setEditing(null)
     flashSaved(`section-desc-${sectionName}`)
+  }
+
+  function handleSectionLabDescSave(sectionName: string, newDesc: string) {
+    setSectionLabDescriptions(prev => ({ ...prev, [sectionName]: newDesc }))
+    setEditing(null)
+    flashSaved(`section-lab-desc-${sectionName}`)
   }
 
   // ---- Optimistic totals ----
@@ -978,7 +1008,15 @@ export default function QuoteDetailCard({
                     >
                       <span className="pr-3 flex items-center">
                         <RowCheckbox rowKey={labRowKey} />
-                        <span>{sectionName}: labor / installation</span>
+                        <EditableCell
+                          fieldKey={`section-lab-desc-${sectionName}`}
+                          value={sectionLabDescriptions[sectionName] ?? `${sectionName}: labor / installation`}
+                          editing={editing}
+                          saved={saved}
+                          onEdit={onEdit}
+                          onSave={(_, val) => handleSectionLabDescSave(sectionName, val)}
+                          align="left"
+                        />
                       </span>
                       <span className="text-right tabular-nums">{fmtQty(adjSqft)}</span>
                       <span className="text-right tabular-nums">SF</span>
