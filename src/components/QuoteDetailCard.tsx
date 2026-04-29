@@ -297,6 +297,8 @@ export default function QuoteDetailCard({
 
   function handleSelectAll() {
     const allKeys = new Set<string>()
+    if (!canRenderPerSection && q.adjusted_sqft > 0) allKeys.add('row-material')
+    if (!canRenderPerSection && laborRate > 0) allKeys.add('row-labor')
     items.forEach(li => allKeys.add(`li-${li.id}`))
     if (removalFee > 0) allKeys.add('fee-removal')
     if (furnitureFee > 0) allKeys.add('fee-furniture')
@@ -325,6 +327,8 @@ export default function QuoteDetailCard({
 
     // Collect quote field patches
     const quotePatch: Record<string, number> = {}
+    if (keys.includes('row-material')) { quotePatch.adjusted_sqft = 0 }
+    if (keys.includes('row-labor')) { quotePatch.labor_cost_per_sqft = 0 }
     if (keys.includes('fee-removal')) { quotePatch.removal_fee = 0 }
     if (keys.includes('fee-furniture')) { quotePatch.furniture_fee = 0 }
     if (keys.includes('fee-stairs')) { quotePatch.stairs_fee = 0 }
@@ -360,6 +364,8 @@ export default function QuoteDetailCard({
     // Optimistic state updates
     const liIds = keys.filter(k => k.startsWith('li-')).map(k => k.slice(3))
     if (liIds.length > 0) setItems(prev => prev.filter(li => !liIds.includes(li.id)))
+    if (keys.includes('row-material')) setAdjustedSqft(0)
+    if (keys.includes('row-labor')) setLaborRate(0)
     if (keys.includes('fee-removal')) setRemovalFee(0)
     if (keys.includes('fee-furniture')) setFurnitureFee(0)
     if (keys.includes('fee-stairs')) setStairsFee(0)
@@ -638,8 +644,8 @@ export default function QuoteDetailCard({
   }
 
   return (
-    <div
-      className="bg-white rounded-xl p-4 sm:p-6 relative"
+      <div
+      className="bg-white rounded-xl p-4 sm:p-6 pb-2 relative"
       style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}
     >
       {/* Top row: company block + Estimate title + meta table */}
@@ -650,11 +656,11 @@ export default function QuoteDetailCard({
             <img
               src={settings.logo_url}
               alt={settings.company_name || 'Company logo'}
-              className="w-12 h-12 object-contain flex-shrink-0"
+              className="w-14 h-14 object-contain flex-shrink-0"
             />
           ) : null}
           <div className="min-w-0">
-            <p className="text-sm font-bold" style={{ color: '#0f172a' }}>
+            <p className="text-base font-bold" style={{ color: '#0f172a' }}>
               {settings?.company_name || 'Flooring Company'}
             </p>
             {settings?.phone ? (
@@ -677,7 +683,7 @@ export default function QuoteDetailCard({
             <div className="flex" style={{ borderBottom: FRAME_BORDER }}>
               <span
                 className="flex-1 px-2 py-1 text-center"
-                style={{ borderRight: FRAME_BORDER, background: '#f1f5f9' }}
+                style={{ borderRight: FRAME_BORDER, background: BAND_BG }}
               >
                 Date
               </span>
@@ -686,7 +692,7 @@ export default function QuoteDetailCard({
             <div className="flex">
               <span
                 className="flex-1 px-2 py-1 text-center"
-                style={{ borderRight: FRAME_BORDER, background: '#f1f5f9' }}
+                style={{ borderRight: FRAME_BORDER, background: BAND_BG }}
               >
                 Estimate #
               </span>
@@ -716,7 +722,7 @@ export default function QuoteDetailCard({
           >
             Customer Name
           </div>
-          <div className="p-3 min-h-[64px] text-sm" style={{ color: '#0f172a' }}>
+          <div className="p-4 min-h-[80px] text-sm" style={{ color: '#0f172a' }}>
             <EditableField
               fieldKey="customer_name"
               value={customerName}
@@ -744,7 +750,7 @@ export default function QuoteDetailCard({
           >
             Job Location
           </div>
-          <div className="p-3 min-h-[64px] text-sm" style={{ color: '#0f172a' }}>
+          <div className="p-4 min-h-[80px] text-sm" style={{ color: '#0f172a' }}>
             <EditableField
               fieldKey="job_address"
               value={jobAddress}
@@ -761,12 +767,11 @@ export default function QuoteDetailCard({
       </div>
 
       {/* Select toolbar */}
-      <div className="flex items-center justify-between mb-1.5">
+      <div className="flex items-center justify-end mb-1.5">
         {!selectMode ? (
           <button
             onClick={() => setSelectMode(true)}
-            className="text-xs font-medium px-2.5 py-1 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
-            style={{ border: '1px solid #E5E7EB' }}
+            className="text-xs text-gray-400 hover:text-gray-600 underline transition-colors"
           >
             Select
           </button>
@@ -835,15 +840,15 @@ export default function QuoteDetailCard({
               return (
                 <div key={sectionName}>
                   <div
-                    className="grid items-start px-2 py-2"
-                    style={{
-                      gridTemplateColumns: GRID_COLS,
-                      borderBottom: ROW_BORDER,
-                      color: '#0f172a',
-                    }}
-                  >
-                    <span className="pr-3 break-words whitespace-pre-wrap">
-                      {baseDesc ? `${sectionName} — ${baseDesc}` : `${sectionName}: supply ${sectionLabel}`}
+                className="grid items-start px-2 py-2.5"
+                style={{
+                  gridTemplateColumns: GRID_COLS,
+                  borderBottom: ROW_BORDER,
+                  color: '#0f172a',
+                }}
+              >
+                <span className="pr-3 break-words whitespace-pre-wrap">
+                  {baseDesc ? `${sectionName} — ${baseDesc}` : `${sectionName}: supply ${sectionLabel}`}
                     </span>
                     <span className="text-right tabular-nums">{fmtQty(adjSqft)}</span>
                     <span className="text-right tabular-nums">{fmtNumber(matRate, 2)}</span>
@@ -851,7 +856,7 @@ export default function QuoteDetailCard({
                   </div>
                   {labRate > 0 && (
                     <div
-                      className="grid items-start px-2 py-2"
+                      className="grid items-start px-2 py-2.5"
                       style={{
                         gridTemplateColumns: GRID_COLS,
                         borderBottom: ROW_BORDER,
@@ -874,14 +879,16 @@ export default function QuoteDetailCard({
             <>
               {/* Material row */}
               <div
-                className="grid items-start px-2 py-2"
+                className="grid items-start px-2 py-2.5"
                 style={{
                   gridTemplateColumns: GRID_COLS,
                   borderBottom: ROW_BORDER,
                   color: '#0f172a',
+                  background: selectedKeys.has('row-material') ? 'rgba(0,113,227,0.06)' : undefined,
                 }}
               >
-                <span className="pr-3 break-words whitespace-pre-wrap">
+                <span className="pr-3 break-words whitespace-pre-wrap flex items-center">
+                  <RowCheckbox rowKey="row-material" />
                   <EditableCell
                     fieldKey="material_description"
                     value={materialDescription || `Supply ${flooringLabel}`}
@@ -925,14 +932,18 @@ export default function QuoteDetailCard({
               {/* Labor row (only if rate > 0) */}
               {laborRate > 0 && (
                 <div
-                  className="grid items-start px-2 py-2"
+                  className="grid items-start px-2 py-2.5"
                   style={{
                     gridTemplateColumns: GRID_COLS,
                     borderBottom: ROW_BORDER,
                     color: '#0f172a',
+                    background: selectedKeys.has('row-labor') ? 'rgba(0,113,227,0.06)' : undefined,
                   }}
                 >
-                  <span className="pr-3">Labor / installation</span>
+                  <span className="pr-3 flex items-center">
+                    <RowCheckbox rowKey="row-labor" />
+                    Labor / installation
+                  </span>
                   <span className="text-right tabular-nums">{fmtQty(adjustedSqft)}</span>
                   <span className="text-right tabular-nums">
                     <EditableCell
@@ -966,7 +977,7 @@ export default function QuoteDetailCard({
             return (
               <div
                 key={li.id}
-                className="grid items-center px-2 py-2"
+                className="grid items-center px-2 py-2.5"
                 style={{
                   gridTemplateColumns: GRID_COLS,
                   borderBottom: ROW_BORDER,
@@ -1021,7 +1032,7 @@ export default function QuoteDetailCard({
           {/* Fixed fee rows (editable + selectable) */}
           {removalFee > 0 && (
             <div
-              className="grid items-center px-2 py-2"
+              className="grid items-center px-2 py-2.5"
               style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-removal') ? 'rgba(0,113,227,0.06)' : undefined }}
             >
               <span className="pr-3 flex items-center">
@@ -1058,7 +1069,7 @@ export default function QuoteDetailCard({
           )}
           {furnitureFee > 0 && (
             <div
-              className="grid items-center px-2 py-2"
+              className="grid items-center px-2 py-2.5"
               style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-furniture') ? 'rgba(0,113,227,0.06)' : undefined }}
             >
               <span className="pr-3 flex items-center">
@@ -1097,7 +1108,7 @@ export default function QuoteDetailCard({
             const perUnit = stairCount ? stairsFee / stairCount : stairsFee
             return (
               <div
-                className="grid items-center px-2 py-2"
+                className="grid items-center px-2 py-2.5"
                 style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-stairs') ? 'rgba(0,113,227,0.06)' : undefined }}
               >
                 <span className="pr-3 flex items-center">
@@ -1135,7 +1146,7 @@ export default function QuoteDetailCard({
           })()}
           {quarterRoundFee > 0 && (
             <div
-              className="grid items-center px-2 py-2"
+              className="grid items-center px-2 py-2.5"
               style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-quarterround') ? 'rgba(0,113,227,0.06)' : undefined }}
             >
               <span className="pr-3 flex items-center">
@@ -1172,7 +1183,7 @@ export default function QuoteDetailCard({
           )}
           {reducersFee > 0 && (
             <div
-              className="grid items-center px-2 py-2"
+              className="grid items-center px-2 py-2.5"
               style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-reducers') ? 'rgba(0,113,227,0.06)' : undefined }}
             >
               <span className="pr-3 flex items-center">
@@ -1209,7 +1220,7 @@ export default function QuoteDetailCard({
           )}
           {deliveryFee > 0 && (
             <div
-              className="grid items-center px-2 py-2"
+              className="grid items-center px-2 py-2.5"
               style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-delivery') ? 'rgba(0,113,227,0.06)' : undefined }}
             >
               <span className="pr-3 flex items-center">
@@ -1246,7 +1257,7 @@ export default function QuoteDetailCard({
           )}
           {customFeeAmount > 0 && customFeeLabel.trim() && (
             <div
-              className="grid items-center px-2 py-2"
+              className="grid items-center px-2 py-2.5"
               style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-custom') ? 'rgba(0,113,227,0.06)' : undefined }}
             >
               <span className="pr-3 flex items-center">
@@ -1288,7 +1299,7 @@ export default function QuoteDetailCard({
               <>
                 {(extrasJson.subfloor_prep ?? 0) > 0 && (
                   <div
-                    className="grid items-center px-2 py-2"
+                    className="grid items-center px-2 py-2.5"
                     style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-subfloor') ? 'rgba(0,113,227,0.06)' : undefined }}
                   >
                     <span className="pr-3 flex items-center">
@@ -1325,7 +1336,7 @@ export default function QuoteDetailCard({
                 )}
                 {(extrasJson.underlayment_per_sqft ?? 0) > 0 && adjustedSqft > 0 && (
                   <div
-                    className="grid items-start px-2 py-2"
+                    className="grid items-start px-2 py-2.5"
                     style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-underlayment') ? 'rgba(0,113,227,0.06)' : undefined }}
                   >
                     <span className="pr-3 flex items-center">
@@ -1339,7 +1350,7 @@ export default function QuoteDetailCard({
                 )}
                 {(extrasJson.transition_qty ?? 0) > 0 && (extrasJson.transition_unit ?? 0) > 0 && (
                   <div
-                    className="grid items-center px-2 py-2"
+                    className="grid items-center px-2 py-2.5"
                     style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-transition') ? 'rgba(0,113,227,0.06)' : undefined }}
                   >
                     <span className="pr-3 flex items-center">
@@ -1353,7 +1364,7 @@ export default function QuoteDetailCard({
                 )}
                 {(extrasJson.floor_protection ?? 0) > 0 && (
                   <div
-                    className="grid items-center px-2 py-2"
+                    className="grid items-center px-2 py-2.5"
                     style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-floorprotection') ? 'rgba(0,113,227,0.06)' : undefined }}
                   >
                     <span className="pr-3 flex items-center">
@@ -1390,7 +1401,7 @@ export default function QuoteDetailCard({
                 )}
                 {(extrasJson.disposal_fee ?? 0) > 0 && (
                   <div
-                    className="grid items-center px-2 py-2"
+                    className="grid items-center px-2 py-2.5"
                     style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-disposal') ? 'rgba(0,113,227,0.06)' : undefined }}
                   >
                     <span className="pr-3 flex items-center">
@@ -1500,7 +1511,7 @@ export default function QuoteDetailCard({
           ) : null}
         </div>
 
-        <div className="sm:w-64 text-sm" style={{ color: '#0f172a' }}>
+        <div className="sm:w-64 text-sm border-t border-gray-200 pt-3 sm:border-t-0 sm:pt-0" style={{ color: '#0f172a' }}>
           {showSubtotal && (
             <div className="flex justify-between py-0.5">
               <span>Subtotal</span>
