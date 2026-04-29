@@ -96,3 +96,16 @@ export function fmt(value: number): string {
     maximumFractionDigits: 2,
   }).format(value)
 }
+
+/**
+ * Substitute the validity-period number in a terms-validity string with the
+ * actual number of days the quote is valid for. Replaces the FIRST "<n> day(s)"
+ * occurrence so phrases like "Prices subject to change without notice after
+ * 30 days of estimate." automatically reflect the per-quote validity period
+ * (e.g. 90 days) without the user needing a template token.
+ */
+export function applyValidDaysToTerms(text: string, validDays: number): string {
+  if (!text || !validDays || validDays <= 0) return text
+  const dayWord = validDays === 1 ? 'day' : 'days'
+  return text.replace(/\b\d+\s*days?\b/i, `${validDays} ${dayWord}`)
+}

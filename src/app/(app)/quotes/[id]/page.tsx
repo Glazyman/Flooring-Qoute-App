@@ -1,6 +1,7 @@
 import { redirect, notFound } from 'next/navigation'
 import { createClient, getCurrentUser } from '@/lib/supabase/server'
 import Link from 'next/link'
+import { applyValidDaysToTerms } from '@/lib/calculations'
 import type { Quote, QuoteRoom, QuoteLineItem, CompanySettings } from '@/lib/types'
 import DuplicateButton from '@/components/DuplicateButton'
 import EmailQuoteButton from '@/components/EmailQuoteButton'
@@ -107,8 +108,13 @@ export default async function QuoteDetailPage({
   const typedRooms = rooms
   const typedLineItems = lineItems
 
+  const validityRaw = settings?.terms_validity?.trim()
+  const validityWithDays = validityRaw
+    ? applyValidDaysToTerms(validityRaw, q.valid_days)
+    : null
+
   const terms = [
-    settings?.terms_validity?.trim(),
+    validityWithDays,
     settings?.terms_scheduling?.trim(),
     settings?.terms_scope?.trim(),
   ].filter((t): t is string => !!t && t.length > 0)

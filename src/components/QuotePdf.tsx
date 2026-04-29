@@ -8,6 +8,7 @@ import {
 } from '@react-pdf/renderer'
 import type { Quote, QuoteRoom, QuoteLineItem, CompanySettings } from '@/lib/types'
 import { flooringTypeLabel, FLOORING_LABEL } from '@/lib/flooringLabels'
+import { applyValidDaysToTerms } from '@/lib/calculations'
 
 // Palette — mirrors src/components/QuoteDetailCard.tsx
 const BAND_BG = '#1e293b'
@@ -659,8 +660,13 @@ export function QuotePdfDocument({
   const qualifications =
     (q.qualifications ?? settings?.default_qualifications ?? '').trim()
 
+  const validityRaw = settings?.terms_validity?.trim()
+  const validityWithDays = validityRaw
+    ? applyValidDaysToTerms(validityRaw, q.valid_days)
+    : null
+
   const terms = [
-    settings?.terms_validity?.trim(),
+    validityWithDays,
     settings?.terms_scheduling?.trim(),
     settings?.terms_scope?.trim(),
   ].filter((t): t is string => !!t && t.length > 0)
