@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Pencil, Mail, Phone, MapPin, FileText, Building2, X, Check, User } from 'lucide-react'
+import { Pencil, Mail, Phone, MapPin, FileText, Building2, X, Check, User, ArrowLeft } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
 import { fmt } from '@/lib/calculations'
 import { formatPhone } from '@/lib/format'
@@ -198,6 +198,12 @@ export default function ContactDetailClient({
           </div>
         </div>
       )}
+
+      {/* Back link */}
+      <Link href="/contacts" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors">
+        <ArrowLeft className="w-4 h-4" />
+        Contacts
+      </Link>
 
       {/* Contact details */}
       <Card title="Contact details" action={
