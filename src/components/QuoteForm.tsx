@@ -457,6 +457,7 @@ export default function QuoteForm({
   // Which section's flooring picker is expanded (null = all collapsed)
   const [openFlooringSection, setOpenFlooringSection] = useState<string | null>(null)
   const [manualFlooringOpen, setManualFlooringOpen] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
   const [confirmRemoveSection, setConfirmRemoveSection] = useState<string | null>(null)
 
   const roomsSqft = rooms.reduce((sum, r) => sum + roomSqft(r), 0)
@@ -958,7 +959,35 @@ export default function QuoteForm({
           </Card>
 
           {/* Project Settings */}
-          <Card title="Project settings">
+          {/* Project settings — collapsible on mobile */}
+          <div className="bg-white rounded-xl" style={{ border: '1px solid var(--border)' }}>
+            {/* Header — tap to expand on mobile */}
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => setSettingsOpen(v => !v)}
+              onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && setSettingsOpen(v => !v)}
+              className="flex items-center justify-between px-5 pt-5 pb-4 select-none lg:cursor-default"
+            >
+              <div>
+                <h2 className="text-sm font-semibold text-gray-900">Project settings</h2>
+                {!settingsOpen && (
+                  <p className="text-xs text-gray-400 mt-0.5 lg:hidden">
+                    {measurementType === 'manual'
+                      ? (FLOORING_TYPES.find(t => t.value === (sectionFlooring[firstSection] || 'unfinished'))?.label ?? 'Select type') + (manualSqft ? ` · ${manualSqft} sqft` : '')
+                      : (roomsSqft > 0 ? `${roomsSqft.toFixed(1)} sqft · ` : '') + `${sections.length} section${sections.length !== 1 ? 's' : ''}`
+                    }
+                  </p>
+                )}
+              </div>
+              <ChevronDown
+                className={`w-4 h-4 text-gray-400 transition-transform flex-shrink-0 lg:hidden ${settingsOpen ? 'rotate-180' : ''}`}
+              />
+            </div>
+
+            {/* Content */}
+            <div className={`px-5 pb-5 ${settingsOpen ? 'block' : 'hidden'} lg:block`}>
+
             {/* Method toggle */}
             <div className="mb-5">
               <label className="block text-xs font-medium text-gray-500 mb-1.5">Measurement method</label>
@@ -1297,7 +1326,8 @@ export default function QuoteForm({
                 {jobSpecChecklist}
               </div>
             )}
-          </Card>
+            </div>{/* end collapsible content */}
+          </div>{/* end Project settings card */}
 
           {/* Pricing */}
           <Card title="Pricing">
