@@ -77,14 +77,14 @@ function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
-const COL_TEMPLATE = '32px 1fr 140px 1fr 130px 60px'
+const COL_TEMPLATE = '32px 1fr 140px 1fr 130px 48px'
 const COL_HEAD = 'text-xs text-gray-400 font-normal'
 
-// Light icon button used throughout the toolbar.
+// Completely flat icon buttons — no background, no border. Hover shows faint bg.
 const ICON_BTN_BASE =
-  'w-8 h-8 flex items-center justify-center rounded-md transition-colors flex-shrink-0 text-gray-500 hover:bg-gray-100'
+  'w-8 h-8 flex items-center justify-center rounded-md transition-colors flex-shrink-0 text-gray-400 hover:text-gray-700 hover:bg-gray-50'
 const ICON_BTN_ACTIVE =
-  'w-8 h-8 flex items-center justify-center rounded-md transition-colors flex-shrink-0 bg-gray-200 text-gray-900'
+  'w-8 h-8 flex items-center justify-center rounded-md transition-colors flex-shrink-0 text-gray-700 bg-gray-100'
 
 export default function ContactsClient({ initialCustomers, onSelectContact, mode = 'page' }: Props) {
   const [customers, setCustomers] = useState<Customer[]>(initialCustomers)
@@ -490,12 +490,12 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
       {/* Table Card — wraps toolbar + bulk bar + headers + rows + pagination */}
       <div
         className="bg-white rounded-xl overflow-hidden"
-        style={{ border: '1px solid #E5E7EB' }}
+        style={{ border: '1px solid #F1F1F4' }}
       >
-        {/* Toolbar — light strip */}
+        {/* Toolbar — white, flat icons, no background tint */}
         <div
-          className="flex flex-wrap items-center gap-2 px-4 py-2.5"
-          style={{ background: '#FAFAFA', borderBottom: '1px solid #F1F1F4' }}
+          className="flex flex-wrap items-center gap-1 px-4 py-2.5"
+          style={{ borderBottom: '1px solid #F5F5F7' }}
         >
           {/* Left: action icon buttons */}
           <div className="flex items-center gap-1">
@@ -567,8 +567,8 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
             )}
           </div>
 
-          {/* Right: light search pill */}
-          <div className="flex items-center gap-2 ml-auto bg-white border border-gray-200 rounded-md px-3 py-1.5 w-full sm:w-64">
+          {/* Right: search — matches reference exactly */}
+          <div className="flex items-center gap-2 ml-auto rounded-md px-3 py-1.5 w-full sm:w-56" style={{ border: '1px solid #E5E7EB', background: '#fff' }}>
             <Search className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
             <input
               type="text"
@@ -637,7 +637,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
           <div>
             {/* Column header row — desktop only */}
             <div
-              style={{ gridTemplateColumns: COL_TEMPLATE, borderBottom: '1px solid #F1F1F4' }}
+              style={{ gridTemplateColumns: COL_TEMPLATE, borderBottom: '1px solid #F5F5F7' }}
               className="hidden lg:grid bg-white px-4 py-2.5 items-center"
             >
               <div className="flex items-center">
