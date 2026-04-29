@@ -51,7 +51,19 @@ export async function POST(_request: NextRequest) {
       const msg = stripeErr instanceof Error ? stripeErr.message : 'Stripe portal error'
       console.error('Stripe portal error:', stripeErr)
 
-      // Most common: customer portal not configured in Stripe dashboard
+      // Stale customer ID (e.g. test/live mode switch). Clear it so they can re-subscribe.
+      if (msg.toLowerCase().includes('no such customer')) {
+        await supabase
+          .from('companies')
+          .update({ stripe_customer_id: null })
+          .eq('id', membership.company_id)
+        return NextResponse.json(
+          { error: 'Your previous billing account is no longer valid. Please subscribe again.', noCustomer: true },
+          { status: 404 }
+        )
+      }
+
+      // Customer portal not configured in Stripe dashboard
       if (msg.toLowerCase().includes('configuration')) {
         return NextResponse.json(
           {

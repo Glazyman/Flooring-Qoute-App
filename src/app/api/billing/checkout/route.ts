@@ -91,51 +91,58 @@ export async function POST(request: NextRequest) {
       name: string
       stripe_customer_id: string | null
     }
-    let customerId = company.stripe_customer_id
-
-    if (!customerId) {
-      try {
-        const customer = await stripe.customers.create({
-          email: user.email,
-          name: company.name,
-          metadata: { company_id: company.id },
-        })
-        customerId = customer.id
-
-        await supabase
-          .from('companies')
-          .update({ stripe_customer_id: customerId })
-          .eq('id', company.id)
-      } catch (stripeErr) {
-        const msg = stripeErr instanceof Error ? stripeErr.message : 'Stripe customer error'
-        console.error('Stripe customer create error:', stripeErr)
-        return NextResponse.json(
-          { error: `Could not create Stripe customer: ${msg}` },
-          { status: 500 }
-        )
-      }
-    }
-
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://floorquote.us'
 
-    try {
+    async function createCustomer() {
+      const customer = await stripe.customers.create({
+        email: user!.email,
+        name: company.name,
+        metadata: { company_id: company.id },
+      })
+      await supabase
+        .from('companies')
+        .update({ stripe_customer_id: customer.id })
+        .eq('id', company.id)
+      return customer.id
+    }
+
+    async function createSession(customerId: string) {
       const session = await stripe.checkout.sessions.create({
         customer: customerId,
         mode: 'subscription',
-        line_items: [{ price: priceId, quantity: 1 }],
+        line_items: [{ price: priceId!, quantity: 1 }],
         success_url: `${appUrl}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${appUrl}/billing/setup`,
         metadata: { company_id: company.id },
       })
+      if (!session.url) throw new Error('Stripe did not return a checkout URL')
+      return session.url
+    }
 
-      if (!session.url) {
-        return NextResponse.json(
-          { error: 'Stripe did not return a checkout URL' },
-          { status: 500 }
-        )
+    let customerId = company.stripe_customer_id
+
+    try {
+      if (!customerId) {
+        customerId = await createCustomer()
       }
 
-      return NextResponse.json({ url: session.url })
+      try {
+        const url = await createSession(customerId)
+        return NextResponse.json({ url })
+      } catch (stripeErr) {
+        const msg = stripeErr instanceof Error ? stripeErr.message : 'Stripe checkout error'
+
+        // Stale customer ID (e.g. mode-switch between test/live, or deleted in Stripe).
+        // Recover automatically by creating a fresh customer and retrying.
+        if (msg.toLowerCase().includes('no such customer')) {
+          console.warn('Stale Stripe customer detected, recreating:', customerId, msg)
+          customerId = await createCustomer()
+          const url = await createSession(customerId)
+          return NextResponse.json({ url })
+        }
+
+        throw stripeErr
+      }
     } catch (stripeErr) {
       const msg = stripeErr instanceof Error ? stripeErr.message : 'Stripe checkout error'
       console.error('Stripe checkout error:', stripeErr)
