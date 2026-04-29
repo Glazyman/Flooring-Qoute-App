@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
+// Link kept for non-last segments
 
 const LABELS: Record<string, string> = {
   dashboard: 'Dashboard',
