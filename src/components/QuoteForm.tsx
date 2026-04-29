@@ -826,7 +826,7 @@ export default function QuoteForm({
   const expirationLabel = formatExpiration(n(validDays) || 0)
 
   // Reusable checklist block — pill/chip buttons for easy mobile tapping
-  const specGroups = JOB_OPTION_GROUPS.filter(g => g.id !== 'scope')
+  const specGroups = JOB_OPTION_GROUPS
   const jobSpecChecklist = (
     <div className="mt-4 pt-4 space-y-5" style={{ borderTop: '1px solid #F1F1F4' }}>
       {specGroups.map(group => (
@@ -956,39 +956,6 @@ export default function QuoteForm({
 
           {/* Project Settings */}
           <Card title="Project settings">
-            {/* Job scope */}
-            {(() => {
-              const scopeGroup = JOB_OPTION_GROUPS.find(g => g.id === 'scope')!
-              return (
-                <div className="mb-5 pb-5" style={{ borderBottom: '1px solid #F1F1F4' }}>
-                  <div className="flex items-baseline gap-2 mb-3">
-                    <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">{scopeGroup.label}</span>
-                    {scopeGroup.description && <p className="text-xs text-gray-400">{scopeGroup.description}</p>}
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {scopeGroup.options.map(opt => {
-                      const checked = jobOptions[opt.key] === true
-                      return (
-                        <button
-                          key={opt.key}
-                          type="button"
-                          onClick={() => toggleJobOption(opt.key)}
-                          className="flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium transition-all select-none"
-                          style={checked
-                            ? { background: '#1d1d1f', color: 'white', border: '1.5px solid #1d1d1f' }
-                            : { background: 'white', color: '#374151', border: '1.5px solid #E5E7EB' }
-                          }
-                        >
-                          {checked && <Check className="w-3.5 h-3.5 flex-shrink-0" />}
-                          {opt.label}
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
-              )
-            })()}
-
             {/* Method toggle */}
             <div className="mb-5">
               <label className="block text-xs font-medium text-gray-500 mb-1.5">Measurement method</label>
