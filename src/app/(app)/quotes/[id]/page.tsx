@@ -6,6 +6,7 @@ import DuplicateButton from '@/components/DuplicateButton'
 import EmailQuoteButton from '@/components/EmailQuoteButton'
 import ApproveMeasurementButton from '@/components/ApproveMeasurementButton'
 import QuoteDetailCard from '@/components/QuoteDetailCard'
+import PrintButton from '@/components/PrintButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -87,7 +88,7 @@ export default async function QuoteDetailPage({
     <div className="max-w-3xl space-y-5">
       {/* Measurement approval banner */}
       {q.status === 'measurement' && (
-        <div className="flex items-center justify-between gap-4 bg-white rounded-xl px-4 py-3" style={{ border: '1px solid var(--border)' }}>
+        <div className="print-hide flex items-center justify-between gap-4 bg-white rounded-xl px-4 py-3" style={{ border: '1px solid var(--border)' }}>
           <div>
             <p className="text-sm font-semibold text-gray-900">This is a saved measurement</p>
             <p className="text-xs text-gray-500 mt-0.5">
@@ -99,7 +100,7 @@ export default async function QuoteDetailPage({
       )}
 
       {/* Header chrome */}
-      <div>
+      <div className="print-hide">
         <h1 className="text-base font-semibold text-gray-900 break-words">
           {q.customer_name}
         </h1>
@@ -152,15 +153,17 @@ export default async function QuoteDetailPage({
             </svg>
             Download PDF
           </a>
+          <PrintButton />
         </div>
       </div>
 
       {/* Inline-edit hint */}
-      <p className="text-xs text-gray-400">
+      <p className="print-hide text-xs text-gray-400">
         Click any field to edit
       </p>
 
       {/* Preview card with inline editing */}
+      <div className="print-quote-area">
       <QuoteDetailCard
         quote={q}
         rooms={typedRooms}
@@ -172,6 +175,7 @@ export default async function QuoteDetailPage({
         defaultExclusions={settings?.default_exclusions}
         defaultQualifications={settings?.default_qualifications}
       />
+      </div>
     </div>
   )
 }

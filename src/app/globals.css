@@ -117,3 +117,25 @@ a, button { transition: background 0.12s ease, color 0.12s ease, opacity 0.12s e
 .quote-row:hover { background: var(--surface-hover); }
 
 .marketing-page { background: #ffffff; color: #1d1d1f; }
+
+@media print {
+  /* Hide everything except the quote card */
+  body > * { display: none !important; }
+  .print-quote-area { display: block !important; }
+
+  /* Show just the quote card area */
+  .print-quote-area,
+  .print-quote-area * { display: revert !important; }
+
+  /* Remove shadows/borders that look bad on paper */
+  .print-quote-area [class*="rounded"] { border-radius: 0 !important; }
+  .print-quote-area { box-shadow: none !important; border: none !important; }
+
+  /* Hide edit UI */
+  .print-hide { display: none !important; }
+
+  @page {
+    margin: 0.6in;
+    size: letter;
+  }
+}

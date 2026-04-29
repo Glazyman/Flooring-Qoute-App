@@ -309,7 +309,7 @@ export default function QuoteDetailCard({
 
   function handleSelectAll() {
     const allKeys = new Set<string>()
-    if (!canRenderPerSection && q.adjusted_sqft > 0) allKeys.add('row-material')
+    if (!canRenderPerSection && adjustedSqft > 0) allKeys.add('row-material')
     if (!canRenderPerSection && laborRate > 0) allKeys.add('row-labor')
     if (canRenderPerSection && sectionPricingState) {
       Object.keys(sectionPricingState).forEach(sectionName => {
@@ -658,48 +658,37 @@ export default function QuoteDetailCard({
     flashSaved(`section-lab-desc-${sectionName}`)
   }
 
-  // ---- Optimistic totals ----
-  const canOptimizeTotals = !canRenderPerSection && q.adjusted_sqft > 0
-  const origLineItemsSum = initialLineItems.reduce((s, li) => s + Number(li.total), 0)
+  // ---- Live totals (always computed from state — never from stale q.* props) ----
   const currentLineItemsSum = items.reduce((s, li) => s + li.total, 0)
 
-  let displaySubtotal = q.subtotal
-  let displayMarkup = q.markup_amount
-  let displayTax = q.tax_amount
-  let displayFinalTotal = q.final_total
-  let displayDeposit = q.deposit_amount
+  const liveFixedFees =
+    removalFee + furnitureFee + stairsFee + quarterRoundFee +
+    reducersFee + deliveryFee + customFeeAmount
+  const liveExtrasSum =
+    (extrasJson.subfloor_prep ?? 0) +
+    (extrasJson.floor_protection ?? 0) +
+    (extrasJson.disposal_fee ?? 0) +
+    (extrasJson.underlayment_per_sqft ?? 0) * adjustedSqft +
+    (extrasJson.transition_qty ?? 0) * (extrasJson.transition_unit ?? 0)
 
-  if (canOptimizeTotals) {
-    const origMat = Number(q.material_total) || q.adjusted_sqft * q.material_cost_per_sqft
-    const origLab = Number(q.labor_total) || q.adjusted_sqft * q.labor_cost_per_sqft
-    const origFixedPortion = q.subtotal - origMat - origLab - origLineItemsSum
-
-    // Delta from fee edits relative to original server values
-    const underlaymentRate = extrasJson.underlayment_per_sqft ?? 0
-    const feeDelta =
-      (removalFee - (q.removal_fee ?? 0)) +
-      (furnitureFee - (q.furniture_fee ?? 0)) +
-      (stairsFee - (q.stairs_fee ?? 0)) +
-      (quarterRoundFee - (q.quarter_round_fee ?? 0)) +
-      (reducersFee - (q.reducers_fee ?? 0)) +
-      (deliveryFee - (q.delivery_fee ?? 0)) +
-      (customFeeAmount - (q.custom_fee_amount ?? 0)) +
-      ((extrasJson.subfloor_prep ?? 0) - ((q.extras_json?.subfloor_prep) ?? 0)) +
-      ((extrasJson.floor_protection ?? 0) - ((q.extras_json?.floor_protection) ?? 0)) +
-      ((extrasJson.disposal_fee ?? 0) - ((q.extras_json?.disposal_fee) ?? 0)) +
-      // Underlayment is per-sqft; account for sqft change
-      underlaymentRate * (adjustedSqft - q.adjusted_sqft)
-
-    const fixedPortion = origFixedPortion + feeDelta
-    const newMat = adjustedSqft * materialRate
-    const newLab = adjustedSqft * laborRate
-    displaySubtotal = fixedPortion + newMat + newLab + currentLineItemsSum
-    displayMarkup = q.markup_pct > 0 ? displaySubtotal * (q.markup_pct / 100) : 0
-    const taxBase = displaySubtotal + displayMarkup
-    displayTax = q.tax_enabled ? taxBase * (q.tax_pct / 100) : 0
-    displayFinalTotal = displaySubtotal + displayMarkup + displayTax
-    displayDeposit = q.deposit_pct > 0 ? displayFinalTotal * (q.deposit_pct / 100) : 0
+  let displaySubtotal: number
+  if (canRenderPerSection && sectionPricingState) {
+    const sectionMatLab = sectionKeys.reduce((sum, sectionName) => {
+      const baseSqft = roomsBySection[sectionName] ?? 0
+      const adjSqft = baseSqft * wasteFactor
+      const sp = sectionPricingState[sectionName] || { material: 0, labor: 0 }
+      return sum + adjSqft * (Number(sp.material) || 0) + adjSqft * (Number(sp.labor) || 0)
+    }, 0)
+    displaySubtotal = sectionMatLab + liveFixedFees + liveExtrasSum + currentLineItemsSum
+  } else {
+    displaySubtotal = adjustedSqft * materialRate + adjustedSqft * laborRate + liveFixedFees + liveExtrasSum + currentLineItemsSum
   }
+
+  const displayMarkup = q.markup_pct > 0 ? displaySubtotal * (q.markup_pct / 100) : 0
+  const taxBase = displaySubtotal + displayMarkup
+  const displayTax = q.tax_enabled ? taxBase * (q.tax_pct / 100) : 0
+  const displayFinalTotal = displaySubtotal + displayMarkup + displayTax
+  const displayDeposit = q.deposit_pct > 0 ? displayFinalTotal * (q.deposit_pct / 100) : 0
 
   const showSubtotal = (q.tax_enabled && displayTax > 0) || displayMarkup > 0
   const showDeposit = q.deposit_pct > 0 && displayDeposit > 0
@@ -1041,7 +1030,7 @@ export default function QuoteDetailCard({
           }
 
           {/* Simple material + labor rows (editable rate + sqft) */}
-          {!canRenderPerSection && q.adjusted_sqft > 0 && (
+          {!canRenderPerSection && adjustedSqft > 0 && (
             <>
               {/* Material row */}
               <div
