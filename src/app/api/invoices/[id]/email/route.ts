@@ -34,10 +34,10 @@ function buildHtmlBody(
   })
 
   const contactLine = companyEmail
-    ? `<p style="margin:0 0 8px;">To get in touch, contact us at: <a href="mailto:${escapeHtml(companyEmail)}" style="color:#0D9488;">${escapeHtml(companyEmail)}</a></p>`
+    ? `<p style="margin:0 0 8px;">To get in touch, contact us at: <a href="mailto:${escapeHtml(companyEmail)}" style="color:#0071e3;">${escapeHtml(companyEmail)}</a></p>`
     : ''
   const phoneLine = companyPhone
-    ? `<p style="margin:0 0 8px;">Phone: <a href="tel:${escapeHtml(companyPhone)}" style="color:#0D9488;">${escapeHtml(companyPhone)}</a></p>`
+    ? `<p style="margin:0 0 8px;">Phone: <a href="tel:${escapeHtml(companyPhone)}" style="color:#0071e3;">${escapeHtml(companyPhone)}</a></p>`
     : ''
 
   const lineItemRows = lineItems.length > 0
@@ -60,7 +60,7 @@ function buildHtmlBody(
 
         <!-- Header -->
         <tr>
-          <td style="background:#0D9488;padding:28px 32px;">
+          <td style="background:#1d1d1f;padding:28px 32px;">
             <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;">${safeCompanyName}</h1>
             <p style="margin:6px 0 0;color:#ccfbf1;font-size:14px;">Invoice ${invoiceLabel}</p>
           </td>
@@ -111,7 +111,7 @@ function buildHtmlBody(
               </tr>` : ''}
               <tr>
                 <td style="padding:10px 12px;font-size:15px;color:#111;font-weight:700;text-align:right;border-top:2px solid #111;">Total</td>
-                <td style="padding:10px 12px;font-size:18px;color:#0D9488;font-weight:800;text-align:right;border-top:2px solid #111;">${fmt(inv.total)}</td>
+                <td style="padding:10px 12px;font-size:18px;color:#0071e3;font-weight:800;text-align:right;border-top:2px solid #111;">${fmt(inv.total)}</td>
               </tr>
             </table>
 

@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Sun, Bell } from 'lucide-react'
+import { Search, Plus } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import AppNavigation from '@/components/AppNavigation'
 import TrialBanner from '@/components/TrialBanner'
@@ -140,27 +140,56 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         trialExhausted={trialExhausted}
         planLabel={planLabel}
       />
-      <main className="lg:ml-56 pt-16 lg:pt-0 flex flex-col min-h-screen">
-        <header className="hidden lg:flex sticky top-0 z-30 bg-white border-b border-gray-100 px-5 lg:px-8 h-12 items-center justify-between">
-          <Breadcrumb />
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              className="w-8 h-8 flex items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 transition-colors"
-              title="Coming soon"
-              aria-label="Toggle theme (coming soon)"
-            >
-              <Sun className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              className="w-8 h-8 flex items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 transition-colors"
-              title="Coming soon"
-              aria-label="Notifications (coming soon)"
-            >
-              <Bell className="w-4 h-4" />
-            </button>
+      <main className="lg:ml-[216px] pt-14 lg:pt-0 flex flex-col min-h-screen">
+        <header
+          className="hidden lg:flex sticky top-0 z-30 h-[52px] items-center px-6 gap-4"
+          style={{
+            background: 'rgba(255,255,255,0.85)',
+            backdropFilter: 'blur(24px) saturate(1.6)',
+            WebkitBackdropFilter: 'blur(24px) saturate(1.6)',
+            borderBottom: '1px solid rgba(0,0,0,0.07)',
+          }}
+        >
+          {/* Breadcrumb — left */}
+          <div style={{ flex: 1 }}>
+            <Breadcrumb />
           </div>
+
+          {/* Search — center */}
+          <div
+            style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              background: 'rgba(120,120,128,0.08)', borderRadius: 10,
+              padding: '6px 12px', width: 200,
+            }}
+          >
+            <Search size={13} color="#aeaeb2" strokeWidth={2} />
+            <input
+              type="text"
+              placeholder="Search"
+              style={{
+                background: 'transparent', border: 'none', outline: 'none',
+                fontSize: 13, color: '#1d1d1f', flex: 1, minWidth: 0,
+              }}
+            />
+          </div>
+
+          {/* New Quote pill — right */}
+          <Link
+            href="/quotes/new"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 5,
+              background: '#1d1d1f', color: 'white',
+              borderRadius: 100, padding: '7px 16px',
+              fontSize: 13, fontWeight: 600, textDecoration: 'none',
+              boxShadow: '0 1px 4px rgba(0,0,0,0.12)',
+            }}
+            onMouseEnter={e => (e.currentTarget as HTMLElement).style.opacity = '0.82'}
+            onMouseLeave={e => (e.currentTarget as HTMLElement).style.opacity = '1'}
+          >
+            <Plus size={13} strokeWidth={2.5} color="white" />
+            New Quote
+          </Link>
         </header>
         {freeQuotesRemaining !== null && (
           <TrialBanner remaining={freeQuotesRemaining} />

@@ -1520,7 +1520,7 @@ export default function QuoteForm({
                 onClick={(e) => handleSubmit(e, 'update')}
                 disabled={saving}
                 className="w-full text-white text-sm font-medium py-2.5 px-4 rounded-md transition-colors disabled:opacity-50"
-                style={{ background: 'var(--primary)' }}
+                style={{ background: '#1d1d1f' }}
               >
                 {saving ? 'Saving…' : 'Update quote'}
               </button>
@@ -1531,7 +1531,7 @@ export default function QuoteForm({
                   onClick={(e) => handleSubmit(e, 'measurement')}
                   disabled={saving}
                   className="w-full text-white text-sm font-medium py-2.5 px-4 rounded-md transition-colors disabled:opacity-50"
-                  style={{ background: 'var(--primary)' }}
+                  style={{ background: '#1d1d1f' }}
                 >
                   {saving && savingMode === 'measurement' ? 'Saving…' : 'Save as measurement'}
                 </button>
@@ -1562,7 +1562,7 @@ export default function QuoteForm({
             onClick={(e) => handleSubmit(e, 'update')}
             disabled={saving}
             className="w-full text-white text-sm font-medium py-2.5 rounded-md transition-colors disabled:opacity-50"
-            style={{ background: 'var(--primary)' }}
+            style={{ background: '#1d1d1f' }}
           >
             {saving ? 'Saving…' : 'Update quote'}
           </button>
@@ -1573,7 +1573,7 @@ export default function QuoteForm({
               onClick={(e) => handleSubmit(e, 'measurement')}
               disabled={saving}
               className="text-white text-sm font-medium py-2.5 rounded-md transition-colors disabled:opacity-50"
-              style={{ background: 'var(--primary)' }}
+              style={{ background: '#1d1d1f' }}
             >
               {saving && savingMode === 'measurement' ? '…' : 'Measurement'}
             </button>

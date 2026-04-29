@@ -149,7 +149,7 @@ export default function BillingSetupPage() {
           </div>
 
           {/* Pro */}
-          <div className="rounded-2xl p-6 flex flex-col relative overflow-hidden" style={{ background: 'var(--primary)', boxShadow: '0 8px 30px rgba(13,148,136,0.25)' }}>
+          <div className="rounded-2xl p-6 flex flex-col relative overflow-hidden" style={{ background: 'var(--primary)', boxShadow: '0 8px 30px rgba(0,113,227,0.25)' }}>
             <div className="absolute top-4 right-4 bg-white/20 text-white text-xs font-bold px-2.5 py-1 rounded-full">Most Popular</div>
             <p className="text-xs font-bold text-teal-200 uppercase tracking-widest mb-2">Pro</p>
             {annual ? (

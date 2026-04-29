@@ -7,11 +7,13 @@ import { flooringTypeLabel } from '@/lib/flooringLabels'
 
 export const dynamic = 'force-dynamic'
 
-const STATUS_DOT: Record<string, { color: string; label: string }> = {
-  accepted: { color: '#10B981', label: 'Accepted' },
-  pending:  { color: '#6366F1', label: 'Pending' },
-  lost:     { color: '#9CA3AF', label: 'Lost' },
+const STATUS_CFG: Record<string, { color: string; label: string }> = {
+  accepted: { color: '#30d158', label: 'Accepted' },
+  pending:  { color: '#ff9f0a', label: 'Pending' },
+  lost:     { color: '#ff453a', label: 'Lost' },
 }
+
+const TILE_COLORS = ['#0071e3', '#30d158', '#ff9f0a', '#bf5af2']
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -20,6 +22,12 @@ export default async function DashboardPage() {
 
   const { data: membership } = await supabase.from('company_members').select('company_id').eq('user_id', user.id).single()
   if (!membership) redirect('/billing/setup')
+
+  const { data: settings } = await supabase
+    .from('company_settings')
+    .select('company_name')
+    .eq('company_id', membership.company_id)
+    .single()
 
   const { data: allQuotes = [] } = await supabase
     .from('quotes')
@@ -35,70 +43,88 @@ export default async function DashboardPage() {
   const revenue  = accepted.reduce((s, q) => s + (q.final_total || 0), 0)
   const avgAccepted = accepted.length > 0 ? revenue / accepted.length : 0
 
+  const companyDisplay = settings?.company_name || 'there'
+
+  const now = new Date()
+  const dateLabel = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).toUpperCase()
+
   const tiles = [
-    { label: 'Total Quotes',       value: String(total),           sub: null as string | null },
-    { label: 'Accepted',           value: String(accepted.length), sub: `${pending.length} pending` },
-    { label: 'Revenue Won',        value: fmt(revenue),            sub: null },
-    { label: 'Avg Accepted Value', value: fmt(avgAccepted),        sub: null },
+    { label: 'TOTAL QUOTES',       value: String(total),           color: TILE_COLORS[0] },
+    { label: 'ACCEPTED',           value: String(accepted.length), color: TILE_COLORS[1] },
+    { label: 'REVENUE WON',        value: fmt(revenue),            color: TILE_COLORS[2] },
+    { label: 'AVG ACCEPTED VALUE', value: fmt(avgAccepted),        color: TILE_COLORS[3] },
   ]
 
   return (
-    <div className="space-y-5">
-      {/* Header */}
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="text-base font-semibold text-gray-900">Dashboard</h1>
-        <Link
-          href="/quotes/new"
-          className="flex items-center gap-1.5 text-white text-sm font-medium px-3.5 py-2 rounded-md transition-colors"
-          style={{ background: 'var(--primary)' }}
-        >
-          <Plus className="w-4 h-4" />
-          New Quote
-        </Link>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      {/* Greeting */}
+      <div>
+        <p style={{ fontSize: 12, fontWeight: 600, color: '#aeaeb2', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 4px' }}>
+          {dateLabel}
+        </p>
+        <h1 style={{ fontSize: 28, fontWeight: 800, color: '#1d1d1f', letterSpacing: '-0.03em', margin: 0 }}>
+          Good morning, {companyDisplay}.
+        </h1>
       </div>
 
-      {/* Stat tiles */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {tiles.map(({ label, value, sub }) => (
+      {/* Metric cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }} className="lg:grid-cols-4">
+        {tiles.map(({ label, value, color }) => (
           <div
             key={label}
-            className="bg-white rounded-xl px-4 py-4"
-            style={{ border: '1px solid var(--border)' }}
+            style={{
+              background: 'white', borderRadius: 16, padding: '20px 22px',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.04)',
+              position: 'relative', overflow: 'hidden',
+            }}
           >
-            <p className="text-xs text-gray-500 mb-1.5 truncate">{label}</p>
-            <p className="text-xl font-semibold text-gray-900 tracking-tight truncate">{value}</p>
-            {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
+            {/* Corner decoration */}
+            <div style={{
+              position: 'absolute', top: 0, right: 0,
+              width: 80, height: 80, borderRadius: '0 16px 0 80px',
+              background: `${color}08`,
+            }} />
+            <p style={{ fontSize: 11.5, fontWeight: 600, color: '#aeaeb2', textTransform: 'uppercase', letterSpacing: '0.04em', margin: '0 0 8px' }}>
+              {label}
+            </p>
+            <p style={{ fontSize: 30, fontWeight: 800, color: '#1d1d1f', letterSpacing: '-0.04em', margin: 0, fontVariantNumeric: 'tabular-nums' }}>
+              {value}
+            </p>
           </div>
         ))}
       </div>
 
       {/* Recent Estimates */}
-      <div
-        className="bg-white rounded-xl overflow-hidden"
-        style={{ border: '1px solid var(--border)' }}
-      >
+      <div style={{ background: 'white', borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.04)' }}>
         <div
-          className="flex items-center justify-between px-4 py-2.5"
-          style={{ background: '#FAFAFA', borderBottom: '1px solid #F1F1F4' }}
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '14px 20px', borderBottom: '1px solid rgba(0,0,0,0.05)',
+            background: '#fafafa',
+          }}
         >
-          <p className="text-sm font-semibold text-gray-900">Recent Estimates</p>
+          <p style={{ fontSize: 13.5, fontWeight: 700, color: '#1d1d1f', margin: 0 }}>Recent Estimates</p>
           <Link
             href="/quotes"
-            className="text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors"
+            style={{ fontSize: 12, fontWeight: 500, color: '#aeaeb2', textDecoration: 'none' }}
           >
             See all →
           </Link>
         </div>
 
         {quotes.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-sm text-gray-500 mb-2">No quotes yet</p>
+          <div style={{ textAlign: 'center', padding: '48px 0' }}>
+            <p style={{ fontSize: 13, color: '#6e6e73', marginBottom: 12 }}>No quotes yet</p>
             <Link
               href="/quotes/new"
-              className="inline-flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
-              style={{ border: '1px solid #E5E7EB' }}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 5,
+                fontSize: 12, fontWeight: 600, color: 'white',
+                background: '#1d1d1f', padding: '7px 14px', borderRadius: 8,
+                textDecoration: 'none',
+              }}
             >
-              <Plus className="w-3.5 h-3.5" />
+              <Plus size={12} strokeWidth={2.5} />
               Create your first quote
             </Link>
           </div>
@@ -106,36 +132,46 @@ export default async function DashboardPage() {
           <div>
             {quotes.slice(0, 8).map((q) => {
               const date = new Date(q.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-              const cfg = STATUS_DOT[q.status] || { color: '#9CA3AF', label: q.status }
+              const cfg = STATUS_CFG[q.status] || { color: '#aeaeb2', label: q.status }
               const initials = (q.customer_name || '?').charAt(0).toUpperCase()
               return (
                 <Link
                   key={q.id}
                   href={`/quotes/${q.id}`}
-                  className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50/60 transition-colors"
-                  style={{ borderBottom: '1px solid #F5F5F7' }}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 12,
+                    padding: '12px 20px', borderBottom: '1px solid rgba(0,0,0,0.04)',
+                    textDecoration: 'none', transition: 'background 0.12s',
+                  }}
+                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#f9f9fb'}
+                  onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
                 >
                   <div
-                    className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-semibold text-gray-700"
-                    style={{ background: '#E5E7EB' }}
+                    style={{
+                      width: 30, height: 30, borderRadius: '50%', flexShrink: 0,
+                      background: '#f2f2f7', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 12, fontWeight: 600, color: '#6e6e73',
+                    }}
                   >
                     {initials}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-normal text-gray-800 truncate">{q.customer_name}</p>
-                    <p className="text-xs text-gray-400 truncate">
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: 13, fontWeight: 500, color: '#1d1d1f', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {q.customer_name}
+                    </p>
+                    <p style={{ fontSize: 11.5, color: '#aeaeb2', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {flooringTypeLabel(q.flooring_type, q.section_flooring_types as Record<string, string> | null)}
                       {q.job_address ? ` · ${q.job_address}` : ''}
                     </p>
                   </div>
-                  <div className="hidden sm:flex items-center text-xs text-gray-500 mr-1">
-                    <Calendar className="w-3.5 h-3.5 text-gray-400 mr-1.5" />
+                  <div className="hidden sm:flex" style={{ alignItems: 'center', fontSize: 11.5, color: '#aeaeb2', gap: 4, marginRight: 4 }}>
+                    <Calendar size={12} color="#aeaeb2" />
                     {date}
                   </div>
-                  <div className="text-right flex-shrink-0">
-                    <p className="text-sm font-semibold text-gray-900">{fmt(q.final_total)}</p>
-                    <span className="text-xs flex items-center gap-1.5 justify-end" style={{ color: cfg.color }}>
-                      <span className="w-1.5 h-1.5 rounded-full" style={{ background: cfg.color }} />
+                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: '#1d1d1f', margin: '0 0 2px' }}>{fmt(q.final_total)}</p>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 600, color: cfg.color }}>
+                      <span style={{ width: 5, height: 5, borderRadius: '50%', background: cfg.color, display: 'inline-block' }} />
                       {cfg.label}
                     </span>
                   </div>

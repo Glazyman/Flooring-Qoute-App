@@ -8,8 +8,8 @@ import type { Quote, QuoteRoom, QuoteLineItem, CompanySettings } from '@/lib/typ
 const BAND_BG = '#94a3b8'
 const FRAME_BORDER = '1px solid #0f172a'
 const ROW_BORDER = '0.5px solid #e2e8f0'
-const HOVER_BG = 'rgba(13,148,136,0.06)'
-const TEAL = '#0D9488'
+const HOVER_BG = 'rgba(0,113,227,0.06)'
+const TEAL = '#0071e3'
 
 function fmtNumber(value: number, decimals = 2): string {
   return new Intl.NumberFormat('en-US', {
@@ -631,7 +631,7 @@ export default function QuoteDetailCard({
           })
         }}
         className="mr-2 flex-shrink-0"
-        style={{ accentColor: '#0D9488' }}
+        style={{ accentColor: '#1d1d1f' }}
         onClick={e => e.stopPropagation()}
       />
     )
@@ -971,7 +971,7 @@ export default function QuoteDetailCard({
                   gridTemplateColumns: GRID_COLS,
                   borderBottom: ROW_BORDER,
                   color: '#0f172a',
-                  background: isSelected ? 'rgba(13,148,136,0.06)' : undefined,
+                  background: isSelected ? 'rgba(0,113,227,0.06)' : undefined,
                 }}
               >
                 <span className="pr-3 break-words flex items-center">
@@ -1022,7 +1022,7 @@ export default function QuoteDetailCard({
           {removalFee > 0 && (
             <div
               className="grid items-center px-2 py-2"
-              style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-removal') ? 'rgba(13,148,136,0.06)' : undefined }}
+              style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-removal') ? 'rgba(0,113,227,0.06)' : undefined }}
             >
               <span className="pr-3 flex items-center">
                 <RowCheckbox rowKey="fee-removal" />
@@ -1059,7 +1059,7 @@ export default function QuoteDetailCard({
           {furnitureFee > 0 && (
             <div
               className="grid items-center px-2 py-2"
-              style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-furniture') ? 'rgba(13,148,136,0.06)' : undefined }}
+              style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-furniture') ? 'rgba(0,113,227,0.06)' : undefined }}
             >
               <span className="pr-3 flex items-center">
                 <RowCheckbox rowKey="fee-furniture" />
@@ -1098,7 +1098,7 @@ export default function QuoteDetailCard({
             return (
               <div
                 className="grid items-center px-2 py-2"
-                style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-stairs') ? 'rgba(13,148,136,0.06)' : undefined }}
+                style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-stairs') ? 'rgba(0,113,227,0.06)' : undefined }}
               >
                 <span className="pr-3 flex items-center">
                   <RowCheckbox rowKey="fee-stairs" />
@@ -1136,7 +1136,7 @@ export default function QuoteDetailCard({
           {quarterRoundFee > 0 && (
             <div
               className="grid items-center px-2 py-2"
-              style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-quarterround') ? 'rgba(13,148,136,0.06)' : undefined }}
+              style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-quarterround') ? 'rgba(0,113,227,0.06)' : undefined }}
             >
               <span className="pr-3 flex items-center">
                 <RowCheckbox rowKey="fee-quarterround" />
@@ -1173,7 +1173,7 @@ export default function QuoteDetailCard({
           {reducersFee > 0 && (
             <div
               className="grid items-center px-2 py-2"
-              style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-reducers') ? 'rgba(13,148,136,0.06)' : undefined }}
+              style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-reducers') ? 'rgba(0,113,227,0.06)' : undefined }}
             >
               <span className="pr-3 flex items-center">
                 <RowCheckbox rowKey="fee-reducers" />
@@ -1210,7 +1210,7 @@ export default function QuoteDetailCard({
           {deliveryFee > 0 && (
             <div
               className="grid items-center px-2 py-2"
-              style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-delivery') ? 'rgba(13,148,136,0.06)' : undefined }}
+              style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-delivery') ? 'rgba(0,113,227,0.06)' : undefined }}
             >
               <span className="pr-3 flex items-center">
                 <RowCheckbox rowKey="fee-delivery" />
@@ -1247,7 +1247,7 @@ export default function QuoteDetailCard({
           {customFeeAmount > 0 && customFeeLabel.trim() && (
             <div
               className="grid items-center px-2 py-2"
-              style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-custom') ? 'rgba(13,148,136,0.06)' : undefined }}
+              style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-custom') ? 'rgba(0,113,227,0.06)' : undefined }}
             >
               <span className="pr-3 flex items-center">
                 <RowCheckbox rowKey="fee-custom" />
@@ -1289,7 +1289,7 @@ export default function QuoteDetailCard({
                 {(extrasJson.subfloor_prep ?? 0) > 0 && (
                   <div
                     className="grid items-center px-2 py-2"
-                    style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-subfloor') ? 'rgba(13,148,136,0.06)' : undefined }}
+                    style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-subfloor') ? 'rgba(0,113,227,0.06)' : undefined }}
                   >
                     <span className="pr-3 flex items-center">
                       <RowCheckbox rowKey="fee-subfloor" />
@@ -1326,7 +1326,7 @@ export default function QuoteDetailCard({
                 {(extrasJson.underlayment_per_sqft ?? 0) > 0 && adjustedSqft > 0 && (
                   <div
                     className="grid items-start px-2 py-2"
-                    style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-underlayment') ? 'rgba(13,148,136,0.06)' : undefined }}
+                    style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-underlayment') ? 'rgba(0,113,227,0.06)' : undefined }}
                   >
                     <span className="pr-3 flex items-center">
                       <RowCheckbox rowKey="fee-underlayment" />
@@ -1340,7 +1340,7 @@ export default function QuoteDetailCard({
                 {(extrasJson.transition_qty ?? 0) > 0 && (extrasJson.transition_unit ?? 0) > 0 && (
                   <div
                     className="grid items-center px-2 py-2"
-                    style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-transition') ? 'rgba(13,148,136,0.06)' : undefined }}
+                    style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-transition') ? 'rgba(0,113,227,0.06)' : undefined }}
                   >
                     <span className="pr-3 flex items-center">
                       <RowCheckbox rowKey="fee-transition" />
@@ -1354,7 +1354,7 @@ export default function QuoteDetailCard({
                 {(extrasJson.floor_protection ?? 0) > 0 && (
                   <div
                     className="grid items-center px-2 py-2"
-                    style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-floorprotection') ? 'rgba(13,148,136,0.06)' : undefined }}
+                    style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-floorprotection') ? 'rgba(0,113,227,0.06)' : undefined }}
                   >
                     <span className="pr-3 flex items-center">
                       <RowCheckbox rowKey="fee-floorprotection" />
@@ -1391,7 +1391,7 @@ export default function QuoteDetailCard({
                 {(extrasJson.disposal_fee ?? 0) > 0 && (
                   <div
                     className="grid items-center px-2 py-2"
-                    style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-disposal') ? 'rgba(13,148,136,0.06)' : undefined }}
+                    style={{ gridTemplateColumns: GRID_COLS, borderBottom: ROW_BORDER, color: '#0f172a', background: selectedKeys.has('fee-disposal') ? 'rgba(0,113,227,0.06)' : undefined }}
                   >
                     <span className="pr-3 flex items-center">
                       <RowCheckbox rowKey="fee-disposal" />

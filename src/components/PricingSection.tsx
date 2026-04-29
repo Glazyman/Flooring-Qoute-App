@@ -63,7 +63,7 @@ export default function PricingSection() {
             className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${annual ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
           >
             Annual
-            <span className="text-xs font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(13,148,136,0.12)', color: 'var(--primary)' }}>
+            <span className="text-xs font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(0,113,227,0.12)', color: 'var(--primary)' }}>
               Save 17%
             </span>
           </button>
@@ -104,7 +104,7 @@ export default function PricingSection() {
         </div>
 
         {/* Pro — highlighted */}
-        <div className="rounded-xl p-6 sm:p-8 text-white relative overflow-hidden flex flex-col" style={{ background: 'var(--primary)', boxShadow: '0 8px 30px rgba(13,148,136,0.3)' }}>
+        <div className="rounded-xl p-6 sm:p-8 text-white relative overflow-hidden flex flex-col" style={{ background: 'var(--primary)', boxShadow: '0 8px 30px rgba(0,113,227,0.3)' }}>
           <div className="absolute top-5 right-5 bg-white/20 text-white text-xs font-bold px-2.5 py-1 rounded-full">Most Popular</div>
           <p className="text-xs font-bold text-teal-200 uppercase tracking-widest mb-3">Pro</p>
           {annual ? (

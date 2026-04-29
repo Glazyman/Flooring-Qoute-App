@@ -22,8 +22,8 @@ export default function Breadcrumb() {
   const segments = pathname.split('/').filter(Boolean)
 
   return (
-    <nav className="flex items-center gap-1.5 text-sm">
-      <Link href="/dashboard" className="text-gray-400 hover:text-gray-700 transition-colors">
+    <nav className="flex items-center gap-1.5">
+      <Link href="/dashboard" style={{ fontSize: 12.5, color: '#aeaeb2', textDecoration: 'none' }}>
         Home
       </Link>
       {segments.map((seg, i) => {
@@ -34,11 +34,11 @@ export default function Breadcrumb() {
         const display = isUuid ? '#' + seg.slice(0, 6).toUpperCase() : label
         return (
           <span key={i} className="flex items-center gap-1.5">
-            <ChevronRight className="w-3 h-3 text-gray-300" />
+            <ChevronRight className="w-3 h-3" style={{ color: '#d1d1d6' }} />
             {isLast ? (
-              <span className="text-gray-700 font-medium">{display}</span>
+              <span style={{ fontSize: 12.5, fontWeight: 600, color: '#1d1d1f' }}>{display}</span>
             ) : (
-              <Link href={href} className="text-gray-400 hover:text-gray-700 transition-colors">
+              <Link href={href} style={{ fontSize: 12.5, color: '#aeaeb2', textDecoration: 'none' }}>
                 {display}
               </Link>
             )}

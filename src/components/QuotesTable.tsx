@@ -17,10 +17,10 @@ interface QuotesTableProps {
 const STATUS_OPTIONS: QuoteStatus[] = ['pending', 'accepted', 'lost']
 
 const STATUS_DOT: Record<QuoteStatus, { color: string; label: string }> = {
-  measurement: { color: '#3B82F6', label: 'Measurement' },
-  pending:     { color: '#6366F1', label: 'Pending' },
-  accepted:    { color: '#10B981', label: 'Accepted' },
-  lost:        { color: '#EF4444', label: 'Lost' },
+  measurement: { color: '#0071e3', label: 'Measurement' },
+  pending:     { color: '#ff9f0a', label: 'Pending' },
+  accepted:    { color: '#30d158', label: 'Accepted' },
+  lost:        { color: '#ff453a', label: 'Lost' },
 }
 
 type StatusFilter = 'all' | QuoteStatus

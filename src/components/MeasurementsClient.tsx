@@ -131,7 +131,7 @@ export default function MeasurementsClient({ initialMeasurements }: { initialMea
         <Link
           href="/quotes/new"
           className="flex items-center gap-1.5 text-white text-sm font-medium px-3.5 py-2 rounded-md transition-colors"
-          style={{ background: 'var(--primary)' }}
+          style={{ background: '#1d1d1f' }}
         >
           <Plus className="w-4 h-4" />
           New Quote
@@ -197,7 +197,7 @@ export default function MeasurementsClient({ initialMeasurements }: { initialMea
             <Link
               href="/quotes/new"
               className="text-sm font-medium text-white px-4 py-2 rounded-md"
-              style={{ background: 'var(--primary)' }}
+              style={{ background: '#1d1d1f' }}
             >
               + New Quote
             </Link>

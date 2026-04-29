@@ -20,10 +20,10 @@ function buildHtmlBody(
     new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n)
 
   const contactLine = companyEmail
-    ? `<p style="margin:0 0 8px;">To get in touch, contact us at: <a href="mailto:${companyEmail}" style="color:#0D9488;">${companyEmail}</a></p>`
+    ? `<p style="margin:0 0 8px;">To get in touch, contact us at: <a href="mailto:${companyEmail}" style="color:#0071e3;">${companyEmail}</a></p>`
     : ''
   const phoneLine = companyPhone
-    ? `<p style="margin:0 0 8px;">Phone: <a href="tel:${companyPhone}" style="color:#0D9488;">${companyPhone}</a></p>`
+    ? `<p style="margin:0 0 8px;">Phone: <a href="tel:${companyPhone}" style="color:#0071e3;">${companyPhone}</a></p>`
     : ''
 
   return `<!DOCTYPE html>
@@ -36,7 +36,7 @@ function buildHtmlBody(
 
         <!-- Header -->
         <tr>
-          <td style="background:#0D9488;padding:28px 32px;">
+          <td style="background:#1d1d1f;padding:28px 32px;">
             <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;">${companyName}</h1>
             <p style="margin:6px 0 0;color:#ccfbf1;font-size:14px;">Flooring Estimate</p>
           </td>
@@ -54,8 +54,8 @@ function buildHtmlBody(
             <!-- Summary table -->
             <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-bottom:28px;">
               <tr>
-                <td style="padding:12px 16px;background:#F0FDFA;border-radius:8px 0 0 0;font-weight:600;color:#0D9488;font-size:14px;">Estimate Total</td>
-                <td style="padding:12px 16px;background:#F0FDFA;border-radius:0 8px 0 0;font-weight:700;font-size:20px;color:#111;">${fmt(q.final_total)}</td>
+                <td style="padding:12px 16px;background:#f0f6ff;border-radius:8px 0 0 0;font-weight:600;color:#0071e3;font-size:14px;">Estimate Total</td>
+                <td style="padding:12px 16px;background:#f0f6ff;border-radius:0 8px 0 0;font-weight:700;font-size:20px;color:#111;">${fmt(q.final_total)}</td>
               </tr>
               <tr>
                 <td style="padding:12px 16px;border-bottom:1px solid #f0f0f0;font-weight:600;color:#555;font-size:14px;">Deposit Required (${q.deposit_pct}%)</td>

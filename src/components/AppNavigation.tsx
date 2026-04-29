@@ -1,20 +1,18 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import {
-  LayoutDashboard, FileText, PlusCircle, Settings,
-  LogOut, CreditCard, Menu, X, HelpCircle, Users, Receipt, Ruler,
+  LayoutDashboard, FileText, Settings,
+  LogOut, CreditCard, Menu, X, HelpCircle, Users, Receipt, Ruler, Plus,
 } from 'lucide-react'
 import { useState } from 'react'
 
 interface NavItem {
   href: string
   label: string
-  icon: React.ComponentType<{ className?: string }>
-  highlight?: boolean
+  icon: React.ComponentType<{ size?: number; strokeWidth?: number; color?: string }>
 }
 
 const navItems: NavItem[] = [
@@ -25,11 +23,12 @@ const navItems: NavItem[] = [
   { href: '/contacts', label: 'Contacts', icon: Users },
 ]
 
-const toolItems: NavItem[] = [
+const bottomNavItems: NavItem[] = [
   { href: '/settings', label: 'Settings', icon: Settings },
+  { href: '/help', label: 'Help & Support', icon: HelpCircle },
 ]
 
-function NavLink({ item, onClick, trialExhausted }: { item: NavItem; onClick?: () => void; trialExhausted?: boolean }) {
+function NavLink({ item, onClick }: { item: NavItem; onClick?: () => void }) {
   const pathname = usePathname()
   const isActive =
     item.href === '/quotes/new'
@@ -41,16 +40,25 @@ function NavLink({ item, onClick, trialExhausted }: { item: NavItem; onClick?: (
     <Link
       href={item.href}
       onClick={onClick}
-      className="flex items-center gap-2.5 px-2.5 py-2.5 lg:py-1.5 rounded-md text-[13px] font-medium transition-all"
       style={isActive
-        ? { background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.95)' }
-        : { color: 'rgba(255,255,255,0.5)' }
+        ? { background: '#f2f2f7', color: '#1d1d1f', fontWeight: 600, borderRadius: 9, display: 'flex', alignItems: 'center', gap: 8, padding: '7px 11px', fontSize: 13, textDecoration: 'none' }
+        : { background: 'transparent', color: '#6e6e73', fontWeight: 400, borderRadius: 9, display: 'flex', alignItems: 'center', gap: 8, padding: '7px 11px', fontSize: 13, textDecoration: 'none' }
       }
-      onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)'; if (!isActive) (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.75)' }}
-      onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLElement).style.background = 'transparent'; if (!isActive) (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.5)' }}
+      onMouseEnter={e => {
+        if (!isActive) {
+          (e.currentTarget as HTMLElement).style.background = '#fafafa'
+          ;(e.currentTarget as HTMLElement).style.color = '#1d1d1f'
+        }
+      }}
+      onMouseLeave={e => {
+        if (!isActive) {
+          (e.currentTarget as HTMLElement).style.background = 'transparent'
+          ;(e.currentTarget as HTMLElement).style.color = '#6e6e73'
+        }
+      }}
     >
-      <item.icon className="w-3.5 h-3.5 flex-shrink-0" />
-      <span className="flex-1 truncate">{item.label}</span>
+      <item.icon size={14} strokeWidth={isActive ? 2 : 1.7} color={isActive ? '#1d1d1f' : '#aeaeb2'} />
+      <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.label}</span>
     </Link>
   )
 }
@@ -83,90 +91,141 @@ export default function AppNavigation({
   const initials = companyName.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2)
 
   const sidebarContent = (
-    <div className="flex flex-col h-full py-3 overflow-y-auto">
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflowY: 'auto' }}>
 
-      {/* Company header */}
-      <div className="px-3 mb-4">
-        <div className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md text-left">
-          <div className="w-6 h-6 rounded-md overflow-hidden flex-shrink-0 flex items-center justify-center text-white text-[10px] font-bold" style={{ background: '#0D9488' }}>
-            {logoUrl
-              ? <img src={logoUrl} alt={companyName} className="w-full h-full object-cover" />
-              : initials}
+      {/* Brand */}
+      <div style={{ padding: '18px 16px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{
+          width: 30, height: 30, borderRadius: 9, flexShrink: 0,
+          background: 'linear-gradient(135deg,#1d1d1f 0%,#3a3a3c 100%)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="white" strokeWidth="2.2" strokeLinejoin="round" />
+            <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="white" strokeWidth="2.2" strokeLinejoin="round" />
+            <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="white" strokeWidth="2.2" strokeLinejoin="round" />
+            <path d="M14 17h7M17.5 14v7" stroke="white" strokeWidth="2.2" strokeLinecap="round" />
+          </svg>
+        </div>
+        <span style={{ fontSize: 15, fontWeight: 800, color: '#1d1d1f', letterSpacing: '-0.02em' }}>FloorQuote Pro</span>
+      </div>
+
+      {/* User / Company section */}
+      <div style={{ padding: '12px 14px', borderTop: '1px solid rgba(0,0,0,0.04)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+          {/* Avatar with gradient ring */}
+          <div style={{
+            width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
+            background: 'linear-gradient(135deg,#f97316 0%,#ec4899 50%,#8b5cf6 100%)',
+            padding: 2, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            {logoUrl ? (
+              <img src={logoUrl} alt={companyName} style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover', background: 'white' }} />
+            ) : (
+              <div style={{
+                width: 24, height: 24, borderRadius: '50%', background: 'white',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 9, fontWeight: 700, color: '#1d1d1f',
+              }}>
+                {initials}
+              </div>
+            )}
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[13px] font-semibold truncate" style={{ color: 'rgba(255,255,255,0.9)' }}>{companyName}</p>
-            {planLabel ? (
-              <p className="text-[11px] truncate -mt-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>{planLabel} plan</p>
-            ) : website ? (
-              <p className="text-[11px] truncate -mt-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>{website}</p>
-            ) : null}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ fontSize: 12.5, fontWeight: 700, color: '#1d1d1f', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0 }}>{companyName}</p>
+            <p style={{ fontSize: 11, color: '#aeaeb2', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {planLabel ? `${planLabel} plan` : website || ''}
+            </p>
           </div>
         </div>
       </div>
 
       {/* New Quote CTA */}
-      <div className="px-3 mb-4">
+      <div style={{ padding: '12px 12px 8px' }}>
         <Link
           href={trialExhausted ? '/billing/setup' : '/quotes/new'}
           onClick={() => setMobileOpen(false)}
-          className="flex items-center justify-center gap-2 w-full py-2.5 lg:py-1.5 rounded-md text-[13px] font-semibold text-white transition-all"
-          style={{ background: '#0D9488' }}
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+            width: '100%', padding: '9px 0', borderRadius: 10,
+            background: 'linear-gradient(135deg,#1d1d1f 0%,#3a3a3c 100%)',
+            color: 'white', fontSize: 13, fontWeight: 600, textDecoration: 'none',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+          }}
         >
-          <PlusCircle className="w-3.5 h-3.5" />
+          <Plus size={14} strokeWidth={2.5} color="white" />
           New Quote
-          {trialExhausted && <span className="text-xs bg-white/20 px-1.5 py-0.5 rounded ml-1">Upgrade</span>}
+          {trialExhausted && <span style={{ fontSize: 11, background: 'rgba(255,255,255,0.2)', padding: '2px 6px', borderRadius: 4 }}>Upgrade</span>}
         </Link>
       </div>
 
       {/* Main nav */}
-      <div className="px-3 space-y-0.5">
-        {navItems.map((item) => (
-          <NavLink key={item.href} item={item} onClick={() => setMobileOpen(false)} trialExhausted={trialExhausted} />
-        ))}
+      <div style={{ padding: '6px 10px' }}>
+        <p style={{ fontSize: 10, fontWeight: 700, color: '#aeaeb2', textTransform: 'uppercase', letterSpacing: '0.09em', margin: '0 0 4px 2px' }}>MAIN</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          {navItems.map((item) => (
+            <NavLink key={item.href} item={item} onClick={() => setMobileOpen(false)} />
+          ))}
+        </div>
       </div>
 
-      {/* Divider */}
-      <div className="mx-3 my-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }} />
-
-      {/* Tools */}
-      <div className="px-3 space-y-0.5">
-        {toolItems.map((item) => (
-          <NavLink key={item.href} item={item} onClick={() => setMobileOpen(false)} />
-        ))}
-        <NavLink item={{ href: '/help', label: 'Help & Support', icon: HelpCircle }} onClick={() => setMobileOpen(false)} />
-        <button
-          onClick={handleBillingPortal}
-          className="w-full flex items-center gap-2.5 px-2.5 py-2.5 lg:py-1.5 rounded-md text-[13px] font-medium transition-all text-left"
-          style={{ color: 'rgba(255,255,255,0.5)' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)'; (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.75)' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.5)' }}
-        >
-          <CreditCard className="w-3.5 h-3.5 flex-shrink-0" />
-          Billing
-        </button>
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center gap-2.5 px-2.5 py-2.5 lg:py-1.5 rounded-md text-[13px] font-medium transition-all text-left"
-          style={{ color: 'rgba(239,68,68,0.6)' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(239,68,68,0.08)'; (e.currentTarget as HTMLElement).style.color = 'rgba(239,68,68,0.9)' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'rgba(239,68,68,0.6)' }}
-        >
-          <LogOut className="w-3.5 h-3.5 flex-shrink-0" />
-          Sign Out
-        </button>
+      {/* Bottom nav */}
+      <div style={{ marginTop: 'auto', padding: '4px 10px 6px', borderTop: '1px solid rgba(0,0,0,0.04)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          {bottomNavItems.map((item) => (
+            <NavLink key={item.href} item={item} onClick={() => setMobileOpen(false)} />
+          ))}
+          <button
+            onClick={handleBillingPortal}
+            style={{
+              background: 'transparent', color: '#6e6e73', fontWeight: 400, borderRadius: 9,
+              display: 'flex', alignItems: 'center', gap: 8, padding: '7px 11px', fontSize: 13,
+              border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#fafafa'; (e.currentTarget as HTMLElement).style.color = '#1d1d1f' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#6e6e73' }}
+          >
+            <CreditCard size={14} strokeWidth={1.7} color="#aeaeb2" />
+            Billing
+          </button>
+          <button
+            onClick={handleLogout}
+            style={{
+              background: 'transparent', color: '#ff453a', fontWeight: 400, borderRadius: 9,
+              display: 'flex', alignItems: 'center', gap: 8, padding: '7px 11px', fontSize: 13,
+              border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#fff5f5' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+          >
+            <LogOut size={14} strokeWidth={1.7} color="#ff453a" />
+            Sign Out
+          </button>
+        </div>
       </div>
 
-      {/* Trial upgrade */}
+      {/* Footer */}
+      <div style={{ padding: '8px 16px 12px', borderTop: '1px solid rgba(0,0,0,0.04)' }}>
+        <p style={{ fontSize: 11, color: '#aeaeb2', margin: 0 }}>© 2026 FloorQuote Pro</p>
+      </div>
+
+      {/* Trial upgrade banner */}
       {trialExhausted && (
-        <div className="mt-auto mx-3 mb-2">
+        <div style={{ margin: '0 10px 10px' }}>
           <Link
             href="/billing/setup"
-            className="block rounded-lg p-3 text-white"
-            style={{ background: 'linear-gradient(135deg, #0D9488 0%, #0B7D73 100%)' }}
+            style={{
+              display: 'block', borderRadius: 10, padding: 12, color: 'white',
+              background: 'linear-gradient(135deg,#1d1d1f 0%,#3a3a3c 100%)',
+              textDecoration: 'none',
+            }}
           >
-            <p className="text-xs font-bold mb-0.5">✨ Upgrade to Pro</p>
-            <p className="text-xs opacity-70 leading-snug mb-2">3 free quotes used. Unlock unlimited.</p>
-            <span className="inline-block bg-white text-teal-700 text-xs font-bold px-2.5 py-1 rounded-md">
+            <p style={{ fontSize: 12, fontWeight: 700, margin: '0 0 2px' }}>✨ Upgrade to Pro</p>
+            <p style={{ fontSize: 11, opacity: 0.7, margin: '0 0 8px', lineHeight: 1.4 }}>3 free quotes used. Unlock unlimited.</p>
+            <span style={{
+              display: 'inline-block', background: 'rgba(255,255,255,0.15)',
+              color: 'white', fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 6,
+            }}>
               Upgrade now →
             </span>
           </Link>
@@ -179,54 +238,54 @@ export default function AppNavigation({
     <>
       {/* Desktop sidebar */}
       <aside
-        className="hidden lg:flex flex-col w-56 min-h-screen fixed left-0 top-0"
-        style={{ background: 'var(--sidebar-bg)', borderRight: '1px solid var(--sidebar-border)' }}
+        className="hidden lg:flex flex-col w-[216px] min-h-screen fixed left-0 top-0"
+        style={{
+          background: 'rgba(255,255,255,0.95)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderRight: '1px solid rgba(0,0,0,0.07)',
+        }}
       >
-        <div className="flex items-center gap-2.5 px-4 pt-4 pb-3" style={{ borderBottom: '1px solid var(--sidebar-border)' }}>
-          <div className="w-7 h-7 rounded-lg overflow-hidden flex-shrink-0">
-            <Image src="/logo.png" alt="FloorQuote Pro" width={28} height={28} className="w-full h-full object-cover" />
-          </div>
-          <div>
-            <span className="font-bold text-[13px] leading-tight block" style={{ color: 'rgba(255,255,255,0.9)' }}>FloorQuote Pro</span>
-          </div>
-        </div>
         {sidebarContent}
       </aside>
 
       {/* Mobile header */}
       <header
-        className="lg:hidden fixed top-0 left-0 right-0 h-16 flex items-center justify-between px-4 z-30"
-        style={{ background: 'var(--sidebar-bg)', borderBottom: '1px solid var(--sidebar-border)', paddingTop: 'env(safe-area-inset-top)' }}
+        className="lg:hidden fixed top-0 left-0 right-0 h-14 flex items-center justify-between px-4 z-30"
+        style={{
+          background: 'rgba(255,255,255,0.95)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderBottom: '1px solid rgba(0,0,0,0.07)',
+          paddingTop: 'env(safe-area-inset-top)',
+        }}
       >
         <button
           onClick={() => setMobileOpen(true)}
-          className="w-12 h-12 flex items-center justify-center -ml-2 rounded-md"
-          style={{ color: 'rgba(255,255,255,0.6)' }}
+          className="w-10 h-10 flex items-center justify-center -ml-2 rounded-lg"
+          style={{ color: '#6e6e73' }}
         >
-          <Menu className="w-6 h-6" />
+          <Menu className="w-5 h-5" />
         </button>
-        <div className="flex items-center gap-2.5">
-          <Image src="/logo.png" alt="FloorQuote Pro" width={28} height={28} className="rounded-md" />
-          <span className="font-bold text-base" style={{ color: 'rgba(255,255,255,0.9)' }}>FloorQuote Pro</span>
-        </div>
-        <div className="w-12" />
+        <span style={{ fontSize: 15, fontWeight: 800, color: '#1d1d1f', letterSpacing: '-0.02em' }}>FloorQuote Pro</span>
+        <div className="w-10" />
       </header>
-
 
       {/* Mobile drawer */}
       {mobileOpen && (
         <div className="lg:hidden fixed inset-0 z-40">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
           <aside
-            className="absolute left-0 top-0 bottom-0 w-64 flex flex-col"
-            style={{ background: 'var(--sidebar-bg)', paddingTop: 'env(safe-area-inset-top)' }}
+            className="absolute left-0 top-0 bottom-0 w-[216px] flex flex-col"
+            style={{
+              background: 'rgba(255,255,255,0.98)',
+              backdropFilter: 'blur(20px)',
+              paddingTop: 'env(safe-area-inset-top)',
+            }}
           >
-            <div className="flex items-center justify-between px-4 pt-4 pb-3" style={{ borderBottom: '1px solid var(--sidebar-border)' }}>
-              <div className="flex items-center gap-2">
-                <Image src="/logo.png" alt="FloorQuote Pro" width={24} height={24} className="rounded-md" />
-                <span className="font-bold text-sm" style={{ color: 'rgba(255,255,255,0.9)' }}>FloorQuote Pro</span>
-              </div>
-              <button onClick={() => setMobileOpen(false)} className="w-10 h-10 flex items-center justify-center rounded-md" style={{ color: 'rgba(255,255,255,0.5)' }}>
+            <div className="flex items-center justify-between px-4 pt-4 pb-3" style={{ borderBottom: '1px solid rgba(0,0,0,0.07)' }}>
+              <span style={{ fontSize: 15, fontWeight: 800, color: '#1d1d1f', letterSpacing: '-0.02em' }}>FloorQuote Pro</span>
+              <button onClick={() => setMobileOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-lg" style={{ color: '#6e6e73' }}>
                 <X className="w-4 h-4" />
               </button>
             </div>

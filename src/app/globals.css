@@ -1,50 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 :root {
+  /* Brand */
+  --primary: #0071e3;
+  --primary-hover: #0077ed;
+  --primary-light: rgba(0,113,227,0.08);
+
   /* Surfaces */
-  --bg: #FAFAFA;              /* page background — slightly off-white */
-  --card: #ffffff;            /* card surfaces */
-  --card-alt: #FAFAFA;        /* nested/secondary surfaces, table toolbars */
-  --border: #E5E7EB;          /* visible borders on cards/inputs */
-  --border-soft: #F1F1F4;     /* hairline borders inside cards (rows, etc) */
-  --border-faint: #F5F5F7;    /* the lightest borders, separating list items */
+  --bg: #f2f2f7;
+  --surface: #ffffff;
+  --surface-hover: #f9f9fb;
+  --card: #ffffff;
+  --card-alt: #f9f9fb;
+
+  /* Borders */
+  --border: rgba(0,0,0,0.07);
+  --border-light: rgba(0,0,0,0.04);
+  --border-soft: rgba(0,0,0,0.04);
+  --border-faint: rgba(0,0,0,0.03);
 
   /* Text */
-  --text: #111827;            /* primary text — gray-900 */
-  --text-2: #4B5563;          /* secondary — gray-600 */
-  --text-3: #9CA3AF;          /* placeholder/labels — gray-400 */
-  --text-4: #D1D5DB;          /* very subtle — gray-300 */
+  --text: #1d1d1f;
+  --sub: #6e6e73;
+  --muted: #aeaeb2;
+  --text-2: #6e6e73;
+  --text-3: #aeaeb2;
+  --text-4: #d1d1d6;
 
-  /* Brand */
-  --primary: #0D9488;         /* teal — used ONLY for "New Quote" type CTAs and active brand accents */
-  --primary-hover: #0B7D73;
-  --primary-light: #F0FDFA;
+  /* Semantic colors */
+  --green: #30d158;
+  --orange: #ff9f0a;
+  --red: #ff453a;
+  --purple: #bf5af2;
+  --success: #30d158;
+  --success-bg: rgba(48,209,88,0.08);
+  --warning: #ff9f0a;
+  --warning-bg: rgba(255,159,10,0.08);
+  --danger: #ff453a;
+  --danger-bg: rgba(255,69,58,0.08);
 
-  /* Neutral button (matches sidebar) */
-  --button-dark: #1C1C1E;
-  --button-dark-hover: #2C2C2E;
-  --button-dark-light: rgba(28,28,30,0.08);
-
-  /* Semantic */
-  --success: #10B981;
-  --success-bg: #ECFDF5;
-  --warning: #F59E0B;
-  --warning-bg: #FFFBEB;
-  --danger: #EF4444;
-  --danger-bg: #FEF2F2;
+  /* Neutral buttons */
+  --button-dark: #1d1d1f;
+  --button-dark-hover: #2d2d2f;
+  --button-dark-light: rgba(29,29,31,0.08);
 
   /* Effects */
-  --shadow-card: none;        /* flat — no drop shadows on cards */
-  --shadow-popover: 0 4px 20px rgba(0,0,0,0.08);
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-popover: 0 8px 30px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06);
 
-  /* Sidebar — keep the dark Apple #1C1C1E */
-  --sidebar-bg: #1C1C1E;
-  --sidebar-border: rgba(255,255,255,0.08);
-  --sidebar-text: rgba(255,255,255,0.5);
-  --sidebar-text-active: rgba(255,255,255,0.95);
-  --sidebar-active-bg: rgba(13,148,136,0.18);
-  --sidebar-hover-bg: rgba(255,255,255,0.05);
-  --sidebar-section-label: rgba(255,255,255,0.28);
+  /* Sidebar — white/glass */
+  --sidebar-bg: rgba(255,255,255,0.95);
+  --sidebar-border: rgba(0,0,0,0.07);
+  --sidebar-text: #6e6e73;
+  --sidebar-text-active: #1d1d1f;
+  --sidebar-active-bg: #f2f2f7;
+  --sidebar-hover-bg: #fafafa;
+  --sidebar-section-label: #aeaeb2;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -57,7 +69,7 @@ html {
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: var(--font-inter), 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
@@ -65,10 +77,15 @@ body {
   letter-spacing: -0.01em;
 }
 
-/* Headings — tight letter spacing like SF Pro Display */
+/* Headings — tight letter spacing */
 h1, h2, h3, h4 {
   letter-spacing: -0.02em;
 }
+
+/* Thin scrollbar */
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 10px; }
 
 .safe-bottom {
   padding-bottom: max(1rem, env(safe-area-inset-bottom));
@@ -91,6 +108,6 @@ input, select, textarea {
 a, button { transition: background 0.12s ease, color 0.12s ease, opacity 0.12s ease, border-color 0.12s ease; }
 
 .press-card:active { transform: scale(0.99); }
-.quote-row:hover { background: var(--card-alt); }
+.quote-row:hover { background: var(--surface-hover); }
 
-.marketing-page { background: #ffffff; color: #1C1C1E; }
+.marketing-page { background: #ffffff; color: #1d1d1f; }

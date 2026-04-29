@@ -79,7 +79,7 @@ export default function HomePage() {
           <Link
             href="/signup"
             className="inline-flex items-center justify-center gap-2 text-white font-bold px-7 py-4 rounded-2xl text-base"
-            style={{ background: 'var(--primary)', boxShadow: '0 4px 20px rgba(13,148,136,0.3)' }}
+            style={{ background: 'var(--primary)', boxShadow: '0 4px 20px rgba(0,113,227,0.3)' }}
           >
             Start for Free
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -197,7 +197,7 @@ export default function HomePage() {
           <Link
             href="/signup"
             className="inline-flex items-center gap-2 text-white font-bold px-8 py-4 rounded-2xl text-base"
-            style={{ background: 'var(--primary)', boxShadow: '0 4px 20px rgba(13,148,136,0.3)' }}
+            style={{ background: 'var(--primary)', boxShadow: '0 4px 20px rgba(0,113,227,0.3)' }}
           >
             Create Your Free Account
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

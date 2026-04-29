@@ -70,7 +70,7 @@ export default function AuthCallbackPage() {
       <div style={{ textAlign: 'center' }}>
         <div style={{
           width: 32, height: 32, border: '3px solid #E5E5EA',
-          borderTopColor: '#0D9488', borderRadius: '50%',
+          borderTopColor: '#0071e3', borderRadius: '50%',
           animation: 'spin 0.8s linear infinite', margin: '0 auto 12px',
         }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
