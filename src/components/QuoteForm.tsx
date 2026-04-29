@@ -1177,71 +1177,84 @@ export default function QuoteForm({
                         {/* Room cards */}
                         <div className="p-3 space-y-2 bg-white">
                           {sectionRooms.map((room, idx) => (
-                            <div key={room.id} className="rounded-md p-3 space-y-2.5 bg-gray-50" style={{ border: '1px solid #F1F1F4' }}>
-                              {/* Name row */}
-                              <div className="flex items-center gap-2">
+                            <div key={room.id} className="rounded-lg overflow-hidden bg-white" style={{ border: '1px solid #E5E7EB' }}>
+                              {/* Name strip */}
+                              <div className="flex items-center gap-1 px-2 py-1.5" style={{ borderBottom: '1px solid #F1F1F4' }}>
                                 <input
                                   type="text"
                                   value={room.name}
                                   onChange={(e) => updateRoom(room.id, 'name', e.target.value)}
                                   placeholder={`Room ${idx + 1}`}
-                                  className="flex-1 min-w-0 px-3 py-2 rounded-md text-sm focus:outline-none bg-white text-gray-900 placeholder-gray-400"
-                                  style={{ border: '1px solid #E5E7EB' }}
+                                  className="flex-1 min-w-0 px-2 py-1 text-sm font-medium focus:outline-none bg-transparent text-gray-900 placeholder-gray-400"
                                 />
                                 <button
                                   type="button"
                                   onClick={() => duplicateRoom(room.id)}
-                                  className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors rounded-md flex-shrink-0"
+                                  className="p-1.5 text-gray-400 hover:text-gray-700 transition-colors rounded flex-shrink-0"
                                   title="Duplicate room"
                                 >
-                                  <Copy className="w-4 h-4" />
+                                  <Copy className="w-3.5 h-3.5" />
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => removeRoom(room.id)}
                                   disabled={rooms.length === 1}
-                                  className="p-1.5 text-gray-400 hover:text-red-500 disabled:opacity-20 transition-colors rounded-md flex-shrink-0"
+                                  className="p-1.5 text-gray-400 hover:text-red-500 disabled:opacity-20 transition-colors rounded flex-shrink-0"
                                 >
-                                  <Trash2 className="w-4 h-4" />
+                                  <Trash2 className="w-3.5 h-3.5" />
                                 </button>
                               </div>
 
-                              {/* Dimensions */}
-                              <div className="grid grid-cols-2 gap-2">
-                                {(['length', 'width'] as const).map(dim => (
-                                  <div key={dim}>
-                                    <p className="text-[10px] font-medium uppercase tracking-wide mb-1 text-gray-400">{dim}</p>
-                                    <div className="flex gap-1.5">
-                                      <div className="flex items-center flex-1 rounded-md bg-white overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
-                                        <input
-                                          type="number"
-                                          inputMode="numeric"
-                                          value={dim === 'length' ? room.lengthFt : room.widthFt}
-                                          onChange={(e) => updateRoom(room.id, dim === 'length' ? 'lengthFt' : 'widthFt', e.target.value)}
-                                          placeholder="0"
-                                          className="w-full px-2.5 py-2.5 text-base font-semibold focus:outline-none bg-transparent text-center text-gray-900"
-                                        />
-                                        <span className="pr-2.5 text-xs text-gray-400">ft</span>
-                                      </div>
-                                      <div className="flex items-center w-16 rounded-md bg-white overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
-                                        <input
-                                          type="number"
-                                          inputMode="numeric"
-                                          value={dim === 'length' ? room.lengthIn : room.widthIn}
-                                          onChange={(e) => updateRoom(room.id, dim === 'length' ? 'lengthIn' : 'widthIn', e.target.value)}
-                                          placeholder="0" min="0" max="11"
-                                          className="w-full px-1.5 py-2.5 text-base font-semibold focus:outline-none bg-transparent text-center text-gray-900"
-                                        />
-                                        <span className="pr-2 text-xs text-gray-400">in</span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                ))}
+                              {/* Dimension row: L [ft][in] × W [ft][in] */}
+                              <div className="flex items-center gap-1 px-2 py-2">
+                                <span className="text-[10px] font-semibold uppercase text-gray-400 w-4 text-center flex-shrink-0">L</span>
+                                <div className="flex items-center flex-1 rounded-md overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
+                                  <input
+                                    type="number" inputMode="numeric"
+                                    value={room.lengthFt}
+                                    onChange={e => updateRoom(room.id, 'lengthFt', e.target.value)}
+                                    placeholder="0"
+                                    className="w-full py-2.5 text-base font-semibold text-center focus:outline-none bg-white text-gray-900"
+                                  />
+                                  <span className="px-1.5 py-2.5 text-xs text-gray-400 flex-shrink-0" style={{ background: '#FAFAFA', borderLeft: '1px solid #E5E7EB' }}>ft</span>
+                                </div>
+                                <div className="flex items-center w-[3.5rem] rounded-md overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
+                                  <input
+                                    type="number" inputMode="numeric"
+                                    value={room.lengthIn}
+                                    onChange={e => updateRoom(room.id, 'lengthIn', e.target.value)}
+                                    placeholder="0" min="0" max="11"
+                                    className="w-full py-2.5 text-base font-semibold text-center focus:outline-none bg-white text-gray-900"
+                                  />
+                                  <span className="pr-1.5 text-xs text-gray-400 flex-shrink-0">in</span>
+                                </div>
+                                <span className="text-gray-300 text-base px-0.5 flex-shrink-0">×</span>
+                                <span className="text-[10px] font-semibold uppercase text-gray-400 w-4 text-center flex-shrink-0">W</span>
+                                <div className="flex items-center flex-1 rounded-md overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
+                                  <input
+                                    type="number" inputMode="numeric"
+                                    value={room.widthFt}
+                                    onChange={e => updateRoom(room.id, 'widthFt', e.target.value)}
+                                    placeholder="0"
+                                    className="w-full py-2.5 text-base font-semibold text-center focus:outline-none bg-white text-gray-900"
+                                  />
+                                  <span className="px-1.5 py-2.5 text-xs text-gray-400 flex-shrink-0" style={{ background: '#FAFAFA', borderLeft: '1px solid #E5E7EB' }}>ft</span>
+                                </div>
+                                <div className="flex items-center w-[3.5rem] rounded-md overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
+                                  <input
+                                    type="number" inputMode="numeric"
+                                    value={room.widthIn}
+                                    onChange={e => updateRoom(room.id, 'widthIn', e.target.value)}
+                                    placeholder="0" min="0" max="11"
+                                    className="w-full py-2.5 text-base font-semibold text-center focus:outline-none bg-white text-gray-900"
+                                  />
+                                  <span className="pr-1.5 text-xs text-gray-400 flex-shrink-0">in</span>
+                                </div>
                               </div>
 
-                              {/* Sqft result */}
+                              {/* Sqft result bar */}
                               {roomSqft(room) > 0 && (
-                                <div className="flex items-center justify-between">
+                                <div className="flex items-center justify-between px-3 py-1.5" style={{ background: '#FAFAFA', borderTop: '1px solid #F1F1F4' }}>
                                   <span className="text-xs text-gray-400">{fmtDim(room)}</span>
                                   <span className="text-sm font-semibold text-gray-900">{roomSqft(room).toFixed(1)} sqft</span>
                                 </div>
