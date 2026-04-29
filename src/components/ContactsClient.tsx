@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useRef } from 'react'
+import { useState, useMemo, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import {
   Pencil, Trash2, X, Check, Search, Upload, AlertCircle,
@@ -44,6 +44,8 @@ interface ImportPreviewRow {
   address: string
 }
 
+type FilterMode = 'all' | 'has-email' | 'has-phone'
+
 // Parse a QuickBooks-style CSV export into contact rows
 function parseQuickBooksCSV(text: string): ImportPreviewRow[] {
   const lines = text.split(/\r?\n/).filter(l => l.trim())
@@ -73,9 +75,10 @@ function formatDate(iso: string) {
 }
 
 const COL_TEMPLATE = '40px 1fr 140px 1fr 110px 72px'
-
-const ICON_BTN = 'flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors flex-shrink-0'
 const COL_HEAD = 'text-xs font-semibold text-gray-500 uppercase tracking-wide py-2.5'
+
+const DARK_BTN_BASE: React.CSSProperties = { background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.7)' }
+const DARK_BTN_ACTIVE: React.CSSProperties = { background: 'rgba(255,255,255,0.18)', color: '#ffffff' }
 
 export default function ContactsClient({ initialCustomers, onSelectContact, mode = 'page' }: Props) {
   const [customers, setCustomers] = useState<Customer[]>(initialCustomers)
@@ -87,11 +90,29 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
   const [error, setError] = useState('')
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
+  // Sort & filter state
+  const [sortAZ, setSortAZ] = useState(true)
+  const [filterMode, setFilterMode] = useState<FilterMode>('all')
+  const [showFilterMenu, setShowFilterMenu] = useState(false)
+  const filterBtnRef = useRef<HTMLDivElement>(null)
+
   // Bulk select state
   const [selecting, setSelecting] = useState(false)
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [bulkWorking, setBulkWorking] = useState(false)
   const [confirmBulkDelete, setConfirmBulkDelete] = useState(false)
+
+  // Close filter menu on outside click
+  useEffect(() => {
+    if (!showFilterMenu) return
+    function handleMouseDown(e: MouseEvent) {
+      if (filterBtnRef.current && !filterBtnRef.current.contains(e.target as Node)) {
+        setShowFilterMenu(false)
+      }
+    }
+    document.addEventListener('mousedown', handleMouseDown)
+    return () => document.removeEventListener('mousedown', handleMouseDown)
+  }, [showFilterMenu])
 
   function toggleSelect(id: string) {
     setSelected(prev => {
@@ -103,7 +124,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
   }
 
   function toggleAll() {
-    setSelected(prev => prev.size === filtered.length ? new Set() : new Set(filtered.map(c => c.id)))
+    setSelected(prev => prev.size === sorted.length ? new Set() : new Set(sorted.map(c => c.id)))
   }
 
   function exitSelect() {
@@ -131,13 +152,22 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
   const csvRef = useRef<HTMLInputElement>(null)
 
   const filtered = useMemo(() => {
-    const q = search.toLowerCase()
-    return customers.filter(c =>
-      c.name.toLowerCase().includes(q) ||
-      (c.email || '').toLowerCase().includes(q) ||
-      (c.phone || '').includes(q)
+    let list = customers.filter(c => {
+      const q = search.toLowerCase()
+      return c.name.toLowerCase().includes(q) ||
+        (c.email || '').toLowerCase().includes(q) ||
+        (c.phone || '').includes(q)
+    })
+    if (filterMode === 'has-email') list = list.filter(c => c.email)
+    if (filterMode === 'has-phone') list = list.filter(c => c.phone)
+    return list
+  }, [customers, search, filterMode])
+
+  const sorted = useMemo(() => {
+    return [...filtered].sort((a, b) =>
+      sortAZ ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
     )
-  }, [customers, search])
+  }, [filtered, sortAZ])
 
   function startAdd() {
     setEditingId(null)
@@ -233,7 +263,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
   }
 
   const selCount = selected.size
-  const allSelected = filtered.length > 0 && selCount === filtered.length
+  const allSelected = sorted.length > 0 && selCount === sorted.length
 
   return (
     <div className="space-y-4">
@@ -403,60 +433,108 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
       {/* Table Card */}
       <div className="bg-white rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
 
-        {/* Toolbar */}
-        <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-100">
+        {/* Toolbar — dark strip */}
+        <div className="flex flex-wrap items-center gap-2 px-4 py-3 border-b border-gray-100" style={{ background: '#1C1C1E' }}>
           {/* Left: action icon buttons */}
           <div className="flex items-center gap-1.5">
             <button
               onClick={startAdd}
-              className={ICON_BTN}
+              className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors flex-shrink-0"
+              style={DARK_BTN_BASE}
               title="Add contact"
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.15)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.08)' }}
             >
               <Plus className="w-4 h-4" />
             </button>
+
             {mode === 'page' && (
               <>
-                <button className={ICON_BTN} title="Filter" aria-label="Filter">
-                  <SlidersHorizontal className="w-4 h-4" />
+                {/* Filter button with dropdown */}
+                <div className="relative" ref={filterBtnRef}>
+                  <button
+                    onClick={() => setShowFilterMenu(v => !v)}
+                    className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors flex-shrink-0"
+                    style={filterMode !== 'all' ? DARK_BTN_ACTIVE : DARK_BTN_BASE}
+                    title="Filter contacts"
+                    aria-label="Filter"
+                    onMouseEnter={e => { if (filterMode === 'all') (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.15)' }}
+                    onMouseLeave={e => { if (filterMode === 'all') (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.08)' }}
+                  >
+                    <SlidersHorizontal className="w-4 h-4" />
+                  </button>
+                  {showFilterMenu && (
+                    <div className="absolute left-0 top-10 z-20 bg-white rounded-xl shadow-lg py-1 min-w-[160px]" style={{ border: '1px solid var(--border)' }}>
+                      {(['all', 'has-email', 'has-phone'] as FilterMode[]).map(fm => (
+                        <button
+                          key={fm}
+                          onClick={() => { setFilterMode(fm); setShowFilterMenu(false) }}
+                          className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors flex items-center gap-2"
+                          style={{ color: filterMode === fm ? 'var(--primary)' : 'var(--text)', fontWeight: filterMode === fm ? 600 : 400 }}
+                        >
+                          {filterMode === fm && <Check className="w-3.5 h-3.5 flex-shrink-0" />}
+                          {filterMode !== fm && <span className="w-3.5 h-3.5 flex-shrink-0" />}
+                          {fm === 'all' ? 'All contacts' : fm === 'has-email' ? 'Has email' : 'Has phone'}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Sort A↔Z button */}
+                <button
+                  onClick={() => setSortAZ(v => !v)}
+                  className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors flex-shrink-0"
+                  style={DARK_BTN_ACTIVE}
+                  title={sortAZ ? 'Sorted A→Z (click for Z→A)' : 'Sorted Z→A (click for A→Z)'}
+                  aria-label="Sort"
+                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.25)' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.18)' }}
+                >
+                  <ArrowUpDown className="w-4 h-4" style={{ transform: sortAZ ? 'none' : 'scaleY(-1)' }} />
                 </button>
-                <button className={ICON_BTN} title="Sort" aria-label="Sort">
-                  <ArrowUpDown className="w-4 h-4" />
-                </button>
+
+                {/* Import button */}
                 <button
                   onClick={() => { setShowImport(v => !v); setImportRows([]); setImportError(''); setImportDone(false) }}
-                  className={ICON_BTN}
+                  className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors flex-shrink-0"
+                  style={DARK_BTN_BASE}
                   title="Import from QuickBooks"
+                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.15)' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.08)' }}
                 >
                   <Upload className="w-4 h-4" />
                 </button>
               </>
             )}
+
             {mode === 'page' && customers.length > 0 && (
               <button
                 onClick={() => selecting ? exitSelect() : setSelecting(true)}
-                className={`${ICON_BTN} ${selecting ? 'bg-gray-100 border-gray-300 text-gray-700' : ''}`}
+                className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors flex-shrink-0"
+                style={selecting ? DARK_BTN_ACTIVE : DARK_BTN_BASE}
                 title={selecting ? 'Cancel selection' : 'Select contacts'}
+                onMouseEnter={e => { if (!selecting) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.15)' }}
+                onMouseLeave={e => { if (!selecting) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.08)' }}
               >
                 {selecting ? <X className="w-4 h-4" /> : <Check className="w-4 h-4" />}
               </button>
             )}
           </div>
 
-          {/* Spacer */}
-          <div className="flex-1" />
-
-          {/* Right: search */}
-          <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-1.5 max-w-xs w-full border border-gray-200">
-            <Search className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+          {/* Right: dark search input */}
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg ml-auto" style={{ background: 'rgba(255,255,255,0.08)', minWidth: 200 }}>
+            <Search className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'rgba(255,255,255,0.4)' }} />
             <input
               type="text"
+              placeholder="Search..."
+              className="bg-transparent text-sm focus:outline-none flex-1 min-w-0"
+              style={{ color: 'rgba(255,255,255,0.9)', caretColor: 'white' }}
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="Search contacts..."
-              className="flex-1 text-sm focus:outline-none bg-transparent text-gray-700 min-w-0"
             />
             {search && (
-              <button onClick={() => setSearch('')} className="text-gray-300 hover:text-gray-500">
+              <button onClick={() => setSearch('')} style={{ color: 'rgba(255,255,255,0.4)' }}>
                 <X className="w-3 h-3" />
               </button>
             )}
@@ -488,12 +566,12 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
         )}
 
         {/* Empty state */}
-        {filtered.length === 0 ? (
+        {sorted.length === 0 ? (
           <div className="p-12 text-center">
             <p className="text-sm font-medium mb-1 text-gray-500">
-              {search ? 'No contacts match your search' : 'No contacts yet'}
+              {search || filterMode !== 'all' ? 'No contacts match your search' : 'No contacts yet'}
             </p>
-            {!search && (
+            {!search && filterMode === 'all' && (
               <button onClick={startAdd} className="text-sm font-semibold mt-1" style={{ color: 'var(--primary)' }}>
                 Add your first contact →
               </button>
@@ -526,7 +604,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
             </div>
 
             {/* Data rows */}
-            {filtered.map(c => {
+            {sorted.map(c => {
               const isSelected = selected.has(c.id)
               const initials = c.name.charAt(0).toUpperCase()
 
