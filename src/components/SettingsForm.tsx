@@ -114,12 +114,12 @@ function Input({
 }) {
   return (
     <div>
-      <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--text-2)' }}>
+      <label className="block text-xs font-medium text-gray-500 mb-1">
         {label}
       </label>
-      <div className="flex items-center rounded-xl border overflow-hidden bg-white focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-teal-400" style={{ borderColor: 'var(--border)' }}>
+      <div className="flex items-center rounded-md overflow-hidden bg-white" style={{ border: '1px solid #E5E7EB' }}>
         {prefix && (
-          <span className="px-3 py-2.5 text-sm border-r font-medium" style={{ color: 'var(--text-2)', borderColor: 'var(--border)', background: '#f9f9fb' }}>
+          <span className="px-2.5 py-2 text-sm text-gray-500 bg-gray-50" style={{ borderRight: '1px solid #E5E7EB' }}>
             {prefix}
           </span>
         )}
@@ -130,16 +130,15 @@ function Input({
           onBlur={onBlur}
           placeholder={placeholder}
           inputMode={type === 'number' ? 'decimal' : undefined}
-          className="flex-1 min-w-0 px-3.5 py-3 text-base placeholder:text-gray-300 focus:outline-none bg-white"
-          style={{ color: 'var(--text)' }}
+          className="flex-1 min-w-0 px-3 py-2 text-sm placeholder-gray-400 focus:outline-none bg-white text-gray-900"
         />
         {suffix && (
-          <span className="px-3 py-2.5 text-sm border-l font-medium" style={{ color: 'var(--text-2)', borderColor: 'var(--border)', background: '#f9f9fb' }}>
+          <span className="px-2.5 py-2 text-sm text-gray-500 bg-gray-50" style={{ borderLeft: '1px solid #E5E7EB' }}>
             {suffix}
           </span>
         )}
       </div>
-      {hint && <p className="text-xs mt-1.5" style={{ color: 'var(--text-3)' }}>{hint}</p>}
+      {hint && <p className="text-xs mt-1 text-gray-400">{hint}</p>}
     </div>
   )
 }
@@ -148,16 +147,15 @@ type SettingsTab = 'company' | 'account' | 'email'
 
 function Tabs({ tab, setTab }: { tab: SettingsTab; setTab: (t: SettingsTab) => void }) {
   return (
-    <div className="flex gap-1 rounded-xl p-1 max-w-md" style={{ background: '#f9f9fb', border: '1px solid var(--border)' }}>
+    <div className="flex gap-1 rounded-md p-1 max-w-md bg-gray-100">
       {(['company', 'account', 'email'] as const).map(t => (
         <button
           key={t}
           type="button"
           onClick={() => setTab(t)}
-          className={`flex-1 px-4 py-2 rounded-lg text-sm font-semibold capitalize transition-colors ${
-            tab === t ? 'bg-white text-teal-700' : 'text-gray-500 hover:text-gray-700'
+          className={`flex-1 px-3 py-1.5 rounded-md text-sm font-medium capitalize transition-colors ${
+            tab === t ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'
           }`}
-          style={tab === t ? { boxShadow: '0 1px 2px rgba(0,0,0,0.04)' } : undefined}
         >
           {t}
         </button>
@@ -212,39 +210,39 @@ function AccountTab() {
     setPassword(''); setConfirmPassword('')
   }
 
-  if (loading) return <p className="text-sm" style={{ color: 'var(--text-2)' }}>Loading…</p>
+  if (loading) return <p className="text-sm text-gray-500">Loading…</p>
 
   return (
-    <form onSubmit={saveProfile} className="space-y-4 max-w-2xl">
+    <form onSubmit={saveProfile} className="space-y-5 max-w-2xl">
       <Card title="Account">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input label="Full Name" value={user.full_name} onChange={(v) => setUser(u => ({ ...u, full_name: v }))} placeholder="Your name" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Input label="Full name" value={user.full_name} onChange={(v) => setUser(u => ({ ...u, full_name: v }))} placeholder="Your name" />
           <Input label="Email" value={user.email ?? ''} onChange={(v) => setUser(u => ({ ...u, email: v }))} type="email" placeholder="you@email.com" />
         </div>
       </Card>
 
-      <Card title="Change Password" description="Leave blank to keep your current password.">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input label="New Password" value={password} onChange={setPassword} type="password" placeholder="••••••••" />
-          <Input label="Confirm Password" value={confirmPassword} onChange={setConfirmPassword} type="password" placeholder="••••••••" />
+      <Card title="Change password" description="Leave blank to keep your current password.">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Input label="New password" value={password} onChange={setPassword} type="password" placeholder="••••••••" />
+          <Input label="Confirm password" value={confirmPassword} onChange={setConfirmPassword} type="password" placeholder="••••••••" />
         </div>
       </Card>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl text-sm font-medium">{error}</div>
+        <div className="bg-white rounded-md px-4 py-3 text-sm" style={{ border: '1px solid var(--border)', color: 'var(--danger)' }}>{error}</div>
       )}
       {success && (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-2xl text-sm font-medium">{success}</div>
+        <div className="bg-white rounded-md px-4 py-3 text-sm" style={{ border: '1px solid var(--border)', color: 'var(--success)' }}>{success}</div>
       )}
 
       <div className="flex justify-end">
         <button
           type="submit"
           disabled={saving}
-          className="px-5 py-2.5 text-sm font-bold text-white rounded-xl transition-colors disabled:opacity-50"
+          className="text-sm font-medium px-3.5 py-2 rounded-md text-white transition-colors disabled:opacity-50"
           style={{ background: 'var(--button-dark)' }}
         >
-          {saving ? 'Saving…' : 'Save Changes'}
+          {saving ? 'Saving…' : 'Save changes'}
         </button>
       </div>
     </form>
@@ -313,21 +311,21 @@ function EmailTab() {
   }
 
   return (
-    <div className="space-y-4 max-w-2xl">
-      <Card title="Email Sending" description="Connect your Gmail account so quote emails are sent from your own address. If no account is connected, quotes are sent from FloorQuote's shared sender.">
+    <div className="space-y-5 max-w-2xl">
+      <Card title="Email sending" description="Connect your Gmail account so quote emails are sent from your own address. If no account is connected, quotes are sent from FloorQuote's shared sender.">
         {loading ? (
-          <p className="text-sm" style={{ color: 'var(--text-2)' }}>Loading…</p>
+          <p className="text-sm text-gray-500">Loading…</p>
         ) : connection.connected ? (
           <div className="space-y-4">
-            <div className="flex items-center gap-3 rounded-xl border border-green-200 bg-green-50 px-4 py-3">
-              <svg className="w-5 h-5 text-green-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="flex items-center gap-3 rounded-md px-4 py-3" style={{ background: 'var(--success-bg)', border: '1px solid var(--border)' }}>
+              <svg className="w-5 h-5 flex-shrink-0" style={{ color: 'var(--success)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
               </svg>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-green-800">
+                <p className="text-sm font-semibold text-gray-900">
                   Connected as {connection.email_address}
                 </p>
-                <p className="text-xs text-green-700">
+                <p className="text-xs text-gray-500">
                   {connection.provider === 'gmail' ? 'Gmail' : connection.provider}
                 </p>
               </div>
@@ -336,21 +334,21 @@ function EmailTab() {
               type="button"
               onClick={disconnect}
               disabled={disconnecting}
-              className="px-4 py-2 text-sm font-semibold rounded-xl transition-colors disabled:opacity-50"
-              style={{ color: '#b91c1c', border: '1px solid #fecaca', background: '#fef2f2' }}
+              className="text-sm font-medium px-3.5 py-2 rounded-md text-white transition-colors disabled:opacity-50"
+              style={{ background: 'var(--danger)' }}
             >
               {disconnecting ? 'Disconnecting…' : 'Disconnect'}
             </button>
           </div>
         ) : (
           <div className="space-y-4">
-            <p className="text-sm" style={{ color: 'var(--text-2)' }}>
+            <p className="text-sm text-gray-700">
               Connect your Gmail account to send quotes directly from your email. Customers will see
               your address in their inbox, and replies come straight back to you.
             </p>
             <a
               href="/api/email/oauth/google/start"
-              className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white rounded-xl transition-colors"
+              className="inline-flex items-center gap-2 text-sm font-medium px-3.5 py-2 rounded-md text-white transition-colors"
               style={{ background: 'var(--button-dark)' }}
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -363,10 +361,10 @@ function EmailTab() {
       </Card>
 
       {success && (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-2xl text-sm font-medium">{success}</div>
+        <div className="bg-white rounded-md px-4 py-3 text-sm" style={{ border: '1px solid var(--border)', color: 'var(--success)' }}>{success}</div>
       )}
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl text-sm font-medium">{error}</div>
+        <div className="bg-white rounded-md px-4 py-3 text-sm" style={{ border: '1px solid var(--border)', color: 'var(--danger)' }}>{error}</div>
       )}
     </div>
   )
@@ -498,7 +496,7 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
 
   if (tab === 'account') {
     return (
-      <div className="space-y-4">
+      <div className="space-y-5">
         <Tabs tab={tab} setTab={switchTab} />
         <AccountTab />
       </div>
@@ -507,7 +505,7 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
 
   if (tab === 'email') {
     return (
-      <div className="space-y-4">
+      <div className="space-y-5">
         <Tabs tab={tab} setTab={switchTab} />
         <EmailTab />
       </div>
@@ -515,11 +513,11 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-2xl pb-24">
+    <form onSubmit={handleSubmit} className="space-y-5 max-w-2xl pb-24">
       <Tabs tab={tab} setTab={switchTab} />
 
       {success && !isDirty && (
-        <div className="inline-flex items-center gap-1.5 text-green-700 text-sm font-medium">
+        <div className="inline-flex items-center gap-1.5 text-sm" style={{ color: 'var(--success)' }}>
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
           </svg>
@@ -528,33 +526,33 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
       )}
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl text-sm font-medium">
+        <div className="bg-white rounded-md px-4 py-3 text-sm" style={{ border: '1px solid var(--border)', color: 'var(--danger)' }}>
           {error}
         </div>
       )}
 
-      <Card title="Company Info">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <Card title="Company info">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="sm:col-span-2">
-            <Input label="Company Name" value={form.company_name} onChange={(v) => set('company_name', v)} placeholder="Smith Flooring LLC" />
+            <Input label="Company name" value={form.company_name} onChange={(v) => set('company_name', v)} placeholder="Smith Flooring LLC" />
           </div>
           <Input label="Phone" value={form.phone} onChange={(v) => set('phone', v)} onBlur={blurPhone} type="tel" placeholder="(555) 000-0000" />
           <Input label="Email" value={form.email} onChange={(v) => set('email', v)} type="email" placeholder="contact@company.com" />
           <div className="sm:col-span-2">
-            <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--text-2)' }}>Logo</label>
+            <label className="block text-xs font-medium text-gray-500 mb-1">Logo</label>
             <div className="flex gap-3 items-start">
               <div
-                className="w-16 h-16 rounded-2xl border-2 border-dashed flex items-center justify-center flex-shrink-0 overflow-hidden cursor-pointer hover:border-teal-400 transition-colors"
-                style={{ borderColor: 'var(--border)', background: '#f9f9fb' }}
+                className="w-16 h-16 rounded-md border border-dashed flex items-center justify-center flex-shrink-0 overflow-hidden cursor-pointer hover:bg-gray-50 transition-colors"
+                style={{ borderColor: '#E5E7EB', background: '#FAFAFA' }}
                 onClick={() => logoInputRef.current?.click()}
               >
                 {logoUploading ? (
-                  <div className="w-5 h-5 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
                 ) : form.logo_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={form.logo_url} alt="Logo" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
                 ) : (
-                  <svg className="w-6 h-6" style={{ color: 'var(--text-3)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                 )}
@@ -564,8 +562,8 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
                 <button
                   type="button"
                   onClick={() => logoInputRef.current?.click()}
-                  className="w-full text-sm font-semibold py-2 px-3 rounded-xl transition-colors"
-                  style={{ color: 'var(--button-dark)', background: 'var(--button-dark-light)', border: '1px solid var(--border)' }}
+                  className="w-full text-sm font-medium py-2 px-3 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+                  style={{ border: '1px solid #E5E7EB' }}
                 >
                   {logoUploading ? 'Uploading…' : form.logo_url ? 'Replace logo' : 'Upload logo'}
                 </button>
@@ -574,30 +572,30 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
                   value={form.logo_url}
                   onChange={(e) => set('logo_url', e.target.value)}
                   placeholder="or paste image URL…"
-                  className="w-full px-3 py-2 text-sm rounded-xl border placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-colors"
-                  style={{ borderColor: 'var(--border)', color: 'var(--text)' }}
+                  className="w-full px-3 py-2 text-sm rounded-md placeholder-gray-400 focus:outline-none transition-colors text-gray-900 bg-white"
+                  style={{ border: '1px solid #E5E7EB' }}
                 />
-                {logoUploadError && <p className="text-xs text-red-500">{logoUploadError}</p>}
+                {logoUploadError && <p className="text-xs" style={{ color: 'var(--danger)' }}>{logoUploadError}</p>}
               </div>
             </div>
           </div>
           <div className="sm:col-span-2">
             <Input label="Website" value={form.website} onChange={(v) => set('website', v)} placeholder="yourcompany.com" hint="Shown in the sidebar under your company name" />
           </div>
-          <Input label="Quote Number Prefix" value={form.quote_number_prefix} onChange={(v) => set('quote_number_prefix', v)} placeholder="EST" hint="Used to auto-generate quote numbers (e.g. EST-001)" />
-          <Input label="Invoice Number Prefix" value={form.invoice_number_prefix} onChange={(v) => set('invoice_number_prefix', v)} placeholder="INV" hint="Used to auto-generate invoice numbers (e.g. INV-001)" />
+          <Input label="Quote number prefix" value={form.quote_number_prefix} onChange={(v) => set('quote_number_prefix', v)} placeholder="EST" hint="Used to auto-generate quote numbers (e.g. EST-001)" />
+          <Input label="Invoice number prefix" value={form.invoice_number_prefix} onChange={(v) => set('invoice_number_prefix', v)} placeholder="INV" hint="Used to auto-generate invoice numbers (e.g. INV-001)" />
         </div>
       </Card>
 
-      <Card title="Default Quote Values" description="These values pre-fill when creating a new quote.">
-        <div className="grid grid-cols-2 gap-4">
-          <Input label="Material Cost / SqFt" value={form.default_material_cost} onChange={(v) => set('default_material_cost', v)} type="number" prefix="$" placeholder="5.00" />
-          <Input label="Labor Cost / SqFt" value={form.default_labor_cost} onChange={(v) => set('default_labor_cost', v)} type="number" prefix="$" placeholder="3.00" />
+      <Card title="Default quote values" description="These values pre-fill when creating a new quote.">
+        <div className="grid grid-cols-2 gap-3">
+          <Input label="Material cost / sqft" value={form.default_material_cost} onChange={(v) => set('default_material_cost', v)} type="number" prefix="$" placeholder="5.00" />
+          <Input label="Labor cost / sqft" value={form.default_labor_cost} onChange={(v) => set('default_labor_cost', v)} type="number" prefix="$" placeholder="3.00" />
           <Input label="Waste %" value={form.default_waste_pct} onChange={(v) => set('default_waste_pct', v)} type="number" suffix="%" placeholder="10" />
           <Input label="Profit %" value={form.default_markup_pct} onChange={(v) => set('default_markup_pct', v)} type="number" suffix="%" placeholder="0" hint="Adds % on top of subtotal" />
           <Input label="Deposit %" value={form.default_deposit_pct} onChange={(v) => set('default_deposit_pct', v)} type="number" suffix="%" placeholder="50" />
           <Input
-            label="Default Tax Rate"
+            label="Default tax rate"
             value={form.default_tax_pct}
             onChange={(v) => set('default_tax_pct', v)}
             type="number"
@@ -606,7 +604,7 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
             hint="Auto-enables tax on new quotes when above 0"
           />
           <Input
-            label="Default Validity (days)"
+            label="Default validity (days)"
             value={form.default_quote_valid_days}
             onChange={(v) => set('default_quote_valid_days', v)}
             type="number"
@@ -614,90 +612,88 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
             hint="Used to seed Valid for (days) on new quotes"
           />
           <div className="col-span-2">
-            <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--text-2)' }}>Payment Terms</label>
+            <label className="block text-xs font-medium text-gray-500 mb-1">Payment terms</label>
             <textarea
               value={form.payment_terms}
               onChange={(e) => set('payment_terms', e.target.value)}
               rows={3}
               placeholder="e.g. 50% deposit due upon acceptance. Balance due upon completion."
-              className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400 resize-none bg-white"
-              style={{ borderColor: 'var(--border)', color: 'var(--text)' }}
+              className="w-full px-3 py-2 rounded-md text-sm focus:outline-none resize-none min-h-[80px] bg-white text-gray-900 placeholder-gray-400"
+              style={{ border: '1px solid #E5E7EB' }}
             />
-            <p className="text-xs mt-1.5" style={{ color: 'var(--text-3)' }}>Shown on the quote PDF and email beneath totals.</p>
+            <p className="text-xs mt-1 text-gray-400">Shown on the quote PDF and email beneath totals.</p>
           </div>
         </div>
       </Card>
 
-      <Card title="Quote Terms & Disclaimers" description="These appear as a bulleted disclaimer block on every quote PDF and the in-app view. Leave any of them blank to omit.">
+      <Card title="Quote terms & disclaimers" description="These appear as a bulleted disclaimer block on every quote PDF and the in-app view. Leave any of them blank to omit.">
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--text-2)' }}>Validity</label>
+            <label className="block text-xs font-medium text-gray-500 mb-1">Validity</label>
             <textarea
               value={form.terms_validity}
               onChange={(e) => set('terms_validity', e.target.value)}
               rows={2}
               placeholder={DEFAULT_TERMS_VALIDITY}
-              className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400 resize-none bg-white"
-              style={{ borderColor: 'var(--border)', color: 'var(--text)' }}
+              className="w-full px-3 py-2 rounded-md text-sm focus:outline-none resize-none min-h-[80px] bg-white text-gray-900 placeholder-gray-400"
+              style={{ border: '1px solid #E5E7EB' }}
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--text-2)' }}>Scheduling</label>
+            <label className="block text-xs font-medium text-gray-500 mb-1">Scheduling</label>
             <textarea
               value={form.terms_scheduling}
               onChange={(e) => set('terms_scheduling', e.target.value)}
               rows={2}
               placeholder={DEFAULT_TERMS_SCHEDULING}
-              className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400 resize-none bg-white"
-              style={{ borderColor: 'var(--border)', color: 'var(--text)' }}
+              className="w-full px-3 py-2 rounded-md text-sm focus:outline-none resize-none min-h-[80px] bg-white text-gray-900 placeholder-gray-400"
+              style={{ border: '1px solid #E5E7EB' }}
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--text-2)' }}>Scope of Work</label>
+            <label className="block text-xs font-medium text-gray-500 mb-1">Scope of work</label>
             <textarea
               value={form.terms_scope}
               onChange={(e) => set('terms_scope', e.target.value)}
               rows={2}
               placeholder={DEFAULT_TERMS_SCOPE}
-              className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400 resize-none bg-white"
-              style={{ borderColor: 'var(--border)', color: 'var(--text)' }}
+              className="w-full px-3 py-2 rounded-md text-sm focus:outline-none resize-none min-h-[80px] bg-white text-gray-900 placeholder-gray-400"
+              style={{ border: '1px solid #E5E7EB' }}
             />
           </div>
         </div>
       </Card>
 
-      <Card title="Pricing by Material" description="Override default material and labor costs per flooring type. Leave blank to use the global default.">
-        <div className="grid grid-cols-3 gap-3 text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: 'var(--text-3)' }}>
-          <span>Flooring Type</span>
+      <Card title="Pricing by material" description="Override default material and labor costs per flooring type. Leave blank to use the global default.">
+        <div className="grid grid-cols-3 gap-3 text-xs text-gray-400 font-normal mb-2">
+          <span>Flooring type</span>
           <span>Mat. $/sqft</span>
           <span>Labor $/sqft</span>
         </div>
         <div className="space-y-2">
           {FLOORING_TYPES.map(type => (
             <div key={type} className="grid grid-cols-3 gap-3 items-center">
-              <span className="text-sm font-medium" style={{ color: 'var(--text)' }}>{FLOORING_LABELS[type]}</span>
-              <div className="flex items-center rounded-xl border overflow-hidden bg-white focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-teal-400" style={{ borderColor: 'var(--border)' }}>
-                <span className="px-2.5 py-2 text-sm border-r font-medium" style={{ color: 'var(--text-2)', borderColor: 'var(--border)', background: '#f9f9fb' }}>$</span>
+              <span className="text-sm text-gray-700">{FLOORING_LABELS[type]}</span>
+              <div className="flex items-center rounded-md overflow-hidden bg-white" style={{ border: '1px solid #E5E7EB' }}>
+                <span className="px-2.5 py-2 text-sm text-gray-500 bg-gray-50" style={{ borderRight: '1px solid #E5E7EB' }}>$</span>
                 <input
                   type="number"
                   value={materialPrices[type]?.material ?? ''}
                   onChange={e => setMaterialPrices(prev => ({ ...prev, [type]: { ...prev[type], material: e.target.value } }))}
                   placeholder={form.default_material_cost || '5.00'}
                   inputMode="decimal"
-                  className="flex-1 min-w-0 px-2.5 py-2 text-sm focus:outline-none placeholder:text-gray-300 bg-white"
-                  style={{ color: 'var(--text)' }}
+                  className="flex-1 min-w-0 px-2.5 py-2 text-sm focus:outline-none placeholder-gray-400 bg-white text-gray-900"
                 />
               </div>
-              <div className="flex items-center rounded-xl border overflow-hidden bg-white focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-teal-400" style={{ borderColor: 'var(--border)' }}>
-                <span className="px-2.5 py-2 text-sm border-r font-medium" style={{ color: 'var(--text-2)', borderColor: 'var(--border)', background: '#f9f9fb' }}>$</span>
+              <div className="flex items-center rounded-md overflow-hidden bg-white" style={{ border: '1px solid #E5E7EB' }}>
+                <span className="px-2.5 py-2 text-sm text-gray-500 bg-gray-50" style={{ borderRight: '1px solid #E5E7EB' }}>$</span>
                 <input
                   type="number"
                   value={materialPrices[type]?.labor ?? ''}
                   onChange={e => setMaterialPrices(prev => ({ ...prev, [type]: { ...prev[type], labor: e.target.value } }))}
                   placeholder={form.default_labor_cost || '3.00'}
                   inputMode="decimal"
-                  className="flex-1 min-w-0 px-2.5 py-2 text-sm focus:outline-none placeholder:text-gray-300 bg-white"
-                  style={{ color: 'var(--text)' }}
+                  className="flex-1 min-w-0 px-2.5 py-2 text-sm focus:outline-none placeholder-gray-400 bg-white text-gray-900"
                 />
               </div>
             </div>
@@ -708,22 +704,21 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
       {/* Sticky save bar (only when dirty) */}
       {isDirty && (
         <div className="fixed bottom-0 left-0 right-0 lg:left-56 z-30 bg-white px-4 py-3 lg:px-8 flex items-center justify-end gap-3" style={{ borderTop: '1px solid var(--border)', paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}>
-          <p className="text-xs font-medium mr-auto hidden sm:block" style={{ color: 'var(--text-2)' }}>Unsaved changes</p>
+          <p className="text-xs text-gray-500 mr-auto hidden sm:block">Unsaved changes</p>
           <button
             type="button"
             onClick={resetForm}
-            className="px-4 py-2 text-sm font-semibold rounded-xl transition-colors"
-            style={{ color: 'var(--text-2)', border: '1px solid var(--border)', background: 'white' }}
+            className="text-sm font-medium px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100 transition-colors"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={saving}
-            className="px-5 py-2 text-sm font-bold text-white rounded-xl transition-colors disabled:opacity-50"
+            className="text-sm font-medium px-3.5 py-2 rounded-md text-white transition-colors disabled:opacity-50"
             style={{ background: 'var(--button-dark)' }}
           >
-            {saving ? 'Saving…' : 'Save Changes'}
+            {saving ? 'Saving…' : 'Save changes'}
           </button>
         </div>
       )}

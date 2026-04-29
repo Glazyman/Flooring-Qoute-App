@@ -22,10 +22,11 @@ export default async function NewInvoicePage({
   return (
     <div className="max-w-2xl">
       <div className="mb-5">
-        <Link href="/invoices" className="text-xs font-medium text-gray-400 hover:text-gray-600 inline-flex items-center gap-1 mb-2">
+        <Link href="/invoices" className="text-xs font-medium text-gray-500 hover:text-gray-700 inline-flex items-center gap-1 mb-2">
           ← Back to Invoices
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900">New Invoice</h1>
+        <h1 className="text-xl font-semibold text-gray-900">New invoice</h1>
+        <p className="text-sm text-gray-500 mt-0.5">Create an invoice manually or upload a PDF</p>
       </div>
       <InvoiceForm defaultTab={tab === 'upload' ? 'upload' : 'form'} />
     </div>

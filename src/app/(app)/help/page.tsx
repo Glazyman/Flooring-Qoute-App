@@ -44,19 +44,19 @@ function FAQ({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false)
   return (
     <div
-      className="border-b last:border-0 cursor-pointer"
-      style={{ borderColor: 'var(--border)' }}
+      className="cursor-pointer"
+      style={{ borderBottom: '1px solid #F1F1F4' }}
       onClick={() => setOpen(v => !v)}
     >
       <div className="flex items-center justify-between py-4 gap-3">
-        <p className="text-sm font-semibold" style={{ color: 'var(--text)' }}>{q}</p>
+        <p className="text-sm font-medium text-gray-900">{q}</p>
         {open
           ? <ChevronDown className="w-4 h-4 flex-shrink-0 text-gray-400" />
           : <ChevronRight className="w-4 h-4 flex-shrink-0 text-gray-400" />
         }
       </div>
       {open && (
-        <p className="text-sm pb-4 leading-relaxed" style={{ color: 'var(--text-2)' }}>{a}</p>
+        <p className="text-sm pb-4 leading-relaxed text-gray-600">{a}</p>
       )}
     </div>
   )
@@ -89,99 +89,107 @@ export default function HelpPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 max-w-3xl">
       {/* Header */}
-      <div className="text-center">
-        <h1 className="text-2xl font-extrabold tracking-tight" style={{ color: 'var(--text)' }}>Help & Support</h1>
-        <p className="text-sm mt-0.5" style={{ color: 'var(--text-2)' }}>We reply within 1 business day</p>
+      <div>
+        <h1 className="text-xl font-semibold text-gray-900">Help & support</h1>
+        <p className="text-sm text-gray-500 mt-0.5">We reply within 1 business day</p>
       </div>
 
       {/* Contact form */}
-      <div className="bg-white rounded-xl p-5 lg:p-6" style={{ border: '1px solid var(--border)' }}>
-        <div className="flex items-center gap-2 mb-5">
-          <MessageSquare className="w-4 h-4" style={{ color: 'var(--primary)' }} />
-          <h2 className="text-sm font-bold uppercase tracking-wide" style={{ color: 'var(--text)' }}>Send Us a Message</h2>
+      <div className="bg-white rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+        <div className="flex items-center gap-2 px-4 py-2.5" style={{ background: '#FAFAFA', borderBottom: '1px solid #F1F1F4' }}>
+          <MessageSquare className="w-4 h-4 text-gray-500" />
+          <h2 className="text-sm font-semibold text-gray-900">Send us a message</h2>
         </div>
 
-        {status === 'success' ? (
-          <div className="text-center py-8">
-            <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ background: 'var(--primary-light)' }}>
-              <svg className="w-6 h-6" style={{ color: 'var(--primary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <p className="font-semibold mb-1" style={{ color: 'var(--text)' }}>Message sent!</p>
-            <p className="text-sm mb-4" style={{ color: 'var(--text-2)' }}>We&apos;ll get back to you within 1 business day.</p>
-            <button onClick={() => setStatus('idle')} className="text-sm font-semibold" style={{ color: 'var(--primary)' }}>
-              Send another message
-            </button>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Name *</label>
-                <input
-                  name="name" required placeholder="Your name"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 placeholder:text-gray-300 bg-white"
-                />
+        <div className="p-5">
+          {status === 'success' ? (
+            <div className="text-center py-8">
+              <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ background: 'var(--success-bg)' }}>
+                <svg className="w-6 h-6" style={{ color: 'var(--success)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                </svg>
               </div>
-              <div>
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Email *</label>
-                <input
-                  name="email" type="email" required placeholder="you@email.com" inputMode="email"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 placeholder:text-gray-300 bg-white"
-                />
-              </div>
+              <p className="text-sm font-semibold mb-1 text-gray-900">Message sent</p>
+              <p className="text-sm mb-4 text-gray-500">We&apos;ll get back to you within 1 business day.</p>
+              <button onClick={() => setStatus('idle')} className="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">
+                Send another message
+              </button>
             </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Name *</label>
+                  <input
+                    name="name" required placeholder="Your name"
+                    className="w-full px-3 py-2 rounded-md text-sm focus:outline-none placeholder-gray-400 bg-white text-gray-900"
+                    style={{ border: '1px solid #E5E7EB' }}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Email *</label>
+                  <input
+                    name="email" type="email" required placeholder="you@email.com" inputMode="email"
+                    className="w-full px-3 py-2 rounded-md text-sm focus:outline-none placeholder-gray-400 bg-white text-gray-900"
+                    style={{ border: '1px solid #E5E7EB' }}
+                  />
+                </div>
+              </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Topic *</label>
-              <select
-                name="subject" required
-                className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1">Topic *</label>
+                <select
+                  name="subject" required
+                  className="w-full px-3 py-2 rounded-md text-sm focus:outline-none bg-white text-gray-900"
+                  style={{ border: '1px solid #E5E7EB' }}
+                >
+                  <option value="">Select a topic…</option>
+                  <option>General question</option>
+                  <option>Pricing / Billing</option>
+                  <option>Technical support</option>
+                  <option>Feature request</option>
+                  <option>Other</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1">Message *</label>
+                <textarea
+                  name="message" required rows={4} placeholder="How can we help?"
+                  className="w-full px-3 py-2 rounded-md text-sm focus:outline-none placeholder-gray-400 resize-none min-h-[80px] bg-white text-gray-900"
+                  style={{ border: '1px solid #E5E7EB' }}
+                />
+              </div>
+
+              {status === 'error' && (
+                <p className="text-sm bg-white rounded-md px-4 py-3" style={{ border: '1px solid var(--border)', color: 'var(--danger)' }}>{errorMsg}</p>
+              )}
+
+              <button
+                type="submit" disabled={status === 'sending'}
+                className="text-white text-sm font-medium px-3.5 py-2 rounded-md transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+                style={{ background: 'var(--button-dark)' }}
               >
-                <option value="">Select a topic…</option>
-                <option>General question</option>
-                <option>Pricing / Billing</option>
-                <option>Technical support</option>
-                <option>Feature request</option>
-                <option>Other</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Message *</label>
-              <textarea
-                name="message" required rows={4} placeholder="How can we help?"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 placeholder:text-gray-300 resize-none bg-white"
-              />
-            </div>
-
-            {status === 'error' && (
-              <p className="text-sm text-red-600 bg-red-50 px-4 py-3 rounded-xl">{errorMsg}</p>
-            )}
-
-            <button
-              type="submit" disabled={status === 'sending'}
-              className="w-full text-white font-bold py-3 rounded-xl text-sm transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
-              style={{ background: 'var(--button-dark)' }}
-            >
-              {status === 'sending' ? (
-                <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Sending…</>
-              ) : 'Send Message'}
-            </button>
-          </form>
-        )}
+                {status === 'sending' ? (
+                  <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Sending…</>
+                ) : 'Send message'}
+              </button>
+            </form>
+          )}
+        </div>
       </div>
 
       {/* FAQ */}
-      <div className="bg-white rounded-xl px-5" style={{ border: '1px solid var(--border)' }}>
-        <div className="flex items-center gap-2 py-4 border-b" style={{ borderColor: 'var(--border)' }}>
-          <HelpCircle className="w-4 h-4" style={{ color: 'var(--primary)' }} />
-          <h2 className="text-sm font-bold uppercase tracking-wide" style={{ color: 'var(--text)' }}>Frequently Asked Questions</h2>
+      <div className="bg-white rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+        <div className="flex items-center gap-2 px-4 py-2.5" style={{ background: '#FAFAFA', borderBottom: '1px solid #F1F1F4' }}>
+          <HelpCircle className="w-4 h-4 text-gray-500" />
+          <h2 className="text-sm font-semibold text-gray-900">Frequently asked questions</h2>
         </div>
-        {FAQS.map(faq => <FAQ key={faq.q} {...faq} />)}
+        <div className="px-5">
+          {FAQS.map(faq => <FAQ key={faq.q} {...faq} />)}
+        </div>
       </div>
     </div>
   )

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import { Plus } from 'lucide-react'
 import QuotesTable from '@/components/QuotesTable'
 import type { Quote } from '@/lib/types'
 
@@ -31,21 +32,19 @@ export default async function QuotesPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight" style={{ color: 'var(--text)' }}>Estimates</h1>
-          <p className="text-sm font-medium mt-0.5" style={{ color: 'var(--text-2)' }}>
+          <h1 className="text-xl font-semibold text-gray-900">Estimates</h1>
+          <p className="text-sm text-gray-500 mt-0.5">
             {quotes?.length || 0} quote{quotes?.length !== 1 ? 's' : ''} total
           </p>
         </div>
         <Link
           href="/quotes/new"
-          className="flex items-center gap-2 text-white font-semibold px-4 py-2.5 rounded-2xl text-sm active:scale-95 shadow-md"
-          style={{ background: 'linear-gradient(135deg, var(--primary) 0%, #0B7D73 100%)', boxShadow: '0 4px 12px rgba(13,148,136,0.3)' }}
+          className="flex items-center gap-1.5 text-white text-sm font-medium px-3.5 py-2 rounded-md transition-colors"
+          style={{ background: 'var(--primary)' }}
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-          </svg>
+          <Plus className="w-4 h-4" />
           New Quote
         </Link>
       </div>

@@ -765,8 +765,8 @@ export default function QuoteDetailCard({
         {!selectMode ? (
           <button
             onClick={() => setSelectMode(true)}
-            className="text-xs font-medium px-2.5 py-1 rounded-lg transition-colors"
-            style={{ background: 'var(--button-dark-light)', color: 'var(--button-dark)' }}
+            className="text-xs font-medium px-2.5 py-1 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+            style={{ border: '1px solid #E5E7EB' }}
           >
             Select
           </button>
@@ -774,23 +774,22 @@ export default function QuoteDetailCard({
           <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={() => { setSelectMode(false); setSelectedKeys(new Set()) }}
-              className="text-xs font-medium px-2.5 py-1 rounded-lg"
-              style={{ background: '#f1f5f9', color: '#64748b' }}
+              className="text-xs font-medium px-2.5 py-1 rounded-md text-gray-600 hover:bg-gray-100 transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={handleSelectAll}
-              className="text-xs font-medium px-2.5 py-1 rounded-lg"
-              style={{ background: 'var(--button-dark-light)', color: 'var(--button-dark)' }}
+              className="text-xs font-medium px-2.5 py-1 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+              style={{ border: '1px solid #E5E7EB' }}
             >
-              Select All
+              Select all
             </button>
             {selectedKeys.size > 0 && (
               <button
                 onClick={handleDeleteSelected}
-                className="text-xs font-medium px-2.5 py-1 rounded-lg"
-                style={{ background: 'rgba(239,68,68,0.08)', color: '#ef4444' }}
+                className="text-xs font-medium px-2.5 py-1 rounded-md text-white"
+                style={{ background: 'var(--danger)' }}
               >
                 Delete ({selectedKeys.size})
               </button>
@@ -1435,8 +1434,8 @@ export default function QuoteDetailCard({
             <button
               onClick={addLineItem}
               disabled={addingRow}
-              className="flex items-center gap-1.5 text-xs font-semibold py-1 px-2 rounded-lg transition-colors disabled:opacity-50"
-              style={{ color: 'var(--button-dark)', background: 'var(--button-dark-light)' }}
+              className="flex items-center gap-1.5 text-xs font-medium py-1 px-2 rounded-md text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+              style={{ border: '1px solid #E5E7EB' }}
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />

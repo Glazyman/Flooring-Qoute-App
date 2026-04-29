@@ -1,10 +1,17 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import { Plus, Calendar } from 'lucide-react'
 import { fmt } from '@/lib/calculations'
 import { flooringTypeLabel } from '@/lib/flooringLabels'
 
 export const dynamic = 'force-dynamic'
+
+const STATUS_DOT: Record<string, { color: string; label: string }> = {
+  accepted: { color: '#10B981', label: 'Accepted' },
+  pending:  { color: '#6366F1', label: 'Pending' },
+  lost:     { color: '#9CA3AF', label: 'Lost' },
+}
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -26,85 +33,120 @@ export default async function DashboardPage() {
   const accepted = quotes.filter(q => q.status === 'accepted')
   const pending  = quotes.filter(q => q.status === 'pending')
   const revenue  = accepted.reduce((s, q) => s + (q.final_total || 0), 0)
+  const avgAccepted = accepted.length > 0 ? revenue / accepted.length : 0
+
+  const tiles = [
+    { label: 'Total Quotes',       value: String(total),           sub: null as string | null },
+    { label: 'Accepted',           value: String(accepted.length), sub: `${pending.length} pending` },
+    { label: 'Revenue Won',        value: fmt(revenue),            sub: null },
+    { label: 'Avg Accepted Value', value: fmt(avgAccepted),        sub: null },
+  ]
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-extrabold tracking-tight" style={{ color: 'var(--text)' }}>Dashboard</h1>
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-semibold text-gray-900">Dashboard</h1>
+          <p className="text-sm text-gray-500 mt-0.5">Overview of your quoting activity</p>
+        </div>
         <Link
           href="/quotes/new"
-          className="flex items-center gap-2 text-white font-semibold px-4 py-2.5 rounded-2xl text-sm active:scale-95"
-          style={{ background: 'var(--primary)', boxShadow: '0 2px 8px rgba(13,148,136,0.25)' }}
+          className="flex items-center gap-1.5 text-white text-sm font-medium px-3.5 py-2 rounded-md transition-colors"
+          style={{ background: 'var(--primary)' }}
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-          </svg>
+          <Plus className="w-4 h-4" />
           New Quote
         </Link>
       </div>
 
-      {/* 4 stat tiles */}
-      {(() => {
-        const avgAccepted = accepted.length > 0 ? revenue / accepted.length : 0
-        const tiles = [
-          { label: 'Total Quotes',       value: String(total),           sub: null },
-          { label: 'Accepted',           value: String(accepted.length), sub: `${pending.length} pending` },
-          { label: 'Revenue Won',        value: fmt(revenue),            sub: null },
-          { label: 'Avg Accepted Value', value: fmt(avgAccepted),        sub: null },
-        ]
-        return (
-          <div className="grid grid-cols-2 gap-3">
-            {tiles.map(({ label, value, sub }) => (
-              <div key={label} className="rounded-xl px-4 py-4 overflow-hidden min-w-0" style={{ background: 'var(--sidebar-bg)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <p className="text-[10px] font-semibold uppercase tracking-widest mb-1.5 truncate" style={{ color: 'rgba(255,255,255,0.35)' }}>{label}</p>
-                <p className="text-xl font-bold tracking-tight leading-tight truncate" style={{ color: 'rgba(255,255,255,0.92)' }}>{value}</p>
-                {sub && <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.3)' }}>{sub}</p>}
-              </div>
-            ))}
+      {/* Stat tiles */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {tiles.map(({ label, value, sub }) => (
+          <div
+            key={label}
+            className="bg-white rounded-xl px-4 py-4"
+            style={{ border: '1px solid var(--border)' }}
+          >
+            <p className="text-xs text-gray-500 mb-1.5 truncate">{label}</p>
+            <p className="text-xl font-semibold text-gray-900 tracking-tight truncate">{value}</p>
+            {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
           </div>
-        )
-      })()}
+        ))}
+      </div>
 
       {/* Recent Estimates */}
-      <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)', background: 'var(--sidebar-bg)' }}>
-        {/* Dark header */}
-        <div className="flex items-center justify-between px-5 py-3.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-          <p className="font-semibold text-sm" style={{ color: 'rgba(255,255,255,0.85)' }}>Recent Estimates</p>
-          <Link href="/quotes" className="text-xs font-semibold px-2.5 py-1 rounded-lg transition-colors" style={{ color: 'var(--button-dark)', background: 'var(--button-dark-light)' }}>See all</Link>
+      <div
+        className="bg-white rounded-xl overflow-hidden"
+        style={{ border: '1px solid var(--border)' }}
+      >
+        <div
+          className="flex items-center justify-between px-4 py-2.5"
+          style={{ background: '#FAFAFA', borderBottom: '1px solid #F1F1F4' }}
+        >
+          <p className="text-sm font-semibold text-gray-900">Recent Estimates</p>
+          <Link
+            href="/quotes"
+            className="text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors"
+          >
+            See all →
+          </Link>
         </div>
 
-        {/* White list body */}
-        <div className="bg-white">
-          {quotes.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-sm font-medium mb-1" style={{ color: 'var(--text-2)' }}>No quotes yet</p>
-              <Link href="/quotes/new" className="text-sm font-semibold" style={{ color: 'var(--primary)' }}>Create your first →</Link>
-            </div>
-          ) : (
-            quotes.slice(0, 8).map((q, i, arr) => {
+        {quotes.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-sm text-gray-500 mb-2">No quotes yet</p>
+            <Link
+              href="/quotes/new"
+              className="inline-flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+              style={{ border: '1px solid #E5E7EB' }}
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Create your first quote
+            </Link>
+          </div>
+        ) : (
+          <div>
+            {quotes.slice(0, 8).map((q) => {
               const date = new Date(q.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-              const statusColor: Record<string, string> = { accepted: '#16a34a', pending: '#d97706', lost: '#ff3b30' }
+              const cfg = STATUS_DOT[q.status] || { color: '#9CA3AF', label: q.status }
+              const initials = (q.customer_name || '?').charAt(0).toUpperCase()
               return (
                 <Link
                   key={q.id}
                   href={`/quotes/${q.id}`}
-                  className="quote-row flex items-center gap-3 px-5 py-3 active:bg-gray-50"
-                  style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none' }}
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50/60 transition-colors"
+                  style={{ borderBottom: '1px solid #F5F5F7' }}
                 >
+                  <div
+                    className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-semibold text-gray-700"
+                    style={{ background: '#E5E7EB' }}
+                  >
+                    {initials}
+                  </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold truncate" style={{ color: 'var(--text)' }}>{q.customer_name}</p>
-                    <p className="text-xs truncate mt-0.5" style={{ color: 'var(--text-2)' }}>{flooringTypeLabel(q.flooring_type, q.section_flooring_types as Record<string, string> | null)} · {q.job_address || date}</p>
+                    <p className="text-sm font-normal text-gray-800 truncate">{q.customer_name}</p>
+                    <p className="text-xs text-gray-400 truncate">
+                      {flooringTypeLabel(q.flooring_type, q.section_flooring_types as Record<string, string> | null)}
+                      {q.job_address ? ` · ${q.job_address}` : ''}
+                    </p>
+                  </div>
+                  <div className="hidden sm:flex items-center text-xs text-gray-500 mr-1">
+                    <Calendar className="w-3.5 h-3.5 text-gray-400 mr-1.5" />
+                    {date}
                   </div>
                   <div className="text-right flex-shrink-0">
-                    <p className="text-sm font-bold" style={{ color: 'var(--text)' }}>{fmt(q.final_total)}</p>
-                    <p className="text-xs font-medium capitalize mt-0.5" style={{ color: statusColor[q.status] || 'var(--text-3)' }}>{q.status}</p>
+                    <p className="text-sm font-semibold text-gray-900">{fmt(q.final_total)}</p>
+                    <span className="text-xs flex items-center gap-1.5 justify-end" style={{ color: cfg.color }}>
+                      <span className="w-1.5 h-1.5 rounded-full" style={{ background: cfg.color }} />
+                      {cfg.label}
+                    </span>
                   </div>
                 </Link>
               )
-            })
-          )}
-        </div>
+            })}
+          </div>
+        )}
       </div>
     </div>
   )

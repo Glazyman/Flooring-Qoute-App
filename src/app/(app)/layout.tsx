@@ -142,16 +142,21 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <TrialBanner remaining={freeQuotesRemaining} />
         )}
         {starterMonthlyUsed !== null && starterMonthlyUsed >= 20 && (
-          <div className={`px-5 py-3 text-sm flex items-center justify-between gap-4 ${starterMonthlyUsed >= 25 ? 'bg-red-500 text-white' : 'bg-amber-500 text-white'}`}>
-            <p className="font-medium text-sm">
-              {starterMonthlyUsed >= 25
-                ? "You've used all 25 quotes this month on Starter."
-                : `Starter plan: ${starterMonthlyUsed}/25 quotes used this month.`}{' '}
+          <div
+            className="px-5 py-2.5 text-sm flex items-center justify-between gap-4 text-white"
+            style={{ background: starterMonthlyUsed >= 25 ? 'var(--danger)' : 'var(--warning)' }}
+          >
+            <p className="text-sm">
+              <span className="font-medium">
+                {starterMonthlyUsed >= 25
+                  ? "You've used all 25 quotes this month on Starter."
+                  : `Starter plan: ${starterMonthlyUsed}/25 quotes used this month.`}
+              </span>{' '}
               <span className="opacity-80">Upgrade to Pro for unlimited quotes.</span>
             </p>
             <a
               href="/billing/setup"
-              className="flex-shrink-0 bg-white/20 hover:bg-white/30 font-semibold px-3 py-1.5 rounded-xl text-xs transition-colors whitespace-nowrap"
+              className="flex-shrink-0 bg-white/20 hover:bg-white/30 font-medium px-3 py-1.5 rounded-md text-xs transition-colors whitespace-nowrap"
             >
               Upgrade →
             </a>

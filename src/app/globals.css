@@ -1,36 +1,43 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #F5F5F7;
-  --card: #ffffff;
-  --card-alt: #FAFAFA;
-  --border: #E5E5EA;
+  /* Surfaces */
+  --bg: #FAFAFA;              /* page background — slightly off-white */
+  --card: #ffffff;            /* card surfaces */
+  --card-alt: #FAFAFA;        /* nested/secondary surfaces, table toolbars */
+  --border: #E5E7EB;          /* visible borders on cards/inputs */
+  --border-soft: #F1F1F4;     /* hairline borders inside cards (rows, etc) */
+  --border-faint: #F5F5F7;    /* the lightest borders, separating list items */
 
-  /* Logo teal — used sparingly on CTAs, links, active states */
-  --primary: #0D9488;
+  /* Text */
+  --text: #111827;            /* primary text — gray-900 */
+  --text-2: #4B5563;          /* secondary — gray-600 */
+  --text-3: #9CA3AF;          /* placeholder/labels — gray-400 */
+  --text-4: #D1D5DB;          /* very subtle — gray-300 */
+
+  /* Brand */
+  --primary: #0D9488;         /* teal — used ONLY for "New Quote" type CTAs and active brand accents */
   --primary-hover: #0B7D73;
   --primary-light: #F0FDFA;
 
-  /* Neutral dark — primary buttons (matches sidebar) */
+  /* Neutral button (matches sidebar) */
   --button-dark: #1C1C1E;
   --button-dark-hover: #2C2C2E;
   --button-dark-light: rgba(28,28,30,0.08);
 
-  --accent: #f97316;
-  --accent-light: #fff7ed;
-  --text: #1C1C1E;
-  --text-2: #6C6C70;
-  --text-3: #AEAEB2;
-  --success: #34C759;
-  --success-bg: #F0FDF4;
-  --warning: #FF9500;
+  /* Semantic */
+  --success: #10B981;
+  --success-bg: #ECFDF5;
+  --warning: #F59E0B;
   --warning-bg: #FFFBEB;
-  --danger: #FF3B30;
-  --danger-bg: #FFF1F0;
-  --shadow-card: none;
-  --shadow-lifted: 0 4px 16px rgba(0,0,0,0.08);
+  --danger: #EF4444;
+  --danger-bg: #FEF2F2;
 
-  /* Dark sidebar — Apple #1C1C1E */
+  /* Effects */
+  --shadow-card: none;        /* flat — no drop shadows on cards */
+  --shadow-popover: 0 4px 20px rgba(0,0,0,0.08);
+
+  /* Sidebar — keep the dark Apple #1C1C1E */
   --sidebar-bg: #1C1C1E;
   --sidebar-border: rgba(255,255,255,0.08);
   --sidebar-text: rgba(255,255,255,0.5);
@@ -58,10 +65,6 @@ body {
   letter-spacing: -0.01em;
 }
 
-/* Normalize border-radius to Apple/Linear levels */
-.rounded-3xl { border-radius: 12px !important; }
-.rounded-2xl { border-radius: 10px !important; }
-
 /* Headings — tight letter spacing like SF Pro Display */
 h1, h2, h3, h4 {
   letter-spacing: -0.02em;
@@ -81,11 +84,11 @@ input[type="number"] { -moz-appearance: textfield; }
 
 input, select, textarea {
   font-family: inherit;
-  font-size: 15px;
+  font-size: 14px;
   letter-spacing: -0.01em;
 }
 
-a, button { transition: background 0.12s ease, color 0.12s ease, opacity 0.12s ease; }
+a, button { transition: background 0.12s ease, color 0.12s ease, opacity 0.12s ease, border-color 0.12s ease; }
 
 .press-card:active { transform: scale(0.99); }
 .quote-row:hover { background: var(--card-alt); }

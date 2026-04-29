@@ -27,7 +27,7 @@ export default function ApproveMeasurementButton({ quoteId, onApprove }: { quote
 
   if (done) {
     return (
-      <span className="flex items-center gap-1.5 text-xs font-semibold text-green-600 px-3 py-1.5 bg-green-50 rounded-xl">
+      <span className="flex items-center gap-1.5 text-xs" style={{ color: '#10B981' }}>
         <CheckCircle className="w-3.5 h-3.5" /> Approved
       </span>
     )
@@ -37,7 +37,7 @@ export default function ApproveMeasurementButton({ quoteId, onApprove }: { quote
     <button
       onClick={handleApprove}
       disabled={loading}
-      className="flex items-center gap-1.5 text-white font-semibold px-3.5 py-2 rounded-2xl text-xs disabled:opacity-60 active:scale-95 transition-all whitespace-nowrap"
+      className="flex items-center gap-1.5 text-white text-sm font-medium px-3.5 py-2 rounded-md transition-colors disabled:opacity-60 whitespace-nowrap"
       style={{ background: 'var(--button-dark)' }}
     >
       <CheckCircle className="w-3.5 h-3.5" />

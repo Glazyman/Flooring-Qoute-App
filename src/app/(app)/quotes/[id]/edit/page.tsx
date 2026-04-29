@@ -93,12 +93,12 @@ export default async function EditQuotePage({
       <div className="mb-5">
         <Link
           href={isMeasurement ? '/measurements' : `/quotes/${id}`}
-          className="text-xs font-medium text-gray-400 hover:text-gray-600 inline-flex items-center gap-1 mb-2"
+          className="text-xs font-medium text-gray-500 hover:text-gray-900 inline-flex items-center gap-1 mb-2"
         >
-          {isMeasurement ? '← Back to Saved Measurements' : '← Back to Quote'}
+          {isMeasurement ? '← Back to saved measurements' : '← Back to quote'}
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900">{isMeasurement ? 'Edit Measurement' : 'Edit Quote'}</h1>
-        <p className="text-sm text-gray-400 mt-1">{q.customer_name}</p>
+        <h1 className="text-xl font-semibold text-gray-900">{isMeasurement ? 'Edit measurement' : 'Edit quote'}</h1>
+        <p className="text-sm text-gray-500 mt-0.5">{q.customer_name}</p>
       </div>
       <QuoteForm settings={settings} initialData={initialData} quoteId={id} isPro={!!isOnPro} />
     </div>

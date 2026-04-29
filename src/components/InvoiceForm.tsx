@@ -51,6 +51,19 @@ function parseCsv(text: string): LineItem[] {
   return items
 }
 
+const inputBase =
+  'w-full px-3 py-2 text-sm rounded-md focus:outline-none transition-colors bg-white text-gray-900 placeholder-gray-400'
+const inputStyle: React.CSSProperties = { border: '1px solid #E5E7EB' }
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <label className="block text-xs font-medium text-gray-500 mb-1">{label}</label>
+      {children}
+    </div>
+  )
+}
+
 export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'form' | 'upload' }) {
   const router = useRouter()
   const [tab, setTab] = useState<'form' | 'upload'>(defaultTab)
@@ -182,97 +195,95 @@ export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'for
   return (
     <div className="space-y-5">
       {/* Tab switcher */}
-      <div className="flex bg-gray-100 rounded-2xl p-1">
+      <div className="flex bg-gray-100 rounded-md p-1 max-w-md">
         {(['form', 'upload'] as const).map(t => (
           <button
             key={t}
             onClick={() => { setTab(t); setError('') }}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-              tab === t ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+            className={`flex-1 flex items-center justify-center gap-2 py-1.5 rounded text-sm font-medium transition-all ${
+              tab === t ? 'bg-white text-gray-900' : 'text-gray-500 hover:text-gray-700'
             }`}
+            style={tab === t ? { boxShadow: '0 1px 2px rgba(0,0,0,0.04)' } : undefined}
           >
-            {t === 'form' ? <FileText className="w-4 h-4" /> : <Upload className="w-4 h-4" />}
+            {t === 'form' ? <FileText className="w-3.5 h-3.5" /> : <Upload className="w-3.5 h-3.5" />}
             {t === 'form' ? 'Fill Out Form' : 'Upload PDF'}
           </button>
         ))}
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl text-sm font-medium">
+        <div className="bg-red-50 text-red-700 px-3.5 py-2.5 rounded-md text-sm" style={{ border: '1px solid #FECACA' }}>
           {error}
         </div>
       )}
 
       {tab === 'form' ? (
-        <div className="space-y-4">
+        <div className="space-y-5">
           {/* Customer info */}
-          <div className="bg-white rounded-xl p-5 space-y-4" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
-            <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Customer Info</p>
+          <div className="bg-white rounded-xl p-5 space-y-4" style={{ border: '1px solid var(--border)' }}>
+            <h2 className="text-sm font-semibold text-gray-900">Customer info</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wide text-gray-400 mb-1.5">Invoice # (optional)</label>
+              <Field label="Invoice # (optional)">
                 <input
                   type="text"
                   value={invoiceNumber}
                   onChange={e => setInvoiceNumber(e.target.value)}
                   placeholder="INV-001"
-                  className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400"
-                  style={{ borderColor: 'var(--border)' }}
+                  className={inputBase}
+                  style={inputStyle}
                 />
-              </div>
-              <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wide text-gray-400 mb-1.5">Customer Name *</label>
+              </Field>
+              <Field label="Customer name *">
                 <input
                   type="text"
                   value={customerName}
                   onChange={e => setCustomerName(e.target.value)}
                   placeholder="John Smith"
-                  className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400"
-                  style={{ borderColor: 'var(--border)' }}
+                  className={inputBase}
+                  style={inputStyle}
                 />
-              </div>
-              <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wide text-gray-400 mb-1.5">Email</label>
+              </Field>
+              <Field label="Email">
                 <input
                   type="email"
                   value={customerEmail}
                   onChange={e => setCustomerEmail(e.target.value)}
                   placeholder="john@example.com"
-                  className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400"
-                  style={{ borderColor: 'var(--border)' }}
+                  className={inputBase}
+                  style={inputStyle}
                 />
-              </div>
-              <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wide text-gray-400 mb-1.5">Phone</label>
+              </Field>
+              <Field label="Phone">
                 <input
                   type="tel"
                   value={customerPhone}
                   onChange={e => setCustomerPhone(e.target.value)}
                   placeholder="(555) 000-0000"
-                  className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400"
-                  style={{ borderColor: 'var(--border)' }}
+                  className={inputBase}
+                  style={inputStyle}
                 />
-              </div>
+              </Field>
               <div className="sm:col-span-2">
-                <label className="block text-[11px] font-bold uppercase tracking-wide text-gray-400 mb-1.5">Job Address</label>
-                <input
-                  type="text"
-                  value={jobAddress}
-                  onChange={e => setJobAddress(e.target.value)}
-                  placeholder="123 Main St"
-                  className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400"
-                  style={{ borderColor: 'var(--border)' }}
-                />
+                <Field label="Job address">
+                  <input
+                    type="text"
+                    value={jobAddress}
+                    onChange={e => setJobAddress(e.target.value)}
+                    placeholder="123 Main St"
+                    className={inputBase}
+                    style={inputStyle}
+                  />
+                </Field>
               </div>
             </div>
           </div>
 
           {/* Line items */}
-          <div className="bg-white rounded-xl p-5 space-y-3" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
+          <div className="bg-white rounded-xl p-5 space-y-3" style={{ border: '1px solid var(--border)' }}>
             <div className="flex items-center justify-between">
-              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Line Items</p>
+              <h2 className="text-sm font-semibold text-gray-900">Line items</h2>
               {csvImportCount !== null && (
-                <span className="flex items-center gap-1 text-xs font-semibold text-teal-600">
+                <span className="flex items-center gap-1 text-xs font-medium text-emerald-600">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   Imported {csvImportCount} line item{csvImportCount !== 1 ? 's' : ''}
                 </span>
@@ -281,13 +292,12 @@ export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'for
 
             {/* CSV upload zone */}
             <div
-              className="border-2 border-dashed border-gray-200 rounded-xl p-5 text-center hover:border-teal-300 hover:bg-teal-50/30 transition-colors cursor-pointer"
+              className="border border-dashed rounded-md p-5 text-center hover:bg-gray-50 transition-colors cursor-pointer"
+              style={{ borderColor: '#E5E7EB' }}
               onClick={() => csvInputRef.current?.click()}
-              onDragOver={e => { e.preventDefault(); e.currentTarget.classList.add('border-teal-300', 'bg-teal-50/30') }}
-              onDragLeave={e => { e.currentTarget.classList.remove('border-teal-300', 'bg-teal-50/30') }}
+              onDragOver={e => { e.preventDefault() }}
               onDrop={e => {
                 e.preventDefault()
-                e.currentTarget.classList.remove('border-teal-300', 'bg-teal-50/30')
                 const file = e.dataTransfer.files?.[0]
                 if (file && file.name.endsWith('.csv')) {
                   const reader = new FileReader()
@@ -315,72 +325,69 @@ export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'for
                 ref={csvInputRef}
                 onChange={handleCsvUpload}
               />
-              <button
-                type="button"
-                onClick={e => { e.stopPropagation(); csvInputRef.current?.click() }}
-                className="flex flex-col items-center gap-2 w-full"
-              >
-                <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center">
-                  <Upload className="w-5 h-5 text-gray-400" />
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-9 h-9 rounded-md bg-gray-50 flex items-center justify-center">
+                  <Upload className="w-4 h-4 text-gray-400" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-gray-700">Upload CSV</p>
-                  <p className="text-xs text-gray-400 mt-0.5">Import line items from a spreadsheet · drag &amp; drop or click</p>
+                  <p className="text-sm font-medium text-gray-700">Upload CSV</p>
+                  <p className="text-xs text-gray-400 mt-0.5">Import line items from a spreadsheet — drag &amp; drop or click</p>
                 </div>
-              </button>
+              </div>
             </div>
 
-            {lineItems.map((item, i) => (
-              <div key={i} className="grid grid-cols-12 gap-2 items-center">
-                <input
-                  type="text"
-                  value={item.description}
-                  onChange={e => updateItem(i, 'description', e.target.value)}
-                  placeholder="Description"
-                  className="col-span-5 px-3 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400"
-                  style={{ borderColor: 'var(--border)' }}
-                />
-                <input
-                  type="number"
-                  value={item.quantity || ''}
-                  onChange={e => updateItem(i, 'quantity', parseFloat(e.target.value) || 0)}
-                  placeholder="Qty"
-                  min="0"
-                  className="col-span-2 px-3 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400"
-                  style={{ borderColor: 'var(--border)' }}
-                />
-                <input
-                  type="number"
-                  value={item.unit_price || ''}
-                  onChange={e => updateItem(i, 'unit_price', parseFloat(e.target.value) || 0)}
-                  placeholder="Price"
-                  min="0"
-                  step="0.01"
-                  className="col-span-3 px-3 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400"
-                  style={{ borderColor: 'var(--border)' }}
-                />
-                <p className="col-span-1 text-xs font-semibold text-gray-700 text-right truncate">{fmt(item.total)}</p>
-                <button
-                  onClick={() => setLineItems(prev => prev.filter((_, idx) => idx !== i))}
-                  disabled={lineItems.length === 1}
-                  className="col-span-1 p-1.5 rounded-lg hover:bg-red-50 text-gray-300 hover:text-red-400 disabled:opacity-30 transition-colors"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            ))}
+            <div className="space-y-2">
+              {lineItems.map((item, i) => (
+                <div key={i} className="grid grid-cols-12 gap-2 items-center">
+                  <input
+                    type="text"
+                    value={item.description}
+                    onChange={e => updateItem(i, 'description', e.target.value)}
+                    placeholder="Description"
+                    className="col-span-5 px-3 py-2 text-sm rounded-md focus:outline-none bg-white"
+                    style={inputStyle}
+                  />
+                  <input
+                    type="number"
+                    value={item.quantity || ''}
+                    onChange={e => updateItem(i, 'quantity', parseFloat(e.target.value) || 0)}
+                    placeholder="Qty"
+                    min="0"
+                    className="col-span-2 px-3 py-2 text-sm rounded-md focus:outline-none bg-white"
+                    style={inputStyle}
+                  />
+                  <input
+                    type="number"
+                    value={item.unit_price || ''}
+                    onChange={e => updateItem(i, 'unit_price', parseFloat(e.target.value) || 0)}
+                    placeholder="Price"
+                    min="0"
+                    step="0.01"
+                    className="col-span-3 px-3 py-2 text-sm rounded-md focus:outline-none bg-white"
+                    style={inputStyle}
+                  />
+                  <p className="col-span-1 text-xs font-medium text-gray-700 text-right truncate">{fmt(item.total)}</p>
+                  <button
+                    onClick={() => setLineItems(prev => prev.filter((_, idx) => idx !== i))}
+                    disabled={lineItems.length === 1}
+                    className="col-span-1 p-1.5 rounded-md hover:bg-gray-100 text-gray-400 hover:text-gray-600 disabled:opacity-30 transition-colors"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
 
             <button
               onClick={() => setLineItems(prev => [...prev, emptyItem()])}
-              className="flex items-center gap-1.5 text-sm font-medium mt-1 px-3 py-2 rounded-xl hover:bg-gray-50 transition-colors"
-              style={{ color: 'var(--button-dark)' }}
+              className="flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50 px-3 py-2 rounded-md transition-colors"
             >
-              <Plus className="w-4 h-4" /> Add Line Item
+              <Plus className="w-3.5 h-3.5" /> Add line item
             </button>
 
             <div className="pt-3 border-t border-gray-100 space-y-2">
               <div className="flex items-center justify-between gap-3">
-                <label className="text-sm text-gray-500 flex items-center gap-2">
+                <label className="text-sm text-gray-600 flex items-center gap-2">
                   Tax %
                   <input
                     type="number"
@@ -389,78 +396,77 @@ export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'for
                     min="0"
                     max="100"
                     step="0.1"
-                    className="w-16 px-2 py-1 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-                    style={{ borderColor: 'var(--border)' }}
+                    className="w-16 px-2 py-1 rounded-md text-sm focus:outline-none bg-white"
+                    style={inputStyle}
                   />
                 </label>
-                <span className="text-sm text-gray-500">{fmt(taxAmount)}</span>
+                <span className="text-sm text-gray-600">{fmt(taxAmount)}</span>
               </div>
-              <div className="flex justify-between font-bold text-base text-gray-900">
+              <div className="flex justify-between font-semibold text-sm text-gray-900">
                 <span>Total</span>
-                <span style={{ color: 'var(--primary)' }}>{fmt(total)}</span>
+                <span>{fmt(total)}</span>
               </div>
             </div>
           </div>
 
           {/* Notes */}
-          <div className="bg-white rounded-xl p-5" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
-            <label className="block text-[11px] font-bold uppercase tracking-wide text-gray-400 mb-2">Notes (optional)</label>
-            <textarea
-              value={notes}
-              onChange={e => setNotes(e.target.value)}
-              rows={3}
-              placeholder="Payment terms, thank you message…"
-              className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400 resize-none"
-              style={{ borderColor: 'var(--border)' }}
-            />
+          <div className="bg-white rounded-xl p-5" style={{ border: '1px solid var(--border)' }}>
+            <Field label="Notes (optional)">
+              <textarea
+                value={notes}
+                onChange={e => setNotes(e.target.value)}
+                rows={3}
+                placeholder="Payment terms, thank you message…"
+                className={`${inputBase} resize-none min-h-[80px]`}
+                style={inputStyle}
+              />
+            </Field>
           </div>
 
-          <button
-            onClick={handleSubmitForm}
-            disabled={saving}
-            className="w-full text-white font-bold py-4 rounded-2xl text-sm disabled:opacity-60 active:scale-[0.99] transition-all"
-            style={{ background: 'var(--button-dark)', boxShadow: '0 2px 12px rgba(28,28,30,0.3)' }}
-          >
-            {saving ? 'Saving…' : 'Save Invoice'}
-          </button>
+          <div className="flex justify-end">
+            <button
+              onClick={handleSubmitForm}
+              disabled={saving}
+              className="text-sm font-medium px-3.5 py-2 rounded-md text-white transition-colors disabled:opacity-60"
+              style={{ background: 'var(--button-dark)' }}
+            >
+              {saving ? 'Saving…' : 'Save Invoice'}
+            </button>
+          </div>
         </div>
       ) : (
         /* Upload tab */
-        <div className="space-y-4">
-          <div className="bg-white rounded-xl p-5 space-y-4" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
-            <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Invoice Details</p>
+        <div className="space-y-5">
+          <div className="bg-white rounded-xl p-5 space-y-4" style={{ border: '1px solid var(--border)' }}>
+            <h2 className="text-sm font-semibold text-gray-900">Invoice details</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wide text-gray-400 mb-1.5">Customer Name *</label>
+              <Field label="Customer name *">
                 <input
                   type="text"
                   value={uploadCustomerName}
                   onChange={e => setUploadCustomerName(e.target.value)}
                   placeholder="John Smith"
-                  className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400"
-                  style={{ borderColor: 'var(--border)' }}
+                  className={inputBase}
+                  style={inputStyle}
                 />
-              </div>
-              <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wide text-gray-400 mb-1.5">Invoice # (optional)</label>
+              </Field>
+              <Field label="Invoice # (optional)">
                 <input
                   type="text"
                   value={uploadInvoiceNumber}
                   onChange={e => setUploadInvoiceNumber(e.target.value)}
                   placeholder="INV-001"
-                  className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400"
-                  style={{ borderColor: 'var(--border)' }}
+                  className={inputBase}
+                  style={inputStyle}
                 />
-              </div>
+              </Field>
             </div>
           </div>
 
           <div
             onClick={() => fileRef.current?.click()}
-            className={`bg-white rounded-xl p-10 text-center cursor-pointer transition-colors ${
-              uploadFile ? 'border-teal-300' : 'border-dashed border-gray-200 hover:border-teal-300'
-            }`}
-            style={{ border: uploadFile ? '2px solid var(--primary)' : undefined, boxShadow: 'var(--shadow-card)' }}
+            className="bg-white rounded-xl p-10 text-center cursor-pointer hover:bg-gray-50 transition-colors"
+            style={{ border: uploadFile ? '1px solid var(--primary)' : '1px dashed #E5E7EB' }}
           >
             <input
               ref={fileRef}
@@ -474,31 +480,33 @@ export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'for
             />
             {uploadFile ? (
               <div className="space-y-2">
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto" style={{ background: 'var(--primary-light)' }}>
-                  <FileText className="w-6 h-6" style={{ color: 'var(--primary)' }} />
+                <div className="w-10 h-10 rounded-md flex items-center justify-center mx-auto" style={{ background: 'var(--primary-light)' }}>
+                  <FileText className="w-5 h-5" style={{ color: 'var(--primary)' }} />
                 </div>
-                <p className="font-semibold text-sm text-gray-800">{uploadFile.name}</p>
+                <p className="text-sm font-medium text-gray-800">{uploadFile.name}</p>
                 <p className="text-xs text-gray-400">{(uploadFile.size / 1024).toFixed(0)} KB · Click to change</p>
               </div>
             ) : (
               <div className="space-y-2">
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto bg-gray-50">
-                  <Upload className="w-6 h-6 text-gray-400" />
+                <div className="w-10 h-10 rounded-md flex items-center justify-center mx-auto bg-gray-50">
+                  <Upload className="w-5 h-5 text-gray-400" />
                 </div>
-                <p className="font-semibold text-sm text-gray-700">Click to upload invoice</p>
+                <p className="text-sm font-medium text-gray-700">Click to upload invoice</p>
                 <p className="text-xs text-gray-400">PDF, JPG, or PNG</p>
               </div>
             )}
           </div>
 
-          <button
-            onClick={handleUpload}
-            disabled={uploading || !uploadFile}
-            className="w-full text-white font-bold py-4 rounded-2xl text-sm disabled:opacity-60 active:scale-[0.99] transition-all"
-            style={{ background: 'var(--button-dark)', boxShadow: '0 2px 12px rgba(28,28,30,0.3)' }}
-          >
-            {uploading ? 'Uploading…' : 'Save Invoice'}
-          </button>
+          <div className="flex justify-end">
+            <button
+              onClick={handleUpload}
+              disabled={uploading || !uploadFile}
+              className="text-sm font-medium px-3.5 py-2 rounded-md text-white transition-colors disabled:opacity-60"
+              style={{ background: 'var(--button-dark)' }}
+            >
+              {uploading ? 'Uploading…' : 'Save Invoice'}
+            </button>
+          </div>
         </div>
       )}
     </div>

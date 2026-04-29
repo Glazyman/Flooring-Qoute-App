@@ -19,11 +19,11 @@ interface Customer {
   created_at: string
 }
 
-const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
-  measurement: { bg: '#eff6ff', text: '#1d4ed8', label: 'Measurement' },
-  pending: { bg: '#fffbeb', text: '#d97706', label: 'Pending' },
-  accepted: { bg: '#f0fdf4', text: '#16a34a', label: 'Accepted' },
-  lost: { bg: '#fef2f2', text: '#dc2626', label: 'Lost' },
+const STATUS_DOT: Record<string, { color: string; label: string }> = {
+  measurement: { color: '#3B82F6', label: 'Measurement' },
+  pending: { color: '#6366F1', label: 'Pending' },
+  accepted: { color: '#10B981', label: 'Accepted' },
+  lost: { color: '#EF4444', label: 'Lost' },
 }
 
 function fmtDate(d: string) {
@@ -101,22 +101,21 @@ export default async function ContactDetailPage({
         <div className="min-w-0">
           <Link
             href="/contacts"
-            className="text-xs font-medium hover:text-gray-600 mb-2 inline-flex items-center gap-1"
-            style={{ color: 'var(--text-3)' }}
+            className="text-xs font-medium text-gray-500 hover:text-gray-900 mb-2 inline-flex items-center gap-1"
           >
-            ← Back to Contacts
+            ← Back to contacts
           </Link>
-          <h1 className="text-2xl font-extrabold tracking-tight truncate" style={{ color: 'var(--text)' }}>
+          <h1 className="text-xl font-semibold text-gray-900 truncate">
             {c.name}
           </h1>
-          <p className="text-sm mt-0.5" style={{ color: 'var(--text-2)' }}>
+          <p className="text-sm text-gray-500 mt-0.5">
             {quotes.length} quote{quotes.length === 1 ? '' : 's'} on file
           </p>
         </div>
         <Link
           href={`/contacts?edit=${c.id}`}
-          className="flex items-center gap-1.5 font-semibold px-4 py-2.5 rounded-2xl text-sm active:scale-95 flex-shrink-0"
-          style={{ background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text)' }}
+          className="inline-flex items-center gap-1.5 text-sm font-medium px-3.5 py-2 rounded-md text-gray-700 hover:bg-gray-50 transition-colors flex-shrink-0"
+          style={{ background: 'white', border: '1px solid #E5E7EB' }}
         >
           <Pencil className="w-3.5 h-3.5" />
           Edit
@@ -124,10 +123,7 @@ export default async function ContactDetailPage({
       </div>
 
       {/* Contact details */}
-      <Card>
-        <p className="text-[11px] font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--text-3)' }}>
-          Contact Details
-        </p>
+      <Card title="Contact details">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {c.phone && (
             <DetailRow icon={<Phone className="w-3.5 h-3.5" />} label="Phone" value={formatPhone(c.phone)} />
@@ -145,69 +141,67 @@ export default async function ContactDetailPage({
           )}
         </div>
         {c.notes && (
-          <div className="mt-4 pt-4 border-t" style={{ borderColor: 'var(--border)' }}>
-            <p className="text-[11px] font-bold uppercase tracking-wide mb-1.5" style={{ color: 'var(--text-3)' }}>
+          <div className="mt-4 pt-4" style={{ borderTop: '1px solid #F1F1F4' }}>
+            <p className="text-xs font-medium text-gray-500 mb-1.5">
               Notes
             </p>
-            <p className="text-sm whitespace-pre-wrap leading-relaxed" style={{ color: 'var(--text)' }}>
+            <p className="text-sm whitespace-pre-wrap leading-relaxed text-gray-700">
               {c.notes}
             </p>
           </div>
         )}
         {!c.phone && !c.email && !c.address && !c.notes && (
-          <p className="text-sm" style={{ color: 'var(--text-3)' }}>No additional details on file.</p>
+          <p className="text-sm text-gray-400">No additional details on file.</p>
         )}
       </Card>
 
       {/* Quote history */}
-      <div>
-        <p className="text-[11px] font-bold uppercase tracking-widest mb-3 px-1" style={{ color: 'var(--text-3)' }}>
-          Quote History
-        </p>
+      <div className="bg-white rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+        <div className="flex items-center gap-2 px-4 py-2.5" style={{ background: '#FAFAFA', borderBottom: '1px solid #F1F1F4' }}>
+          <h2 className="text-sm font-semibold text-gray-900">Quote history</h2>
+          <span className="text-xs text-gray-400">{quotes.length}</span>
+        </div>
         {quotes.length === 0 ? (
-          <div className="bg-white rounded-xl p-12 text-center" style={{ border: '1px solid var(--border)' }}>
+          <div className="p-12 text-center">
             <div
-              className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3"
-              style={{ background: 'var(--primary-light)' }}
+              className="w-10 h-10 rounded-md flex items-center justify-center mx-auto mb-3 bg-gray-100"
             >
-              <FileText className="w-5 h-5" style={{ color: 'var(--primary)' }} />
+              <FileText className="w-5 h-5 text-gray-400" />
             </div>
-            <p className="text-sm font-semibold mb-1" style={{ color: 'var(--text)' }}>
+            <p className="text-sm font-semibold mb-1 text-gray-900">
               No quotes yet
             </p>
-            <p className="text-xs" style={{ color: 'var(--text-3)' }}>
+            <p className="text-xs text-gray-500">
               Quotes saved with this contact&apos;s phone, email, or name will appear here.
             </p>
           </div>
         ) : (
-          <div className="bg-white rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+          <div>
             {quotes.map((q, idx) => {
-              const cfg = STATUS_STYLES[q.status] || { bg: '#f9fafb', text: '#6b7280', label: q.status }
+              const cfg = STATUS_DOT[q.status] || { color: '#9CA3AF', label: q.status }
               return (
                 <Link
                   key={q.id}
                   href={`/quotes/${q.id}`}
-                  className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-gray-50"
-                  style={{ borderBottom: idx < quotes.length - 1 ? '1px solid var(--border)' : 'none' }}
+                  className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-gray-50/60"
+                  style={{ borderBottom: idx < quotes.length - 1 ? '1px solid #F5F5F7' : 'none' }}
                 >
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-sm font-semibold truncate" style={{ color: 'var(--text)' }}>
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <p className="text-sm font-medium truncate text-gray-900">
                         {q.customer_name}
                       </p>
-                      <span
-                        className="text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide flex-shrink-0"
-                        style={{ background: cfg.bg, color: cfg.text }}
-                      >
+                      <span className="text-xs flex items-center gap-1.5 flex-shrink-0" style={{ color: cfg.color }}>
+                        <span className="w-1.5 h-1.5 rounded-full" style={{ background: cfg.color }} />
                         {cfg.label}
                       </span>
                     </div>
-                    <p className="text-xs truncate mt-0.5" style={{ color: 'var(--text-2)' }}>
+                    <p className="text-xs truncate mt-0.5 text-gray-500">
                       {q.flooring_type} · {q.adjusted_sqft.toFixed(0)} sqft · {fmtDate(q.created_at)}
                       {q.job_address ? ` · ${q.job_address}` : ''}
                     </p>
                   </div>
-                  <p className="text-sm font-bold flex-shrink-0" style={{ color: 'var(--text)' }}>
+                  <p className="text-sm font-semibold flex-shrink-0 text-gray-900">
                     {fmt(q.final_total)}
                   </p>
                 </Link>
@@ -233,11 +227,11 @@ function DetailRow({
 }) {
   return (
     <div className={full ? 'sm:col-span-2' : ''}>
-      <p className="text-[11px] font-bold uppercase tracking-wide mb-1.5 flex items-center gap-1.5" style={{ color: 'var(--text-3)' }}>
-        <span style={{ color: 'var(--text-3)' }}>{icon}</span>
+      <p className="text-xs font-medium text-gray-500 mb-1 flex items-center gap-1.5">
+        <span className="text-gray-400">{icon}</span>
         {label}
       </p>
-      <p className="text-sm font-medium" style={{ color: 'var(--text)' }}>{value}</p>
+      <p className="text-sm text-gray-900">{value}</p>
     </div>
   )
 }

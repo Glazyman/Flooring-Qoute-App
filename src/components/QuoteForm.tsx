@@ -108,21 +108,20 @@ function Input({
   const inputMode = type === 'number' ? (decimal ? 'decimal' : 'numeric') : undefined
   return (
     <div>
-      <label className="block text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: 'var(--text-2)' }}>
+      <label className="block text-xs font-medium text-gray-500 mb-1">
         {label}{required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
-      <div className="flex items-center rounded-xl border focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-teal-400 overflow-hidden" style={{ background: 'white', borderColor: 'var(--border)' }}>
-        {prefix && <span className="px-3.5 py-3.5 text-sm border-r font-semibold" style={{ color: 'var(--text-2)', borderColor: 'var(--border)', background: '#f9f9fb' }}>{prefix}</span>}
+      <div className="flex items-center rounded-md overflow-hidden" style={{ background: 'white', border: '1px solid #E5E7EB' }}>
+        {prefix && <span className="px-3 py-2 text-sm border-r" style={{ color: 'var(--text-2)', borderColor: '#E5E7EB', background: '#FAFAFA' }}>{prefix}</span>}
         <input
           type={type} value={value} onChange={(e) => onChange(e.target.value)} onBlur={onBlur}
           placeholder={placeholder} required={required}
           inputMode={inputMode}
-          className="flex-1 min-w-0 px-3.5 py-3.5 text-[16px] placeholder:text-gray-300 focus:outline-none"
-          style={{ background: 'white', color: 'var(--text)' }}
+          className="flex-1 min-w-0 px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none bg-white text-gray-900"
         />
-        {suffix && <span className="px-3.5 py-3.5 text-sm border-l font-semibold" style={{ color: 'var(--text-2)', borderColor: 'var(--border)', background: '#f9f9fb' }}>{suffix}</span>}
+        {suffix && <span className="px-3 py-2 text-sm border-l" style={{ color: 'var(--text-2)', borderColor: '#E5E7EB', background: '#FAFAFA' }}>{suffix}</span>}
       </div>
-      {hint && <p className="text-xs mt-1.5" style={{ color: 'var(--text-3)' }}>{hint}</p>}
+      {hint && <p className="text-xs mt-1 text-gray-400">{hint}</p>}
     </div>
   )
 }
@@ -131,7 +130,7 @@ function LineItem({ label, value, bold, muted }: { label: string; value: number;
   return (
     <div className={`flex justify-between text-sm ${muted ? 'text-gray-400' : 'text-gray-700'}`}>
       <span className={bold ? 'font-semibold' : ''}>{label}</span>
-      <span className={bold ? 'font-bold text-gray-900' : 'font-medium'}>{fmt(value)}</span>
+      <span className={bold ? 'font-semibold text-gray-900' : 'font-medium'}>{fmt(value)}</span>
     </div>
   )
 }
@@ -745,17 +744,17 @@ export default function QuoteForm({
   return (
     <form onSubmit={(e) => handleSubmit(e, isEditing ? 'update' : 'measurement')} className="space-y-5 pb-24 lg:pb-0">
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl text-sm font-medium">{error}</div>
+        <div className="bg-red-50 text-red-700 px-3.5 py-2.5 rounded-md text-sm" style={{ border: '1px solid #FECACA' }}>{error}</div>
       )}
 
       {confirmRemoveSection && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
-          <div className="bg-white rounded-xl p-6 w-full max-w-sm" style={{ border: '1px solid var(--border)' }}>
-            <h3 className="font-bold text-lg mb-2" style={{ color: 'var(--text)' }}>Remove section &ldquo;{confirmRemoveSection}&rdquo;?</h3>
-            <p className="text-sm mb-6" style={{ color: 'var(--text-2)' }}>This section has rooms. Removing it will also remove its rooms.</p>
-            <div className="flex gap-3">
-              <button type="button" onClick={() => setConfirmRemoveSection(null)} className="flex-1 border font-semibold text-sm py-3 rounded-2xl" style={{ borderColor: 'var(--border)', color: 'var(--text-2)' }}>Cancel</button>
-              <button type="button" onClick={() => confirmRemoveSectionNow(confirmRemoveSection)} className="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold text-sm py-3 rounded-2xl">Remove</button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.4)' }}>
+          <div className="bg-white rounded-xl w-full max-w-md p-6" style={{ border: '1px solid var(--border)' }}>
+            <h3 className="text-sm font-semibold text-gray-900 mb-1">Remove section &ldquo;{confirmRemoveSection}&rdquo;?</h3>
+            <p className="text-sm text-gray-500 mb-5">This section has rooms. Removing it will also remove its rooms.</p>
+            <div className="flex gap-2 justify-end">
+              <button type="button" onClick={() => setConfirmRemoveSection(null)} className="text-sm font-medium px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100 transition-colors">Cancel</button>
+              <button type="button" onClick={() => confirmRemoveSectionNow(confirmRemoveSection)} className="text-sm font-medium px-3.5 py-2 rounded-md text-white transition-colors" style={{ background: 'var(--danger)' }}>Remove</button>
             </div>
           </div>
         </div>
@@ -765,13 +764,13 @@ export default function QuoteForm({
         <div className="lg:col-span-2 space-y-4">
 
           {/* Customer Info */}
-          <Card title="Customer Info">
+          <Card title="Customer info">
             <div className="flex items-center justify-end mb-4 -mt-1">
               <button
                 type="button"
                 onClick={openContactPicker}
-                className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl active:scale-95"
-                style={{ color: 'var(--primary)', background: 'var(--primary-light)' }}
+                className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-md text-gray-700 transition-colors hover:bg-gray-50"
+                style={{ border: '1px solid #E5E7EB' }}
               >
                 <Users className="w-3.5 h-3.5" />
                 Load from Contacts
@@ -779,15 +778,14 @@ export default function QuoteForm({
             </div>
 
             {showContactPicker && (
-              <div className="mb-4 rounded-xl border overflow-hidden" style={{ borderColor: 'var(--border)' }}>
-                <div className="flex items-center gap-2 px-3 py-2.5 border-b" style={{ borderColor: 'var(--border)', background: '#f9f9fb' }}>
+              <div className="mb-4 rounded-md overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
+                <div className="flex items-center gap-2 px-3 py-2" style={{ borderBottom: '1px solid #F1F1F4', background: '#FAFAFA' }}>
                   <input
                     type="text"
                     value={contactSearch}
                     onChange={e => setContactSearch(e.target.value)}
                     placeholder="Search contacts…"
-                    className="flex-1 text-sm focus:outline-none bg-transparent"
-                    style={{ color: 'var(--text)' }}
+                    className="flex-1 text-sm focus:outline-none bg-transparent text-gray-900 placeholder-gray-400"
                     autoFocus
                   />
                   <button type="button" onClick={() => setShowContactPicker(false)} className="text-gray-400 hover:text-gray-600 p-0.5">
@@ -796,9 +794,9 @@ export default function QuoteForm({
                 </div>
                 <div className="max-h-48 overflow-y-auto bg-white">
                   {contactsLoading ? (
-                    <p className="text-sm text-center py-4" style={{ color: 'var(--text-3)' }}>Loading…</p>
+                    <p className="text-sm text-center py-4 text-gray-400">Loading…</p>
                   ) : contacts.length === 0 ? (
-                    <p className="text-sm text-center py-4" style={{ color: 'var(--text-3)' }}>No contacts saved yet</p>
+                    <p className="text-sm text-center py-4 text-gray-400">No contacts saved yet</p>
                   ) : (
                     contacts
                       .filter(c => !contactSearch || c.name.toLowerCase().includes(contactSearch.toLowerCase()))
@@ -807,11 +805,11 @@ export default function QuoteForm({
                           key={c.id}
                           type="button"
                           onClick={() => pickContact(c)}
-                          className="w-full text-left px-4 py-3 hover:bg-gray-50 active:bg-gray-100 border-b last:border-0 transition-colors"
-                          style={{ borderColor: 'var(--border)' }}
+                          className="w-full text-left px-4 py-2.5 hover:bg-gray-50 transition-colors"
+                          style={{ borderBottom: '1px solid #F5F5F7' }}
                         >
-                          <p className="text-sm font-semibold" style={{ color: 'var(--text)' }}>{c.name}</p>
-                          <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>
+                          <p className="text-sm font-normal text-gray-800">{c.name}</p>
+                          <p className="text-xs mt-0.5 text-gray-400">
                             {[c.phone, c.email].filter(Boolean).join(' · ')}
                           </p>
                         </button>
@@ -830,17 +828,17 @@ export default function QuoteForm({
           </Card>
 
           {/* Project Settings */}
-          <Card title="Project Settings">
+          <Card title="Project settings">
             {/* Method toggle */}
             <div className="mb-5">
-              <label className="block text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: 'var(--text-2)' }}>Measurement Method</label>
-              <div className="flex rounded-xl border overflow-hidden p-1 gap-1" style={{ borderColor: 'var(--border)', background: '#f9f9fb' }}>
+              <label className="block text-xs font-medium text-gray-500 mb-1.5">Measurement method</label>
+              <div className="flex rounded-md p-1 gap-1 bg-gray-100">
                 {(['rooms', 'manual'] as MeasurementType[]).map(m => (
                   <button key={m} type="button" onClick={() => setMeasurementType(m)}
-                    className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
-                      measurementType === m ? 'bg-white text-teal-700' : 'text-gray-500 hover:text-gray-700'
+                    className={`flex-1 py-1.5 text-sm font-medium rounded transition-all ${
+                      measurementType === m ? 'bg-white text-gray-900' : 'text-gray-500 hover:text-gray-700'
                     }`}
-                    style={measurementType === m ? { boxShadow: 'var(--shadow-card)' } : undefined}
+                    style={measurementType === m ? { boxShadow: '0 1px 2px rgba(0,0,0,0.04)' } : undefined}
                   >
                     {m === 'rooms' ? 'By Rooms' : 'Total SqFt'}
                   </button>
@@ -850,14 +848,14 @@ export default function QuoteForm({
 
             {measurementType === 'manual' ? (
               <div className="space-y-4">
-                <Input label="Total Square Footage" value={manualSqft} onChange={setManualSqft} type="number" suffix="sqft" placeholder="500" decimal />
+                <Input label="Total square footage" value={manualSqft} onChange={setManualSqft} type="number" suffix="sqft" placeholder="500" decimal />
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: 'var(--text-2)' }}>Flooring Type</label>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Flooring type</label>
                   <select
                     value={sectionFlooring[firstSection] || 'unfinished'}
                     onChange={e => setSectionFlooringType(firstSection, e.target.value as FlooringType)}
-                    className="w-full text-sm font-semibold rounded-xl px-3 py-3 border focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
-                    style={{ borderColor: 'var(--border)', color: 'var(--text)' }}
+                    className="w-full text-sm rounded-md px-3 py-2 focus:outline-none bg-white text-gray-900"
+                    style={{ border: '1px solid #E5E7EB' }}
                   >
                     <optgroup label="Hardwood">
                       {FLOORING_TYPES.filter(t => t.group === 'Hardwood').map(t => (
@@ -872,31 +870,31 @@ export default function QuoteForm({
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: 'var(--text-2)' }}>Pricing ($/sqft)</label>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Pricing ($/sqft)</label>
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="flex items-center rounded-xl border bg-white overflow-hidden focus-within:ring-2 focus-within:ring-teal-500" style={{ borderColor: 'var(--border)' }}>
-                      <span className="px-3 py-3 text-sm font-bold border-r" style={{ color: 'var(--text-2)', borderColor: 'var(--border)', background: '#f9f9fb' }}>$</span>
+                    <div className="flex items-center rounded-md bg-white overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
+                      <span className="px-3 py-2 text-sm border-r text-gray-600" style={{ borderColor: '#E5E7EB', background: '#FAFAFA' }}>$</span>
                       <input
                         type="number"
                         inputMode="decimal"
                         value={sectionPricing[firstSection]?.material || ''}
                         onChange={e => setSectionPricing(prev => ({ ...prev, [firstSection]: { ...(prev[firstSection] || { material: '', labor: '' }), material: e.target.value } }))}
                         placeholder="5.00"
-                        className="flex-1 min-w-0 px-3 py-3 text-sm font-semibold focus:outline-none bg-transparent"
+                        className="flex-1 min-w-0 px-3 py-2 text-sm focus:outline-none bg-transparent text-gray-900"
                       />
-                      <span className="px-2.5 py-3 text-[10px] font-bold border-l" style={{ color: 'var(--text-3)', borderColor: 'var(--border)', background: '#f9f9fb' }}>MAT</span>
+                      <span className="px-2 py-2 text-[10px] font-medium border-l text-gray-400" style={{ borderColor: '#E5E7EB', background: '#FAFAFA' }}>MAT</span>
                     </div>
-                    <div className="flex items-center rounded-xl border bg-white overflow-hidden focus-within:ring-2 focus-within:ring-teal-500" style={{ borderColor: 'var(--border)' }}>
-                      <span className="px-3 py-3 text-sm font-bold border-r" style={{ color: 'var(--text-2)', borderColor: 'var(--border)', background: '#f9f9fb' }}>$</span>
+                    <div className="flex items-center rounded-md bg-white overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
+                      <span className="px-3 py-2 text-sm border-r text-gray-600" style={{ borderColor: '#E5E7EB', background: '#FAFAFA' }}>$</span>
                       <input
                         type="number"
                         inputMode="decimal"
                         value={sectionPricing[firstSection]?.labor || ''}
                         onChange={e => setSectionPricing(prev => ({ ...prev, [firstSection]: { ...(prev[firstSection] || { material: '', labor: '' }), labor: e.target.value } }))}
                         placeholder="3.00"
-                        className="flex-1 min-w-0 px-3 py-3 text-sm font-semibold focus:outline-none bg-transparent"
+                        className="flex-1 min-w-0 px-3 py-2 text-sm focus:outline-none bg-transparent text-gray-900"
                       />
-                      <span className="px-2.5 py-3 text-[10px] font-bold border-l" style={{ color: 'var(--text-3)', borderColor: 'var(--border)', background: '#f9f9fb' }}>LAB</span>
+                      <span className="px-2 py-2 text-[10px] font-medium border-l text-gray-400" style={{ borderColor: '#E5E7EB', background: '#FAFAFA' }}>LAB</span>
                     </div>
                   </div>
                 </div>
@@ -905,22 +903,22 @@ export default function QuoteForm({
               <div className="space-y-4">
                 {/* Blueprint upload (Pro tier only) */}
                 {isPro ? (
-                  <div className={`border-2 border-dashed rounded-xl p-4 text-center transition-colors ${blueprintLoading ? 'border-teal-300 bg-teal-50' : 'hover:border-teal-300 hover:bg-teal-50/50'}`} style={{ borderColor: blueprintLoading ? undefined : 'var(--border)' }}>
+                  <div className="border border-dashed rounded-md p-4 text-center transition-colors hover:bg-gray-50" style={{ borderColor: '#E5E7EB' }}>
                     <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleBlueprintUpload} />
                     {blueprintLoading ? (
                       <div className="flex flex-col items-center gap-2 py-2">
-                        <Loader2 className="w-6 h-6 text-teal-500 animate-spin" />
-                        <p className="text-sm font-medium text-teal-700">Analyzing with AI…</p>
-                        <p className="text-xs text-teal-500">~10–20 seconds per image</p>
+                        <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
+                        <p className="text-sm font-medium text-gray-700">Analyzing with AI…</p>
+                        <p className="text-xs text-gray-400">~10–20 seconds per image</p>
                       </div>
                     ) : (
                       <button type="button" onClick={() => fileRef.current?.click()} className="flex flex-col items-center gap-2 w-full py-2">
-                        <div className="w-10 h-10 bg-teal-100 rounded-xl flex items-center justify-center">
-                          <Upload className="w-5 h-5 text-teal-600" />
+                        <div className="w-9 h-9 rounded-md flex items-center justify-center bg-gray-50">
+                          <Upload className="w-4 h-4 text-gray-400" />
                         </div>
                         <div>
-                          <p className="text-sm font-semibold" style={{ color: 'var(--text)' }}>Upload Blueprint or Measurement Sheet</p>
-                          <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>Select multiple images — one per floor is fine</p>
+                          <p className="text-sm font-medium text-gray-700">Upload blueprint or measurement sheet</p>
+                          <p className="text-xs mt-0.5 text-gray-400">Select multiple images — one per floor is fine</p>
                         </div>
                       </button>
                     )}
@@ -928,33 +926,33 @@ export default function QuoteForm({
                 ) : (
                   <a
                     href="/billing/setup"
-                    className="block border-2 border-dashed rounded-xl p-4 text-center transition-colors hover:border-teal-300 hover:bg-teal-50/50"
-                    style={{ borderColor: 'var(--border)' }}
+                    className="block border border-dashed rounded-md p-4 text-center transition-colors hover:bg-gray-50"
+                    style={{ borderColor: '#E5E7EB' }}
                   >
                     <div className="flex flex-col items-center gap-2 py-2">
-                      <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--bg)' }}>
-                        <Upload className="w-5 h-5" style={{ color: 'var(--text-3)' }} />
+                      <div className="w-9 h-9 rounded-md flex items-center justify-center bg-gray-50">
+                        <Upload className="w-4 h-4 text-gray-400" />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold" style={{ color: 'var(--text)' }}>
-                          Upload Blueprint
-                          <span className="ml-2 text-[10px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-md" style={{ color: 'var(--primary)', background: 'var(--primary-light)' }}>Pro</span>
+                        <p className="text-sm font-medium text-gray-700">
+                          Upload blueprint
+                          <span className="ml-2 text-[10px] font-medium px-1.5 py-0.5 rounded" style={{ color: 'var(--primary)', background: 'var(--primary-light)' }}>Pro</span>
                         </p>
-                        <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>AI extracts every room — upgrade to enable</p>
+                        <p className="text-xs mt-0.5 text-gray-400">AI extracts every room — upgrade to enable</p>
                       </div>
                     </div>
                   </a>
                 )}
 
                 {blueprintError && (
-                  <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-xl text-xs font-medium">
+                  <div className="bg-red-50 text-red-700 px-3 py-2 rounded-md text-xs" style={{ border: '1px solid #FECACA' }}>
                     {blueprintError}
                   </div>
                 )}
 
                 {blueprintNotes && (
-                  <div className="bg-amber-50 border border-amber-200 text-amber-800 px-3 py-2.5 rounded-xl text-xs">
-                    <p className="font-semibold mb-0.5">Notes extracted from image:</p>
+                  <div className="bg-amber-50 text-amber-800 px-3 py-2 rounded-md text-xs" style={{ border: '1px solid #FDE68A' }}>
+                    <p className="font-medium mb-0.5">Notes extracted from image:</p>
                     <p>{blueprintNotes}</p>
                   </div>
                 )}
@@ -967,9 +965,9 @@ export default function QuoteForm({
                     const secFlooring = sectionFlooring[section] ?? 'unfinished'
 
                     return (
-                      <div key={section} className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+                      <div key={section} className="rounded-xl overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
                         {/* Section header */}
-                        <div className="px-4 pt-3 pb-2" style={{ background: 'var(--primary-light)' }}>
+                        <div className="px-4 pt-3 pb-3" style={{ background: '#FAFAFA', borderBottom: '1px solid #F1F1F4' }}>
                           <div className="flex items-center justify-between mb-2 gap-2">
                             <div className="flex items-center gap-2 min-w-0 flex-1">
                               {editingSection === section ? (
@@ -982,8 +980,8 @@ export default function QuoteForm({
                                     if (e.key === 'Enter') { e.preventDefault(); commitEditSection() }
                                     if (e.key === 'Escape') { setEditingSection(null) }
                                   }}
-                                  className="text-xs font-bold uppercase tracking-widest bg-white rounded-lg px-2 py-1 border focus:outline-none focus:ring-2 focus:ring-teal-500 flex-1 min-w-0"
-                                  style={{ borderColor: 'var(--border)', color: 'var(--text)' }}
+                                  className="text-sm font-semibold bg-white rounded-md px-2 py-1 focus:outline-none flex-1 min-w-0 text-gray-900"
+                                  style={{ border: '1px solid #E5E7EB' }}
                                 />
                               ) : (
                                 <button
@@ -992,19 +990,19 @@ export default function QuoteForm({
                                   className="flex items-center gap-1 group min-w-0"
                                   title="Click to rename"
                                 >
-                                  <span className="text-xs font-bold uppercase tracking-widest truncate" style={{ color: 'var(--primary)' }}>
+                                  <span className="text-sm font-semibold text-gray-900 truncate">
                                     {section}
                                   </span>
-                                  <Pencil className="w-3 h-3 opacity-30 group-hover:opacity-80 flex-shrink-0" style={{ color: 'var(--primary)' }} />
+                                  <Pencil className="w-3 h-3 opacity-30 group-hover:opacity-80 flex-shrink-0 text-gray-500" />
                                 </button>
                               )}
-                              <span className="text-xs flex-shrink-0" style={{ color: 'var(--primary)', opacity: 0.7 }}>
+                              <span className="text-xs flex-shrink-0 text-gray-400">
                                 · {sectionRooms.length} room{sectionRooms.length !== 1 ? 's' : ''}
                               </span>
                             </div>
                             <div className="flex items-center gap-2">
                               {sectionTotal > 0 && (
-                                <span className="text-xs font-bold whitespace-nowrap" style={{ color: 'var(--primary)' }}>
+                                <span className="text-xs font-medium whitespace-nowrap text-gray-700">
                                   {sectionTotal.toFixed(1)} sqft
                                 </span>
                               )}
@@ -1024,8 +1022,8 @@ export default function QuoteForm({
                           <select
                             value={secFlooring}
                             onChange={e => setSectionFlooringType(section, e.target.value as FlooringType)}
-                            className="w-full text-sm font-semibold rounded-xl px-3 py-2 border focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
-                            style={{ borderColor: 'var(--border)', color: 'var(--text)' }}
+                            className="w-full text-sm rounded-md px-3 py-2 focus:outline-none bg-white text-gray-900"
+                            style={{ border: '1px solid #E5E7EB' }}
                           >
                             <optgroup label="Hardwood">
                               {FLOORING_TYPES.filter(t => t.group === 'Hardwood').map(t => (
@@ -1042,8 +1040,8 @@ export default function QuoteForm({
                           {/* Per-section pricing */}
                           <div className="grid grid-cols-2 gap-2 mt-2">
                             {(['material', 'labor'] as const).map(kind => (
-                              <div key={kind} className="flex items-center rounded-xl border bg-white overflow-hidden focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-teal-400" style={{ borderColor: 'var(--border)' }}>
-                                <span className="px-2.5 py-2.5 text-xs font-bold border-r" style={{ color: 'var(--text-2)', borderColor: 'var(--border)', background: '#f9f9fb' }}>$</span>
+                              <div key={kind} className="flex items-center rounded-md bg-white overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
+                                <span className="px-2.5 py-2 text-sm border-r text-gray-600" style={{ borderColor: '#E5E7EB', background: '#FAFAFA' }}>$</span>
                                 <input
                                   type="number"
                                   inputMode="decimal"
@@ -1053,9 +1051,9 @@ export default function QuoteForm({
                                     [section]: { ...(prev[section] || { material: '', labor: '' }), [kind]: e.target.value }
                                   }))}
                                   placeholder={kind === 'material' ? '5.00' : '3.00'}
-                                  className="flex-1 min-w-0 px-2 py-2.5 text-sm font-semibold focus:outline-none bg-transparent"
+                                  className="flex-1 min-w-0 px-2 py-2 text-sm focus:outline-none bg-transparent text-gray-900"
                                 />
-                                <span className="px-2 py-2.5 text-[10px] font-bold border-l whitespace-nowrap" style={{ color: 'var(--text-3)', borderColor: 'var(--border)', background: '#f9f9fb' }}>
+                                <span className="px-2 py-2 text-[10px] font-medium border-l whitespace-nowrap text-gray-400" style={{ borderColor: '#E5E7EB', background: '#FAFAFA' }}>
                                   {kind === 'material' ? 'MAT' : 'LAB'}<br />
                                   <span className="font-normal">/sqft</span>
                                 </span>
@@ -1067,7 +1065,7 @@ export default function QuoteForm({
                         {/* Room cards */}
                         <div className="p-3 space-y-2 bg-white">
                           {sectionRooms.map((room, idx) => (
-                            <div key={room.id} className="rounded-xl p-3 space-y-2.5" style={{ background: '#f9fafb', border: '1px solid var(--border)' }}>
+                            <div key={room.id} className="rounded-md p-3 space-y-2.5 bg-gray-50" style={{ border: '1px solid #F1F1F4' }}>
                               {/* Name row */}
                               <div className="flex items-center gap-2">
                                 <input
@@ -1075,13 +1073,13 @@ export default function QuoteForm({
                                   value={room.name}
                                   onChange={(e) => updateRoom(room.id, 'name', e.target.value)}
                                   placeholder={`Room ${idx + 1}`}
-                                  className="flex-1 min-w-0 px-3 py-2 rounded-xl border text-sm font-medium focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
-                                  style={{ borderColor: 'var(--border)' }}
+                                  className="flex-1 min-w-0 px-3 py-2 rounded-md text-sm focus:outline-none bg-white text-gray-900 placeholder-gray-400"
+                                  style={{ border: '1px solid #E5E7EB' }}
                                 />
                                 <button
                                   type="button"
                                   onClick={() => duplicateRoom(room.id)}
-                                  className="p-1.5 text-gray-300 hover:text-teal-600 transition-colors rounded flex-shrink-0"
+                                  className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors rounded-md flex-shrink-0"
                                   title="Duplicate room"
                                 >
                                   <Copy className="w-4 h-4" />
@@ -1090,7 +1088,7 @@ export default function QuoteForm({
                                   type="button"
                                   onClick={() => removeRoom(room.id)}
                                   disabled={rooms.length === 1}
-                                  className="p-1.5 text-gray-300 hover:text-red-500 disabled:opacity-20 transition-colors rounded flex-shrink-0"
+                                  className="p-1.5 text-gray-400 hover:text-red-500 disabled:opacity-20 transition-colors rounded-md flex-shrink-0"
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </button>
@@ -1100,29 +1098,29 @@ export default function QuoteForm({
                               <div className="grid grid-cols-2 gap-2">
                                 {(['length', 'width'] as const).map(dim => (
                                   <div key={dim}>
-                                    <p className="text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: 'var(--text-3)' }}>{dim}</p>
+                                    <p className="text-[10px] font-medium uppercase tracking-wide mb-1 text-gray-400">{dim}</p>
                                     <div className="flex gap-1.5">
-                                      <div className="flex items-center flex-1 rounded-xl border bg-white overflow-hidden focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-teal-400" style={{ borderColor: 'var(--border)' }}>
+                                      <div className="flex items-center flex-1 rounded-md bg-white overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
                                         <input
                                           type="number"
                                           inputMode="numeric"
                                           value={dim === 'length' ? room.lengthFt : room.widthFt}
                                           onChange={(e) => updateRoom(room.id, dim === 'length' ? 'lengthFt' : 'widthFt', e.target.value)}
                                           placeholder="0"
-                                          className="w-full px-2.5 py-3 text-lg font-bold focus:outline-none bg-transparent text-center"
+                                          className="w-full px-2.5 py-2.5 text-base font-semibold focus:outline-none bg-transparent text-center text-gray-900"
                                         />
-                                        <span className="pr-2.5 text-xs font-semibold" style={{ color: 'var(--text-3)' }}>ft</span>
+                                        <span className="pr-2.5 text-xs text-gray-400">ft</span>
                                       </div>
-                                      <div className="flex items-center w-16 rounded-xl border bg-white overflow-hidden focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-teal-400" style={{ borderColor: 'var(--border)' }}>
+                                      <div className="flex items-center w-16 rounded-md bg-white overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
                                         <input
                                           type="number"
                                           inputMode="numeric"
                                           value={dim === 'length' ? room.lengthIn : room.widthIn}
                                           onChange={(e) => updateRoom(room.id, dim === 'length' ? 'lengthIn' : 'widthIn', e.target.value)}
                                           placeholder="0" min="0" max="11"
-                                          className="w-full px-1.5 py-3 text-lg font-bold focus:outline-none bg-transparent text-center"
+                                          className="w-full px-1.5 py-2.5 text-base font-semibold focus:outline-none bg-transparent text-center text-gray-900"
                                         />
-                                        <span className="pr-2 text-xs font-semibold" style={{ color: 'var(--text-3)' }}>in</span>
+                                        <span className="pr-2 text-xs text-gray-400">in</span>
                                       </div>
                                     </div>
                                   </div>
@@ -1132,8 +1130,8 @@ export default function QuoteForm({
                               {/* Sqft result */}
                               {roomSqft(room) > 0 && (
                                 <div className="flex items-center justify-between">
-                                  <span className="text-xs" style={{ color: 'var(--text-3)' }}>{fmtDim(room)}</span>
-                                  <span className="text-sm font-bold" style={{ color: 'var(--primary)' }}>{roomSqft(room).toFixed(1)} sqft</span>
+                                  <span className="text-xs text-gray-400">{fmtDim(room)}</span>
+                                  <span className="text-sm font-semibold text-gray-900">{roomSqft(room).toFixed(1)} sqft</span>
                                 </div>
                               )}
                             </div>
@@ -1142,8 +1140,7 @@ export default function QuoteForm({
                           <button
                             type="button"
                             onClick={() => addRoom(section)}
-                            className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-semibold transition-colors hover:bg-teal-50"
-                            style={{ color: 'var(--primary)' }}
+                            className="w-full flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50"
                           >
                             <PlusCircle className="w-3.5 h-3.5" />
                             Add room
@@ -1157,8 +1154,8 @@ export default function QuoteForm({
                   <button
                     type="button"
                     onClick={addSection}
-                    className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-semibold border border-dashed transition-colors hover:bg-teal-50"
-                    style={{ color: 'var(--primary)', borderColor: 'var(--border)' }}
+                    className="w-full flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-medium text-gray-700 border border-dashed transition-colors hover:bg-gray-50"
+                    style={{ borderColor: '#E5E7EB' }}
                   >
                     <PlusCircle className="w-3.5 h-3.5" />
                     Add section
@@ -1166,9 +1163,9 @@ export default function QuoteForm({
 
                   {/* Total bar */}
                   {roomsSqft > 0 && (
-                    <div className="flex items-center justify-between rounded-xl px-4 py-3" style={{ background: 'var(--primary-light)', border: '1px solid var(--border)' }}>
-                      <span className="text-sm font-semibold" style={{ color: 'var(--primary)' }}>Total measured</span>
-                      <span className="text-sm font-extrabold" style={{ color: 'var(--primary)' }}>{roomsSqft.toFixed(1)} sqft</span>
+                    <div className="flex items-center justify-between rounded-md px-4 py-2.5" style={{ background: '#FAFAFA', border: '1px solid #F1F1F4' }}>
+                      <span className="text-sm font-medium text-gray-700">Total measured</span>
+                      <span className="text-sm font-semibold text-gray-900">{roomsSqft.toFixed(1)} sqft</span>
                     </div>
                   )}
                 </div>
@@ -1177,21 +1174,21 @@ export default function QuoteForm({
           </Card>
 
           {/* Extras */}
-          <Card title="Extras & Add-ons">
-            <div className="grid grid-cols-2 gap-4">
+          <Card title="Extras & add-ons">
+            <div className="grid grid-cols-2 gap-3">
               <Input label="Waste %" value={wastePct} onChange={setWastePct} type="number" suffix="%" placeholder="10" decimal />
-              <Input label="Removal Fee" value={removalFee} onChange={setRemovalFee} type="number" prefix="$" placeholder="0" decimal />
-              <Input label="Furniture Moving" value={furnitureFee} onChange={setFurnitureFee} type="number" prefix="$" placeholder="0" decimal />
-              <Input label="Quarter Round / Moldings" value={quarterRoundFee} onChange={setQuarterRoundFee} type="number" prefix="$" placeholder="0" decimal />
-              <Input label="Reducers / Saddles" value={reducersFee} onChange={setReducersFee} type="number" prefix="$" placeholder="0" decimal />
-              <Input label="Delivery Fee" value={deliveryFee} onChange={setDeliveryFee} type="number" prefix="$" placeholder="0" decimal />
+              <Input label="Removal fee" value={removalFee} onChange={setRemovalFee} type="number" prefix="$" placeholder="0" decimal />
+              <Input label="Furniture moving" value={furnitureFee} onChange={setFurnitureFee} type="number" prefix="$" placeholder="0" decimal />
+              <Input label="Quarter round / moldings" value={quarterRoundFee} onChange={setQuarterRoundFee} type="number" prefix="$" placeholder="0" decimal />
+              <Input label="Reducers / saddles" value={reducersFee} onChange={setReducersFee} type="number" prefix="$" placeholder="0" decimal />
+              <Input label="Delivery fee" value={deliveryFee} onChange={setDeliveryFee} type="number" prefix="$" placeholder="0" decimal />
             </div>
 
-            {/* Stairs row — count + per-step + computed total */}
-            <div className="mt-4 pt-4 border-t" style={{ borderColor: 'var(--border)' }}>
+            {/* Stairs row */}
+            <div className="mt-4 pt-4" style={{ borderTop: '1px solid #F1F1F4' }}>
               <div className="grid grid-cols-3 gap-3">
                 <Input
-                  label="# of Stairs"
+                  label="# of stairs"
                   value={stairCount}
                   onChange={(v) => { setStairCount(v); applyStairPerStep(v, stairPerStep) }}
                   type="number"
@@ -1207,7 +1204,7 @@ export default function QuoteForm({
                   decimal
                 />
                 <Input
-                  label="Stairs Fee"
+                  label="Stairs fee"
                   value={stairsFee}
                   onChange={setStairsFee}
                   type="number"
@@ -1216,21 +1213,21 @@ export default function QuoteForm({
                   decimal
                 />
               </div>
-              <p className="text-xs mt-2" style={{ color: 'var(--text-3)' }}>
+              <p className="text-xs mt-2 text-gray-400">
                 Charged as a flat total. To bill per step, divide and enter total here — or enter # of stairs and the per-step rate to auto-compute.
               </p>
             </div>
 
             {/* Hardwood-specific fields */}
             {showFinishFields && (
-              <div className="mt-4 pt-4 border-t grid grid-cols-2 gap-4" style={{ borderColor: 'var(--border)' }}>
+              <div className="mt-4 pt-4 grid grid-cols-2 gap-3" style={{ borderTop: '1px solid #F1F1F4' }}>
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--text-2)' }}>Finish Type</label>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Finish type</label>
                   <select
                     value={finishType}
                     onChange={(e) => setFinishType(e.target.value)}
-                    className="w-full px-3.5 py-3.5 rounded-xl border text-[16px] bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"
-                    style={{ borderColor: 'var(--border)' }}
+                    className="w-full px-3 py-2 rounded-md text-sm bg-white focus:outline-none text-gray-900"
+                    style={{ border: '1px solid #E5E7EB' }}
                   >
                     <option value="">Select finish…</option>
                     <option>Waterbase</option>
@@ -1242,12 +1239,12 @@ export default function QuoteForm({
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--text-2)' }}>Wood Species</label>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Wood species</label>
                   <select
                     value={woodSpecies}
                     onChange={(e) => setWoodSpecies(e.target.value)}
-                    className="w-full px-3.5 py-3.5 rounded-xl border text-[16px] bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"
-                    style={{ borderColor: 'var(--border)' }}
+                    className="w-full px-3 py-2 rounded-md text-sm bg-white focus:outline-none text-gray-900"
+                    style={{ border: '1px solid #E5E7EB' }}
                   >
                     <option value="">Select species…</option>
                     <option>Red Oak</option>
@@ -1263,59 +1260,58 @@ export default function QuoteForm({
               </div>
             )}
 
-            {/* Material description — free-form details about the main flooring line */}
-            <div className="mt-4 pt-4 border-t" style={{ borderColor: 'var(--border)' }}>
-              <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--text-2)' }}>Material Description</label>
+            {/* Material description */}
+            <div className="mt-4 pt-4" style={{ borderTop: '1px solid #F1F1F4' }}>
+              <label className="block text-xs font-medium text-gray-500 mb-1">Material description</label>
               <textarea
                 value={materialDescription}
                 onChange={(e) => setMaterialDescription(e.target.value)}
                 rows={3}
                 placeholder={'e.g. Install and supply #1 3-1/4" red oak hardwood flooring, waste is included, finish w/ 2 coats poly (oil base), stain is included.'}
-                className="w-full px-3.5 py-3.5 rounded-xl border text-[16px] focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none placeholder:text-gray-300 bg-white"
-                style={{ color: 'var(--text)', borderColor: 'var(--border)' }}
+                className="w-full px-3 py-2 rounded-md text-sm focus:outline-none resize-none min-h-[80px] placeholder:text-gray-400 bg-white text-gray-900"
+                style={{ border: '1px solid #E5E7EB' }}
               />
-              <p className="text-xs mt-1.5" style={{ color: 'var(--text-3)' }}>
+              <p className="text-xs mt-1 text-gray-400">
                 Optional descriptive detail shown above the Material line on the quote PDF and in the on-screen breakdown.
               </p>
             </div>
 
-            <div className="mt-4 pt-4 border-t grid grid-cols-2 gap-4" style={{ borderColor: 'var(--border)' }}>
-              <Input label="Custom Fee Label" value={customFeeLabel} onChange={setCustomFeeLabel} placeholder="Other" />
-              <Input label="Custom Fee Amount" value={customFeeAmount} onChange={setCustomFeeAmount} type="number" prefix="$" placeholder="0" decimal />
+            <div className="mt-4 pt-4 grid grid-cols-2 gap-3" style={{ borderTop: '1px solid #F1F1F4' }}>
+              <Input label="Custom fee label" value={customFeeLabel} onChange={setCustomFeeLabel} placeholder="Other" />
+              <Input label="Custom fee amount" value={customFeeAmount} onChange={setCustomFeeAmount} type="number" prefix="$" placeholder="0" decimal />
             </div>
 
             {/* Show all extras toggle */}
             <button
               type="button"
               onClick={() => setShowAllExtras(v => !v)}
-              className="mt-4 flex items-center gap-1.5 text-xs font-semibold"
-              style={{ color: 'var(--primary)' }}
+              className="mt-4 flex items-center gap-1.5 text-xs font-medium text-gray-600 hover:text-gray-900 transition-colors"
             >
               {showAllExtras ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
               {showAllExtras ? 'Hide extras' : 'Show all extras'}
             </button>
 
             {showAllExtras && (
-              <div className="mt-3 pt-4 border-t grid grid-cols-2 gap-4" style={{ borderColor: 'var(--border)' }}>
-                <Input label="Subfloor Prep" value={subfloorPrep} onChange={setSubfloorPrep} type="number" prefix="$" placeholder="0" decimal hint="Flat fee" />
+              <div className="mt-3 pt-4 grid grid-cols-2 gap-3" style={{ borderTop: '1px solid #F1F1F4' }}>
+                <Input label="Subfloor prep" value={subfloorPrep} onChange={setSubfloorPrep} type="number" prefix="$" placeholder="0" decimal hint="Flat fee" />
                 <Input label="Underlayment" value={underlaymentPerSqft} onChange={setUnderlaymentPerSqft} type="number" prefix="$" placeholder="0" decimal hint="Per adjusted sqft" />
-                <Input label="Transition Strips (qty)" value={transitionQty} onChange={setTransitionQty} type="number" placeholder="0" />
+                <Input label="Transition strips (qty)" value={transitionQty} onChange={setTransitionQty} type="number" placeholder="0" />
                 <Input label="Transition $/each" value={transitionUnit} onChange={setTransitionUnit} type="number" prefix="$" placeholder="0" decimal />
-                <Input label="Floor Protection" value={floorProtection} onChange={setFloorProtection} type="number" prefix="$" placeholder="0" decimal hint="Flat fee" />
-                <Input label="Disposal / Dump Fee" value={disposalFee} onChange={setDisposalFee} type="number" prefix="$" placeholder="0" decimal hint="Flat fee" />
+                <Input label="Floor protection" value={floorProtection} onChange={setFloorProtection} type="number" prefix="$" placeholder="0" decimal hint="Flat fee" />
+                <Input label="Disposal / dump fee" value={disposalFee} onChange={setDisposalFee} type="number" prefix="$" placeholder="0" decimal hint="Flat fee" />
               </div>
             )}
           </Card>
 
           {/* Additional Line Items */}
-          <Card title="Additional Line Items" description="Custom rows that fold into the subtotal (after extras, before tax/markup).">
+          <Card title="Additional line items" description="Custom rows that fold into the subtotal (after extras, before tax/markup).">
             <div className="space-y-2">
               {/* Header row (sm+) */}
               {lineItems.length > 0 && (
-                <div className="hidden sm:grid grid-cols-12 gap-2 px-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-3)' }}>
+                <div className="hidden sm:grid grid-cols-12 gap-2 px-1 text-xs text-gray-400 font-normal">
                   <span className="col-span-5">Description</span>
                   <span className="col-span-2">Qty</span>
-                  <span className="col-span-3">Unit Price</span>
+                  <span className="col-span-3">Unit price</span>
                   <span className="col-span-1 text-right">Total</span>
                   <span className="col-span-1" />
                 </div>
@@ -1330,8 +1326,8 @@ export default function QuoteForm({
                       value={item.description}
                       onChange={e => setLineItems(prev => prev.map((li, idx) => idx === i ? { ...li, description: e.target.value } : li))}
                       placeholder="Description"
-                      className="col-span-12 sm:col-span-5 w-full px-3 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400 placeholder:text-gray-300 bg-white"
-                      style={{ borderColor: 'var(--border)', color: 'var(--text)' }}
+                      className="col-span-12 sm:col-span-5 w-full px-3 py-2 rounded-md text-sm focus:outline-none placeholder-gray-400 bg-white text-gray-900"
+                      style={{ border: '1px solid #E5E7EB' }}
                     />
                     <input
                       type="number"
@@ -1340,11 +1336,11 @@ export default function QuoteForm({
                       onChange={e => setLineItems(prev => prev.map((li, idx) => idx === i ? { ...li, qty: e.target.value } : li))}
                       placeholder="Qty"
                       min="0"
-                      className="col-span-3 sm:col-span-2 w-full px-3 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400 bg-white"
-                      style={{ borderColor: 'var(--border)', color: 'var(--text)' }}
+                      className="col-span-3 sm:col-span-2 w-full px-3 py-2 rounded-md text-sm focus:outline-none bg-white text-gray-900"
+                      style={{ border: '1px solid #E5E7EB' }}
                     />
-                    <div className="col-span-5 sm:col-span-3 flex items-center rounded-xl border bg-white overflow-hidden focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-teal-400" style={{ borderColor: 'var(--border)' }}>
-                      <span className="px-2.5 py-2.5 text-sm font-medium border-r" style={{ color: 'var(--text-2)', borderColor: 'var(--border)', background: '#f9f9fb' }}>$</span>
+                    <div className="col-span-5 sm:col-span-3 flex items-center rounded-md bg-white overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
+                      <span className="px-2.5 py-2 text-sm text-gray-500 bg-gray-50" style={{ borderRight: '1px solid #E5E7EB' }}>$</span>
                       <input
                         type="number"
                         inputMode="decimal"
@@ -1353,17 +1349,16 @@ export default function QuoteForm({
                         placeholder="0.00"
                         min="0"
                         step="0.01"
-                        className="flex-1 min-w-0 px-2.5 py-2.5 text-sm focus:outline-none bg-transparent placeholder:text-gray-300"
-                        style={{ color: 'var(--text)' }}
+                        className="flex-1 min-w-0 px-2.5 py-2 text-sm focus:outline-none bg-transparent placeholder-gray-400 text-gray-900"
                       />
                     </div>
-                    <p className="col-span-3 sm:col-span-1 text-sm font-semibold text-right truncate" style={{ color: 'var(--text)' }}>
+                    <p className="col-span-3 sm:col-span-1 text-sm font-medium text-right truncate text-gray-900">
                       {fmt(rowTotal)}
                     </p>
                     <button
                       type="button"
                       onClick={() => setLineItems(prev => prev.filter((_, idx) => idx !== i))}
-                      className="col-span-1 p-1.5 rounded-lg hover:bg-red-50 text-gray-300 hover:text-red-400 transition-colors flex justify-center"
+                      className="col-span-1 p-1.5 rounded-md text-gray-400 hover:text-red-500 hover:bg-gray-100 transition-colors flex justify-center"
                       title="Remove line item"
                     >
                       <X className="w-4 h-4" />
@@ -1375,16 +1370,16 @@ export default function QuoteForm({
               <button
                 type="button"
                 onClick={() => setLineItems(prev => [...prev, newLineItem()])}
-                className="flex items-center gap-1.5 text-sm font-semibold mt-2 px-3 py-2 rounded-xl hover:bg-teal-50 transition-colors"
-                style={{ color: 'var(--primary)' }}
+                className="flex items-center gap-1.5 text-sm font-medium mt-2 px-3 py-2 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+                style={{ border: '1px solid #E5E7EB' }}
               >
-                <Plus className="w-4 h-4" /> Add Line Item
+                <Plus className="w-4 h-4" /> Add line item
               </button>
 
               {lineItemsTotal > 0 && (
-                <div className="flex items-center justify-between pt-3 mt-2 border-t text-sm" style={{ borderColor: 'var(--border)' }}>
-                  <span className="font-semibold" style={{ color: 'var(--text-2)' }}>Line items total</span>
-                  <span className="font-bold" style={{ color: 'var(--text)' }}>{fmt(lineItemsTotal)}</span>
+                <div className="flex items-center justify-between pt-3 mt-2 text-sm" style={{ borderTop: '1px solid #F1F1F4' }}>
+                  <span className="font-medium text-gray-700">Line items total</span>
+                  <span className="font-semibold text-gray-900">{fmt(lineItemsTotal)}</span>
                 </div>
               )}
             </div>
@@ -1394,17 +1389,18 @@ export default function QuoteForm({
           <Card title="Tax">
             <div className="flex items-center gap-3 mb-4">
               <button type="button" onClick={() => setTaxEnabled(v => !v)}
-                className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${taxEnabled ? 'bg-teal-600' : 'bg-gray-200'}`}>
+                className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${taxEnabled ? '' : 'bg-gray-200'}`}
+                style={taxEnabled ? { background: 'var(--button-dark)' } : undefined}>
                 <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${taxEnabled ? 'translate-x-5' : ''}`} />
               </button>
-              <span className="text-sm font-medium" style={{ color: 'var(--text)' }}>Apply sales tax</span>
+              <span className="text-sm font-medium text-gray-900">Apply sales tax</span>
             </div>
-            {taxEnabled && <Input label="Tax Rate" value={taxPct} onChange={setTaxPct} type="number" suffix="%" placeholder="8.5" decimal />}
+            {taxEnabled && <Input label="Tax rate" value={taxPct} onChange={setTaxPct} type="number" suffix="%" placeholder="8.5" decimal />}
           </Card>
 
           {/* Profit & Deposit */}
-          <Card title="Profit & Deposit">
-            <div className="grid grid-cols-2 gap-4">
+          <Card title="Profit & deposit">
+            <div className="grid grid-cols-2 gap-3">
               <Input
                 label="Profit %"
                 value={markupPct}
@@ -1420,16 +1416,16 @@ export default function QuoteForm({
           </Card>
 
           {/* Notes */}
-          <Card title="Notes & Validity">
+          <Card title="Notes & validity">
             <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--text-2)' }}>Notes</label>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Notes</label>
                   <textarea
                     value={notes} onChange={(e) => setNotes(e.target.value)}
                     rows={3} placeholder="Any additional notes for the customer…"
-                    className="w-full px-3.5 py-3.5 rounded-xl border text-[16px] focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none placeholder:text-gray-300 bg-white"
-                    style={{ color: 'var(--text)', borderColor: 'var(--border)' }}
+                    className="w-full px-3 py-2 rounded-md text-sm focus:outline-none resize-none min-h-[80px] placeholder-gray-400 bg-white text-gray-900"
+                    style={{ border: '1px solid #E5E7EB' }}
                   />
                 </div>
                 <Input
@@ -1442,15 +1438,15 @@ export default function QuoteForm({
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--text-2)' }}>Scope of Work / Exclusions</label>
+                <label className="block text-xs font-medium text-gray-500 mb-1">Scope of work / exclusions</label>
                 <textarea
                   value={scopeOfWork} onChange={(e) => setScopeOfWork(e.target.value)}
                   rows={3}
                   placeholder="e.g. Finishing stringers, risers, railings, spindles and bullnose are not included in this price."
-                  className="w-full px-3.5 py-3.5 rounded-xl border text-[16px] focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none placeholder:text-gray-300 bg-white"
-                  style={{ color: 'var(--text)', borderColor: 'var(--border)' }}
+                  className="w-full px-3 py-2 rounded-md text-sm focus:outline-none resize-none min-h-[80px] placeholder-gray-400 bg-white text-gray-900"
+                  style={{ border: '1px solid #E5E7EB' }}
                 />
-                <p className="text-xs mt-1.5" style={{ color: 'var(--text-3)' }}>
+                <p className="text-xs mt-1 text-gray-400">
                   Shown prominently on the quote PDF and email above the totals.
                 </p>
               </div>
@@ -1460,9 +1456,9 @@ export default function QuoteForm({
 
         {/* Right — live totals (desktop only) */}
         <div className="hidden lg:block lg:col-span-1">
-          <div className="sticky top-4 space-y-4">
-            <div className="bg-white rounded-xl p-5" style={{ boxShadow: 'var(--shadow-card)', border: '1px solid var(--border)' }}>
-              <h2 className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--text-2)' }}>Live Estimate</h2>
+          <div className="sticky top-4 space-y-3">
+            <div className="bg-white rounded-xl p-5" style={{ border: '1px solid var(--border)' }}>
+              <h2 className="text-sm font-semibold text-gray-900 mb-4">Live estimate</h2>
 
               {/* Section breakdown */}
               {measurementType === 'rooms' && activeSections.length > 0 && (
@@ -1473,60 +1469,60 @@ export default function QuoteForm({
                     if (sqft === 0) return null
                     return (
                       <div key={section} className="flex justify-between text-xs">
-                        <span className="font-semibold px-2 py-0.5 rounded-full border bg-teal-50 text-teal-700 border-teal-200 truncate max-w-[60%]">{section}</span>
-                        <span className="text-gray-600 font-medium self-center">{sqft.toFixed(0)} sqft</span>
+                        <span className="font-medium text-gray-700 truncate max-w-[60%]">{section}</span>
+                        <span className="text-gray-500">{sqft.toFixed(0)} sqft</span>
                       </div>
                     )
                   })}
-                  <div className="border-t pt-1.5" style={{ borderColor: 'var(--border)' }} />
+                  <div className="pt-1.5" style={{ borderTop: '1px solid #F1F1F4' }} />
                 </div>
               )}
 
-              <div className="rounded-xl p-3 mb-4 text-center" style={{ background: '#f9fafb' }}>
-                <p className="text-2xl font-bold" style={{ color: 'var(--text)' }}>{calcs.adjusted_sqft.toFixed(0)}</p>
-                <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>adjusted sqft (incl. {n(wastePct)}% waste)</p>
+              <div className="rounded-md p-3 mb-4 text-center" style={{ background: '#FAFAFA' }}>
+                <p className="text-2xl font-semibold text-gray-900">{calcs.adjusted_sqft.toFixed(0)}</p>
+                <p className="text-xs mt-0.5 text-gray-500">adjusted sqft (incl. {n(wastePct)}% waste)</p>
               </div>
 
               <div className="space-y-2.5">
                 <LineItem label="Material" value={calcs.material_total} />
                 <LineItem label="Labor" value={calcs.labor_total} />
                 {calcs.extras_total > 0 && <LineItem label="Extras" value={calcs.extras_total} />}
-                <div className="border-t pt-2.5" style={{ borderColor: 'var(--border)' }}>
+                <div className="pt-2.5" style={{ borderTop: '1px solid #F1F1F4' }}>
                   <LineItem label="Subtotal" value={calcs.subtotal} bold />
                 </div>
                 {taxEnabled && calcs.tax_amount > 0 && <LineItem label={`Tax (${n(taxPct)}%)`} value={calcs.tax_amount} />}
                 {calcs.markup_amount > 0 && <LineItem label={`Profit (${n(markupPct)}%)`} value={calcs.markup_amount} />}
               </div>
 
-              <div className="border-t-2 mt-3 pt-3" style={{ borderColor: 'var(--text)' }}>
+              <div className="mt-3 pt-3" style={{ borderTop: '1px solid #E5E7EB' }}>
                 <div className="flex justify-between">
-                  <span className="text-base font-bold" style={{ color: 'var(--text)' }}>Total</span>
-                  <span className="text-xl font-bold" style={{ color: 'var(--text)' }}>{fmt(calcs.final_total)}</span>
+                  <span className="text-base font-semibold text-gray-900">Total</span>
+                  <span className="text-xl font-semibold text-gray-900">{fmt(calcs.final_total)}</span>
                 </div>
               </div>
 
-              <div className="mt-3 bg-teal-50 rounded-xl p-3 space-y-2">
+              <div className="mt-3 rounded-md p-3 space-y-2" style={{ background: 'var(--primary-light)' }}>
                 <div className="flex justify-between text-sm">
-                  <span className="text-teal-700 font-medium">Deposit ({n(depositPct)}%)</span>
-                  <span className="font-bold text-teal-700">{fmt(calcs.deposit_amount)}</span>
+                  <span className="font-medium" style={{ color: 'var(--primary)' }}>Deposit ({n(depositPct)}%)</span>
+                  <span className="font-semibold" style={{ color: 'var(--primary)' }}>{fmt(calcs.deposit_amount)}</span>
                 </div>
-                <div className="flex justify-between text-xs" style={{ color: 'var(--text-3)' }}>
+                <div className="flex justify-between text-xs text-gray-500">
                   <span>Balance due</span>
                   <span className="font-medium">{fmt(calcs.remaining_balance)}</span>
                 </div>
               </div>
             </div>
 
-            {/* Save buttons (desktop) */}
+            {/* Save buttons (desktop) — teal CTA per design system */}
             {isEditing ? (
               <button
                 type="button"
                 onClick={(e) => handleSubmit(e, 'update')}
                 disabled={saving}
-                className="w-full text-white font-bold py-4 px-4 rounded-2xl text-sm transition-all active:scale-95 disabled:opacity-50"
+                className="w-full text-white text-sm font-medium py-2.5 px-4 rounded-md transition-colors disabled:opacity-50"
                 style={{ background: 'var(--primary)' }}
               >
-                {saving ? 'Saving…' : 'Update Quote →'}
+                {saving ? 'Saving…' : 'Update quote'}
               </button>
             ) : (
               <div className="space-y-2">
@@ -1534,19 +1530,19 @@ export default function QuoteForm({
                   type="button"
                   onClick={(e) => handleSubmit(e, 'measurement')}
                   disabled={saving}
-                  className="w-full text-white font-bold py-4 px-4 rounded-2xl text-sm transition-all active:scale-95 disabled:opacity-50"
+                  className="w-full text-white text-sm font-medium py-2.5 px-4 rounded-md transition-colors disabled:opacity-50"
                   style={{ background: 'var(--primary)' }}
                 >
-                  {saving && savingMode === 'measurement' ? 'Saving…' : 'Save as Measurement'}
+                  {saving && savingMode === 'measurement' ? 'Saving…' : 'Save as measurement'}
                 </button>
                 <button
                   type="button"
                   onClick={(e) => handleSubmit(e, 'estimate')}
                   disabled={saving}
-                  className="w-full font-semibold py-3.5 px-4 rounded-2xl text-sm transition-all active:scale-95 disabled:opacity-50"
-                  style={{ background: 'white', color: 'var(--primary)', border: '1px solid var(--primary)' }}
+                  className="w-full text-sm font-medium py-2.5 px-4 rounded-md transition-colors disabled:opacity-50 hover:bg-gray-50"
+                  style={{ background: 'white', color: 'var(--text)', border: '1px solid #E5E7EB' }}
                 >
-                  {saving && savingMode === 'estimate' ? 'Saving…' : 'Save as Estimate'}
+                  {saving && savingMode === 'estimate' ? 'Saving…' : 'Save as estimate'}
                 </button>
               </div>
             )}
@@ -1557,18 +1553,18 @@ export default function QuoteForm({
       {/* Mobile sticky bottom bar with live total + save buttons */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-30 px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))] bg-white" style={{ borderTop: '1px solid var(--border)' }}>
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--text-3)' }}>Total</span>
-          <span className="text-sm font-bold" style={{ color: 'var(--text)' }}>{totalLabel}</span>
+          <span className="text-xs font-medium text-gray-500">Total</span>
+          <span className="text-sm font-semibold text-gray-900">{totalLabel}</span>
         </div>
         {isEditing ? (
           <button
             type="button"
             onClick={(e) => handleSubmit(e, 'update')}
             disabled={saving}
-            className="w-full text-white font-bold py-3.5 rounded-2xl text-base transition-all active:scale-95 disabled:opacity-50"
+            className="w-full text-white text-sm font-medium py-2.5 rounded-md transition-colors disabled:opacity-50"
             style={{ background: 'var(--primary)' }}
           >
-            {saving ? 'Saving…' : 'Update Quote'}
+            {saving ? 'Saving…' : 'Update quote'}
           </button>
         ) : (
           <div className="grid grid-cols-2 gap-2">
@@ -1576,7 +1572,7 @@ export default function QuoteForm({
               type="button"
               onClick={(e) => handleSubmit(e, 'measurement')}
               disabled={saving}
-              className="text-white font-bold py-3.5 rounded-2xl text-sm transition-all active:scale-95 disabled:opacity-50"
+              className="text-white text-sm font-medium py-2.5 rounded-md transition-colors disabled:opacity-50"
               style={{ background: 'var(--primary)' }}
             >
               {saving && savingMode === 'measurement' ? '…' : 'Measurement'}
@@ -1585,8 +1581,8 @@ export default function QuoteForm({
               type="button"
               onClick={(e) => handleSubmit(e, 'estimate')}
               disabled={saving}
-              className="font-semibold py-3.5 rounded-2xl text-sm transition-all active:scale-95 disabled:opacity-50"
-              style={{ background: 'white', color: 'var(--primary)', border: '1px solid var(--primary)' }}
+              className="text-sm font-medium py-2.5 rounded-md transition-colors disabled:opacity-50 hover:bg-gray-50"
+              style={{ background: 'white', color: 'var(--text)', border: '1px solid #E5E7EB' }}
             >
               {saving && savingMode === 'estimate' ? '…' : 'Estimate'}
             </button>

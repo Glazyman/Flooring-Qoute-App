@@ -23,12 +23,12 @@ export default function EmailQuoteButton({ quoteId, customerEmail, emailConnecte
   if (!customerEmail) {
     return (
       <button disabled
-        className="flex items-center justify-center gap-1.5 font-semibold px-4 py-3 sm:py-2.5 rounded-2xl text-sm cursor-not-allowed focus:outline-none"
-        style={{ background: '#e5e7eb', color: '#9ca3af' }}
+        className="inline-flex items-center justify-center gap-1.5 text-sm font-medium px-3.5 py-2 rounded-md cursor-not-allowed text-gray-400"
+        style={{ background: '#F5F5F7', border: '1px solid #E5E7EB' }}
         title="No email address on file for this customer"
       >
         {emailIcon}
-        No Email
+        No email
       </button>
     )
   }
@@ -37,12 +37,12 @@ export default function EmailQuoteButton({ quoteId, customerEmail, emailConnecte
     return (
       <Link
         href="/settings?tab=email"
-        className="flex items-center justify-center gap-1.5 text-white font-semibold px-4 py-3 sm:py-2.5 rounded-2xl text-sm active:scale-95 transition-transform focus:outline-none"
-        style={{ background: 'var(--button-dark)', boxShadow: '0 2px 8px rgba(28,28,30,0.25)' }}
+        className="inline-flex items-center justify-center gap-1.5 text-white text-sm font-medium px-3.5 py-2 rounded-md transition-colors"
+        style={{ background: 'var(--button-dark)' }}
         title="Connect a Gmail account in Settings to send quotes"
       >
         {emailIcon}
-        Set up Email
+        Set up email
       </Link>
     )
   }
@@ -69,30 +69,30 @@ export default function EmailQuoteButton({ quoteId, customerEmail, emailConnecte
   if (status === 'sent') {
     return (
       <button disabled
-        className="flex items-center justify-center gap-1.5 font-semibold px-4 py-3 sm:py-2.5 rounded-2xl text-sm focus:outline-none"
-        style={{ background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0' }}
+        className="inline-flex items-center justify-center gap-1.5 text-sm font-medium px-3.5 py-2 rounded-md"
+        style={{ background: 'var(--success-bg)', color: 'var(--success)' }}
       >
         <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
         </svg>
-        Sent!
+        Sent
       </button>
     )
   }
 
   if (status === 'error') {
     return (
-      <div className="col-span-2 space-y-2">
+      <div className="space-y-2">
         <button
           type="button"
-          className="w-full flex items-center justify-center gap-1.5 font-semibold px-4 py-3 sm:py-2.5 rounded-2xl text-sm focus:outline-none active:scale-95"
-          style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca' }}
+          className="inline-flex items-center justify-center gap-1.5 text-sm font-medium px-3.5 py-2 rounded-md text-white"
+          style={{ background: 'var(--danger)' }}
           onClick={handleSend}
         >
           {emailIcon}
           Retry email
         </button>
-        <p className="text-xs text-red-600 leading-snug break-words">
+        <p className="text-xs leading-snug break-words" style={{ color: 'var(--danger)' }}>
           {errorMsg}
         </p>
       </div>
@@ -103,8 +103,8 @@ export default function EmailQuoteButton({ quoteId, customerEmail, emailConnecte
     <button
       onClick={handleSend}
       disabled={status === 'sending'}
-      className="flex items-center justify-center gap-1.5 text-white font-semibold px-4 py-3 sm:py-2.5 rounded-2xl text-sm active:scale-95 transition-transform focus:outline-none disabled:opacity-70"
-      style={{ background: 'var(--button-dark)', boxShadow: '0 2px 8px rgba(28,28,30,0.25)' }}
+      className="inline-flex items-center justify-center gap-1.5 text-white text-sm font-medium px-3.5 py-2 rounded-md transition-colors disabled:opacity-70"
+      style={{ background: 'var(--button-dark)' }}
     >
       {status === 'sending' ? (
         <>
@@ -117,7 +117,7 @@ export default function EmailQuoteButton({ quoteId, customerEmail, emailConnecte
       ) : (
         <>
           {emailIcon}
-          Send Email
+          Send email
         </>
       )}
     </button>

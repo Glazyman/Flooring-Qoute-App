@@ -9,11 +9,11 @@ import QuoteDetailCard from '@/components/QuoteDetailCard'
 
 export const dynamic = 'force-dynamic'
 
-const STATUS_CONFIG: Record<string, { bg: string; text: string; label: string }> = {
-  measurement: { bg: '#eff6ff', text: '#1d4ed8', label: 'Measurement' },
-  accepted: { bg: '#f0fdf4', text: '#16a34a', label: 'Accepted' },
-  pending: { bg: '#fffbeb', text: '#d97706', label: 'Pending' },
-  lost: { bg: '#fef2f2', text: '#dc2626', label: 'Lost' },
+const STATUS_DOT: Record<string, { color: string; label: string }> = {
+  measurement: { color: '#3B82F6', label: 'Measurement' },
+  accepted: { color: '#10B981', label: 'Accepted' },
+  pending: { color: '#6366F1', label: 'Pending' },
+  lost: { color: '#EF4444', label: 'Lost' },
 }
 
 export default async function QuoteDetailPage({
@@ -65,7 +65,7 @@ export default async function QuoteDetailPage({
   if (!quote) notFound()
 
   const q = quote as Quote
-  const statusCfg = STATUS_CONFIG[q.status] || { bg: '#f9fafb', text: '#6b7280', label: q.status }
+  const statusCfg = STATUS_DOT[q.status] || { color: '#9CA3AF', label: q.status }
 
   const typedRooms = (rooms || []) as QuoteRoom[]
   const typedLineItems = (lineItems || []) as QuoteLineItem[]
@@ -87,10 +87,10 @@ export default async function QuoteDetailPage({
     <div className="max-w-3xl space-y-5">
       {/* Measurement approval banner */}
       {q.status === 'measurement' && (
-        <div className="flex items-center justify-between gap-4 bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
+        <div className="flex items-center justify-between gap-4 bg-white rounded-xl px-4 py-3" style={{ border: '1px solid var(--border)' }}>
           <div>
-            <p className="text-sm font-semibold text-blue-800">This is a saved measurement</p>
-            <p className="text-xs text-blue-600 mt-0.5">
+            <p className="text-sm font-semibold text-gray-900">This is a saved measurement</p>
+            <p className="text-xs text-gray-500 mt-0.5">
               Approve it to move it to Estimates and send to the customer.
             </p>
           </div>
@@ -102,40 +102,34 @@ export default async function QuoteDetailPage({
       <div>
         <Link
           href={q.status === 'measurement' ? '/measurements' : '/quotes'}
-          className="text-xs font-medium hover:text-gray-600 mb-2 inline-flex items-center gap-1"
-          style={{ color: 'var(--text-3)' }}
+          className="text-xs font-medium text-gray-500 hover:text-gray-900 mb-2 inline-flex items-center gap-1"
         >
-          {q.status === 'measurement' ? '← Back to Measurements' : '← Back to Estimates'}
+          {q.status === 'measurement' ? '← Back to measurements' : '← Back to estimates'}
         </Link>
         <div className="mt-1">
-          <h1
-            className="text-xl sm:text-2xl font-bold break-words"
-            style={{ color: 'var(--text)' }}
-          >
+          <h1 className="text-xl font-semibold text-gray-900 break-words">
             {q.customer_name}
           </h1>
-          <div className="flex items-center gap-2.5 mt-2 flex-wrap">
-            <span
-              className="text-xs font-semibold px-2.5 py-1 rounded-full flex-shrink-0"
-              style={{ background: statusCfg.bg, color: statusCfg.text }}
-            >
+          <div className="flex items-center gap-3 mt-2 flex-wrap">
+            <span className="text-xs flex items-center gap-1.5" style={{ color: statusCfg.color }}>
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: statusCfg.color }} />
               {statusCfg.label}
             </span>
-            <span className="text-sm" style={{ color: 'var(--text-3)' }}>
+            <span className="text-xs text-gray-500">
               {dateStr}
             </span>
             {q.quote_number && (
-              <span className="text-sm" style={{ color: 'var(--text-3)' }}>
+              <span className="text-xs text-gray-500">
                 · #{q.quote_number}
               </span>
             )}
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 mt-4">
+        <div className="flex flex-wrap gap-2 mt-4">
           <Link
             href={`/quotes/${id}/edit`}
-            className="flex items-center justify-center gap-1.5 text-white font-semibold px-4 py-3 sm:py-2.5 rounded-2xl text-sm active:scale-95 transition-transform focus:outline-none focus:ring-0"
+            className="inline-flex items-center justify-center gap-1.5 text-white text-sm font-medium px-3.5 py-2 rounded-md transition-colors"
             style={{ background: 'var(--button-dark)' }}
           >
             <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -146,15 +140,15 @@ export default async function QuoteDetailPage({
                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
               />
             </svg>
-            Edit Quote
+            Edit quote
           </Link>
           <DuplicateButton quoteId={id} />
           <EmailQuoteButton quoteId={id} customerEmail={q.customer_email} emailConnected={emailConnected} />
           <a
             href={`/api/quotes/${id}/pdf`}
             target="_blank"
-            className="flex items-center justify-center gap-1.5 text-white font-semibold px-4 py-3 sm:py-2.5 rounded-2xl text-sm active:scale-95"
-            style={{ background: 'var(--button-dark)' }}
+            className="inline-flex items-center justify-center gap-1.5 text-sm font-medium px-3.5 py-2 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+            style={{ border: '1px solid #E5E7EB', background: 'white' }}
           >
             <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
@@ -169,8 +163,8 @@ export default async function QuoteDetailPage({
         </div>
       </div>
 
-      {/* Inline-edit hint — above the sheet */}
-      <p className="text-xs" style={{ color: 'var(--primary)', opacity: 0.7 }}>
+      {/* Inline-edit hint */}
+      <p className="text-xs text-gray-400">
         Click any field to edit
       </p>
 

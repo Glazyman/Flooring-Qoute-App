@@ -67,23 +67,23 @@ export default async function NewQuotePage() {
       return (
         <div className="space-y-5">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">New Quote</h1>
-            <p className="text-sm text-gray-400 mt-0.5">Fill in the details to generate your estimate</p>
+            <h1 className="text-xl font-semibold text-gray-900">New quote</h1>
+            <p className="text-sm text-gray-500 mt-0.5">Fill in the details to generate your estimate</p>
           </div>
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-8 text-center max-w-lg mx-auto">
-            <div className="w-14 h-14 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-5">
-              <svg className="w-7 h-7 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="bg-white rounded-xl p-8 text-center max-w-lg mx-auto" style={{ border: '1px solid var(--border)' }}>
+            <div className="w-12 h-12 rounded-md flex items-center justify-center mx-auto mb-4" style={{ background: 'var(--warning-bg)' }}>
+              <svg className="w-6 h-6" style={{ color: 'var(--warning)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Monthly limit reached</h2>
-            <p className="text-sm text-gray-500 mb-6 leading-relaxed">
+            <h2 className="text-base font-semibold text-gray-900 mb-2">Monthly limit reached</h2>
+            <p className="text-sm text-gray-500 mb-5 leading-relaxed">
               You&apos;ve used all 25 quotes this month on the Starter plan. Upgrade to Pro for unlimited quotes and AI blueprint scanning.
             </p>
             <Link
               href="/billing/setup"
-              className="inline-flex items-center gap-2 text-white font-bold px-6 py-3 rounded-2xl text-sm"
-              style={{ background: 'var(--button-dark)', boxShadow: '0 4px 16px rgba(28,28,30,0.3)' }}
+              className="inline-flex items-center gap-2 text-white text-sm font-medium px-3.5 py-2 rounded-md transition-colors"
+              style={{ background: 'var(--button-dark)' }}
             >
               Upgrade to Pro
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -105,8 +105,8 @@ export default async function NewQuotePage() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">New Quote</h1>
-        <p className="text-sm text-gray-400 mt-0.5">Fill in the details to generate your estimate</p>
+        <h1 className="text-xl font-semibold text-gray-900">New quote</h1>
+        <p className="text-sm text-gray-500 mt-0.5">Fill in the details to generate your estimate</p>
       </div>
       <QuoteForm settings={settings as CompanySettings | null} isPro={!!isOnPro} />
     </div>

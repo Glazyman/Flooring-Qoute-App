@@ -1,28 +1,48 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import type { Invoice } from '@/lib/types'
-import { FileText, Plus, Upload, Trash2, Square, CheckSquare } from 'lucide-react'
+import { Upload, Calendar, ChevronLeft, ChevronRight, MoreHorizontal, Trash2, Check } from 'lucide-react'
 
-const STATUS_STYLES: Record<string, string> = {
-  draft: 'bg-gray-100 text-gray-500',
-  sent: 'bg-blue-50 text-blue-600',
-  paid: 'bg-green-50 text-green-600',
+const STATUS_DOT: Record<string, { color: string; label: string }> = {
+  draft: { color: '#9CA3AF', label: 'Draft' },
+  sent:  { color: '#6366F1', label: 'Sent' },
+  paid:  { color: '#10B981', label: 'Paid' },
 }
+
+const PAGE_SIZE = 10
+
+const COL_TEMPLATE = '32px 1fr 110px 130px 60px'
+const COL_HEAD = 'text-xs text-gray-400 font-normal'
 
 function fmt(n: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n)
 }
 
+function fmtDate(iso: string) {
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
 export default function InvoicesClient({ initialInvoices }: { initialInvoices: Invoice[] }) {
   const router = useRouter()
   const [items, setItems] = useState(initialInvoices)
-  const [selecting, setSelecting] = useState(false)
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [working, setWorking] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null)
+  const [page, setPage] = useState(1)
+
+  useEffect(() => {
+    if (!openMenuId) return
+    function handleMouseDown(e: MouseEvent) {
+      const target = e.target as HTMLElement
+      if (!target.closest('[data-menu-root]')) setOpenMenuId(null)
+    }
+    document.addEventListener('mousedown', handleMouseDown)
+    return () => document.removeEventListener('mousedown', handleMouseDown)
+  }, [openMenuId])
 
   function toggleSelect(id: string) {
     setSelected(prev => {
@@ -33,28 +53,19 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
     })
   }
 
-  function toggleAll() {
-    setSelected(prev => prev.size === items.length ? new Set() : new Set(items.map(i => i.id)))
-  }
-
-  function exitSelect() {
-    setSelecting(false)
-    setSelected(new Set())
-  }
-
   async function bulkDelete() {
     setWorking(true)
     await Promise.all(Array.from(selected).map(id =>
       fetch(`/api/invoices/${id}`, { method: 'DELETE' })
     ))
     setItems(prev => prev.filter(i => !selected.has(i.id)))
-    exitSelect()
+    setSelected(new Set())
     setConfirmDelete(false)
     setWorking(false)
     router.refresh()
   }
 
-  async function bulkSetStatus(status: 'sent' | 'paid') {
+  async function bulkSetStatus(status: 'sent' | 'paid' | 'draft') {
     setWorking(true)
     await Promise.all(Array.from(selected).map(id =>
       fetch(`/api/invoices/${id}`, {
@@ -64,35 +75,80 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
       })
     ))
     setItems(prev => prev.map(i => selected.has(i.id) ? { ...i, status } : i))
-    exitSelect()
+    setSelected(new Set())
     setWorking(false)
   }
 
+  async function setStatus(id: string, status: 'sent' | 'paid' | 'draft') {
+    setOpenMenuId(null)
+    const res = await fetch(`/api/invoices/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status }),
+    })
+    if (res.ok) {
+      setItems(prev => prev.map(i => i.id === id ? { ...i, status } : i))
+    }
+  }
+
+  const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE))
+  useEffect(() => {
+    if (page > totalPages) setPage(1)
+  }, [page, totalPages])
+
+  const paginated = useMemo(
+    () => items.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [items, page]
+  )
+
+  const visibleIds = paginated.map(i => i.id)
+  const allVisibleSelected = visibleIds.length > 0 && visibleIds.every(id => selected.has(id))
+
+  function toggleSelectAllVisible() {
+    setSelected(prev => {
+      if (allVisibleSelected) {
+        const next = new Set(prev)
+        for (const id of visibleIds) next.delete(id)
+        return next
+      }
+      const next = new Set(prev)
+      for (const id of visibleIds) next.add(id)
+      return next
+    })
+  }
+
   const selCount = selected.size
-  const allSelected = items.length > 0 && selCount === items.length
+
+  const pageNumbers = useMemo<number[]>(() => {
+    if (totalPages <= 5) return Array.from({ length: totalPages }, (_, i) => i + 1)
+    let start = Math.max(1, page - 2)
+    const end = Math.min(totalPages, start + 4)
+    start = Math.max(1, end - 4)
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i)
+  }, [page, totalPages])
 
   return (
-    <div className="space-y-5 max-w-3xl">
+    <div className="space-y-5">
       {/* Confirm bulk delete */}
       {confirmDelete && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
-          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm">
-            <h3 className="font-bold text-lg mb-2" style={{ color: 'var(--text)' }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.4)' }}>
+          <div className="bg-white rounded-xl w-full max-w-md p-6" style={{ border: '1px solid var(--border)' }}>
+            <h3 className="text-sm font-semibold text-gray-900 mb-1">
               Delete {selCount} invoice{selCount !== 1 ? 's' : ''}?
             </h3>
-            <p className="text-sm mb-6" style={{ color: 'var(--text-2)' }}>This cannot be undone.</p>
-            <div className="flex gap-3">
+            <p className="text-sm text-gray-500 mb-5">This cannot be undone.</p>
+            <div className="flex gap-2 justify-end">
               <button
                 onClick={() => setConfirmDelete(false)}
-                className="flex-1 border font-semibold text-sm py-3 rounded-2xl"
-                style={{ borderColor: 'var(--border)', color: 'var(--text-2)' }}
+                className="text-sm font-medium px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={bulkDelete}
                 disabled={working}
-                className="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold text-sm py-3 rounded-2xl disabled:opacity-50"
+                className="text-sm font-medium px-3.5 py-2 rounded-md text-white transition-colors disabled:opacity-50"
+                style={{ background: 'var(--danger)' }}
               >
                 {working ? 'Deleting…' : 'Delete'}
               </button>
@@ -104,158 +160,264 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight" style={{ color: 'var(--text)' }}>Invoices</h1>
-          <p className="text-sm mt-0.5" style={{ color: 'var(--text-2)' }}>Import from CSV or create manually</p>
+          <h1 className="text-xl font-semibold text-gray-900">Import</h1>
+          <p className="text-sm text-gray-500 mt-0.5">Import invoices from CSV or create manually</p>
         </div>
-        <div className="flex gap-2 flex-shrink-0">
-          {items.length > 0 && (
-            <button
-              onClick={() => selecting ? exitSelect() : setSelecting(true)}
-              className={`text-sm font-medium px-3.5 py-2 rounded-xl border transition-colors ${
-                selecting
-                  ? 'bg-gray-100 border-gray-300 text-gray-600'
-                  : 'border-gray-200 text-gray-500 hover:bg-gray-50 hover:border-gray-300'
-              }`}
-            >
-              {selecting ? 'Cancel' : 'Select'}
-            </button>
-          )}
-          <Link
-            href="/invoices/new"
-            className="flex items-center gap-2 text-white font-semibold px-4 py-2 rounded-xl text-sm active:scale-95"
-            style={{ background: 'var(--button-dark)' }}
-          >
-            <Upload className="w-4 h-4" />
-            <span>Import</span>
-          </Link>
-        </div>
+        <Link
+          href="/invoices/new"
+          className="flex items-center gap-1.5 text-white text-sm font-medium px-3.5 py-2 rounded-md transition-colors"
+          style={{ background: 'var(--button-dark)' }}
+        >
+          <Upload className="w-4 h-4" />
+          Import
+        </Link>
       </div>
 
-      {/* Inline select/bulk bar */}
-      {selecting && items.length > 0 && (
-        <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-xl border border-gray-100">
-          <button onClick={toggleAll} className="text-sm font-medium text-gray-500 hover:text-gray-700 px-3 py-2 rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors">
-            {allSelected ? 'Deselect all' : 'Select all'}
-          </button>
-          {selCount > 0 && (
-            <>
-              <span className="text-xs text-gray-400 font-medium">{selCount} selected</span>
-              <div className="ml-auto flex items-center gap-2">
-                <button
-                  onClick={() => bulkSetStatus('sent')}
-                  disabled={working}
-                  className="text-xs font-medium px-3 py-1.5 rounded-lg border transition-colors disabled:opacity-50 hover:opacity-80"
-                  style={{ color: 'var(--button-dark)', background: 'var(--button-dark-light)', borderColor: 'var(--border)' }}
-                >
-                  Mark Sent
-                </button>
-                <button
-                  onClick={() => bulkSetStatus('paid')}
-                  disabled={working}
-                  className="text-xs font-medium px-3 py-1.5 rounded-lg border transition-colors disabled:opacity-50 hover:opacity-80"
-                  style={{ color: 'var(--button-dark)', background: 'var(--button-dark-light)', borderColor: 'var(--border)' }}
-                >
-                  Mark Paid
-                </button>
-                <button
-                  onClick={() => setConfirmDelete(true)}
-                  disabled={working}
-                  className="text-xs font-medium text-red-600 hover:text-red-700 px-3 py-1.5 rounded-lg border border-red-200 hover:bg-red-50 transition-colors disabled:opacity-50"
-                >
-                  Delete
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-      )}
-
       {items.length === 0 ? (
-        <div className="bg-white rounded-xl p-16 text-center" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
-          <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4" style={{ background: 'var(--primary-light)' }}>
-            <Upload className="w-7 h-7" style={{ color: 'var(--primary)' }} />
-          </div>
-          <p className="font-semibold text-gray-800 mb-1">No invoices yet</p>
-          <p className="text-sm text-gray-400 mb-5">Import a CSV file or create an invoice manually.</p>
-          <div className="flex gap-3 justify-center">
-            <Link
-              href="/invoices/new"
-              className="inline-flex items-center gap-2 text-white font-semibold px-5 py-2.5 rounded-xl text-sm"
-              style={{ background: 'var(--button-dark)' }}
-            >
-              <Upload className="w-4 h-4" /> Import CSV
-            </Link>
-            <Link
-              href="/invoices/new"
-              className="inline-flex items-center gap-2 border border-gray-200 text-gray-600 font-semibold px-5 py-2.5 rounded-xl text-sm hover:bg-gray-50"
-            >
-              <Plus className="w-4 h-4" /> Manual
-            </Link>
-          </div>
+        <div
+          className="bg-white rounded-xl py-16 text-center"
+          style={{ border: '1px solid var(--border)' }}
+        >
+          <p className="text-sm text-gray-500 mb-2">No invoices yet</p>
+          <p className="text-xs text-gray-400 mb-4">Import a CSV file or create an invoice manually.</p>
+          <Link
+            href="/invoices/new"
+            className="inline-flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+            style={{ border: '1px solid #E5E7EB' }}
+          >
+            <Upload className="w-3.5 h-3.5" />
+            Import CSV
+          </Link>
         </div>
       ) : (
-        <div className="space-y-2.5">
-          {items.map(inv => {
-            const isSelected = selected.has(inv.id)
-            const row = (
-              <div
-                key={inv.id}
-                className={`flex items-center gap-4 bg-white rounded-2xl px-4 sm:px-5 py-4 transition-all`}
-                style={{
-                  border: `1px solid ${isSelected ? '#A78BFA' : 'var(--border)'}`,
-                  boxShadow: isSelected ? '0 0 0 2px #DDD6FE' : 'var(--shadow-card)',
-                }}
+        <div
+          className="bg-white rounded-xl overflow-hidden"
+          style={{ border: '1px solid #E5E7EB' }}
+        >
+          {/* Bulk action bar */}
+          {selCount > 0 && (
+            <div
+              className="flex items-center gap-3 px-4 py-2 text-xs text-gray-600"
+              style={{ background: '#F9FAFB', borderBottom: '1px solid #F1F1F4' }}
+            >
+              <span>{selCount} selected</span>
+              <span className="text-gray-300">·</span>
+              <button
+                onClick={() => bulkSetStatus('sent')}
+                disabled={working}
+                className="font-medium hover:text-gray-900 transition-colors disabled:opacity-50"
               >
-                {selecting && (
-                  <button onClick={() => toggleSelect(inv.id)} className="flex-shrink-0 w-9 h-9 flex items-center justify-center -ml-1">
-                    {isSelected
-                      ? <CheckSquare className="w-5 h-5 text-teal-600" />
-                      : <Square className="w-5 h-5 text-gray-300" />
-                    }
-                  </button>
-                )}
+                Mark sent
+              </button>
+              <button
+                onClick={() => bulkSetStatus('paid')}
+                disabled={working}
+                className="font-medium hover:text-gray-900 transition-colors disabled:opacity-50"
+              >
+                Mark paid
+              </button>
+              <button
+                onClick={() => setConfirmDelete(true)}
+                disabled={working}
+                className="text-red-600 hover:text-red-700 font-medium disabled:opacity-50 transition-colors"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => setSelected(new Set())}
+                className="ml-auto text-gray-400 hover:text-gray-600"
+              >
+                Clear
+              </button>
+            </div>
+          )}
 
-                <div className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'var(--primary-light)' }}>
-                  <FileText className="w-5 h-5" style={{ color: 'var(--primary)' }} />
-                </div>
+          {/* Column headers — desktop */}
+          <div
+            style={{ gridTemplateColumns: COL_TEMPLATE, borderBottom: '1px solid #F1F1F4' }}
+            className="hidden lg:grid bg-white px-4 py-2.5 items-center"
+          >
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                checked={allVisibleSelected}
+                onChange={toggleSelectAllVisible}
+                className="w-3.5 h-3.5 cursor-pointer"
+                style={{ accentColor: '#1C1C1E' }}
+                aria-label="Select all"
+              />
+            </div>
+            <div className={COL_HEAD}>Customer</div>
+            <div className={`${COL_HEAD} text-right`}>Total</div>
+            <div className={`${COL_HEAD} flex items-center`}>
+              <Calendar className="w-3.5 h-3.5 text-gray-400 mr-1.5" />
+              Date
+            </div>
+            <div className={COL_HEAD} />
+          </div>
 
-                {selecting ? (
-                  <button onClick={() => toggleSelect(inv.id)} className="flex-1 min-w-0 text-left">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-semibold text-sm" style={{ color: 'var(--text)' }}>{inv.customer_name}</p>
-                      {inv.invoice_number && <span className="text-xs text-gray-400">#{inv.invoice_number}</span>}
-                    </div>
-                    <p className="text-xs mt-0.5" style={{ color: 'var(--text-2)' }}>
-                      {new Date(inv.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                      {inv.job_address && ` · ${inv.job_address}`}
-                    </p>
-                  </button>
-                ) : (
+          {paginated.map(inv => {
+            const isSelected = selected.has(inv.id)
+            const initials = (inv.customer_name || '?').charAt(0).toUpperCase()
+            const cfg = STATUS_DOT[inv.status] || { color: '#9CA3AF', label: inv.status }
+            const rowBg = isSelected ? 'rgba(239, 246, 255, 0.4)' : undefined
+
+            return (
+              <div key={inv.id}>
+                {/* Mobile */}
+                <div
+                  className="lg:hidden flex items-center gap-3 px-4 py-3 hover:bg-gray-50/60 transition-colors"
+                  style={{ borderBottom: '1px solid #F5F5F7', background: rowBg }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => toggleSelect(inv.id)}
+                    className="w-3.5 h-3.5 cursor-pointer flex-shrink-0"
+                    style={{ accentColor: '#1C1C1E' }}
+                  />
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-gray-700 text-xs font-semibold flex-shrink-0"
+                    style={{ background: '#E5E7EB' }}
+                  >
+                    {initials}
+                  </div>
                   <Link href={`/invoices/${inv.id}`} className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-semibold text-sm" style={{ color: 'var(--text)' }}>{inv.customer_name}</p>
+                      <p className="text-sm font-normal text-gray-800 truncate">{inv.customer_name}</p>
                       {inv.invoice_number && <span className="text-xs text-gray-400">#{inv.invoice_number}</span>}
                     </div>
-                    <p className="text-xs mt-0.5" style={{ color: 'var(--text-2)' }}>
-                      {new Date(inv.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                      {inv.job_address && ` · ${inv.job_address}`}
+                    <p className="text-xs text-gray-400 truncate">
+                      {fmtDate(inv.created_at)}{inv.job_address ? ` · ${inv.job_address}` : ''}
                     </p>
                   </Link>
-                )}
+                  <div className="text-right flex-shrink-0">
+                    <p className="text-sm font-semibold text-gray-900">{fmt(inv.total)}</p>
+                    <span className="text-xs flex items-center gap-1.5 justify-end" style={{ color: cfg.color }}>
+                      <span className="w-1.5 h-1.5 rounded-full" style={{ background: cfg.color }} />
+                      {cfg.label}
+                    </span>
+                  </div>
+                </div>
 
-                <div className="flex items-center gap-3 flex-shrink-0">
-                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full capitalize ${STATUS_STYLES[inv.status] ?? 'bg-gray-100 text-gray-500'}`}>
-                    {inv.status}
-                  </span>
-                  <p className="font-bold text-sm" style={{ color: 'var(--text)' }}>{fmt(inv.total)}</p>
+                {/* Desktop */}
+                <div
+                  style={{
+                    gridTemplateColumns: COL_TEMPLATE,
+                    background: rowBg,
+                    borderBottom: '1px solid #F5F5F7',
+                  }}
+                  className="hidden lg:grid group px-4 py-3 items-center hover:bg-gray-50/60 transition-colors"
+                >
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => toggleSelect(inv.id)}
+                      className="w-3.5 h-3.5 cursor-pointer"
+                      style={{ accentColor: '#1C1C1E' }}
+                    />
+                  </div>
+                  <Link href={`/invoices/${inv.id}`} className="min-w-0 pr-2">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div
+                        className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-semibold text-gray-700"
+                        style={{ background: '#E5E7EB' }}
+                      >
+                        {initials}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-normal text-gray-800 truncate">{inv.customer_name}</p>
+                          {inv.invoice_number && <span className="text-xs text-gray-400">#{inv.invoice_number}</span>}
+                        </div>
+                        <span className="text-xs flex items-center gap-1.5" style={{ color: cfg.color }}>
+                          <span className="w-1.5 h-1.5 rounded-full" style={{ background: cfg.color }} />
+                          {cfg.label}
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                  <div className="text-sm font-semibold text-gray-900 text-right pr-2">
+                    {fmt(inv.total)}
+                  </div>
+                  <div className="flex items-center text-sm text-gray-500">
+                    <Calendar className="w-3.5 h-3.5 text-gray-400 mr-1.5 flex-shrink-0" />
+                    <span className="truncate">{fmtDate(inv.created_at)}</span>
+                  </div>
+                  <div className="flex items-center justify-end relative" data-menu-root>
+                    <button
+                      onClick={() => setOpenMenuId(prev => prev === inv.id ? null : inv.id)}
+                      className={`w-7 h-7 flex items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-all ${openMenuId === inv.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                      aria-label="More actions"
+                    >
+                      <MoreHorizontal className="w-4 h-4" />
+                    </button>
+                    {openMenuId === inv.id && (
+                      <div
+                        className="absolute right-0 top-8 z-20 bg-white rounded-lg py-1 min-w-[180px]"
+                        style={{ border: '1px solid #E5E7EB', boxShadow: 'var(--shadow-popover)' }}
+                      >
+                        <p className="px-3 py-1.5 text-[11px] uppercase tracking-wide text-gray-400">Set status</p>
+                        {(['draft', 'sent', 'paid'] as const).map(s => (
+                          <button
+                            key={s}
+                            onClick={() => setStatus(inv.id, s)}
+                            disabled={inv.status === s}
+                            className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 disabled:opacity-50"
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full" style={{ background: STATUS_DOT[s].color }} />
+                            <span className="capitalize">{STATUS_DOT[s].label}</span>
+                            {inv.status === s && <Check className="w-3.5 h-3.5 ml-auto text-gray-400" />}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )
-            return row
           })}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div
+              className="flex items-center justify-end gap-1 px-4 py-3"
+              style={{ borderTop: '1px solid #F1F1F4' }}
+            >
+              <button
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="w-7 h-7 rounded-md flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
+                aria-label="Previous page"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+              </button>
+              {pageNumbers.map(p => (
+                <button
+                  key={p}
+                  onClick={() => setPage(p)}
+                  className={`w-7 h-7 rounded-md text-xs flex items-center justify-center transition-colors ${
+                    p === page
+                      ? 'bg-gray-200 text-gray-900 font-medium'
+                      : 'text-gray-500 hover:bg-gray-100'
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
+              <button
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="w-7 h-7 rounded-md flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
+                aria-label="Next page"
+              >
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
         </div>
       )}
-
     </div>
   )
 }

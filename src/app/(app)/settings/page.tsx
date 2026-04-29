@@ -52,14 +52,14 @@ export default async function SettingsPage() {
     .single()
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-extrabold tracking-tight" style={{ color: 'var(--text)' }}>Settings</h1>
-        <p className="text-sm mt-0.5" style={{ color: 'var(--text-2)' }}>
+        <h1 className="text-xl font-semibold text-gray-900">Settings</h1>
+        <p className="text-sm text-gray-500 mt-0.5">
           Configure your company info and default quote values
         </p>
       </div>
-      <Suspense fallback={<p className="text-sm" style={{ color: 'var(--text-2)' }}>Loading…</p>}>
+      <Suspense fallback={<p className="text-sm text-gray-500">Loading…</p>}>
         <SettingsForm
           settings={(settings as CompanySettings) || { ...DEFAULT_SETTINGS, company_id: membership.company_id }}
         />

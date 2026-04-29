@@ -5,10 +5,10 @@ import { useRouter } from 'next/navigation'
 import type { InvoiceStatus } from '@/lib/types'
 
 const NEXT_STATUS: Record<InvoiceStatus, { label: string; next: InvoiceStatus } | null> = {
-  draft: { label: 'Mark as Sent', next: 'sent' },
-  sent: { label: 'Mark as Paid', next: 'paid' },
+  draft: { label: 'Mark as sent', next: 'sent' },
+  sent: { label: 'Mark as paid', next: 'paid' },
   paid: null,
-  overdue: { label: 'Mark as Paid', next: 'paid' },
+  overdue: { label: 'Mark as paid', next: 'paid' },
   void: null,
 }
 
@@ -40,7 +40,7 @@ export default function InvoiceStatusButton({
     <button
       onClick={handleUpdate}
       disabled={loading}
-      className="text-white font-semibold px-4 py-2 rounded-2xl text-sm disabled:opacity-60 active:scale-95 transition-all"
+      className="text-white text-sm font-medium px-3.5 py-2 rounded-md transition-colors disabled:opacity-60"
       style={{ background: 'var(--button-dark)' }}
     >
       {loading ? 'Updating…' : action.label}
