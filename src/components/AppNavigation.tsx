@@ -264,7 +264,10 @@ export default function AppNavigation({
         >
           <Menu className="w-5 h-5" />
         </button>
-        <span style={{ fontSize: 15, fontWeight: 800, color: '#1d1d1f', letterSpacing: '-0.02em' }}>FloorQuote Pro</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Image src="/logo.png" alt="FloorQuote Pro" width={26} height={26} style={{ borderRadius: 7 }} />
+          <span style={{ fontSize: 15, fontWeight: 800, color: '#1d1d1f', letterSpacing: '-0.02em' }}>FloorQuote Pro</span>
+        </div>
         <div className="w-10" />
       </header>
 
