@@ -772,20 +772,20 @@ export default function QuoteDetailCard({
         </div>
 
         {/* Stacked title + date/number */}
-        <div className="sm:text-right">
-          <div className="mb-3">
-            <p className="text-4xl sm:text-5xl font-extrabold leading-none" style={{ color: '#1e293b' }}>Flooring</p>
-            <p className="text-xl sm:text-2xl font-bold tracking-wide" style={{ color: '#475569' }}>Estimate</p>
+        <div className="sm:text-right flex-shrink-0">
+          <div className="mb-3 leading-none">
+            <p className="font-extrabold leading-none" style={{ color: '#1e293b', fontSize: 38 }}>Flooring</p>
+            <p className="font-bold tracking-wide" style={{ color: '#475569', fontSize: 20 }}>Estimate</p>
           </div>
           {/* Date row */}
-          <div className="flex sm:justify-end items-center gap-2 text-sm pb-1 mb-1" style={{ borderBottom: '1px solid #e2e8f0' }}>
-            <span style={{ color: BAND_BG, fontSize: 10 }}>◆</span>
+          <div className="flex sm:justify-end items-center gap-1.5 text-xs pb-1 mb-1 whitespace-nowrap" style={{ borderBottom: '1px solid #e2e8f0' }}>
+            <span style={{ color: BAND_BG, fontSize: 9 }}>◆</span>
             <span className="font-semibold" style={{ color: '#1e293b' }}>Estimate Date:</span>
             <span style={{ color: '#475569' }}>{dateStr}</span>
           </div>
           {/* Estimate # row */}
-          <div className="flex sm:justify-end items-center gap-2 text-sm pb-1" style={{ borderBottom: '1px solid #e2e8f0' }}>
-            <span style={{ color: BAND_BG, fontSize: 10 }}>◆</span>
+          <div className="flex sm:justify-end items-center gap-1.5 text-xs pb-1 whitespace-nowrap" style={{ borderBottom: '1px solid #e2e8f0' }}>
+            <span style={{ color: BAND_BG, fontSize: 9 }}>◆</span>
             <span className="font-semibold" style={{ color: '#1e293b' }}>Estimate #:</span>
             <EditableField
               fieldKey="quote_number"
