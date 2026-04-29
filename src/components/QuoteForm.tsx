@@ -1010,24 +1010,27 @@ export default function QuoteForm({
               <div className="space-y-4">
                 <Input label="Total square footage" value={manualSqft} onChange={setManualSqft} type="number" suffix="sqft" placeholder="500" decimal />
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Flooring type</label>
-                  <select
-                    value={sectionFlooring[firstSection] || 'unfinished'}
-                    onChange={e => setSectionFlooringType(firstSection, e.target.value as FlooringType)}
-                    className="w-full text-sm rounded-md px-3 py-2 focus:outline-none bg-white text-gray-900"
-                    style={{ border: '1px solid #E5E7EB' }}
-                  >
-                    <optgroup label="Hardwood">
-                      {FLOORING_TYPES.filter(t => t.group === 'Hardwood').map(t => (
-                        <option key={t.value} value={t.value}>{t.label}</option>
-                      ))}
-                    </optgroup>
-                    <optgroup label="Other">
-                      {FLOORING_TYPES.filter(t => !t.group).map(t => (
-                        <option key={t.value} value={t.value}>{t.label}</option>
-                      ))}
-                    </optgroup>
-                  </select>
+                  <label className="block text-xs font-medium text-gray-500 mb-2">Flooring type</label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {FLOORING_TYPES.map(t => {
+                      const active = (sectionFlooring[firstSection] || 'unfinished') === t.value
+                      return (
+                        <button
+                          key={t.value}
+                          type="button"
+                          onClick={() => setSectionFlooringType(firstSection, t.value)}
+                          className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-medium transition-all select-none"
+                          style={active
+                            ? { background: '#1d1d1f', color: 'white', border: '1.5px solid #1d1d1f' }
+                            : { background: 'white', color: '#374151', border: '1.5px solid #E5E7EB' }
+                          }
+                        >
+                          {active && <Check className="w-3 h-3 flex-shrink-0" />}
+                          {t.label}
+                        </button>
+                      )
+                    })}
+                  </div>
                 </div>
                 {jobSpecChecklist}
               </div>
@@ -1150,24 +1153,24 @@ export default function QuoteForm({
                               )}
                             </div>
                           </div>
-                          {/* Flooring type selector per section */}
-                          <select
-                            value={secFlooring}
-                            onChange={e => setSectionFlooringType(section, e.target.value as FlooringType)}
-                            className="w-full text-sm rounded-md px-3 py-2 focus:outline-none bg-white text-gray-900"
-                            style={{ border: '1px solid #E5E7EB' }}
-                          >
-                            <optgroup label="Hardwood">
-                              {FLOORING_TYPES.filter(t => t.group === 'Hardwood').map(t => (
-                                <option key={t.value} value={t.value}>{t.label}</option>
-                              ))}
-                            </optgroup>
-                            <optgroup label="Other">
-                              {FLOORING_TYPES.filter(t => !t.group).map(t => (
-                                <option key={t.value} value={t.value}>{t.label}</option>
-                              ))}
-                            </optgroup>
-                          </select>
+                          {/* Flooring type — pill buttons */}
+                          <div className="flex flex-wrap gap-1.5 mt-1">
+                            {FLOORING_TYPES.map(t => (
+                              <button
+                                key={t.value}
+                                type="button"
+                                onClick={() => setSectionFlooringType(section, t.value)}
+                                className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-medium transition-all select-none"
+                                style={secFlooring === t.value
+                                  ? { background: '#1d1d1f', color: 'white', border: '1.5px solid #1d1d1f' }
+                                  : { background: 'white', color: '#374151', border: '1.5px solid #E5E7EB' }
+                                }
+                              >
+                                {secFlooring === t.value && <Check className="w-3 h-3 flex-shrink-0" />}
+                                {t.label}
+                              </button>
+                            ))}
+                          </div>
 
                         </div>
 
