@@ -204,18 +204,19 @@ export default function ContactDetailClient({
         <h1 className="text-base font-semibold text-gray-900 truncate min-w-0">
           {customer.name}
         </h1>
-        <button
-          onClick={openEdit}
-          className="inline-flex items-center gap-1.5 text-sm font-medium px-3.5 py-2 rounded-md text-gray-700 hover:bg-gray-50 transition-colors flex-shrink-0"
-          style={{ background: 'white', border: '1px solid #E5E7EB' }}
-        >
-          <Pencil className="w-3.5 h-3.5" />
-          Edit
-        </button>
       </div>
 
       {/* Contact details */}
-      <Card title="Contact details">
+      <Card title="Contact details" action={
+        <button
+          onClick={openEdit}
+          className="inline-flex items-center gap-1.5 text-sm font-semibold text-white transition-colors flex-shrink-0"
+          style={{ background: '#1d1d1f', borderRadius: 9999, padding: '5px 14px' }}
+        >
+          <Pencil className="w-3 h-3" />
+          Edit
+        </button>
+      }>
         {hasDetails ? (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
