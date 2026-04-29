@@ -231,7 +231,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             </a>
           </div>
         )}
-        <div className="flex-1 max-w-5xl w-full mx-auto px-5 py-6 lg:px-8 lg:py-7">{children}</div>
+        <div className="flex-1 max-w-5xl w-full mx-auto px-4 py-6 lg:px-8 lg:py-7">{children}</div>
         <footer className="border-t border-gray-100 px-5 lg:px-8 py-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between text-xs text-gray-400">
           <p>© {new Date().getFullYear()} FloorQuote Pro</p>
           <div className="flex items-center gap-5">

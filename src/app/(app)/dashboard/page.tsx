@@ -23,12 +23,21 @@ export default async function DashboardPage() {
   const { data: membership } = await supabase.from('company_members').select('company_id').eq('user_id', user.id).single()
   if (!membership) redirect('/billing/setup')
 
-  const { data: allQuotes = [] } = await supabase
-    .from('quotes')
-    .select('id, status, final_total, created_at, customer_name, job_address, flooring_type, section_flooring_types')
-    .eq('company_id', membership.company_id)
-    .neq('status', 'measurement')
-    .order('created_at', { ascending: false })
+  const [{ data: allQuotes = [] }, { data: pendingMeasurements = [] }] = await Promise.all([
+    supabase
+      .from('quotes')
+      .select('id, status, final_total, created_at, customer_name, job_address, flooring_type, section_flooring_types')
+      .eq('company_id', membership.company_id)
+      .neq('status', 'measurement')
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('quotes')
+      .select('id, created_at, customer_name, job_address, flooring_type, section_flooring_types')
+      .eq('company_id', membership.company_id)
+      .eq('status', 'measurement')
+      .order('created_at', { ascending: false })
+      .limit(8),
+  ])
 
   const quotes = allQuotes ?? []
   const total = quotes.length
@@ -38,17 +47,17 @@ export default async function DashboardPage() {
   const avgAccepted = accepted.length > 0 ? revenue / accepted.length : 0
 
   const tiles = [
-    { label: 'TOTAL QUOTES',       value: String(total),           color: TILE_COLORS[0] },
-    { label: 'ACCEPTED',           value: String(accepted.length), color: TILE_COLORS[1] },
-    { label: 'REVENUE WON',        value: fmt(revenue),            color: TILE_COLORS[2] },
-    { label: 'AVG ACCEPTED VALUE', value: fmt(avgAccepted),        color: TILE_COLORS[3] },
+    { label: 'TOTAL',     value: String(total),           color: TILE_COLORS[0] },
+    { label: 'ACCEPTED',  value: String(accepted.length), color: TILE_COLORS[1] },
+    { label: 'REVENUE',   value: fmt(revenue),            color: TILE_COLORS[2] },
+    { label: 'AVG VALUE', value: fmt(avgAccepted),        color: TILE_COLORS[3] },
   ]
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Page title */}
       <div>
-        <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1d1d1f', letterSpacing: '-0.025em', margin: 0 }}>
+        <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1d1d1f', letterSpacing: '-0.025em', margin: 0, wordBreak: 'break-word' }}>
           Dashboard
         </h1>
       </div>
@@ -59,7 +68,7 @@ export default async function DashboardPage() {
           <div
             key={label}
             style={{
-              background: 'white', borderRadius: 16, padding: '20px 22px',
+              background: 'white', borderRadius: 16, padding: '16px 18px',
               boxShadow: '0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.04)',
               position: 'relative', overflow: 'hidden',
             }}
@@ -73,7 +82,7 @@ export default async function DashboardPage() {
             <p style={{ fontSize: 11.5, fontWeight: 600, color: '#aeaeb2', textTransform: 'uppercase', letterSpacing: '0.04em', margin: '0 0 8px' }}>
               {label}
             </p>
-            <p style={{ fontSize: 30, fontWeight: 800, color: '#1d1d1f', letterSpacing: '-0.04em', margin: 0, fontVariantNumeric: 'tabular-nums' }}>
+            <p style={{ fontSize: 22, fontWeight: 800, color: '#1d1d1f', letterSpacing: '-0.04em', margin: 0, fontVariantNumeric: 'tabular-nums', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {value}
             </p>
           </div>
