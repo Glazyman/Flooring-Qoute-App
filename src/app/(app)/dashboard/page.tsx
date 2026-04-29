@@ -58,10 +58,18 @@ export default async function DashboardPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Page title */}
-      <div>
+      <div className="flex items-center justify-between gap-3">
         <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1d1d1f', letterSpacing: '-0.025em', margin: 0, wordBreak: 'break-word' }}>
           Dashboard
         </h1>
+        <Link
+          href="/quotes/new"
+          className="lg:hidden inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-md text-white flex-shrink-0"
+          style={{ background: 'var(--button-dark)' }}
+        >
+          <Plus className="w-3.5 h-3.5" />
+          New project
+        </Link>
       </div>
 
       {/* Metric cards */}

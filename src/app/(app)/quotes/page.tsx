@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import { Plus } from 'lucide-react'
 import QuotesTable from '@/components/QuotesTable'
 import type { Quote } from '@/lib/types'
 
@@ -34,6 +35,14 @@ export default async function QuotesPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-base font-semibold text-gray-900">Estimates</h1>
+        <Link
+          href="/quotes/new"
+          className="lg:hidden inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-md text-white flex-shrink-0"
+          style={{ background: 'var(--button-dark)' }}
+        >
+          <Plus className="w-3.5 h-3.5" />
+          New project
+        </Link>
       </div>
 
       <QuotesTable quotes={(quotes as Quote[]) || []} />
