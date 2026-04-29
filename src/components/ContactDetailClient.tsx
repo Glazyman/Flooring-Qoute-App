@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Pencil, Mail, Phone, MapPin, FileText, Building2, X, Check, User, ArrowLeft } from 'lucide-react'
+import { Pencil, Mail, Phone, MapPin, FileText, Building2, User, ArrowLeft, Check, X } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
 import { fmt } from '@/lib/calculations'
 import { formatPhone } from '@/lib/format'
@@ -50,26 +50,16 @@ function toForm(c: Customer): FormState {
   }
 }
 
-function DetailRow({
-  icon,
-  label,
-  value,
-  full,
-}: {
-  icon: React.ReactNode
-  label: string
-  value: string
-  full?: boolean
-}) {
-  return (
-    <div className={full ? 'sm:col-span-2' : ''}>
-      <p className="text-xs font-medium text-gray-500 mb-1 flex items-center gap-1.5">
-        <span className="text-gray-400">{icon}</span>
-        {label}
-      </p>
-      <p className="text-sm text-gray-900">{value}</p>
-    </div>
-  )
+const fieldStyle: React.CSSProperties = {
+  width: '100%', padding: '6px 10px', borderRadius: 8,
+  border: '1px solid #E5E7EB', fontSize: 13, color: '#111827',
+  outline: 'none', background: '#fff',
+}
+
+const labelStyle: React.CSSProperties = {
+  fontSize: 11, fontWeight: 600, color: '#9CA3AF',
+  textTransform: 'uppercase', letterSpacing: '0.05em',
+  display: 'flex', alignItems: 'center', gap: 5, marginBottom: 4,
 }
 
 export default function ContactDetailClient({
@@ -80,19 +70,19 @@ export default function ContactDetailClient({
   quotes: Quote[]
 }) {
   const [customer, setCustomer] = useState(initialCustomer)
-  const [showEdit, setShowEdit] = useState(false)
+  const [editing, setEditing] = useState(false)
   const [form, setForm] = useState<FormState>(toForm(initialCustomer))
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
-  function openEdit() {
+  function startEdit() {
     setForm(toForm(customer))
     setError('')
-    setShowEdit(true)
+    setEditing(true)
   }
 
-  function closeEdit() {
-    setShowEdit(false)
+  function cancelEdit() {
+    setEditing(false)
     setError('')
   }
 
@@ -109,96 +99,45 @@ export default function ContactDetailClient({
       const data = await res.json()
       if (!res.ok) { setError(data.error || 'Failed to save'); return }
       setCustomer(data.customer)
-      setShowEdit(false)
+      setEditing(false)
     } finally {
       setSaving(false)
     }
   }
 
-  const hasDetails = !!(customer.phone || customer.email || customer.address || customer.company || customer.notes)
+  const cardAction = editing ? (
+    <div className="flex items-center gap-2">
+      {error && <span style={{ fontSize: 11, color: '#EF4444' }}>{error}</span>}
+      <button
+        onClick={cancelEdit}
+        className="inline-flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-gray-800 transition-colors"
+        style={{ padding: '5px 10px' }}
+      >
+        <X className="w-3 h-3" /> Cancel
+      </button>
+      <button
+        onClick={handleSave}
+        disabled={saving}
+        className="inline-flex items-center gap-1.5 text-sm font-semibold text-white transition-colors flex-shrink-0 disabled:opacity-60"
+        style={{ background: '#1d1d1f', borderRadius: 9999, padding: '5px 14px' }}
+      >
+        <Check className="w-3 h-3" />
+        {saving ? 'Saving…' : 'Save'}
+      </button>
+    </div>
+  ) : (
+    <button
+      onClick={startEdit}
+      className="inline-flex items-center gap-1.5 text-sm font-semibold text-white transition-colors flex-shrink-0"
+      style={{ background: '#1d1d1f', borderRadius: 9999, padding: '5px 14px' }}
+    >
+      <Pencil className="w-3 h-3" />
+      Edit
+    </button>
+  )
 
   return (
     <div className="space-y-5 max-w-3xl">
-      {/* Edit modal */}
-      {showEdit && (
-        <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
-          style={{ background: 'rgba(0,0,0,0.45)' }}
-          onMouseDown={e => { if (e.target === e.currentTarget) closeEdit() }}
-        >
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-base text-gray-900">Edit Contact</h3>
-              <button
-                onClick={closeEdit}
-                className="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-50"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {error && (
-              <p className="text-red-600 text-xs font-medium bg-red-50 px-3 py-2 rounded-xl">{error}</p>
-            )}
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {[
-                { key: 'name', label: 'Name *', placeholder: 'John Smith', type: 'text' },
-                { key: 'phone', label: 'Phone', placeholder: '(555) 000-0000', type: 'tel' },
-                { key: 'email', label: 'Email', placeholder: 'john@example.com', type: 'email' },
-                { key: 'address', label: 'Address', placeholder: '123 Main St', type: 'text' },
-                { key: 'company', label: 'Company', placeholder: 'Acme Corp', type: 'text' },
-              ].map(({ key, label, placeholder, type }) => (
-                <div key={key}>
-                  <label className="block text-[11px] font-bold uppercase tracking-wide mb-1.5 text-gray-500">
-                    {label}
-                  </label>
-                  <input
-                    type={type}
-                    value={form[key as keyof FormState]}
-                    onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
-                    placeholder={placeholder}
-                    className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400"
-                    style={{ borderColor: '#E5E7EB', color: '#111827' }}
-                  />
-                </div>
-              ))}
-              <div className="sm:col-span-2">
-                <label className="block text-[11px] font-bold uppercase tracking-wide mb-1.5 text-gray-500">
-                  Notes
-                </label>
-                <textarea
-                  value={form.notes}
-                  onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
-                  placeholder="Optional notes…"
-                  rows={3}
-                  className="w-full px-3.5 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-400 resize-none"
-                  style={{ borderColor: '#E5E7EB', color: '#111827' }}
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-2 pt-1">
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="flex items-center gap-1.5 text-white font-semibold px-4 py-2.5 rounded-2xl text-sm disabled:opacity-60 active:scale-95"
-                style={{ background: '#1d1d1f' }}
-              >
-                <Check className="w-4 h-4" />
-                {saving ? 'Saving…' : 'Save Contact'}
-              </button>
-              <button
-                onClick={closeEdit}
-                className="px-4 py-2.5 rounded-2xl text-sm font-medium hover:bg-gray-50 active:scale-95 text-gray-500"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Back link */}
       <Link href="/contacts" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors">
         <ArrowLeft className="w-4 h-4" />
@@ -206,49 +145,89 @@ export default function ContactDetailClient({
       </Link>
 
       {/* Contact details */}
-      <Card title="Contact details" action={
-        <button
-          onClick={openEdit}
-          className="inline-flex items-center gap-1.5 text-sm font-semibold text-white transition-colors flex-shrink-0"
-          style={{ background: '#1d1d1f', borderRadius: 9999, padding: '5px 14px' }}
-        >
-          <Pencil className="w-3 h-3" />
-          Edit
-        </button>
-      }>
-        {hasDetails ? (
-          <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {customer.name && (
-                <DetailRow icon={<User className="w-3.5 h-3.5" />} label="Name" value={customer.name} />
-              )}
-              {customer.phone && (
-                <DetailRow icon={<Phone className="w-3.5 h-3.5" />} label="Phone" value={formatPhone(customer.phone)} />
-              )}
-              {customer.email && (
-                <DetailRow icon={<Mail className="w-3.5 h-3.5" />} label="Email" value={customer.email} />
-              )}
-              {customer.company && (
-                <DetailRow icon={<Building2 className="w-3.5 h-3.5" />} label="Company" value={customer.company} />
-              )}
-              {customer.address && (
-                <DetailRow
-                  icon={<MapPin className="w-3.5 h-3.5" />}
-                  label="Address"
-                  value={customer.address}
-                  full
+      <Card title="Contact details" action={cardAction}>
+        {editing ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {[
+              { key: 'name', label: 'Name', icon: <User className="w-3 h-3" />, placeholder: 'John Smith', type: 'text' },
+              { key: 'phone', label: 'Phone', icon: <Phone className="w-3 h-3" />, placeholder: '(555) 000-0000', type: 'tel' },
+              { key: 'email', label: 'Email', icon: <Mail className="w-3 h-3" />, placeholder: 'john@example.com', type: 'email' },
+              { key: 'company', label: 'Company', icon: <Building2 className="w-3 h-3" />, placeholder: 'Acme Corp', type: 'text' },
+            ].map(({ key, label, icon, placeholder, type }) => (
+              <div key={key}>
+                <p style={labelStyle}>{icon}{label}</p>
+                <input
+                  type={type}
+                  value={form[key as keyof FormState]}
+                  onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
+                  placeholder={placeholder}
+                  style={fieldStyle}
                 />
-              )}
+              </div>
+            ))}
+            <div className="sm:col-span-2">
+              <p style={labelStyle}><MapPin className="w-3 h-3" />Address</p>
+              <input
+                type="text"
+                value={form.address}
+                onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
+                placeholder="123 Main St, City, State"
+                style={fieldStyle}
+              />
             </div>
-            {customer.notes && (
-              <div className="mt-4 pt-4" style={{ borderTop: '1px solid #F1F1F4' }}>
-                <p className="text-xs font-medium text-gray-500 mb-1.5">Notes</p>
-                <p className="text-sm whitespace-pre-wrap leading-relaxed text-gray-700">{customer.notes}</p>
+            <div className="sm:col-span-2">
+              <p style={labelStyle}>Notes</p>
+              <textarea
+                value={form.notes}
+                onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
+                placeholder="Optional notes…"
+                rows={3}
+                style={{ ...fieldStyle, resize: 'none' }}
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {customer.name && (
+              <div>
+                <p style={labelStyle}><User className="w-3 h-3" />Name</p>
+                <p className="text-sm text-gray-900">{customer.name}</p>
               </div>
             )}
-          </>
-        ) : (
-          <p className="text-sm text-gray-400">No additional details on file.</p>
+            {customer.phone && (
+              <div>
+                <p style={labelStyle}><Phone className="w-3 h-3" />Phone</p>
+                <p className="text-sm text-gray-900">{formatPhone(customer.phone)}</p>
+              </div>
+            )}
+            {customer.email && (
+              <div>
+                <p style={labelStyle}><Mail className="w-3 h-3" />Email</p>
+                <p className="text-sm text-gray-900">{customer.email}</p>
+              </div>
+            )}
+            {customer.company && (
+              <div>
+                <p style={labelStyle}><Building2 className="w-3 h-3" />Company</p>
+                <p className="text-sm text-gray-900">{customer.company}</p>
+              </div>
+            )}
+            {customer.address && (
+              <div className="sm:col-span-2">
+                <p style={labelStyle}><MapPin className="w-3 h-3" />Address</p>
+                <p className="text-sm text-gray-900">{customer.address}</p>
+              </div>
+            )}
+            {customer.notes && (
+              <div className="sm:col-span-2 pt-3" style={{ borderTop: '1px solid #F1F1F4' }}>
+                <p style={labelStyle}>Notes</p>
+                <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{customer.notes}</p>
+              </div>
+            )}
+            {!customer.phone && !customer.email && !customer.address && !customer.company && !customer.notes && (
+              <p className="text-sm text-gray-400 sm:col-span-2">No additional details on file.</p>
+            )}
+          </div>
         )}
       </Card>
 
@@ -285,10 +264,7 @@ export default function ContactDetailClient({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 flex-wrap">
                       <p className="text-sm font-medium truncate text-gray-900">{q.customer_name}</p>
-                      <span
-                        className="text-xs flex items-center gap-1.5 flex-shrink-0"
-                        style={{ color: cfg.color }}
-                      >
+                      <span className="text-xs flex items-center gap-1.5 flex-shrink-0" style={{ color: cfg.color }}>
                         <span className="w-1.5 h-1.5 rounded-full" style={{ background: cfg.color }} />
                         {cfg.label}
                       </span>
