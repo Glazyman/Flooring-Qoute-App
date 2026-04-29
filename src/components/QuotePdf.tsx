@@ -717,12 +717,12 @@ export function QuotePdfDocument({
             <Text style={styles.titleFlooring}>Flooring</Text>
             <Text style={styles.titleEstimate}>Estimate</Text>
             <View style={styles.metaLineWrapper}>
-              <Text style={styles.metaDiamond}>◆</Text>
+              <Text style={styles.metaDiamond}>{'\u2022'}</Text>
               <Text style={styles.metaLabel}>Estimate Date:</Text>
               <Text style={styles.metaValue}>{dateStr}</Text>
             </View>
             <View style={styles.metaLineWrapper}>
-              <Text style={styles.metaDiamond}>◆</Text>
+              <Text style={styles.metaDiamond}>{'\u2022'}</Text>
               <Text style={styles.metaLabel}>Estimate #:</Text>
               <Text style={styles.metaValue}>{q.quote_number || '—'}</Text>
             </View>
