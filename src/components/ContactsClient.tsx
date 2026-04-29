@@ -72,7 +72,7 @@ function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
-const COL_TEMPLATE = '40px 100px 1fr 140px 1fr 110px 72px'
+const COL_TEMPLATE = '40px 1fr 140px 1fr 110px 72px'
 
 const ICON_BTN = 'flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors flex-shrink-0'
 const COL_HEAD = 'text-xs font-semibold text-gray-500 uppercase tracking-wide py-2.5'
@@ -518,7 +518,6 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
                   />
                 )}
               </div>
-              <div className={COL_HEAD}>Contact ID</div>
               <div className={COL_HEAD}>Name</div>
               <div className={COL_HEAD}>Phone</div>
               <div className={COL_HEAD}>Address</div>
@@ -567,11 +566,6 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
                         style={{ accentColor: '#1C1C1E' }}
                       />
                     )}
-                  </div>
-
-                  {/* Contact ID */}
-                  <div className="text-xs font-mono text-gray-400">
-                    #{c.id.slice(0, 6).toUpperCase()}
                   </div>
 
                   {/* Name + email */}

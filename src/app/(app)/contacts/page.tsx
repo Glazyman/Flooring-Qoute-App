@@ -23,7 +23,7 @@ export default async function ContactsPage() {
     .order('name')
 
   return (
-    <div className="space-y-4 max-w-2xl">
+    <div className="space-y-4">
       <div>
         <h1 className="text-2xl font-extrabold tracking-tight" style={{ color: 'var(--text)' }}>Contacts</h1>
         <p className="text-sm mt-0.5" style={{ color: 'var(--text-2)' }}>Saved customer contact book</p>
