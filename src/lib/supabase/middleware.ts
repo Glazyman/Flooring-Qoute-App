@@ -29,9 +29,14 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  let user: { id: string } | null = null
+  try {
+    const result = await supabase.auth.getUser()
+    user = result.data.user
+  } catch {
+    // Bad/expired auth cookies — treat as logged out
+    user = null
+  }
 
   const path = request.nextUrl.pathname
   const isAuthPath =
