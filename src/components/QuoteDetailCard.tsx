@@ -900,12 +900,12 @@ export default function QuoteDetailCard({
             <span className="text-right">Total</span>
           </div>
 
-          {/* Section pricing rows (static — multi-section not inline-editable) */}
-          {canRenderPerSection && sectionPricing &&
+          {/* Section pricing rows (editable — material rate, labor rate, description) */}
+          {canRenderPerSection && sectionPricingState &&
             sectionKeys.map(sectionName => {
               const baseSqft = roomsBySection[sectionName] ?? 0
               const adjSqft = baseSqft * wasteFactor
-              const sp = sectionPricing[sectionName] || { material: 0, labor: 0 }
+              const sp = sectionPricingState[sectionName] || { material: 0, labor: 0 }
               const matRate = Number(sp.material) || 0
               const labRate = Number(sp.labor) || 0
               const sectionType = q.section_flooring_types?.[sectionName]
@@ -913,23 +913,58 @@ export default function QuoteDetailCard({
                 ? FLOORING_LABEL[sectionType] || sectionType
                 : flooringTypeLabel(q.flooring_type, q.section_flooring_types)
               const baseDesc = q.material_description?.trim()
+              const defaultMatDesc = baseDesc
+                ? `${sectionName} — ${baseDesc}`
+                : `${sectionName}: supply ${sectionLabel}`
+              const matDescKey = `section-desc-${sectionName}`
+              const matRowKey = `section-mat-${sectionName}`
+              const labRowKey = `section-lab-${sectionName}`
+              const matRateKey = `section-mat-rate-${sectionName}`
+              const labRateKey = `section-lab-rate-${sectionName}`
+              const isMatSelected = selectedKeys.has(matRowKey)
+              const isLabSelected = selectedKeys.has(labRowKey)
               return (
                 <div key={sectionName}>
                   <div
-                className="grid items-start px-2 py-2.5"
-                style={{
-                  gridTemplateColumns: GRID_COLS,
-                  borderBottom: ROW_BORDER,
-                  color: '#0f172a',
-                }}
-              >
-                    <span className="pr-3 break-words whitespace-pre-wrap">
-                  {baseDesc ? `${sectionName} — ${baseDesc}` : `${sectionName}: supply ${sectionLabel}`}
+                    className="grid items-start px-2 py-2.5"
+                    style={{
+                      gridTemplateColumns: GRID_COLS,
+                      borderBottom: ROW_BORDER,
+                      color: '#0f172a',
+                      background: isMatSelected ? 'rgba(0,113,227,0.06)' : undefined,
+                    }}
+                  >
+                    <span className="pr-3 break-words flex items-center">
+                      <RowCheckbox rowKey={matRowKey} />
+                      <EditableCell
+                        fieldKey={matDescKey}
+                        value={sectionDescriptions[sectionName] ?? defaultMatDesc}
+                        editing={editing}
+                        saved={saved}
+                        onEdit={onEdit}
+                        onSave={(_, val) => handleSectionDescSave(sectionName, val)}
+                        align="left"
+                      />
                     </span>
                     <span className="text-right tabular-nums">{fmtQty(adjSqft)}</span>
                     <span className="text-right tabular-nums">SF</span>
-                    <span className="text-right tabular-nums">{fmtNumber(matRate, 2)}</span>
-                    <span className="text-right tabular-nums font-semibold">{fmtNumber(adjSqft * matRate, 2)}</span>
+                    <span className="text-right tabular-nums">
+                      <EditableCell
+                        fieldKey={matRateKey}
+                        value={fmtNumber(matRate, 2)}
+                        editing={editing}
+                        saved={saved}
+                        onEdit={onEdit}
+                        onSave={(_, val) => handleSectionPricingSave(sectionName, 'material', val)}
+                        align="right"
+                      />
+                    </span>
+                    <span className="text-right tabular-nums font-semibold">
+                      {fmtNumber(adjSqft * matRate, 2)}
+                      {saved === `section-material-${sectionName}` && (
+                        <span style={{ color: TEAL, marginLeft: 4, fontSize: '0.75em' }}>✓</span>
+                      )}
+                    </span>
                   </div>
                   {labRate > 0 && (
                     <div
@@ -938,13 +973,32 @@ export default function QuoteDetailCard({
                         gridTemplateColumns: GRID_COLS,
                         borderBottom: ROW_BORDER,
                         color: '#0f172a',
+                        background: isLabSelected ? 'rgba(0,113,227,0.06)' : undefined,
                       }}
                     >
-                      <span className="pr-3">{sectionName}: labor / installation</span>
+                      <span className="pr-3 flex items-center">
+                        <RowCheckbox rowKey={labRowKey} />
+                        <span>{sectionName}: labor / installation</span>
+                      </span>
                       <span className="text-right tabular-nums">{fmtQty(adjSqft)}</span>
                       <span className="text-right tabular-nums">SF</span>
-                      <span className="text-right tabular-nums">{fmtNumber(labRate, 2)}</span>
-                      <span className="text-right tabular-nums font-semibold">{fmtNumber(adjSqft * labRate, 2)}</span>
+                      <span className="text-right tabular-nums">
+                        <EditableCell
+                          fieldKey={labRateKey}
+                          value={fmtNumber(labRate, 2)}
+                          editing={editing}
+                          saved={saved}
+                          onEdit={onEdit}
+                          onSave={(_, val) => handleSectionPricingSave(sectionName, 'labor', val)}
+                          align="right"
+                        />
+                      </span>
+                      <span className="text-right tabular-nums font-semibold">
+                        {fmtNumber(adjSqft * labRate, 2)}
+                        {saved === `section-labor-${sectionName}` && (
+                          <span style={{ color: TEAL, marginLeft: 4, fontSize: '0.75em' }}>✓</span>
+                        )}
+                      </span>
                     </div>
                   )}
                 </div>
