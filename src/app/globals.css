@@ -1,10 +1,10 @@
 @import "tailwindcss";
 
 :root {
-  /* Brand */
-  --primary: #0071e3;
-  --primary-hover: #0077ed;
-  --primary-light: rgba(0,113,227,0.08);
+  /* Brand — teal, matches logo */
+  --primary: #0d9488;
+  --primary-hover: #0f766e;
+  --primary-light: rgba(13,148,136,0.08);
 
   /* Surfaces */
   --bg: #f2f2f7;

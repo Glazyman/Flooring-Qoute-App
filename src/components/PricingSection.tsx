@@ -44,7 +44,7 @@ export default function PricingSection() {
   const [annual, setAnnual] = useState(false)
 
   return (
-    <section className="max-w-5xl mx-auto px-5 mb-16 sm:mb-24">
+    <section className="w-full px-5 lg:px-10 mb-16 sm:mb-24">
       <div className="text-center mb-8 sm:mb-10">
         <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--primary)' }}>Pricing</p>
         <h2 className="text-2xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">Simple, honest pricing</h2>

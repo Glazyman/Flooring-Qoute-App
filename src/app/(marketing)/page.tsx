@@ -78,7 +78,7 @@ export default async function HomePage({
       <HomePageAuthHandler />
 
       {/* ── Hero ── */}
-      <section className="max-w-5xl mx-auto px-5 pt-14 pb-12 sm:pt-20 sm:pb-16 text-center">
+      <section className="w-full px-5 lg:px-10 pt-14 pb-12 sm:pt-20 sm:pb-16 text-center">
         <div className="inline-flex items-center gap-2 border border-gray-200 text-gray-500 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-6 sm:mb-8">
           <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--primary)' }} />
           3 free quotes — no credit card needed
@@ -115,7 +115,7 @@ export default async function HomePage({
       </section>
 
       {/* ── App mockup ── */}
-      <section className="max-w-4xl mx-auto px-5 mb-16 sm:mb-24">
+      <section className="w-full px-5 lg:px-10 mb-16 sm:mb-24">
         <div className="bg-gray-50 rounded-xl border border-gray-100 p-5 sm:p-10">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Left — quote info */}
@@ -163,7 +163,7 @@ export default async function HomePage({
       </section>
 
       {/* ── How it works ── */}
-      <section className="max-w-5xl mx-auto px-5 mb-16 sm:mb-24">
+      <section className="w-full px-5 lg:px-10 mb-16 sm:mb-24">
         <div className="text-center mb-10 sm:mb-14">
           <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--primary)' }}>How it works</p>
           <h2 className="text-2xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">Three steps to a winning quote</h2>
@@ -184,7 +184,7 @@ export default async function HomePage({
       </section>
 
       {/* ── Features ── */}
-      <section className="max-w-5xl mx-auto px-5 mb-16 sm:mb-24">
+      <section className="w-full px-5 lg:px-10 mb-16 sm:mb-24">
         <div className="text-center mb-10 sm:mb-14">
           <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--primary)' }}>Features</p>
           <h2 className="text-2xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">Everything a flooring pro needs</h2>
@@ -205,7 +205,7 @@ export default async function HomePage({
       <PricingSection />
 
       {/* ── CTA ── */}
-      <section className="max-w-5xl mx-auto px-5 mb-16 sm:mb-24">
+      <section className="w-full px-5 lg:px-10 mb-16 sm:mb-24">
         <div className="bg-gray-50 rounded-xl border border-gray-100 px-5 py-12 sm:px-8 sm:py-16 text-center">
           <div className="flex justify-center mb-6">
             <Image src="/logo.png" alt="FloorQuote Pro" width={56} height={56} className="rounded-2xl" />
