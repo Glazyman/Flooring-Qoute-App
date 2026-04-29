@@ -38,6 +38,15 @@ export default function BillingSetupPage() {
   const [portalLoading, setPortalLoading] = useState(false)
   const [error, setError] = useState('')
 
+  async function safeJson(res: Response): Promise<{ url?: string; error?: string; noCustomer?: boolean }> {
+    try {
+      return await res.json()
+    } catch {
+      const text = await res.text().catch(() => '')
+      return { error: text.slice(0, 200) || `HTTP ${res.status} ${res.statusText}` }
+    }
+  }
+
   async function handleSubscribe(plan: 'starter' | 'pro') {
     setLoadingPlan(plan)
     setError('')
@@ -53,13 +62,13 @@ export default function BillingSetupPage() {
         signal: controller.signal,
       })
       clearTimeout(timeout)
-      const data = await res.json()
+      const data = await safeJson(res)
       if (data.url) {
         setLoadingPlan(null)
         setRedirectingPlan(plan)
         window.location.href = data.url
       } else {
-        setError(data.error || 'Something went wrong. Please try again.')
+        setError(data.error || `Could not start checkout (HTTP ${res.status}).`)
         setLoadingPlan(null)
       }
     } catch (err) {
@@ -67,7 +76,7 @@ export default function BillingSetupPage() {
       if ((err as Error).name === 'AbortError') {
         setError('Request timed out. Please check your connection and try again.')
       } else {
-        setError('Could not connect to billing. Please try again.')
+        setError('Could not reach the server. Please check your connection and try again.')
       }
       setLoadingPlan(null)
     }
@@ -75,17 +84,21 @@ export default function BillingSetupPage() {
 
   async function handlePortal() {
     setPortalLoading(true)
+    setError('')
     try {
       const res = await fetch('/api/billing/portal', { method: 'POST' })
-      const data = await res.json()
+      const data = await safeJson(res)
       if (data.url) {
         window.location.href = data.url
+      } else if (data.noCustomer) {
+        setError('You don\'t have an active subscription yet. Pick a plan above to get started.')
+        setPortalLoading(false)
       } else {
-        setError(data.error || 'Could not open billing portal.')
+        setError(data.error || `Could not open billing portal (HTTP ${res.status}).`)
         setPortalLoading(false)
       }
     } catch {
-      setError('Could not connect to billing portal. Please try again.')
+      setError('Could not reach the server. Please check your connection and try again.')
       setPortalLoading(false)
     }
   }
