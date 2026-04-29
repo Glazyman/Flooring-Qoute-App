@@ -9,6 +9,7 @@ import {
 import type { Quote, QuoteRoom, QuoteLineItem, CompanySettings } from '@/lib/types'
 import { flooringTypeLabel, FLOORING_LABEL } from '@/lib/flooringLabels'
 import { applyValidDaysToTerms } from '@/lib/calculations'
+import { selectedLabelsByGroup, type JobOptionsRecord } from '@/lib/jobOptions'
 
 // Palette — mirrors src/components/QuoteDetailCard.tsx
 const BAND_BG = '#1e293b'
@@ -318,6 +319,22 @@ const styles = StyleSheet.create({
     fontSize: 9,
     color: BODY_COLOR,
     lineHeight: 1.5,
+  },
+  jobDetailRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 2,
+  },
+  jobDetailLabel: {
+    fontFamily: 'Helvetica-Bold',
+    fontSize: 9,
+    color: BODY_COLOR,
+    marginRight: 4,
+  },
+  jobDetailValue: {
+    fontSize: 9,
+    color: MUTED_COLOR,
+    flex: 1,
   },
 
   // ---- Disclaimer terms ----
@@ -671,6 +688,13 @@ export function QuotePdfDocument({
     settings?.terms_scope?.trim(),
   ].filter((t): t is string => !!t && t.length > 0)
 
+  // Job options (right-side checklist) — show selected items grouped
+  const jobOpts = (q.job_options ?? null) as JobOptionsRecord | null
+  const jobOptGroups = selectedLabelsByGroup(jobOpts)
+  const jobWidth = typeof jobOpts?.width === 'string' ? jobOpts.width : ''
+  const jobLockbox = typeof jobOpts?.lockbox_key_value === 'string' ? jobOpts.lockbox_key_value : ''
+  const hasJobDetails = jobOptGroups.length > 0 || !!jobWidth || !!jobLockbox
+
   // Address blocks
   const addrLine1 = [settings?.address_line1, settings?.address_line2]
     .filter(Boolean)
@@ -966,6 +990,33 @@ export function QuotePdfDocument({
             ) : null}
           </View>
         </View>
+
+        {/* ---- Job details (right-side checklist) ---- */}
+        {hasJobDetails ? (
+          <View style={styles.ixqWrapper}>
+            <View style={styles.ixqSection}>
+              <Text style={styles.ixqLabel}>JOB DETAILS</Text>
+              {jobOptGroups.map(g => (
+                <View key={g.groupLabel} style={styles.jobDetailRow}>
+                  <Text style={styles.jobDetailLabel}>{g.groupLabel}:</Text>
+                  <Text style={styles.jobDetailValue}>{g.labels.join(', ')}</Text>
+                </View>
+              ))}
+              {jobWidth ? (
+                <View style={styles.jobDetailRow}>
+                  <Text style={styles.jobDetailLabel}>Plank width:</Text>
+                  <Text style={styles.jobDetailValue}>{jobWidth}</Text>
+                </View>
+              ) : null}
+              {jobLockbox ? (
+                <View style={styles.jobDetailRow}>
+                  <Text style={styles.jobDetailLabel}>Lockbox / Key:</Text>
+                  <Text style={styles.jobDetailValue}>{jobLockbox}</Text>
+                </View>
+              ) : null}
+            </View>
+          </View>
+        ) : null}
 
         {/* ---- Inclusions / Exclusions / Qualifications ---- */}
         {inclusions || exclusions || qualifications ? (

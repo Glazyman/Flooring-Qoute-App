@@ -165,6 +165,7 @@ export interface Quote {
   valid_days: number
   section_flooring_types: Record<string, FlooringType> | null
   extras_json: Record<string, number> | null
+  job_options: Record<string, boolean | string> | null
   quote_number: string | null
   inclusions?: string | null
   exclusions?: string | null

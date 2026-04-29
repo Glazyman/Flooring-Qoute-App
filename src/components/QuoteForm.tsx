@@ -6,6 +6,7 @@ import { calculateQuote, fmt, type QuoteExtras } from '@/lib/calculations'
 import type { CompanySettings, FlooringType, MeasurementType } from '@/lib/types'
 import { Card } from '@/components/ui/Card'
 import { formatPhone, formatExpiration } from '@/lib/format'
+import { JOB_OPTION_GROUPS, type JobOptionsRecord } from '@/lib/jobOptions'
 import {
   PlusCircle,
   Plus,
@@ -169,6 +170,7 @@ export interface QuoteInitialData {
   section_flooring_types?: Record<string, FlooringType> | null
   section_pricing?: Record<string, { material: number; labor: number }> | null
   extras_json?: Record<string, number> | null
+  job_options?: Record<string, boolean | string> | null
   line_items?: Array<{ description: string | null; qty: number; unit_price: number; total: number }>
 }
 
@@ -304,6 +306,39 @@ export default function QuoteForm({
   const [transitionUnit, setTransitionUnit] = useState(initialExtras?.transition_unit ? String(initialExtras.transition_unit) : '')
   const [floorProtection, setFloorProtection] = useState(initialExtras?.floor_protection ? String(initialExtras.floor_protection) : '')
   const [disposalFee, setDisposalFee] = useState(initialExtras?.disposal_fee ? String(initialExtras.disposal_fee) : '')
+
+  // Job options (right-side checklist mirroring paper estimate forms)
+  const [jobOptions, setJobOptions] = useState<JobOptionsRecord>(
+    () => (initialData?.job_options as JobOptionsRecord | null | undefined) ?? {}
+  )
+  function toggleJobOption(key: string) {
+    setJobOptions(prev => {
+      const next = { ...prev }
+      if (next[key] === true) delete next[key]
+      else next[key] = true
+      return next
+    })
+  }
+  function setExclusiveJobOption(groupId: string, key: string) {
+    const group = JOB_OPTION_GROUPS.find(g => g.id === groupId)
+    if (!group) return
+    setJobOptions(prev => {
+      const next = { ...prev }
+      // Clear other options in the same exclusive group
+      group.options.forEach(o => { delete next[o.key] })
+      // Toggle: if it was already set, leave cleared; otherwise set
+      if (prev[key] !== true) next[key] = true
+      return next
+    })
+  }
+  function setJobOptionValue(key: string, value: string) {
+    setJobOptions(prev => {
+      const next = { ...prev }
+      if (value.trim()) next[key] = value.trim()
+      else delete next[key]
+      return next
+    })
+  }
 
   // Default tax behavior:
   // - if editing and quote already has tax_enabled => keep
@@ -710,6 +745,7 @@ export default function QuoteForm({
       material_description: materialDescription.trim() || null,
       valid_days: n(validDays) || 30,
       extras_json: extrasJson,
+      job_options: jobOptions,
       rooms: roomsForApi,
       line_items: lineItems
         .filter(li => li.description.trim() || n(li.qty) > 0 || n(li.unit_price) > 0)
@@ -1449,6 +1485,65 @@ export default function QuoteForm({
                 <p className="text-xs mt-1 text-gray-400">
                   Shown prominently on the quote PDF and email above the totals.
                 </p>
+              </div>
+            </div>
+          </Card>
+
+          {/* Job details — checklist mirroring the right side of paper estimate forms */}
+          <Card title="Job details" description="Quick checkboxes for scope, finish, install method, rooms, trim, and removals. Selected items appear on the quote and PDF.">
+            <div className="space-y-5">
+              {JOB_OPTION_GROUPS.map(group => (
+                <div key={group.id}>
+                  <div className="flex items-baseline gap-2 mb-2">
+                    <h4 className="text-xs font-semibold text-gray-700 uppercase tracking-wide">
+                      {group.label}
+                    </h4>
+                    {group.description && (
+                      <p className="text-xs text-gray-400">{group.description}</p>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2">
+                    {group.options.map(opt => {
+                      const checked = jobOptions[opt.key] === true
+                      return (
+                        <label
+                          key={opt.key}
+                          className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer select-none hover:text-gray-900 transition-colors"
+                        >
+                          <input
+                            type={group.exclusive ? 'radio' : 'checkbox'}
+                            name={group.exclusive ? `job-opt-${group.id}` : undefined}
+                            checked={checked}
+                            onChange={() =>
+                              group.exclusive
+                                ? setExclusiveJobOption(group.id, opt.key)
+                                : toggleJobOption(opt.key)
+                            }
+                            className="w-4 h-4 cursor-pointer flex-shrink-0"
+                            style={{ accentColor: 'var(--primary)' }}
+                          />
+                          <span>{opt.label}</span>
+                        </label>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))}
+
+              {/* Free-form text fields that pair with the checkbox catalog */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2" style={{ borderTop: '1px solid #F1F1F4' }}>
+                <Input
+                  label="Plank width"
+                  value={(jobOptions.width as string | undefined) ?? ''}
+                  onChange={(v) => setJobOptionValue('width', v)}
+                  placeholder='e.g. 5"'
+                />
+                <Input
+                  label="Lockbox / Key"
+                  value={(jobOptions.lockbox_key_value as string | undefined) ?? ''}
+                  onChange={(v) => setJobOptionValue('lockbox_key_value', v)}
+                  placeholder="Code or note"
+                />
               </div>
             </div>
           </Card>

@@ -49,6 +49,7 @@ const ALLOWED_QUOTE_FIELDS = new Set<string>([
   'section_flooring_types',
   'section_pricing',
   'extras_json',
+  'job_options',
   'inclusions',
   'exclusions',
   'qualifications',

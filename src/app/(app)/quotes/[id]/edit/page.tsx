@@ -75,6 +75,7 @@ export default async function EditQuotePage({
     material_description: q.material_description,
     valid_days: q.valid_days,
     extras_json: q.extras_json ?? null,
+    job_options: q.job_options ?? null,
     line_items: typedLineItems.map(li => ({
       description: li.description,
       qty: Number(li.qty) || 0,

@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import { fmt } from '@/lib/calculations'
 import { flooringTypeLabel, FLOORING_LABEL } from '@/lib/flooringLabels'
+import { selectedLabelsByGroup, type JobOptionsRecord } from '@/lib/jobOptions'
 import type { Quote, QuoteRoom, QuoteLineItem, CompanySettings } from '@/lib/types'
 
 const BAND_BG = '#1e293b'
@@ -1869,6 +1870,40 @@ export default function QuoteDetailCard({
           )}
         </div>
       </div>
+
+      {/* Job details — selected checkbox options */}
+      {(() => {
+        const jobOpts = (q.job_options ?? null) as JobOptionsRecord | null
+        const groups = selectedLabelsByGroup(jobOpts)
+        const widthVal = typeof jobOpts?.width === 'string' ? jobOpts.width : ''
+        const lockboxVal = typeof jobOpts?.lockbox_key_value === 'string' ? jobOpts.lockbox_key_value : ''
+        if (groups.length === 0 && !widthVal && !lockboxVal) return null
+        return (
+          <div className="mt-5 pl-2.5" style={{ borderLeft: '3px solid #e2e8f0', color: '#0f172a' }}>
+            <p className="mb-1.5" style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#94a3b8' }}>Job details</p>
+            <div className="space-y-1.5 text-sm" style={{ color: '#334155' }}>
+              {groups.map(g => (
+                <div key={g.groupLabel} className="flex flex-wrap items-baseline gap-x-2">
+                  <span className="font-semibold" style={{ color: '#0f172a' }}>{g.groupLabel}:</span>
+                  <span>{g.labels.join(', ')}</span>
+                </div>
+              ))}
+              {widthVal && (
+                <div className="flex flex-wrap items-baseline gap-x-2">
+                  <span className="font-semibold" style={{ color: '#0f172a' }}>Plank width:</span>
+                  <span>{widthVal}</span>
+                </div>
+              )}
+              {lockboxVal && (
+                <div className="flex flex-wrap items-baseline gap-x-2">
+                  <span className="font-semibold" style={{ color: '#0f172a' }}>Lockbox / Key:</span>
+                  <span>{lockboxVal}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      })()}
 
       {/* Inclusions / Exclusions / Qualifications */}
       {(inclusions || exclusions || qualifications || true) && (
