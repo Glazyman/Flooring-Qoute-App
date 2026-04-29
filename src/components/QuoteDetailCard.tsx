@@ -310,6 +310,13 @@ export default function QuoteDetailCard({
     const allKeys = new Set<string>()
     if (!canRenderPerSection && q.adjusted_sqft > 0) allKeys.add('row-material')
     if (!canRenderPerSection && laborRate > 0) allKeys.add('row-labor')
+    if (canRenderPerSection && sectionPricingState) {
+      Object.keys(sectionPricingState).forEach(sectionName => {
+        allKeys.add(`section-mat-${sectionName}`)
+        const sp = sectionPricingState[sectionName]
+        if (sp && Number(sp.labor) > 0) allKeys.add(`section-lab-${sectionName}`)
+      })
+    }
     items.forEach(li => allKeys.add(`li-${li.id}`))
     if (removalFee > 0) allKeys.add('fee-removal')
     if (furnitureFee > 0) allKeys.add('fee-furniture')
@@ -584,7 +591,10 @@ export default function QuoteDetailCard({
       section_pricing?: Record<string, { material: number; labor: number }> | null
     }).section_pricing ?? null
 
-  const sectionKeys = sectionPricing ? Object.keys(sectionPricing) : []
+  const [sectionPricingState, setSectionPricingState] = useState<Record<string, { material: number; labor: number }> | null>(sectionPricing)
+  const [sectionDescriptions, setSectionDescriptions] = useState<Record<string, string>>({})
+
+  const sectionKeys = sectionPricingState ? Object.keys(sectionPricingState) : []
   const roomsBySection: Record<string, number> = {}
   rooms.forEach(r => {
     const key = r.section || 'Main Floor'
@@ -592,6 +602,30 @@ export default function QuoteDetailCard({
   })
   const canRenderPerSection =
     sectionKeys.length > 1 && sectionKeys.every(k => (roomsBySection[k] ?? 0) > 0)
+
+  async function handleSectionPricingSave(sectionName: string, field: 'material' | 'labor', rawValue: string) {
+    const numVal = parseFloat(rawValue.replace(/[^0-9.]/g, '')) || 0
+    const updated = {
+      ...(sectionPricingState ?? {}),
+      [sectionName]: {
+        ...(sectionPricingState?.[sectionName] ?? { material: 0, labor: 0 }),
+        [field]: numVal,
+      },
+    }
+    setSectionPricingState(updated)
+    setEditing(null)
+    fetch(`/api/quotes/${q.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ section_pricing: updated }),
+    }).then(() => flashSaved(`section-${field}-${sectionName}`)).catch(() => {})
+  }
+
+  function handleSectionDescSave(sectionName: string, newDesc: string) {
+    setSectionDescriptions(prev => ({ ...prev, [sectionName]: newDesc }))
+    setEditing(null)
+    flashSaved(`section-desc-${sectionName}`)
+  }
 
   // ---- Optimistic totals ----
   const canOptimizeTotals = !canRenderPerSection && q.adjusted_sqft > 0
@@ -685,29 +719,34 @@ export default function QuoteDetailCard({
             />
           ) : null}
           <div className="min-w-0">
-            <p className="text-base font-bold" style={{ color: '#0f172a' }}>
+            <p className="text-base font-bold mb-1" style={{ color: '#0f172a' }}>
               {settings?.company_name || 'Flooring Company'}
             </p>
-            {settings?.phone ? (
-              <p className="text-xs mt-0.5" style={{ color: '#334155' }}>T: {settings.phone}</p>
-            ) : null}
-            {settings?.email ? (
-              <p className="text-xs" style={{ color: '#334155' }}>{settings.email}</p>
-            ) : null}
-            {settings?.website ? (
-              <p className="text-xs" style={{ color: '#334155' }}>{settings.website}</p>
-            ) : null}
-            {settings?.address_line1 && (
-              <p style={{ fontSize: 11, color: '#64748b', marginTop: 1 }}>
-                {settings.address_line1}
-                {settings.address_line2 ? `, ${settings.address_line2}` : ''}
+            {(settings?.address_line1 || settings?.address_line2) && (
+              <p className="text-xs" style={{ color: '#334155' }}>
+                {[settings?.address_line1, settings?.address_line2].filter(Boolean).join(', ')}
               </p>
             )}
             {(settings?.city || settings?.state || settings?.zip) && (
-              <p style={{ fontSize: 11, color: '#64748b' }}>
+              <p className="text-xs" style={{ color: '#334155' }}>
                 {[settings?.city, settings?.state, settings?.zip].filter(Boolean).join(', ')}
               </p>
             )}
+            {settings?.phone ? (
+              <p className="text-xs mt-1" style={{ color: '#334155' }}>
+                <span className="font-medium" style={{ color: '#0f172a' }}>Office: </span>{settings.phone}
+              </p>
+            ) : null}
+            {settings?.email ? (
+              <p className="text-xs" style={{ color: '#334155' }}>
+                <span className="font-medium" style={{ color: '#0f172a' }}>Email: </span>{settings.email}
+              </p>
+            ) : null}
+            {settings?.website ? (
+              <p className="text-xs" style={{ color: '#334155' }}>
+                <span className="font-medium" style={{ color: '#0f172a' }}>Web: </span>{settings.website}
+              </p>
+            ) : null}
           </div>
         </div>
 
