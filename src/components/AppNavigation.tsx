@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import {
@@ -95,18 +96,7 @@ export default function AppNavigation({
 
       {/* Brand */}
       <div style={{ padding: '18px 16px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
-        <div style={{
-          width: 30, height: 30, borderRadius: 9, flexShrink: 0,
-          background: 'linear-gradient(135deg,#1d1d1f 0%,#3a3a3c 100%)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="white" strokeWidth="2.2" strokeLinejoin="round" />
-            <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="white" strokeWidth="2.2" strokeLinejoin="round" />
-            <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="white" strokeWidth="2.2" strokeLinejoin="round" />
-            <path d="M14 17h7M17.5 14v7" stroke="white" strokeWidth="2.2" strokeLinecap="round" />
-          </svg>
-        </div>
+        <Image src="/logo.png" alt="FloorQuote Pro" width={30} height={30} style={{ borderRadius: 9, flexShrink: 0 }} />
         <span style={{ fontSize: 15, fontWeight: 800, color: '#1d1d1f', letterSpacing: '-0.02em' }}>FloorQuote Pro</span>
       </div>
 

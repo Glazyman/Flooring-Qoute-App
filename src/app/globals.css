@@ -68,7 +68,7 @@ html {
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: var(--font-jakarta), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-jakarta), Inter, -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;

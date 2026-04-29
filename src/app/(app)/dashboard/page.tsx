@@ -23,12 +23,6 @@ export default async function DashboardPage() {
   const { data: membership } = await supabase.from('company_members').select('company_id').eq('user_id', user.id).single()
   if (!membership) redirect('/billing/setup')
 
-  const { data: settings } = await supabase
-    .from('company_settings')
-    .select('company_name')
-    .eq('company_id', membership.company_id)
-    .single()
-
   const { data: allQuotes = [] } = await supabase
     .from('quotes')
     .select('id, status, final_total, created_at, customer_name, job_address, flooring_type, section_flooring_types')
@@ -43,11 +37,6 @@ export default async function DashboardPage() {
   const revenue  = accepted.reduce((s, q) => s + (q.final_total || 0), 0)
   const avgAccepted = accepted.length > 0 ? revenue / accepted.length : 0
 
-  const companyDisplay = settings?.company_name || 'there'
-
-  const now = new Date()
-  const dateLabel = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).toUpperCase()
-
   const tiles = [
     { label: 'TOTAL QUOTES',       value: String(total),           color: TILE_COLORS[0] },
     { label: 'ACCEPTED',           value: String(accepted.length), color: TILE_COLORS[1] },
@@ -57,13 +46,10 @@ export default async function DashboardPage() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      {/* Greeting */}
+      {/* Page title */}
       <div>
-        <p style={{ fontSize: 12, fontWeight: 600, color: '#aeaeb2', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 4px' }}>
-          {dateLabel}
-        </p>
-        <h1 style={{ fontSize: 28, fontWeight: 800, color: '#1d1d1f', letterSpacing: '-0.03em', margin: 0 }}>
-          Good morning, {companyDisplay}.
+        <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1d1d1f', letterSpacing: '-0.025em', margin: 0 }}>
+          Dashboard
         </h1>
       </div>
 
