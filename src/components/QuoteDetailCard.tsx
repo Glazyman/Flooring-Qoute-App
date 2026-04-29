@@ -331,6 +331,8 @@ export default function QuoteDetailCard({
   const [quoteNumber, setQuoteNumber] = useState(q.quote_number ?? '')
   const [flooringType, setFlooringType] = useState<string>(q.flooring_type ?? '')
   const [materialDescription, setMaterialDescription] = useState(q.material_description ?? '')
+  const [woodSpecies, setWoodSpecies] = useState(q.wood_species ?? '')
+  const [additionalDetails, setAdditionalDetails] = useState(q.additional_details ?? '')
   const [scopeOfWork, setScopeOfWork] = useState(q.scope_of_work ?? '')
   const [notesValue, setNotesValue] = useState(q.notes ?? '')
   const [materialRate, setMaterialRate] = useState(q.material_cost_per_sqft)
@@ -538,6 +540,8 @@ export default function QuoteDetailCard({
       case 'quote_number': setQuoteNumber(rawValue); break
       case 'flooring_type': setFlooringType(rawValue); break
       case 'material_description': setMaterialDescription(rawValue); break
+      case 'wood_species': setWoodSpecies(rawValue); break
+      case 'additional_details': setAdditionalDetails(rawValue); break
       case 'scope_of_work': setScopeOfWork(rawValue); break
       case 'notes': setNotesValue(rawValue); break
       case 'material_cost_per_sqft': setMaterialRate(parseNumeric(rawValue)); break
@@ -927,6 +931,12 @@ export default function QuoteDetailCard({
           <div className="p-4 min-h-[90px] text-sm" style={{ color: '#0f172a' }}>
             {canRenderPerSection && sectionKeys.length > 0 ? (
               <>
+                {/* Total sqft */}
+                <div className="flex gap-1 mb-1 pb-1" style={{ borderBottom: '1px dashed #e2e8f0' }}>
+                  <span className="font-semibold text-xs w-28 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Total Area:</span>
+                  <span className="font-semibold">{fmtQty(sectionKeys.reduce((s, k) => s + (roomsBySection[k] ?? 0) * wasteFactor, 0))} sqft</span>
+                </div>
+                {/* Per-section breakdown */}
                 {sectionKeys.map(sec => {
                   const secType = q.section_flooring_types?.[sec]
                   const secLabel = secType ? (FLOORING_LABEL[secType] || secType) : flooringLabel
@@ -940,12 +950,25 @@ export default function QuoteDetailCard({
                   )
                 })}
                 <div className="flex gap-1 mt-0.5">
+                  <span className="font-semibold text-xs w-28 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Wood Species:</span>
+                  <EditableField fieldKey="wood_species" value={woodSpecies} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="e.g. Oak, Maple (if applicable)" />
+                </div>
+                <div className="flex gap-1 mb-0.5">
                   <span className="font-semibold text-xs w-28 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Color / Style:</span>
                   <EditableField fieldKey="material_description" value={materialDescription} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="Color or style name" />
+                </div>
+                <div className="flex gap-1">
+                  <span className="font-semibold text-xs w-28 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Notes:</span>
+                  <EditableField fieldKey="additional_details" value={additionalDetails} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} multiline placeholder="Add any extra details about the project" textStyle={{ whiteSpace: 'pre-wrap' }} />
                 </div>
               </>
             ) : (
               <>
+                <div className="flex gap-1 mb-0.5">
+                  <span className="font-semibold text-xs w-28 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Total Area:</span>
+                  <EditableField fieldKey="adjusted_sqft" value={adjustedSqft > 0 ? String(adjustedSqft) : ''} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="0" />
+                  <span className="text-xs" style={{ color: '#475569', paddingTop: 2 }}>sqft</span>
+                </div>
                 <div className="flex gap-1 mb-0.5">
                   <span className="font-semibold text-xs w-28 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Flooring Type:</span>
                   <EditableSelect
@@ -960,12 +983,16 @@ export default function QuoteDetailCard({
                   />
                 </div>
                 <div className="flex gap-1 mb-0.5">
-                  <span className="font-semibold text-xs w-28 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Area (sq ft):</span>
-                  <EditableField fieldKey="adjusted_sqft" value={adjustedSqft > 0 ? String(adjustedSqft) : ''} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="0" />
+                  <span className="font-semibold text-xs w-28 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Wood Species:</span>
+                  <EditableField fieldKey="wood_species" value={woodSpecies} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="e.g. Oak, Maple (if applicable)" />
                 </div>
-                <div className="flex gap-1">
+                <div className="flex gap-1 mb-0.5">
                   <span className="font-semibold text-xs w-28 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Color / Style:</span>
                   <EditableField fieldKey="material_description" value={materialDescription} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="Color or style name" />
+                </div>
+                <div className="flex gap-1">
+                  <span className="font-semibold text-xs w-28 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Notes:</span>
+                  <EditableField fieldKey="additional_details" value={additionalDetails} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} multiline placeholder="Add any extra details about the project" textStyle={{ whiteSpace: 'pre-wrap' }} />
                 </div>
               </>
             )}

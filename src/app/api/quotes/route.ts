@@ -52,6 +52,7 @@ const ALLOWED_QUOTE_FIELDS = new Set<string>([
   'inclusions',
   'exclusions',
   'qualifications',
+  'additional_details',
 ])
 
 export async function POST(request: NextRequest) {

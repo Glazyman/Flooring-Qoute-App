@@ -169,6 +169,7 @@ export interface Quote {
   inclusions?: string | null
   exclusions?: string | null
   qualifications?: string | null
+  additional_details?: string | null
   created_at: string
   updated_at: string
 }
