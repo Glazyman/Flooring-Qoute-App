@@ -170,24 +170,24 @@ export default async function DashboardPage() {
                 const sqft = m.adjusted_sqft ? `${Math.round(m.adjusted_sqft as number).toLocaleString()} sqft` : null
                 const total = m.final_total ? fmt(m.final_total as number) : null
                 return (
-                  <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 18px', borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
-                    <Link href={`/quotes/${m.id}`} className="dashboard-recent-row"
-                      style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 0, textDecoration: 'none', transition: 'background 0.12s' }}>
-                      <div style={{ width: 32, height: 32, borderRadius: '50%', flexShrink: 0, background: '#f2f2f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 600, color: '#6e6e73' }}>
-                        {initials}
+                  <Link key={m.id} href={`/quotes/${m.id}`} className="dashboard-recent-row"
+                    style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 18px', borderBottom: '1px solid rgba(0,0,0,0.04)', textDecoration: 'none', transition: 'background 0.12s' }}>
+                    <div style={{ width: 32, height: 32, borderRadius: '50%', flexShrink: 0, background: '#f2f2f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 600, color: '#6e6e73' }}>
+                      {initials}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                        <p style={{ fontSize: 13, fontWeight: 600, color: '#1d1d1f', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.customer_name}</p>
+                        {total && <p style={{ fontSize: 13, fontWeight: 700, color: '#1d1d1f', margin: 0, flexShrink: 0 }}>{total}</p>}
                       </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-                          <p style={{ fontSize: 13, fontWeight: 600, color: '#1d1d1f', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.customer_name}</p>
-                          {total && <p style={{ fontSize: 13, fontWeight: 700, color: '#1d1d1f', margin: 0, flexShrink: 0 }}>{total}</p>}
-                        </div>
-                        <p style={{ fontSize: 11, color: '#aeaeb2', margin: '1px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {[typeLabel, sqft, date].filter(Boolean).join(' · ')}
-                        </p>
-                      </div>
-                    </Link>
-                    <ApproveMeasurementButton quoteId={m.id} />
-                  </div>
+                      <p style={{ fontSize: 11, color: '#aeaeb2', margin: '1px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {[typeLabel, sqft, date].filter(Boolean).join(' · ')}
+                      </p>
+                    </div>
+                    <div onClick={e => e.preventDefault()}>
+                      <ApproveMeasurementButton quoteId={m.id} />
+                    </div>
+                  </Link>
                 )
               })}
             </div>
