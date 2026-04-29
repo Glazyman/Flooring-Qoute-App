@@ -72,7 +72,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   // Run company lookup and quote count in parallel
   const companyId = membership.company_id
-  const [companyResult, countResult, settingsResult] = await Promise.all([
+  const [companyResult, countResult, settingsResult, pendingResult] = await Promise.all([
     supabase
       .from('companies')
       .select('id, name, subscription_status, stripe_price_id')
@@ -87,6 +87,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       .select('logo_url, website')
       .eq('company_id', companyId)
       .single(),
+    supabase
+      .from('quotes')
+      .select('*', { count: 'exact', head: true })
+      .eq('company_id', companyId)
+      .eq('status', 'measurement'),
   ])
 
   const company = companyResult.data
@@ -131,6 +136,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   const planLabel = isOnPro ? 'Pro' : isOnStarter ? 'Starter' : isSubscribed ? 'Active' : 'Free Trial'
   const trialExhausted = !isSubscribed && (countResult.count ?? 0) >= 3
+  const pendingMeasurementCount = pendingResult.count ?? 0
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--bg)' }}>
@@ -140,6 +146,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         website={settingsResult.data?.website ?? null}
         trialExhausted={trialExhausted}
         planLabel={planLabel}
+        pendingMeasurements={pendingMeasurementCount}
       />
       <main className="lg:ml-[216px] pt-14 lg:pt-0 flex flex-col min-h-screen">
         <header

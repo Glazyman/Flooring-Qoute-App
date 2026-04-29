@@ -29,7 +29,7 @@ const bottomNavItems: NavItem[] = [
   { href: '/help', label: 'Help & Support', icon: HelpCircle },
 ]
 
-function NavLink({ item, onClick }: { item: NavItem; onClick?: () => void }) {
+function NavLink({ item, onClick, badge }: { item: NavItem; onClick?: () => void; badge?: number }) {
   const pathname = usePathname()
   const isActive =
     item.href === '/quotes/new'
@@ -60,18 +60,30 @@ function NavLink({ item, onClick }: { item: NavItem; onClick?: () => void }) {
     >
       <item.icon size={14} strokeWidth={isActive ? 2 : 1.7} color={isActive ? '#1d1d1f' : '#aeaeb2'} />
       <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.label}</span>
+      {badge != null && badge > 0 && (
+        <span style={{
+          minWidth: 18, height: 18, borderRadius: 9, padding: '0 5px',
+          background: '#ff9f0a', color: 'white',
+          fontSize: 10, fontWeight: 700,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          flexShrink: 0,
+        }}>
+          {badge > 99 ? '99+' : badge}
+        </span>
+      )}
     </Link>
   )
 }
 
 export default function AppNavigation({
-  companyName, logoUrl, website, trialExhausted = false, planLabel,
+  companyName, logoUrl, website, trialExhausted = false, planLabel, pendingMeasurements = 0,
 }: {
   companyName: string
   logoUrl?: string | null
   website?: string | null
   trialExhausted?: boolean
   planLabel?: string
+  pendingMeasurements?: number
 }) {
   const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -161,7 +173,12 @@ export default function AppNavigation({
         <p style={{ fontSize: 10, fontWeight: 700, color: '#aeaeb2', textTransform: 'uppercase', letterSpacing: '0.09em', margin: '0 0 4px 2px' }}>MAIN</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           {navItems.map((item) => (
-            <NavLink key={item.href} item={item} onClick={() => setMobileOpen(false)} />
+            <NavLink
+              key={item.href}
+              item={item}
+              onClick={() => setMobileOpen(false)}
+              badge={item.href === '/measurements' ? pendingMeasurements : undefined}
+            />
           ))}
         </div>
       </div>
