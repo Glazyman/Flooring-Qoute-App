@@ -97,7 +97,14 @@ export default function AppNavigation({
       {/* Brand */}
       <div style={{ padding: '18px 16px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
         <Image src="/logo.png" alt="FloorQuote Pro" width={30} height={30} style={{ borderRadius: 9, flexShrink: 0 }} />
-        <span style={{ fontSize: 15, fontWeight: 800, color: '#1d1d1f', letterSpacing: '-0.02em' }}>FloorQuote Pro</span>
+        <span style={{ fontSize: 15, fontWeight: 800, color: '#1d1d1f', letterSpacing: '-0.02em', flex: 1 }}>FloorQuote Pro</span>
+        <button
+          className="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg"
+          style={{ color: '#6e6e73', background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0 }}
+          onClick={() => setMobileOpen(false)}
+        >
+          <X className="w-4 h-4" />
+        </button>
       </div>
 
       {/* User / Company section */}
@@ -273,12 +280,6 @@ export default function AppNavigation({
               paddingTop: 'env(safe-area-inset-top)',
             }}
           >
-            <div className="flex items-center justify-between px-4 pt-4 pb-3" style={{ borderBottom: '1px solid rgba(0,0,0,0.07)' }}>
-              <span style={{ fontSize: 15, fontWeight: 800, color: '#1d1d1f', letterSpacing: '-0.02em' }}>FloorQuote Pro</span>
-              <button onClick={() => setMobileOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-lg" style={{ color: '#6e6e73' }}>
-                <X className="w-4 h-4" />
-              </button>
-            </div>
             <div className="flex-1 overflow-y-auto">{sidebarContent}</div>
           </aside>
         </div>
