@@ -23,9 +23,6 @@ export default function Breadcrumb() {
 
   return (
     <nav className="flex items-center gap-1.5">
-      <Link href="/dashboard" style={{ fontSize: 12.5, color: '#aeaeb2', textDecoration: 'none' }}>
-        Home
-      </Link>
       {segments.map((seg, i) => {
         const href = '/' + segments.slice(0, i + 1).join('/')
         const isLast = i === segments.length - 1
