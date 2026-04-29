@@ -4,7 +4,8 @@ import { useState, useMemo, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import {
   Pencil, Trash2, X, Check, Search, Upload, AlertCircle,
-  Plus, SlidersHorizontal, ArrowUpDown,
+  Plus, SlidersHorizontal, ArrowUpDown, MoreHorizontal,
+  Calendar, ChevronLeft, ChevronRight,
 } from 'lucide-react'
 
 interface Customer {
@@ -46,6 +47,8 @@ interface ImportPreviewRow {
 
 type FilterMode = 'all' | 'has-email' | 'has-phone'
 
+const PAGE_SIZE = 10
+
 // Parse a QuickBooks-style CSV export into contact rows
 function parseQuickBooksCSV(text: string): ImportPreviewRow[] {
   const lines = text.split(/\r?\n/).filter(l => l.trim())
@@ -74,11 +77,14 @@ function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
-const COL_TEMPLATE = '40px 1fr 140px 1fr 110px 72px'
-const COL_HEAD = 'text-xs font-semibold text-gray-500 uppercase tracking-wide py-2.5'
+const COL_TEMPLATE = '32px 1fr 140px 1fr 130px 60px'
+const COL_HEAD = 'text-xs text-gray-400 font-normal'
 
-const DARK_BTN_BASE: React.CSSProperties = { background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.7)' }
-const DARK_BTN_ACTIVE: React.CSSProperties = { background: 'rgba(255,255,255,0.18)', color: '#ffffff' }
+// Light icon button used throughout the toolbar.
+const ICON_BTN_BASE =
+  'w-8 h-8 flex items-center justify-center rounded-md transition-colors flex-shrink-0 text-gray-500 hover:bg-gray-100'
+const ICON_BTN_ACTIVE =
+  'w-8 h-8 flex items-center justify-center rounded-md transition-colors flex-shrink-0 bg-gray-200 text-gray-900'
 
 export default function ContactsClient({ initialCustomers, onSelectContact, mode = 'page' }: Props) {
   const [customers, setCustomers] = useState<Customer[]>(initialCustomers)
@@ -96,11 +102,15 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
   const [showFilterMenu, setShowFilterMenu] = useState(false)
   const filterBtnRef = useRef<HTMLDivElement>(null)
 
-  // Bulk select state
-  const [selecting, setSelecting] = useState(false)
+  // Bulk select state — checkboxes are persistent, no separate "select mode".
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [bulkWorking, setBulkWorking] = useState(false)
   const [confirmBulkDelete, setConfirmBulkDelete] = useState(false)
+
+  // Per-row More menu (open id) and pagination
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const [page, setPage] = useState(1)
 
   // Close filter menu on outside click
   useEffect(() => {
@@ -114,6 +124,18 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
     return () => document.removeEventListener('mousedown', handleMouseDown)
   }, [showFilterMenu])
 
+  // Close per-row More menu on outside click
+  useEffect(() => {
+    if (!openMenuId) return
+    function handleMouseDown(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setOpenMenuId(null)
+      }
+    }
+    document.addEventListener('mousedown', handleMouseDown)
+    return () => document.removeEventListener('mousedown', handleMouseDown)
+  }, [openMenuId])
+
   function toggleSelect(id: string) {
     setSelected(prev => {
       const next = new Set(prev)
@@ -123,22 +145,13 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
     })
   }
 
-  function toggleAll() {
-    setSelected(prev => prev.size === sorted.length ? new Set() : new Set(sorted.map(c => c.id)))
-  }
-
-  function exitSelect() {
-    setSelecting(false)
-    setSelected(new Set())
-  }
-
   async function bulkDelete() {
     setBulkWorking(true)
     await Promise.all(Array.from(selected).map(id =>
       fetch(`/api/customers/${id}`, { method: 'DELETE' })
     ))
     setCustomers(prev => prev.filter(c => !selected.has(c.id)))
-    exitSelect()
+    setSelected(new Set())
     setConfirmBulkDelete(false)
     setBulkWorking(false)
   }
@@ -169,6 +182,19 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
     )
   }, [filtered, sortAZ])
 
+  // Reset to page 1 whenever the visible result set shrinks below current page.
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE))
+  useEffect(() => {
+    if (page > totalPages) setPage(1)
+  }, [page, totalPages])
+  // Reset to page 1 when the input filters change.
+  useEffect(() => { setPage(1) }, [search, filterMode, sortAZ])
+
+  const paginated = useMemo(
+    () => mode === 'picker' ? sorted : sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [sorted, page, mode]
+  )
+
   function startAdd() {
     setEditingId(null)
     setForm(empty)
@@ -181,6 +207,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
     setForm(toForm(c))
     setError('')
     setShowForm(true)
+    setOpenMenuId(null)
   }
 
   function cancelForm() {
@@ -222,9 +249,16 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
 
   async function handleDelete(id: string) {
     setDeletingId(id)
+    setOpenMenuId(null)
     try {
       await fetch(`/api/customers/${id}`, { method: 'DELETE' })
       setCustomers(prev => prev.filter(c => c.id !== id))
+      setSelected(prev => {
+        if (!prev.has(id)) return prev
+        const next = new Set(prev)
+        next.delete(id)
+        return next
+      })
     } finally {
       setDeletingId(null)
     }
@@ -263,7 +297,30 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
   }
 
   const selCount = selected.size
-  const allSelected = sorted.length > 0 && selCount === sorted.length
+  const visibleIds = paginated.map(c => c.id)
+  const allVisibleSelected = visibleIds.length > 0 && visibleIds.every(id => selected.has(id))
+
+  function toggleSelectAllVisible() {
+    setSelected(prev => {
+      if (allVisibleSelected) {
+        const next = new Set(prev)
+        for (const id of visibleIds) next.delete(id)
+        return next
+      }
+      const next = new Set(prev)
+      for (const id of visibleIds) next.add(id)
+      return next
+    })
+  }
+
+  // Pagination helpers — show up to 5 page buttons centered around current.
+  const pageNumbers = useMemo<number[]>(() => {
+    if (totalPages <= 5) return Array.from({ length: totalPages }, (_, i) => i + 1)
+    let start = Math.max(1, page - 2)
+    const end = Math.min(totalPages, start + 4)
+    start = Math.max(1, end - 4)
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i)
+  }, [page, totalPages])
 
   return (
     <div className="space-y-4">
@@ -335,7 +392,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
               <div className="max-h-52 overflow-y-auto space-y-1.5 pr-1">
                 {importRows.slice(0, 20).map((r, i) => (
                   <div key={i} className="flex items-center gap-3 bg-gray-50 rounded-xl px-3 py-2.5">
-                    <div className="w-7 h-7 rounded-xl flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style={{ background: 'var(--primary)' }}>
+                    <div className="w-7 h-7 rounded-full flex items-center justify-center text-gray-700 text-xs font-semibold flex-shrink-0" style={{ background: '#E5E7EB' }}>
                       {r.name.charAt(0).toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -430,20 +487,23 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
         </div>
       )}
 
-      {/* Table Card */}
-      <div className="bg-white rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
-
-        {/* Toolbar — dark strip */}
-        <div className="flex flex-wrap items-center gap-2 px-4 py-3 border-b border-gray-100" style={{ background: '#1C1C1E' }}>
+      {/* Table Card — wraps toolbar + bulk bar + headers + rows + pagination */}
+      <div
+        className="bg-white rounded-xl overflow-hidden"
+        style={{ border: '1px solid #E5E7EB' }}
+      >
+        {/* Toolbar — light strip */}
+        <div
+          className="flex flex-wrap items-center gap-2 px-4 py-2.5"
+          style={{ background: '#FAFAFA', borderBottom: '1px solid #F1F1F4' }}
+        >
           {/* Left: action icon buttons */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
             <button
               onClick={startAdd}
-              className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors flex-shrink-0"
-              style={DARK_BTN_BASE}
+              className={ICON_BTN_BASE}
               title="Add contact"
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.15)' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.08)' }}
+              aria-label="Add contact"
             >
               <Plus className="w-4 h-4" />
             </button>
@@ -454,23 +514,23 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
                 <div className="relative" ref={filterBtnRef}>
                   <button
                     onClick={() => setShowFilterMenu(v => !v)}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors flex-shrink-0"
-                    style={filterMode !== 'all' ? DARK_BTN_ACTIVE : DARK_BTN_BASE}
+                    className={filterMode !== 'all' ? ICON_BTN_ACTIVE : ICON_BTN_BASE}
                     title="Filter contacts"
                     aria-label="Filter"
-                    onMouseEnter={e => { if (filterMode === 'all') (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.15)' }}
-                    onMouseLeave={e => { if (filterMode === 'all') (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.08)' }}
                   >
                     <SlidersHorizontal className="w-4 h-4" />
                   </button>
                   {showFilterMenu && (
-                    <div className="absolute left-0 top-10 z-20 bg-white rounded-xl shadow-lg py-1 min-w-[160px]" style={{ border: '1px solid var(--border)' }}>
+                    <div
+                      className="absolute left-0 top-10 z-20 bg-white rounded-xl shadow-lg py-1 min-w-[160px]"
+                      style={{ border: '1px solid #E5E7EB' }}
+                    >
                       {(['all', 'has-email', 'has-phone'] as FilterMode[]).map(fm => (
                         <button
                           key={fm}
                           onClick={() => { setFilterMode(fm); setShowFilterMenu(false) }}
                           className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors flex items-center gap-2"
-                          style={{ color: filterMode === fm ? 'var(--primary)' : 'var(--text)', fontWeight: filterMode === fm ? 600 : 400 }}
+                          style={{ color: filterMode === fm ? '#111827' : '#374151', fontWeight: filterMode === fm ? 600 : 400 }}
                         >
                           {filterMode === fm && <Check className="w-3.5 h-3.5 flex-shrink-0" />}
                           {filterMode !== fm && <span className="w-3.5 h-3.5 flex-shrink-0" />}
@@ -484,171 +544,173 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
                 {/* Sort A↔Z button */}
                 <button
                   onClick={() => setSortAZ(v => !v)}
-                  className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors flex-shrink-0"
-                  style={DARK_BTN_ACTIVE}
+                  className={ICON_BTN_ACTIVE}
                   title={sortAZ ? 'Sorted A→Z (click for Z→A)' : 'Sorted Z→A (click for A→Z)'}
                   aria-label="Sort"
-                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.25)' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.18)' }}
                 >
-                  <ArrowUpDown className="w-4 h-4" style={{ transform: sortAZ ? 'none' : 'scaleY(-1)' }} />
+                  <ArrowUpDown
+                    className="w-4 h-4"
+                    style={{ transform: sortAZ ? 'none' : 'scaleY(-1)' }}
+                  />
                 </button>
 
                 {/* Import button */}
                 <button
                   onClick={() => { setShowImport(v => !v); setImportRows([]); setImportError(''); setImportDone(false) }}
-                  className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors flex-shrink-0"
-                  style={DARK_BTN_BASE}
+                  className={ICON_BTN_BASE}
                   title="Import from QuickBooks"
-                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.15)' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.08)' }}
+                  aria-label="Import"
                 >
                   <Upload className="w-4 h-4" />
                 </button>
               </>
             )}
-
-            {mode === 'page' && customers.length > 0 && (
-              <button
-                onClick={() => selecting ? exitSelect() : setSelecting(true)}
-                className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors flex-shrink-0"
-                style={selecting ? DARK_BTN_ACTIVE : DARK_BTN_BASE}
-                title={selecting ? 'Cancel selection' : 'Select contacts'}
-                onMouseEnter={e => { if (!selecting) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.15)' }}
-                onMouseLeave={e => { if (!selecting) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.08)' }}
-              >
-                {selecting ? <X className="w-4 h-4" /> : <Check className="w-4 h-4" />}
-              </button>
-            )}
           </div>
 
-          {/* Right: dark search input */}
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg flex-1 min-w-[140px]" style={{ background: 'rgba(255,255,255,0.08)' }}>
-            <Search className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'rgba(255,255,255,0.4)' }} />
+          {/* Right: light search pill */}
+          <div className="flex items-center gap-2 ml-auto bg-white border border-gray-200 rounded-md px-3 py-1.5 w-full sm:w-64">
+            <Search className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
             <input
               type="text"
-              placeholder="Search..."
-              className="bg-transparent text-sm focus:outline-none flex-1 min-w-0"
-              style={{ color: 'rgba(255,255,255,0.9)', caretColor: 'white' }}
+              placeholder="Search"
+              className="bg-transparent text-sm focus:outline-none flex-1 min-w-0 text-gray-700 placeholder-gray-400"
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
-            {search && (
-              <button onClick={() => setSearch('')} style={{ color: 'rgba(255,255,255,0.4)' }}>
+            {search ? (
+              <button
+                onClick={() => setSearch('')}
+                className="text-gray-400 hover:text-gray-600 flex-shrink-0"
+                aria-label="Clear search"
+              >
                 <X className="w-3 h-3" />
               </button>
+            ) : (
+              <span className="hidden sm:inline text-[10px] text-gray-400 font-mono select-none flex-shrink-0">
+                ⌘ /
+              </span>
             )}
           </div>
         </div>
 
-        {/* Bulk action bar */}
-        {selecting && (
-          <div className="bg-gray-50 border-b border-gray-200 px-4 py-2 flex items-center gap-3">
-            <span className="text-xs font-medium text-gray-500">
-              {selCount > 0 ? `${selCount} selected` : 'Select rows with checkboxes'}
-            </span>
-            {selCount > 0 && (
-              <button
-                onClick={() => setConfirmBulkDelete(true)}
-                disabled={bulkWorking}
-                className="text-xs font-semibold text-red-600 hover:text-red-700 px-3 py-1.5 rounded-lg border border-red-200 hover:bg-red-50 transition-colors disabled:opacity-50"
-              >
-                Delete {selCount}
-              </button>
-            )}
+        {/* Bulk action bar — only when something is selected */}
+        {selCount > 0 && mode === 'page' && (
+          <div
+            className="flex items-center gap-3 px-4 py-2 text-xs text-gray-600"
+            style={{ background: '#F9FAFB', borderBottom: '1px solid #F1F1F4' }}
+          >
+            <span>{selCount} selected</span>
+            <span className="text-gray-300">·</span>
             <button
-              onClick={exitSelect}
-              className="ml-auto text-xs text-gray-400 hover:text-gray-600"
+              onClick={() => setConfirmBulkDelete(true)}
+              disabled={bulkWorking}
+              className="text-red-600 hover:text-red-700 font-medium disabled:opacity-50 transition-colors"
             >
-              Cancel
+              Delete
+            </button>
+            <button
+              onClick={() => setSelected(new Set())}
+              className="ml-auto text-gray-400 hover:text-gray-600"
+            >
+              Clear
             </button>
           </div>
         )}
 
         {/* Empty state */}
         {sorted.length === 0 ? (
-          <div className="p-12 text-center">
-            <p className="text-sm font-medium mb-1 text-gray-500">
+          <div className="py-16 text-center">
+            <p className="text-sm font-medium mb-2 text-gray-500">
               {search || filterMode !== 'all' ? 'No contacts match your search' : 'No contacts yet'}
             </p>
             {!search && filterMode === 'all' && (
-              <button onClick={startAdd} className="text-sm font-semibold mt-1" style={{ color: 'var(--primary)' }}>
-                Add your first contact →
+              <button
+                onClick={startAdd}
+                className="inline-flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-md border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Add your first contact
               </button>
             )}
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div>
             {/* Column header row — desktop only */}
             <div
-              style={{ gridTemplateColumns: COL_TEMPLATE }}
-              className="hidden lg:grid bg-gray-50 border-b border-gray-200 px-4"
+              style={{ gridTemplateColumns: COL_TEMPLATE, borderBottom: '1px solid #F1F1F4' }}
+              className="hidden lg:grid bg-white px-4 py-2.5 items-center"
             >
-              {/* Checkbox header */}
               <div className="flex items-center">
-                {selecting && (
+                {mode === 'page' && (
                   <input
                     type="checkbox"
-                    checked={allSelected}
-                    onChange={toggleAll}
-                    className="w-3.5 h-3.5 rounded cursor-pointer"
+                    checked={allVisibleSelected}
+                    onChange={toggleSelectAllVisible}
+                    className="w-3.5 h-3.5 cursor-pointer"
                     style={{ accentColor: '#1C1C1E' }}
+                    aria-label="Select all"
                   />
                 )}
               </div>
               <div className={COL_HEAD}>Name</div>
               <div className={COL_HEAD}>Phone</div>
               <div className={COL_HEAD}>Address</div>
-              <div className={COL_HEAD}>Date Added</div>
-              <div className={COL_HEAD}>Actions</div>
+              <div className={`${COL_HEAD} flex items-center`}>
+                <Calendar className="w-3.5 h-3.5 text-gray-400 mr-1.5" />
+                Date Added
+              </div>
+              <div className={COL_HEAD} />
             </div>
 
             {/* Data rows */}
-            {sorted.map(c => {
+            {paginated.map(c => {
               const isSelected = selected.has(c.id)
               const initials = c.name.charAt(0).toUpperCase()
 
               const nameCell = (
                 <div className="flex items-center gap-2.5 min-w-0">
                   <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold text-white"
-                    style={{ background: '#1C1C1E' }}
+                    className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-semibold text-gray-700"
+                    style={{ background: '#E5E7EB' }}
                   >
                     {initials}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-gray-900 truncate">{c.name}</p>
+                    <p className="text-sm font-normal text-gray-800 truncate">{c.name}</p>
                     {c.email && <p className="text-xs text-gray-400 truncate">{c.email}</p>}
                   </div>
                 </div>
               )
 
+              const rowBg = isSelected ? 'rgba(239, 246, 255, 0.4)' : undefined
+
               return (
                 <div key={c.id}>
                   {/* Mobile card row — hidden on lg+ */}
                   <div
-                    className="lg:hidden flex items-center gap-3 px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors"
-                    style={{ background: isSelected ? '#F0FDFA' : undefined }}
+                    className="lg:hidden flex items-center gap-3 px-4 py-3 hover:bg-gray-50/60 transition-colors"
+                    style={{ borderBottom: '1px solid #F5F5F7', background: rowBg }}
                   >
-                    {selecting && (
+                    {mode === 'page' && (
                       <input
                         type="checkbox"
                         checked={isSelected}
                         onChange={() => toggleSelect(c.id)}
-                        className="w-3.5 h-3.5 rounded cursor-pointer flex-shrink-0"
+                        className="w-3.5 h-3.5 cursor-pointer flex-shrink-0"
                         style={{ accentColor: '#1C1C1E' }}
+                        aria-label={`Select ${c.name}`}
                       />
                     )}
                     <div
-                      className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
-                      style={{ background: '#1C1C1E' }}
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-gray-700 text-xs font-semibold flex-shrink-0"
+                      style={{ background: '#E5E7EB' }}
                     >
                       {initials}
                     </div>
                     <div className="flex-1 min-w-0">
-                      {mode === 'page' && !selecting ? (
+                      {mode === 'page' ? (
                         <Link href={`/contacts/${c.id}`} className="block min-w-0">
-                          <p className="text-sm font-semibold text-gray-900 truncate">{c.name}</p>
+                          <p className="text-sm font-normal text-gray-800 truncate">{c.name}</p>
                           <p className="text-xs text-gray-400 truncate">
                             {[c.email, c.phone].filter(Boolean).join(' · ') || '—'}
                           </p>
@@ -656,7 +718,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
                         </Link>
                       ) : (
                         <>
-                          <p className="text-sm font-semibold text-gray-900 truncate">{c.name}</p>
+                          <p className="text-sm font-normal text-gray-800 truncate">{c.name}</p>
                           <p className="text-xs text-gray-400 truncate">
                             {[c.email, c.phone].filter(Boolean).join(' · ') || '—'}
                           </p>
@@ -664,37 +726,14 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
                         </>
                       )}
                     </div>
-                    {!selecting && (
-                      <div className="flex items-center gap-1 flex-shrink-0">
-                        {mode === 'picker' && onSelectContact && (
-                          <button
-                            onClick={() => onSelectContact({ name: c.name, phone: c.phone || '', email: c.email || '', address: c.address || '' })}
-                            className="text-white font-semibold px-2.5 py-1.5 rounded-lg text-xs active:scale-95"
-                            style={{ background: 'var(--button-dark)' }}
-                          >
-                            Select
-                          </button>
-                        )}
-                        {mode === 'page' && (
-                          <>
-                            <button
-                              onClick={() => startEdit(c)}
-                              className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-                              title="Edit contact"
-                            >
-                              <Pencil className="w-3.5 h-3.5" />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(c.id)}
-                              disabled={deletingId === c.id}
-                              className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-40"
-                              title="Delete contact"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </>
-                        )}
-                      </div>
+                    {mode === 'picker' && onSelectContact && (
+                      <button
+                        onClick={() => onSelectContact({ name: c.name, phone: c.phone || '', email: c.email || '', address: c.address || '' })}
+                        className="text-white font-semibold px-2.5 py-1.5 rounded-lg text-xs active:scale-95 flex-shrink-0"
+                        style={{ background: 'var(--button-dark)' }}
+                      >
+                        Select
+                      </button>
                     )}
                   </div>
 
@@ -702,26 +741,28 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
                   <div
                     style={{
                       gridTemplateColumns: COL_TEMPLATE,
-                      background: isSelected ? '#F0FDFA' : undefined,
+                      background: rowBg,
+                      borderBottom: '1px solid #F5F5F7',
                     }}
-                    className="hidden lg:grid px-4 border-b border-gray-100 hover:bg-gray-50 transition-colors py-3 items-center last:border-b-0"
+                    className="hidden lg:grid group px-4 py-3 items-center hover:bg-gray-50/60 transition-colors last:border-b-0"
                   >
                     {/* Checkbox */}
                     <div className="flex items-center">
-                      {selecting && (
+                      {mode === 'page' && (
                         <input
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => toggleSelect(c.id)}
-                          className="w-3.5 h-3.5 rounded cursor-pointer"
+                          className="w-3.5 h-3.5 cursor-pointer"
                           style={{ accentColor: '#1C1C1E' }}
+                          aria-label={`Select ${c.name}`}
                         />
                       )}
                     </div>
 
                     {/* Name + email */}
                     <div className="min-w-0 pr-2">
-                      {mode === 'page' && !selecting ? (
+                      {mode === 'page' ? (
                         <Link href={`/contacts/${c.id}`} className="block min-w-0">
                           {nameCell}
                         </Link>
@@ -736,46 +777,59 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
                     </div>
 
                     {/* Address */}
-                    <div className="text-sm text-gray-500 truncate pr-2">
+                    <div className="text-sm text-gray-600 truncate pr-2">
                       {c.address || <span className="text-gray-300">—</span>}
                     </div>
 
                     {/* Date Added */}
-                    <div className="text-xs text-gray-400">
-                      {formatDate(c.created_at)}
+                    <div className="flex items-center text-sm text-gray-500">
+                      <Calendar className="w-3.5 h-3.5 text-gray-400 mr-1.5 flex-shrink-0" />
+                      <span className="truncate">{formatDate(c.created_at)}</span>
                     </div>
 
-                    {/* Actions */}
-                    <div className="flex items-center gap-0.5">
-                      {!selecting && (
+                    {/* Actions: Picker -> Select button; Page -> hover-revealed More menu */}
+                    <div className="flex items-center justify-end relative">
+                      {mode === 'picker' && onSelectContact && (
+                        <button
+                          onClick={() => onSelectContact({ name: c.name, phone: c.phone || '', email: c.email || '', address: c.address || '' })}
+                          className="text-white font-semibold px-2.5 py-1.5 rounded-lg text-xs active:scale-95"
+                          style={{ background: 'var(--button-dark)' }}
+                        >
+                          Select
+                        </button>
+                      )}
+                      {mode === 'page' && (
                         <>
-                          {mode === 'picker' && onSelectContact && (
-                            <button
-                              onClick={() => onSelectContact({ name: c.name, phone: c.phone || '', email: c.email || '', address: c.address || '' })}
-                              className="text-white font-semibold px-2.5 py-1.5 rounded-lg text-xs active:scale-95 mr-1"
-                              style={{ background: 'var(--button-dark)' }}
+                          <button
+                            onClick={() => setOpenMenuId(prev => prev === c.id ? null : c.id)}
+                            className={`w-7 h-7 flex items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-all ${openMenuId === c.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                            title="More actions"
+                            aria-label="More actions"
+                          >
+                            <MoreHorizontal className="w-4 h-4" />
+                          </button>
+                          {openMenuId === c.id && (
+                            <div
+                              ref={menuRef}
+                              className="absolute right-0 top-8 z-20 bg-white rounded-lg shadow-lg py-1 min-w-[140px]"
+                              style={{ border: '1px solid #E5E7EB' }}
                             >
-                              Select
-                            </button>
-                          )}
-                          {mode === 'page' && (
-                            <>
                               <button
                                 onClick={() => startEdit(c)}
-                                className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-                                title="Edit contact"
+                                className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
                               >
-                                <Pencil className="w-3.5 h-3.5" />
+                                <Pencil className="w-3.5 h-3.5 text-gray-400" />
+                                Edit
                               </button>
                               <button
                                 onClick={() => handleDelete(c.id)}
                                 disabled={deletingId === c.id}
-                                className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-40"
-                                title="Delete contact"
+                                className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 disabled:opacity-50"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
+                                {deletingId === c.id ? 'Deleting…' : 'Delete'}
                               </button>
-                            </>
+                            </div>
                           )}
                         </>
                       )}
@@ -784,6 +838,46 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
                 </div>
               )
             })}
+
+            {/* Pagination — hidden in picker mode and when only one page */}
+            {mode === 'page' && totalPages > 1 && (
+              <div
+                className="flex items-center justify-end gap-1 px-4 py-3"
+                style={{ borderTop: '1px solid #F1F1F4' }}
+              >
+                <button
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="w-7 h-7 rounded-md text-xs flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
+                  aria-label="Previous page"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                </button>
+                {pageNumbers.map(p => (
+                  <button
+                    key={p}
+                    onClick={() => setPage(p)}
+                    className={`w-7 h-7 rounded-md text-xs flex items-center justify-center transition-colors ${
+                      p === page
+                        ? 'bg-gray-200 text-gray-900 font-medium'
+                        : 'text-gray-500 hover:bg-gray-100'
+                    }`}
+                    aria-label={`Page ${p}`}
+                    aria-current={p === page ? 'page' : undefined}
+                  >
+                    {p}
+                  </button>
+                ))}
+                <button
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  className="w-7 h-7 rounded-md text-xs flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
+                  aria-label="Next page"
+                >
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
