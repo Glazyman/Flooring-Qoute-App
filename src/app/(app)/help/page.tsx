@@ -90,11 +90,7 @@ export default function HelpPage() {
 
   return (
     <div className="space-y-5 max-w-3xl">
-      {/* Header */}
-      <div>
-        <h1 className="text-xl font-semibold text-gray-900">Help & support</h1>
-        <p className="text-sm text-gray-500 mt-0.5">We reply within 1 business day</p>
-      </div>
+      <h1 className="text-base font-semibold text-gray-900">Help &amp; support</h1>
 
       {/* Contact form */}
       <div className="bg-white rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>

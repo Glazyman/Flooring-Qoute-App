@@ -2,7 +2,6 @@ import { redirect, notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import QuoteForm, { QuoteInitialData } from '@/components/QuoteForm'
 import type { Quote, QuoteRoom, QuoteLineItem, CompanySettings } from '@/lib/types'
-import Link from 'next/link'
 
 export default async function EditQuotePage({
   params,
@@ -91,14 +90,8 @@ export default async function EditQuotePage({
   return (
     <div className="max-w-3xl">
       <div className="mb-5">
-        <Link
-          href={isMeasurement ? '/measurements' : `/quotes/${id}`}
-          className="text-xs font-medium text-gray-500 hover:text-gray-900 inline-flex items-center gap-1 mb-2"
-        >
-          {isMeasurement ? '← Back to saved measurements' : '← Back to quote'}
-        </Link>
-        <h1 className="text-xl font-semibold text-gray-900">{isMeasurement ? 'Edit measurement' : 'Edit quote'}</h1>
-        <p className="text-sm text-gray-500 mt-0.5">{q.customer_name}</p>
+        <h1 className="text-base font-semibold text-gray-900">{isMeasurement ? 'Edit measurement' : 'Edit quote'}</h1>
+        <p className="text-xs text-gray-400 mt-0.5">{q.customer_name}</p>
       </div>
       <QuoteForm settings={settings} initialData={initialData} quoteId={id} isPro={!!isOnPro} />
     </div>

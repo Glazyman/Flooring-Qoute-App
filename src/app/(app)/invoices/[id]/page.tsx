@@ -1,6 +1,5 @@
 import { redirect, notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import Link from 'next/link'
 import type { Invoice, InvoiceLineItem } from '@/lib/types'
 import InvoiceStatusButton from '@/components/InvoiceStatusButton'
 import EmailInvoiceButton from '@/components/EmailInvoiceButton'
@@ -50,13 +49,10 @@ export default async function InvoiceDetailPage({
     <div className="max-w-2xl space-y-5">
       {/* Header */}
       <div>
-        <Link href="/invoices" className="text-xs font-medium text-gray-500 hover:text-gray-900 inline-flex items-center gap-1 mb-2">
-          ← Back to invoices
-        </Link>
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div>
-            <h1 className="text-xl font-semibold text-gray-900">{inv.customer_name}</h1>
-            <div className="flex items-center gap-3 mt-2 flex-wrap">
+            <h1 className="text-base font-semibold text-gray-900">{inv.customer_name}</h1>
+            <div className="flex items-center gap-3 mt-1.5 flex-wrap">
               <span className="text-xs flex items-center gap-1.5" style={{ color: cfg.color }}>
                 <span className="w-1.5 h-1.5 rounded-full" style={{ background: cfg.color }} />
                 {cfg.label}

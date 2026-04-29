@@ -100,30 +100,22 @@ export default async function QuoteDetailPage({
 
       {/* Header chrome */}
       <div>
-        <Link
-          href={q.status === 'measurement' ? '/measurements' : '/quotes'}
-          className="text-xs font-medium text-gray-500 hover:text-gray-900 mb-2 inline-flex items-center gap-1"
-        >
-          {q.status === 'measurement' ? '← Back to measurements' : '← Back to estimates'}
-        </Link>
-        <div className="mt-1">
-          <h1 className="text-xl font-semibold text-gray-900 break-words">
-            {q.customer_name}
-          </h1>
-          <div className="flex items-center gap-3 mt-2 flex-wrap">
-            <span className="text-xs flex items-center gap-1.5" style={{ color: statusCfg.color }}>
-              <span className="w-1.5 h-1.5 rounded-full" style={{ background: statusCfg.color }} />
-              {statusCfg.label}
-            </span>
+        <h1 className="text-base font-semibold text-gray-900 break-words">
+          {q.customer_name}
+        </h1>
+        <div className="flex items-center gap-3 mt-1.5 flex-wrap">
+          <span className="text-xs flex items-center gap-1.5" style={{ color: statusCfg.color }}>
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: statusCfg.color }} />
+            {statusCfg.label}
+          </span>
+          <span className="text-xs text-gray-500">
+            {dateStr}
+          </span>
+          {q.quote_number && (
             <span className="text-xs text-gray-500">
-              {dateStr}
+              · #{q.quote_number}
             </span>
-            {q.quote_number && (
-              <span className="text-xs text-gray-500">
-                · #{q.quote_number}
-              </span>
-            )}
-          </div>
+          )}
         </div>
 
         <div className="flex flex-wrap gap-2 mt-4">

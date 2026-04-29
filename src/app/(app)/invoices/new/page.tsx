@@ -25,8 +25,7 @@ export default async function NewInvoicePage({
         <Link href="/invoices" className="text-xs font-medium text-gray-500 hover:text-gray-700 inline-flex items-center gap-1 mb-2">
           ← Back to Invoices
         </Link>
-        <h1 className="text-xl font-semibold text-gray-900">New invoice</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Create an invoice manually or upload a PDF</p>
+        <h1 className="text-base font-semibold text-gray-900">New invoice</h1>
       </div>
       <InvoiceForm defaultTab={tab === 'upload' ? 'upload' : 'form'} />
     </div>

@@ -53,12 +53,7 @@ export default async function SettingsPage() {
 
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="text-xl font-semibold text-gray-900">Settings</h1>
-        <p className="text-sm text-gray-500 mt-0.5">
-          Configure your company info and default quote values
-        </p>
-      </div>
+      <h1 className="text-base font-semibold text-gray-900">Settings</h1>
       <Suspense fallback={<p className="text-sm text-gray-500">Loading…</p>}>
         <SettingsForm
           settings={(settings as CompanySettings) || { ...DEFAULT_SETTINGS, company_id: membership.company_id }}

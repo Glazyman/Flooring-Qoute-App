@@ -1,7 +1,10 @@
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
+import { Sun, Bell } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import AppNavigation from '@/components/AppNavigation'
 import TrialBanner from '@/components/TrialBanner'
+import Breadcrumb from '@/components/Breadcrumb'
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -137,7 +140,28 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         trialExhausted={trialExhausted}
         planLabel={planLabel}
       />
-      <main className="lg:ml-56 pt-16 lg:pt-0">
+      <main className="lg:ml-56 pt-16 lg:pt-0 flex flex-col min-h-screen">
+        <header className="hidden lg:flex sticky top-0 z-30 bg-white border-b border-gray-100 px-5 lg:px-8 h-12 items-center justify-between">
+          <Breadcrumb />
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              className="w-8 h-8 flex items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 transition-colors"
+              title="Coming soon"
+              aria-label="Toggle theme (coming soon)"
+            >
+              <Sun className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              className="w-8 h-8 flex items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 transition-colors"
+              title="Coming soon"
+              aria-label="Notifications (coming soon)"
+            >
+              <Bell className="w-4 h-4" />
+            </button>
+          </div>
+        </header>
         {freeQuotesRemaining !== null && (
           <TrialBanner remaining={freeQuotesRemaining} />
         )}
@@ -162,7 +186,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             </a>
           </div>
         )}
-        <div className="max-w-5xl mx-auto px-5 py-6 lg:px-8 lg:py-7">{children}</div>
+        <div className="flex-1 max-w-5xl w-full mx-auto px-5 py-6 lg:px-8 lg:py-7">{children}</div>
+        <footer className="border-t border-gray-100 px-5 lg:px-8 py-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between text-xs text-gray-400">
+          <p>© {new Date().getFullYear()} FloorQuote Pro</p>
+          <div className="flex items-center gap-5">
+            <Link href="/help" className="hover:text-gray-600 transition-colors">Help</Link>
+            <Link href="/settings" className="hover:text-gray-600 transition-colors">Settings</Link>
+          </div>
+        </footer>
       </main>
     </div>
   )
