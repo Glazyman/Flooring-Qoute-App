@@ -214,7 +214,7 @@ export default function MeasurementsClient({ initialMeasurements }: { initialMea
               <div className="text-xs text-gray-400 font-normal">Customer</div>
               <div className="text-xs text-gray-400 font-normal">Type</div>
               <div className="text-xs text-gray-400 font-normal">Area</div>
-              <div className="text-xs text-gray-400 font-normal text-right">Total</div>
+              <div className="text-xs text-gray-400 font-normal">Total</div>
               <div className="text-xs text-gray-400 font-normal flex items-center gap-1">
                 <Calendar className="w-3 h-3" />
                 Date
@@ -327,7 +327,7 @@ export default function MeasurementsClient({ initialMeasurements }: { initialMea
                     </div>
 
                     {/* Total */}
-                    <div className="text-sm font-medium text-gray-800 text-right pr-2">
+                    <div className="text-sm font-medium text-gray-800 pr-2">
                       {fmt(m.final_total)}
                     </div>
 

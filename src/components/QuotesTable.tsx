@@ -442,7 +442,7 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
               <div className={COL_HEAD}>Customer</div>
               <div className={COL_HEAD}>Type</div>
               <div className={COL_HEAD}>Area</div>
-              <div className={`${COL_HEAD} text-right`}>Total</div>
+              <div className={COL_HEAD}>Total</div>
               <div className={`${COL_HEAD} flex items-center`}>
                 <Calendar className="w-3.5 h-3.5 text-gray-400 mr-1.5" />
                 Date
@@ -539,7 +539,7 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
                     <div className="text-sm text-gray-600 truncate pr-2">
                       {Math.round(q.adjusted_sqft).toLocaleString()} sqft
                     </div>
-                    <div className="text-sm font-semibold text-gray-900 text-right pr-2">
+                    <div className="text-sm font-semibold text-gray-900 pr-2">
                       {fmt(q.final_total)}
                     </div>
                     <div className="flex items-center text-sm text-gray-500">
