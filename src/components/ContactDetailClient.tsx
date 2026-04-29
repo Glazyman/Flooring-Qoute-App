@@ -199,13 +199,6 @@ export default function ContactDetailClient({
         </div>
       )}
 
-      {/* Header */}
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="text-base font-semibold text-gray-900 truncate min-w-0">
-          {customer.name}
-        </h1>
-      </div>
-
       {/* Contact details */}
       <Card title="Contact details" action={
         <button
