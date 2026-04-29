@@ -96,9 +96,18 @@ export default function AppNavigation({
   }
 
   async function handleBillingPortal() {
-    const res = await fetch('/api/billing/portal', { method: 'POST' })
-    const data = await res.json()
-    if (data.url) window.location.href = data.url
+    try {
+      const res = await fetch('/api/billing/portal', { method: 'POST' })
+      const data = await res.json()
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        // No Stripe customer yet (free trial) — go to plan selection
+        window.location.href = '/billing/setup'
+      }
+    } catch {
+      window.location.href = '/billing/setup'
+    }
   }
 
   const initials = companyName.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2)
