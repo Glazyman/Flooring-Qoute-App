@@ -390,187 +390,158 @@ export default async function HomePage({
           </p>
         </div>
 
-        {/* Paper document */}
-        <div className="relative mx-auto" style={{ maxWidth: 720 }}>
-          {/* Drop shadow layers for depth */}
-          <div className="absolute inset-0 translate-y-3 translate-x-2 rounded-lg opacity-10" style={{ background: '#1e293b', filter: 'blur(12px)' }} />
-          <div className="relative bg-white rounded-lg overflow-hidden text-[10px] sm:text-[11px] leading-snug" style={{ border: '1px solid #e2e8f0', boxShadow: '0 8px 40px rgba(0,0,0,0.12)' }}>
+        {/* Scaled PDF page — written at 700px, scaled to ~60% so it looks like a real document thumbnail */}
+        <div className="relative mx-auto" style={{ maxWidth: 440, height: 570 }}>
 
-            {/* ── HEADER: logo + company info (left) · title + meta (right) ── */}
-            <div className="flex justify-between items-start gap-4 px-6 pt-6 pb-4" style={{ borderBottom: '1px solid #e2e8f0' }}>
-              {/* Left: company */}
-              <div className="flex items-start gap-3 flex-1 min-w-0">
-                <div className="w-11 h-11 rounded-md flex-shrink-0 flex items-center justify-center text-white font-extrabold text-base" style={{ background: 'var(--primary)' }}>
-                  FP
-                </div>
+          {/* Paper shadow */}
+          <div className="absolute inset-0 rounded-lg" style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.18), 0 4px 16px rgba(0,0,0,0.1)', borderRadius: 6 }} />
+
+          {/* Scaled inner document */}
+          <div style={{
+            width: 700,
+            transformOrigin: 'top left',
+            transform: 'scale(0.628)',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            background: 'white',
+            borderRadius: 6,
+            overflow: 'hidden',
+            border: '1px solid #e2e8f0',
+          }}>
+
+            {/* HEADER */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, padding: '20px 24px 14px', borderBottom: '1px solid #e2e8f0' }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, flex: 1 }}>
+                <div style={{ width: 48, height: 48, borderRadius: 8, background: 'var(--primary)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 800, fontSize: 14 }}>FP</div>
                 <div>
-                  <p className="font-bold text-gray-900 text-xs sm:text-sm">Premier Flooring Solutions</p>
-                  <p className="text-gray-500 text-[10px] mt-0.5">123 Trade Street, Suite 4</p>
-                  <p className="text-gray-500 text-[10px]">Chicago, IL 60601</p>
-                  <p className="text-gray-500 text-[10px]"><span className="font-semibold text-gray-700">Office:</span> (312) 555-0182</p>
-                  <p className="text-gray-500 text-[10px]"><span className="font-semibold text-gray-700">Email:</span> info@premierfloors.com</p>
+                  <p style={{ fontWeight: 700, color: '#0f172a', fontSize: 13, margin: '0 0 2px' }}>Premier Flooring Solutions</p>
+                  <p style={{ color: '#64748b', fontSize: 10, margin: '0 0 1px' }}>123 Trade Street, Suite 4 · Chicago, IL 60601</p>
+                  <p style={{ color: '#64748b', fontSize: 10, margin: '0 0 1px' }}><b style={{ color: '#334155' }}>Office:</b> (312) 555-0182</p>
+                  <p style={{ color: '#64748b', fontSize: 10, margin: 0 }}><b style={{ color: '#334155' }}>Email:</b> info@premierfloors.com</p>
                 </div>
               </div>
-              {/* Right: title */}
-              <div className="text-right flex-shrink-0">
-                <p className="font-extrabold leading-none" style={{ fontSize: 28, color: '#1e293b' }}>Flooring</p>
-                <p className="font-bold text-gray-400" style={{ fontSize: 14 }}>Estimate</p>
-                <div className="mt-2 space-y-0.5">
-                  {[
-                    { label: 'Estimate Date:', value: 'Apr 29, 2026' },
-                    { label: 'Estimate #:', value: 'EST-1042' },
-                    { label: 'Valid For:', value: '30 days' },
-                  ].map(({ label, value }) => (
-                    <div key={label} className="flex items-center justify-end gap-1.5" style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: 2 }}>
-                      <span className="font-semibold text-gray-800 text-[10px]">{label}</span>
-                      <span className="text-gray-500 text-[10px]">{value}</span>
+              <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                <p style={{ fontWeight: 800, fontSize: 32, color: '#1e293b', lineHeight: 1, margin: 0 }}>Flooring</p>
+                <p style={{ fontWeight: 700, fontSize: 16, color: '#94a3b8', margin: '2px 0 8px' }}>Estimate</p>
+                {[['Estimate Date:', 'Apr 29, 2026'], ['Estimate #:', 'EST-1042'], ['Valid For:', '30 days']].map(([l, v]) => (
+                  <div key={l} style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', borderBottom: '1px solid #e2e8f0', paddingBottom: 2, marginBottom: 2 }}>
+                    <span style={{ fontWeight: 600, fontSize: 10, color: '#0f172a' }}>{l}</span>
+                    <span style={{ fontSize: 10, color: '#64748b' }}>{v}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* CLIENT + PROJECT BOXES */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, padding: '12px 24px' }}>
+              {[
+                { title: 'Client Information:', rows: [['Name:', 'John & Sarah Williams'], ['Address:', '274 Cornwall Rd, Naperville IL'], ['Phone:', '(630) 555-0194'], ['Email:', 'jwilliams@email.com']] },
+                { title: 'Project Details:', rows: [['Flooring:', 'Hardwood + LVT/Vinyl'], ['Main Floor:', '981 sqft · Hardwood'], ['Basement:', '451 sqft · LVT'], ['Color/Style:', 'Natural Oak, Matte']] },
+              ].map(({ title, rows }) => (
+                <div key={title} style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '10px 12px' }}>
+                  <p style={{ fontWeight: 700, fontSize: 11, color: '#0f172a', margin: '0 0 6px' }}>{title}</p>
+                  {rows.map(([l, v]) => (
+                    <div key={l} style={{ display: 'flex', gap: 6, marginBottom: 3 }}>
+                      <span style={{ fontWeight: 600, fontSize: 9.5, color: '#334155', width: 70, flexShrink: 0 }}>{l}</span>
+                      <span style={{ fontSize: 9.5, color: '#475569' }}>{v}</span>
                     </div>
                   ))}
                 </div>
-              </div>
+              ))}
             </div>
 
-            {/* ── CLIENT + PROJECT BOXES ── */}
-            <div className="grid grid-cols-2 gap-3 px-6 py-4">
-              <div className="rounded-lg p-3" style={{ border: '1px solid #e2e8f0' }}>
-                <p className="font-bold text-gray-800 text-[11px] mb-2">Client Information:</p>
-                {[
-                  { l: 'Name:', v: 'John & Sarah Williams' },
-                  { l: 'Address:', v: '274 Cornwall Rd, Naperville IL' },
-                  { l: 'Phone:', v: '(630) 555-0194' },
-                  { l: 'Email:', v: 'jwilliams@email.com' },
-                ].map(({ l, v }) => (
-                  <div key={l} className="flex gap-2 mb-1">
-                    <span className="font-semibold text-gray-700 text-[10px] w-14 flex-shrink-0">{l}</span>
-                    <span className="text-gray-600 text-[10px]">{v}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="rounded-lg p-3" style={{ border: '1px solid #e2e8f0' }}>
-                <p className="font-bold text-gray-800 text-[11px] mb-2">Project Details:</p>
-                {[
-                  { l: 'Flooring:', v: 'Hardwood + LVT' },
-                  { l: 'Main Floor:', v: 'Hardwood — 892 sqft' },
-                  { l: 'Basement:', v: 'LVT/Vinyl — 410 sqft' },
-                  { l: 'Color/Style:', v: 'Natural Oak, Matte finish' },
-                ].map(({ l, v }) => (
-                  <div key={l} className="flex gap-2 mb-1">
-                    <span className="font-semibold text-gray-700 text-[10px] w-16 flex-shrink-0">{l}</span>
-                    <span className="text-gray-600 text-[10px]">{v}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* ── COST BREAKDOWN TABLE ── */}
-            <div className="px-6 pb-4">
-              <p className="font-bold text-[11px] mb-1.5" style={{ color: '#1e293b' }}>Cost Breakdown</p>
-              <div className="rounded" style={{ border: '1px solid #cbd5e1', overflow: 'hidden' }}>
-                {/* Table header */}
-                <div className="grid text-white font-semibold text-[10px] px-3 py-2" style={{ gridTemplateColumns: '46% 13% 11% 14% 16%', background: '#1e293b' }}>
-                  <span>Item Description</span>
-                  <span className="text-right">Quantity</span>
-                  <span className="text-right">UoM</span>
-                  <span className="text-right">Unit Price</span>
-                  <span className="text-right">Total</span>
+            {/* COST BREAKDOWN */}
+            <div style={{ padding: '0 24px 12px' }}>
+              <p style={{ fontWeight: 700, fontSize: 10, color: '#1e293b', margin: '0 0 6px' }}>Cost Breakdown</p>
+              <div style={{ border: '1px solid #cbd5e1', borderRadius: 4, overflow: 'hidden' }}>
+                {/* Header row */}
+                <div style={{ display: 'grid', gridTemplateColumns: '46% 13% 11% 14% 16%', background: '#1e293b', padding: '6px 10px' }}>
+                  {['Item Description', 'Quantity', 'UoM', 'Unit Price', 'Total'].map((h, i) => (
+                    <span key={h} style={{ fontWeight: 600, fontSize: 9.5, color: 'white', textAlign: i > 0 ? 'right' : 'left' }}>{h}</span>
+                  ))}
                 </div>
-                {/* Rows */}
+                {/* Line items */}
                 {[
-                  { desc: 'Main Floor: supply Hardwood', qty: '981.2', uom: 'SF', rate: '$5.20', total: '$5,102.24' },
-                  { desc: 'Main Floor: labor / installation', qty: '981.2', uom: 'SF', rate: '$3.50', total: '$3,434.20' },
-                  { desc: 'Basement: supply LVT/Vinyl', qty: '451.0', uom: 'SF', rate: '$3.80', total: '$1,713.80' },
-                  { desc: 'Basement: labor / installation', qty: '451.0', uom: 'SF', rate: '$2.75', total: '$1,240.25' },
-                  { desc: 'Removal of existing flooring', qty: '', uom: 'LS', rate: '$450.00', total: '$450.00' },
-                  { desc: 'Stairs (12)', qty: '12', uom: 'EA', rate: '$35.00', total: '$420.00' },
-                  { desc: 'Quarter round / moldings', qty: '', uom: 'LS', rate: '$280.00', total: '$280.00' },
-                  { desc: 'Subfloor prep', qty: '', uom: 'LS', rate: '$200.00', total: '$200.00' },
+                  ['Supply Hardwood (Main Floor)', '981.2', 'SF', '$5.20', '$5,102.24'],
+                  ['Labor / installation (Main Floor)', '981.2', 'SF', '$3.50', '$3,434.20'],
+                  ['Supply LVT/Vinyl (Basement)', '451.0', 'SF', '$3.80', '$1,713.80'],
+                  ['Labor / installation (Basement)', '451.0', 'SF', '$2.75', '$1,240.25'],
+                  ['Removal of existing flooring', '', 'LS', '$450.00', '$450.00'],
+                  ['Stairs (12)', '12', 'EA', '$35.00', '$420.00'],
+                  ['Quarter round / moldings', '', 'LS', '$280.00', '$280.00'],
+                  ['Subfloor prep', '', 'LS', '$200.00', '$200.00'],
                 ].map((row, i) => (
-                  <div key={i} className="grid px-3 py-1.5 text-gray-700 text-[10px]" style={{ gridTemplateColumns: '46% 13% 11% 14% 16%', borderBottom: '0.5px solid #e2e8f0' }}>
-                    <span className="text-gray-800">{row.desc}</span>
-                    <span className="text-right">{row.qty}</span>
-                    <span className="text-right text-gray-500">{row.uom}</span>
-                    <span className="text-right">{row.rate}</span>
-                    <span className="text-right font-semibold">{row.total}</span>
+                  <div key={i} style={{ display: 'grid', gridTemplateColumns: '46% 13% 11% 14% 16%', padding: '5px 10px', borderBottom: '0.5px solid #e2e8f0' }}>
+                    <span style={{ fontSize: 9, color: '#0f172a' }}>{row[0]}</span>
+                    <span style={{ fontSize: 9, color: '#475569', textAlign: 'right' }}>{row[1]}</span>
+                    <span style={{ fontSize: 9, color: '#94a3b8', textAlign: 'right' }}>{row[2]}</span>
+                    <span style={{ fontSize: 9, color: '#475569', textAlign: 'right' }}>{row[3]}</span>
+                    <span style={{ fontSize: 9, fontWeight: 600, color: '#0f172a', textAlign: 'right' }}>{row[4]}</span>
                   </div>
                 ))}
-                {/* Signature area */}
-                <div className="px-3 py-3" style={{ borderBottom: '0.5px solid #e2e8f0' }}>
-                  <p className="font-bold text-gray-700 text-[10px] mb-0.5">READ CAREFULLY — SIGN &amp; EMAIL BACK</p>
-                  <p className="text-gray-500 text-[9px] mb-3">You are authorized to do work as is specified above.</p>
-                  <div className="flex gap-6">
-                    <div className="flex-1">
+                {/* Signature */}
+                <div style={{ padding: '8px 10px', borderBottom: '0.5px solid #e2e8f0' }}>
+                  <p style={{ fontWeight: 700, fontSize: 9, color: '#374151', margin: '0 0 2px' }}>READ CAREFULLY — SIGN &amp; EMAIL BACK</p>
+                  <p style={{ fontSize: 8.5, color: '#6b7280', margin: '0 0 8px' }}>You are authorized to do work as specified above.</p>
+                  <div style={{ display: 'flex', gap: 16 }}>
+                    <div style={{ flex: 1 }}>
                       <div style={{ borderBottom: '1px solid #374151', height: 16, marginBottom: 2 }} />
-                      <p className="text-gray-400 text-[8px] uppercase tracking-wide">Authorized Signature</p>
+                      <p style={{ fontSize: 7, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Authorized Signature</p>
                     </div>
                     <div style={{ width: 100 }}>
                       <div style={{ borderBottom: '1px solid #374151', height: 16, marginBottom: 2 }} />
-                      <p className="text-gray-400 text-[8px] uppercase tracking-wide">Date</p>
+                      <p style={{ fontSize: 7, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Date</p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* ── BOTTOM ROW: notes (left) + totals (right) ── */}
-            <div className="grid grid-cols-2 gap-4 px-6 pb-5">
-              {/* Left: scope */}
+            {/* BOTTOM: scope + totals */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 200px', gap: 16, padding: '0 24px 12px' }}>
               <div>
-                <p className="text-gray-700 text-[10px] leading-relaxed mb-2">
-                  Work includes full prep of subfloor, installation, all transitions, and final cleanup. All material and labor warranted for 1 year against defects.
-                </p>
-                <p className="text-gray-400 text-[9px] leading-relaxed italic">
-                  Prices subject to change without notice after 30 days. A 50% deposit is required to schedule. Balance due upon completion.
-                </p>
+                <p style={{ fontSize: 9, color: '#334155', lineHeight: 1.5, margin: '0 0 4px' }}>Work includes prep, installation, transitions, quarter round, stairs, and cleanup. All labor warranted 1 year.</p>
+                <p style={{ fontSize: 8, color: '#94a3b8', fontStyle: 'italic', lineHeight: 1.4, margin: 0 }}>Prices valid 30 days. 50% deposit required to schedule. Balance due upon completion.</p>
               </div>
-              {/* Right: totals */}
               <div>
-                {[
-                  { l: 'Subtotal', v: '$12,840.49' },
-                  { l: 'Tax (8.5%)', v: '$1,091.44' },
-                ].map(({ l, v }) => (
-                  <div key={l} className="flex justify-between py-1 text-[10px] text-gray-700">
-                    <span>{l}</span><span>{v}</span>
-                  </div>
+                {[['Subtotal', '$12,840.49'], ['Tax (8.5%)', '$1,091.44']].map(([l, v]) => (
+                  <div key={l} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9.5, color: '#334155', padding: '2px 0' }}><span>{l}</span><span>{v}</span></div>
                 ))}
-                <div className="flex justify-between items-center my-2">
-                  <span className="font-bold text-gray-900 text-sm italic">Total</span>
-                  <div className="px-3 py-1 font-bold text-gray-900 text-xs" style={{ border: '1px solid #cbd5e1', minWidth: 90, textAlign: 'right' }}>$13,931.93</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '6px 0' }}>
+                  <span style={{ fontWeight: 700, fontSize: 13, color: '#0f172a', fontStyle: 'italic' }}>Total</span>
+                  <div style={{ border: '1px solid #cbd5e1', padding: '3px 10px', fontWeight: 700, fontSize: 11, color: '#0f172a' }}>$13,931.93</div>
                 </div>
-                {[
-                  { l: 'Deposit Due (50%)', v: '$6,965.97' },
-                  { l: 'Remaining Balance', v: '$6,965.96' },
-                ].map(({ l, v }) => (
-                  <div key={l} className="flex justify-between py-1 text-[10px] text-gray-700">
-                    <span>{l}</span><span>{v}</span>
-                  </div>
+                {[['Deposit Due (50%)', '$6,965.97'], ['Remaining Balance', '$6,965.96']].map(([l, v]) => (
+                  <div key={l} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9.5, color: '#334155', padding: '2px 0' }}><span>{l}</span><span>{v}</span></div>
                 ))}
               </div>
             </div>
 
-            {/* ── INCLUSIONS / EXCLUSIONS ── */}
-            <div className="px-6 pb-4 grid grid-cols-2 gap-4">
+            {/* INCLUSIONS / EXCLUSIONS */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, padding: '0 24px 12px' }}>
               <div>
-                <p className="font-bold text-gray-500 text-[9px] uppercase tracking-widest mb-1">Inclusions</p>
-                <p className="text-gray-700 text-[10px] leading-relaxed">Supply & install all flooring materials, transitions, quarter round, subfloor prep, stairs, and removal of existing flooring.</p>
+                <p style={{ fontWeight: 700, fontSize: 8, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px' }}>Inclusions</p>
+                <p style={{ fontSize: 9, color: '#334155', lineHeight: 1.45, margin: 0 }}>Supply & install flooring, transitions, quarter round, subfloor prep, stairs, removal of existing material.</p>
               </div>
               <div>
-                <p className="font-bold text-gray-500 text-[9px] uppercase tracking-widest mb-1">Exclusions</p>
-                <p className="text-gray-700 text-[10px] leading-relaxed">Painting, baseboards, appliance moving, or any work outside the scope above.</p>
+                <p style={{ fontWeight: 700, fontSize: 8, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px' }}>Exclusions</p>
+                <p style={{ fontSize: 9, color: '#334155', lineHeight: 1.45, margin: 0 }}>Painting, baseboards, appliance moving, or work outside the scope above. Customer to remove personal items.</p>
               </div>
             </div>
 
-            {/* ── FOOTER BAR ── */}
-            <div className="px-6 py-2.5 text-center" style={{ background: '#1e293b' }}>
-              <p className="text-white text-[10px]">
-                For any questions, contact: <span className="font-bold">info@premierfloors.com</span> or <span className="font-bold">(312) 555-0182</span>
+            {/* FOOTER BAR */}
+            <div style={{ background: '#1e293b', padding: '8px 24px', textAlign: 'center' }}>
+              <p style={{ color: 'white', fontSize: 9, margin: 0 }}>
+                Questions? Contact <b>info@premierfloors.com</b> or <b>(312) 555-0182</b>
               </p>
             </div>
           </div>
 
-          {/* Download badge overlay */}
-          <div className="absolute -bottom-4 -right-2 sm:-right-6 flex items-center gap-2 bg-white rounded-2xl px-4 py-2.5 shadow-xl" style={{ border: '1px solid #e2e8f0' }}>
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'rgba(13,148,136,0.1)' }}>
-              <svg className="w-3.5 h-3.5" style={{ color: 'var(--primary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          {/* Download badge */}
+          <div className="absolute flex items-center gap-2 bg-white rounded-2xl px-3 py-2 shadow-xl" style={{ border: '1px solid #e2e8f0', bottom: -16, right: -8 }}>
+            <div className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(13,148,136,0.1)' }}>
+              <svg className="w-3 h-3" style={{ color: 'var(--primary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
             </div>
