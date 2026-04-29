@@ -911,6 +911,36 @@ export default function QuoteForm({
 
           {/* Project Settings */}
           <Card title="Project settings">
+            {/* Job scope */}
+            {(() => {
+              const scopeGroup = JOB_OPTION_GROUPS.find(g => g.id === 'scope')!
+              return (
+                <div className="mb-5 pb-5" style={{ borderBottom: '1px solid #F1F1F4' }}>
+                  <div className="flex items-baseline gap-2 mb-2">
+                    <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">{scopeGroup.label}</span>
+                    {scopeGroup.description && <p className="text-xs text-gray-400">{scopeGroup.description}</p>}
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2">
+                    {scopeGroup.options.map(opt => {
+                      const checked = jobOptions[opt.key] === true
+                      return (
+                        <label key={opt.key} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer select-none hover:text-gray-900 transition-colors">
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => toggleJobOption(opt.key)}
+                            className="w-4 h-4 cursor-pointer flex-shrink-0"
+                            style={{ accentColor: 'var(--primary)' }}
+                          />
+                          <span>{opt.label}</span>
+                        </label>
+                      )
+                    })}
+                  </div>
+                </div>
+              )
+            })()}
+
             {/* Method toggle */}
             <div className="mb-5">
               <label className="block text-xs font-medium text-gray-500 mb-1.5">Measurement method</label>
@@ -1201,6 +1231,48 @@ export default function QuoteForm({
                 </div>
               </div>
             )}
+
+            {/* Job specification details — wood, finish, install method, trim, etc. */}
+            <div className="mt-5 pt-5 space-y-4" style={{ borderTop: '1px solid #F1F1F4' }}>
+              {JOB_OPTION_GROUPS.filter(g => g.id !== 'scope').map(group => (
+                <div key={group.id}>
+                  <div className="flex items-baseline gap-2 mb-2">
+                    <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">{group.label}</span>
+                    {group.description && <p className="text-xs text-gray-400">{group.description}</p>}
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2">
+                    {group.options.map(opt => {
+                      const checked = jobOptions[opt.key] === true
+                      return (
+                        <label key={opt.key} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer select-none hover:text-gray-900 transition-colors">
+                          <input
+                            type={group.exclusive ? 'radio' : 'checkbox'}
+                            name={group.exclusive ? `job-opt-${group.id}` : undefined}
+                            checked={checked}
+                            onChange={() =>
+                              group.exclusive
+                                ? setExclusiveJobOption(group.id, opt.key)
+                                : toggleJobOption(opt.key)
+                            }
+                            className="w-4 h-4 cursor-pointer flex-shrink-0"
+                            style={{ accentColor: 'var(--primary)' }}
+                          />
+                          <span>{opt.label}</span>
+                        </label>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))}
+              <div className="pt-2" style={{ borderTop: '1px solid #F1F1F4' }}>
+                <Input
+                  label="Plank width"
+                  value={(jobOptions.width as string | undefined) ?? ''}
+                  onChange={(v) => setJobOptionValue('width', v)}
+                  placeholder='e.g. 5"'
+                />
+              </div>
+            </div>
           </Card>
 
           {/* Pricing */}
@@ -1603,67 +1675,15 @@ export default function QuoteForm({
                   Shown prominently on the quote PDF and email above the totals.
                 </p>
               </div>
+              <Input
+                label="Lockbox / Key"
+                value={(jobOptions.lockbox_key_value as string | undefined) ?? ''}
+                onChange={(v) => setJobOptionValue('lockbox_key_value', v)}
+                placeholder="Code or note for access"
+              />
             </div>
           </Card>
 
-          {/* Job details — checklist mirroring the right side of paper estimate forms */}
-          <Card title="Job details" description="Quick checkboxes for scope, finish, install method, rooms, trim, and removals. Selected items appear on the quote and PDF.">
-            <div className="space-y-5">
-              {JOB_OPTION_GROUPS.map(group => (
-                <div key={group.id}>
-                  <div className="flex items-baseline gap-2 mb-2">
-                    <h4 className="text-xs font-semibold text-gray-700 uppercase tracking-wide">
-                      {group.label}
-                    </h4>
-                    {group.description && (
-                      <p className="text-xs text-gray-400">{group.description}</p>
-                    )}
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2">
-                    {group.options.map(opt => {
-                      const checked = jobOptions[opt.key] === true
-                      return (
-                        <label
-                          key={opt.key}
-                          className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer select-none hover:text-gray-900 transition-colors"
-                        >
-                          <input
-                            type={group.exclusive ? 'radio' : 'checkbox'}
-                            name={group.exclusive ? `job-opt-${group.id}` : undefined}
-                            checked={checked}
-                            onChange={() =>
-                              group.exclusive
-                                ? setExclusiveJobOption(group.id, opt.key)
-                                : toggleJobOption(opt.key)
-                            }
-                            className="w-4 h-4 cursor-pointer flex-shrink-0"
-                            style={{ accentColor: 'var(--primary)' }}
-                          />
-                          <span>{opt.label}</span>
-                        </label>
-                      )
-                    })}
-                  </div>
-                </div>
-              ))}
-
-              {/* Free-form text fields that pair with the checkbox catalog */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2" style={{ borderTop: '1px solid #F1F1F4' }}>
-                <Input
-                  label="Plank width"
-                  value={(jobOptions.width as string | undefined) ?? ''}
-                  onChange={(v) => setJobOptionValue('width', v)}
-                  placeholder='e.g. 5"'
-                />
-                <Input
-                  label="Lockbox / Key"
-                  value={(jobOptions.lockbox_key_value as string | undefined) ?? ''}
-                  onChange={(v) => setJobOptionValue('lockbox_key_value', v)}
-                  placeholder="Code or note"
-                />
-              </div>
-            </div>
-          </Card>
         </div>
 
         {/* Right — live totals (desktop only) */}
