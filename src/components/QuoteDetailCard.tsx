@@ -5,8 +5,9 @@ import { fmt } from '@/lib/calculations'
 import { flooringTypeLabel, FLOORING_LABEL } from '@/lib/flooringLabels'
 import type { Quote, QuoteRoom, QuoteLineItem, CompanySettings } from '@/lib/types'
 
-const BAND_BG = '#94a3b8'
-const FRAME_BORDER = '1px solid #0f172a'
+const BAND_BG = '#1e293b'
+const BAND_TEXT = '#ffffff'
+const FRAME_BORDER = '1px solid #cbd5e1'
 const ROW_BORDER = '0.5px solid #e2e8f0'
 const HOVER_BG = 'rgba(0,113,227,0.06)'
 const TEAL = '#0071e3'
@@ -735,7 +736,7 @@ export default function QuoteDetailCard({
   return (
       <div
       className="bg-white rounded-xl p-4 sm:p-6 pb-2 relative"
-      style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}
+      style={{ border: '1px solid #e2e8f0', boxShadow: '0 1px 4px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.05)' }}
     >
       {/* Top row: company block + Estimate title + meta table */}
       <div className="flex flex-col sm:flex-row sm:items-stretch sm:justify-between gap-4 mb-5">
@@ -788,7 +789,7 @@ export default function QuoteDetailCard({
             <div className="flex" style={{ borderBottom: FRAME_BORDER }}>
               <span
                 className="flex-1 px-2 py-1 text-center"
-                style={{ borderRight: FRAME_BORDER, background: BAND_BG }}
+                style={{ borderRight: '1px solid #334155', background: BAND_BG, color: BAND_TEXT }}
               >
                 Date
               </span>
@@ -797,7 +798,7 @@ export default function QuoteDetailCard({
             <div className="flex">
               <span
                 className="flex-1 px-2 py-1 text-center"
-                style={{ borderRight: FRAME_BORDER, background: BAND_BG }}
+                style={{ borderRight: '1px solid #334155', background: BAND_BG, color: BAND_TEXT }}
               >
                 Estimate #
               </span>
@@ -823,7 +824,7 @@ export default function QuoteDetailCard({
         <div style={{ border: FRAME_BORDER }}>
           <div
             className="px-3 py-1.5 text-sm italic font-bold text-center"
-            style={{ background: BAND_BG, color: '#0f172a', borderBottom: FRAME_BORDER }}
+            style={{ background: BAND_BG, color: BAND_TEXT, borderBottom: '1px solid #334155' }}
           >
             Customer Name
           </div>
@@ -851,7 +852,7 @@ export default function QuoteDetailCard({
         <div style={{ border: FRAME_BORDER }}>
           <div
             className="px-3 py-1.5 text-sm italic font-bold text-center"
-            style={{ background: BAND_BG, color: '#0f172a', borderBottom: FRAME_BORDER }}
+            style={{ background: BAND_BG, color: BAND_TEXT, borderBottom: '1px solid #334155' }}
           >
             Job Location
           </div>
@@ -916,11 +917,11 @@ export default function QuoteDetailCard({
         <div style={{ minWidth: 480 }}>
           {/* Header */}
           <div
-            className="grid items-center px-2 py-1.5 italic font-bold"
+            className="grid items-center px-2 py-2 italic font-bold"
             style={{
               gridTemplateColumns: GRID_COLS,
               background: BAND_BG,
-              color: '#0f172a',
+              color: BAND_TEXT,
             }}
           >
             <span>Description</span>
