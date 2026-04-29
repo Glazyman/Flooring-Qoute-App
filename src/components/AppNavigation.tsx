@@ -92,7 +92,7 @@ export default function AppNavigation({
   const initials = companyName.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2)
 
   const sidebarContent = (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflowY: 'auto' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflowY: 'auto', flex: 1 }}>
 
       {/* Brand */}
       <div style={{ padding: '18px 16px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -228,7 +228,7 @@ export default function AppNavigation({
     <>
       {/* Desktop sidebar */}
       <aside
-        className="hidden lg:flex flex-col w-[216px] min-h-screen fixed left-0 top-0"
+        className="hidden lg:flex flex-col w-[216px] h-screen fixed left-0 top-0"
         style={{
           background: 'rgba(255,255,255,0.95)',
           backdropFilter: 'blur(20px)',
