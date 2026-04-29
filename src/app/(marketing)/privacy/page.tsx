@@ -45,35 +45,209 @@ export default function PrivacyPage() {
         <section>
           <h2 className="text-xl font-bold text-gray-900 mb-3">3. Google User Data</h2>
           <p>
-            FloorQuote Pro lets you optionally connect your Google (Gmail) account so that quotes and
-            invoices can be sent to your customers from your own email address. When you connect your
-            Google account, we request access only to the following Google API scopes:
+            FloorQuote Pro offers an optional integration that lets users connect their Google
+            (Gmail) account so that quote and invoice emails can be sent to their customers from
+            their own Gmail address. This section discloses, in detail, exactly how FloorQuote Pro
+            accesses, uses, stores, and shares Google user data, in compliance with the{' '}
+            <a
+              href="https://developers.google.com/terms/api-services-user-data-policy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-gray-900"
+            >
+              Google API Services User Data Policy
+            </a>{' '}
+            (including the Limited Use requirements).
           </p>
-          <ul className="list-disc pl-6 space-y-1">
+
+          <h3 className="text-lg font-semibold text-gray-900 mt-6 mb-2">
+            3.1 Data Accessed (Google scopes requested)
+          </h3>
+          <p>
+            FloorQuote Pro requests access to the minimum scopes required to send email on the
+            user&apos;s behalf. We do <strong>not</strong> request, access, read, modify, or delete
+            any other Google data — no Gmail inbox messages, no Drive files, no Calendar events, no
+            Contacts, no Photos, no profile picture, and no other Google services.
+          </p>
+          <ul className="list-disc pl-6 space-y-2">
             <li>
-              <code className="text-sm bg-gray-100 px-1.5 py-0.5 rounded">
-                https://www.googleapis.com/auth/gmail.send
-              </code>{' '}
-              — to send email on your behalf.
+              <strong>
+                <code className="text-sm bg-gray-100 px-1.5 py-0.5 rounded">
+                  https://www.googleapis.com/auth/gmail.send
+                </code>
+              </strong>
+              <br />
+              <span className="text-sm">
+                A restricted Gmail scope that grants permission to <em>send</em> emails on the
+                user&apos;s behalf via the Gmail API. It does <strong>not</strong> grant permission
+                to read, modify, or delete any messages in the user&apos;s mailbox. The only data
+                FloorQuote Pro generates with this scope is the outbound message itself (recipient,
+                subject, body, and attached PDF), which the user composes inside our app.
+              </span>
             </li>
             <li>
-              <code className="text-sm bg-gray-100 px-1.5 py-0.5 rounded">
-                https://www.googleapis.com/auth/userinfo.email
-              </code>{' '}
-              — to display the connected email address in your settings.
+              <strong>
+                <code className="text-sm bg-gray-100 px-1.5 py-0.5 rounded">
+                  https://www.googleapis.com/auth/userinfo.email
+                </code>
+              </strong>
+              <br />
+              <span className="text-sm">
+                A non-sensitive scope that returns the user&apos;s primary Google account email
+                address (e.g., <em>name@gmail.com</em>) and Google account ID. This lets us label
+                the connected account in the app&apos;s Settings page (&quot;Connected as
+                name@gmail.com&quot;) so users can verify they connected the correct account.
+              </span>
+            </li>
+            <li>
+              <strong>
+                <code className="text-sm bg-gray-100 px-1.5 py-0.5 rounded">openid</code>
+              </strong>
+              <br />
+              <span className="text-sm">
+                Required by Google&apos;s OAuth 2.0 implementation to issue the access and refresh
+                tokens used by the two scopes above. No additional data is read.
+              </span>
             </li>
           </ul>
 
-          <h3 className="text-lg font-semibold text-gray-900 mt-5 mb-2">
-            How we use Google user data
+          <h3 className="text-lg font-semibold text-gray-900 mt-6 mb-2">
+            3.2 Data Usage (how we use the data and why)
           </h3>
           <p>
-            We use these Google API scopes solely to send quote and invoice emails (with their PDF
-            attachments) to recipients you choose, from your own email address, when you click
-            &quot;Send Email&quot; inside FloorQuote Pro.
+            We use Google user data <strong>solely</strong> to provide the email-sending feature
+            that the user explicitly initiates from inside our application. There is no other use.
           </p>
 
-          <h3 className="text-lg font-semibold text-gray-900 mt-5 mb-2">Limited Use disclosure</h3>
+          <div className="overflow-x-auto my-4">
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr className="bg-gray-50">
+                  <th className="text-left p-3 font-semibold text-gray-900 border border-gray-200">
+                    Data type
+                  </th>
+                  <th className="text-left p-3 font-semibold text-gray-900 border border-gray-200">
+                    How we use it
+                  </th>
+                  <th className="text-left p-3 font-semibold text-gray-900 border border-gray-200">
+                    Purpose
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="p-3 align-top border border-gray-200">
+                    Google account email address
+                  </td>
+                  <td className="p-3 align-top border border-gray-200">
+                    Stored in our database (associated with the user&apos;s company) and displayed
+                    in the user&apos;s Settings → Email page.
+                  </td>
+                  <td className="p-3 align-top border border-gray-200">
+                    To show the user which Google account is currently connected to FloorQuote Pro,
+                    so they can verify or disconnect it.
+                  </td>
+                </tr>
+                <tr>
+                  <td className="p-3 align-top border border-gray-200">
+                    OAuth access token (gmail.send)
+                  </td>
+                  <td className="p-3 align-top border border-gray-200">
+                    Stored encrypted (AES-256-GCM) in our database. Used at runtime to authorize a
+                    single API call to{' '}
+                    <code className="text-xs">gmail.googleapis.com/gmail/v1/users/me/messages/send</code>{' '}
+                    when the user clicks &quot;Send Email&quot; on a quote or invoice in the app.
+                  </td>
+                  <td className="p-3 align-top border border-gray-200">
+                    To send the user-composed email (with attached PDF) from the user&apos;s
+                    connected Gmail address to a recipient that the user has specified inside our
+                    app.
+                  </td>
+                </tr>
+                <tr>
+                  <td className="p-3 align-top border border-gray-200">
+                    OAuth refresh token
+                  </td>
+                  <td className="p-3 align-top border border-gray-200">
+                    Stored encrypted (AES-256-GCM) in our database. Used only to exchange for a new
+                    access token when the previous one expires (typically every hour).
+                  </td>
+                  <td className="p-3 align-top border border-gray-200">
+                    To keep the user signed in to the integration without requiring them to
+                    re-authenticate for every email they send.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>
+            We do <strong>not</strong> use Google user data for any of the following: advertising,
+            machine learning or AI model training, marketing, profiling, analytics, resale, or any
+            purpose unrelated to sending the email the user explicitly requested.
+          </p>
+
+          <h3 className="text-lg font-semibold text-gray-900 mt-6 mb-2">
+            3.3 Data Storage and Security
+          </h3>
+          <ul className="list-disc pl-6 space-y-1">
+            <li>
+              <strong>Encryption at rest:</strong> Both the OAuth access token and refresh token
+              are encrypted with AES-256-GCM before being written to our database. The encryption
+              key is stored as an environment variable that is never written to source control or
+              shared with any third party.
+            </li>
+            <li>
+              <strong>Encryption in transit:</strong> All requests to Google APIs are made over
+              HTTPS (TLS 1.2+). All requests between the user&apos;s browser and our servers are
+              made over HTTPS.
+            </li>
+            <li>
+              <strong>Access control:</strong> Tokens are stored in a Supabase (PostgreSQL)
+              database protected by Row-Level Security policies. Only the user&apos;s own company
+              can access its row.
+            </li>
+            <li>
+              <strong>Hosting:</strong> Our infrastructure runs on Vercel and Supabase, both of
+              which are SOC 2 Type II compliant.
+            </li>
+          </ul>
+
+          <h3 className="text-lg font-semibold text-gray-900 mt-6 mb-2">
+            3.4 Data Sharing
+          </h3>
+          <p>
+            We do <strong>not</strong> share Google user data with any third parties. The user&apos;s
+            Google email address and OAuth tokens never leave our infrastructure except in the
+            single, scoped API call to <code className="text-xs">gmail.googleapis.com</code> that
+            is required to send the email the user explicitly requested. No analytics, advertising,
+            or marketing services have access to Google user data.
+          </p>
+
+          <h3 className="text-lg font-semibold text-gray-900 mt-6 mb-2">
+            3.5 Data Retention and Deletion
+          </h3>
+          <p>
+            Google OAuth tokens are retained only for as long as the user keeps the Gmail
+            integration connected. When the user clicks &quot;Disconnect&quot; on the Settings →
+            Email page, both the access token and refresh token are immediately deleted from our
+            database, and we send a revocation request to Google&apos;s OAuth server. Tokens are
+            also deleted if the user&apos;s account is deleted. Users may additionally revoke
+            FloorQuote Pro&apos;s access at any time directly from{' '}
+            <a
+              href="https://myaccount.google.com/permissions"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-gray-900"
+            >
+              Google Account permissions
+            </a>
+            .
+          </p>
+
+          <h3 className="text-lg font-semibold text-gray-900 mt-6 mb-2">
+            3.6 Limited Use Disclosure
+          </h3>
           <p>
             FloorQuote Pro&apos;s use and transfer of information received from Google APIs to any
             other app will adhere to the{' '}
@@ -85,24 +259,37 @@ export default function PrivacyPage() {
             >
               Google API Services User Data Policy
             </a>
-            , including the Limited Use requirements. Specifically, we:
+            , including the Limited Use requirements. Specifically:
           </p>
           <ul className="list-disc pl-6 space-y-1">
-            <li>Only use Google user data to provide the email-sending feature you explicitly request.</li>
-            <li>Do not use Google user data to serve advertisements.</li>
-            <li>Do not allow humans to read Google user data, except (a) with your explicit consent for specific messages, (b) when necessary for security purposes such as investigating abuse, (c) to comply with applicable law, or (d) for internal operations where the data has been aggregated and anonymized.</li>
-            <li>Do not transfer Google user data to third parties except as necessary to provide or improve the Service, comply with applicable law, or as part of a merger, acquisition, or sale of assets with prior notice to you.</li>
-            <li>Do not sell Google user data, ever.</li>
+            <li>
+              We only use Google user data to provide or improve user-facing features (in this
+              case, sending email on the user&apos;s behalf) that are prominent in the
+              requesting application&apos;s user interface.
+            </li>
+            <li>
+              We do not use Google user data to serve advertisements, including retargeting,
+              personalized, or interest-based advertising.
+            </li>
+            <li>
+              We do not allow humans to read Google user data, except (a) with the user&apos;s
+              affirmative agreement for specific messages, (b) when necessary for security purposes
+              such as investigating abuse, (c) to comply with applicable law, or (d) for internal
+              operations where the data has been aggregated and anonymized.
+            </li>
+            <li>
+              We do not transfer Google user data to third parties except as necessary to provide
+              or improve user-facing features, to comply with applicable law, or as part of a
+              merger, acquisition, or sale of assets with prior notice to affected users.
+            </li>
+            <li>
+              We do not use Google user data to develop, improve, or train generalized or
+              non-personalized AI and/or machine learning models.
+            </li>
+            <li>
+              We do not sell Google user data — ever.
+            </li>
           </ul>
-
-          <h3 className="text-lg font-semibold text-gray-900 mt-5 mb-2">Storage of Google credentials</h3>
-          <p>
-            Your Google OAuth access and refresh tokens are encrypted at rest using AES-256-GCM
-            encryption before being stored in our database. They are used solely to send emails on
-            your behalf and to refresh expired access tokens. You may disconnect your Google account
-            at any time from the Settings → Email page, which immediately deletes the stored tokens
-            from our systems.
-          </p>
         </section>
 
         <section>

@@ -43,6 +43,8 @@ export async function updateSession(request: NextRequest) {
     path === '/' ||
     path.startsWith('/home') ||
     path.startsWith('/contact') ||
+    path.startsWith('/privacy') ||
+    path.startsWith('/terms') ||
     path.startsWith('/billing/setup')
 
   if (!user && !isAuthPath && !isApiPath && !isPublicPath) {
