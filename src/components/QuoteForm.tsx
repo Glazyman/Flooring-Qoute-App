@@ -1234,51 +1234,37 @@ export default function QuoteForm({
                                 </button>
                               </div>
 
-                              {/* Dimension row: L [ft][in] × W [ft][in] */}
-                              <div className="flex items-center gap-1 px-2 py-2">
-                                <span className="text-[10px] font-semibold uppercase text-gray-400 w-4 text-center flex-shrink-0">L</span>
-                                <div className="flex items-center flex-1 rounded-md overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
-                                  <input
-                                    type="number" inputMode="numeric"
-                                    value={room.lengthFt}
-                                    onChange={e => updateRoom(room.id, 'lengthFt', e.target.value)}
-                                    placeholder="0"
-                                    className="w-full py-2.5 text-base font-semibold text-center focus:outline-none bg-white text-gray-900"
-                                  />
-                                  <span className="px-1.5 py-2.5 text-xs text-gray-400 flex-shrink-0" style={{ background: '#FAFAFA', borderLeft: '1px solid #E5E7EB' }}>ft</span>
-                                </div>
-                                <div className="flex items-center w-[3.5rem] rounded-md overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
-                                  <input
-                                    type="number" inputMode="numeric"
-                                    value={room.lengthIn}
-                                    onChange={e => updateRoom(room.id, 'lengthIn', e.target.value)}
-                                    placeholder="0" min="0" max="11"
-                                    className="w-full py-2.5 text-base font-semibold text-center focus:outline-none bg-white text-gray-900"
-                                  />
-                                  <span className="pr-1.5 text-xs text-gray-400 flex-shrink-0">in</span>
-                                </div>
-                                <span className="text-gray-300 text-base px-0.5 flex-shrink-0">×</span>
-                                <span className="text-[10px] font-semibold uppercase text-gray-400 w-4 text-center flex-shrink-0">W</span>
-                                <div className="flex items-center flex-1 rounded-md overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
-                                  <input
-                                    type="number" inputMode="numeric"
-                                    value={room.widthFt}
-                                    onChange={e => updateRoom(room.id, 'widthFt', e.target.value)}
-                                    placeholder="0"
-                                    className="w-full py-2.5 text-base font-semibold text-center focus:outline-none bg-white text-gray-900"
-                                  />
-                                  <span className="px-1.5 py-2.5 text-xs text-gray-400 flex-shrink-0" style={{ background: '#FAFAFA', borderLeft: '1px solid #E5E7EB' }}>ft</span>
-                                </div>
-                                <div className="flex items-center w-[3.5rem] rounded-md overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
-                                  <input
-                                    type="number" inputMode="numeric"
-                                    value={room.widthIn}
-                                    onChange={e => updateRoom(room.id, 'widthIn', e.target.value)}
-                                    placeholder="0" min="0" max="11"
-                                    className="w-full py-2.5 text-base font-semibold text-center focus:outline-none bg-white text-gray-900"
-                                  />
-                                  <span className="pr-1.5 text-xs text-gray-400 flex-shrink-0">in</span>
-                                </div>
+                              {/* Dimensions — LENGTH | WIDTH two-column grid */}
+                              <div className="grid grid-cols-2 gap-2 px-3 pb-3 pt-1">
+                                {(['length', 'width'] as const).map(dim => (
+                                  <div key={dim}>
+                                    <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400 mb-1.5">
+                                      {dim === 'length' ? 'Length' : 'Width'}
+                                    </p>
+                                    <div className="flex gap-1.5">
+                                      <div className="flex items-center flex-1 rounded-lg overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
+                                        <input
+                                          type="number" inputMode="numeric"
+                                          value={dim === 'length' ? room.lengthFt : room.widthFt}
+                                          onChange={e => updateRoom(room.id, dim === 'length' ? 'lengthFt' : 'widthFt', e.target.value)}
+                                          placeholder="0"
+                                          className="w-full py-3 text-lg font-semibold text-center focus:outline-none bg-white text-gray-900"
+                                        />
+                                        <span className="px-1.5 text-xs text-gray-400 self-stretch flex items-center flex-shrink-0" style={{ background: '#FAFAFA', borderLeft: '1px solid #E5E7EB' }}>ft</span>
+                                      </div>
+                                      <div className="flex items-center w-14 rounded-lg overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
+                                        <input
+                                          type="number" inputMode="numeric"
+                                          value={dim === 'length' ? room.lengthIn : room.widthIn}
+                                          onChange={e => updateRoom(room.id, dim === 'length' ? 'lengthIn' : 'widthIn', e.target.value)}
+                                          placeholder="0" min="0" max="11"
+                                          className="w-full py-3 text-lg font-semibold text-center focus:outline-none bg-white text-gray-900"
+                                        />
+                                        <span className="pr-1.5 text-xs text-gray-400 flex-shrink-0">in</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
                               </div>
 
                               {/* Sqft result bar */}
