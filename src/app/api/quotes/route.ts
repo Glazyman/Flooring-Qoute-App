@@ -50,6 +50,8 @@ const ALLOWED_QUOTE_FIELDS = new Set<string>([
   'section_pricing',
   'extras_json',
   'job_options',
+  'pricing_mode',
+  'room_pricing',
   'inclusions',
   'exclusions',
   'qualifications',

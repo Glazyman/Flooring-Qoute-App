@@ -171,6 +171,8 @@ export interface QuoteInitialData {
   section_pricing?: Record<string, { material: number; labor: number }> | null
   extras_json?: Record<string, number> | null
   job_options?: Record<string, boolean | string> | null
+  pricing_mode?: string | null
+  room_pricing?: Record<string, { material: number; labor: number }> | null
   line_items?: Array<{ description: string | null; qty: number; unit_price: number; total: number }>
 }
 
@@ -268,6 +270,29 @@ export default function QuoteForm({
     })
     return out
   })
+
+  const [pricingMode, setPricingMode] = useState<'section' | 'room'>(
+    (initialData?.pricing_mode as 'section' | 'room' | null | undefined) === 'room' ? 'room' : 'section'
+  )
+
+  const [roomPricing, setRoomPricing] = useState<Record<string, { material: string; labor: string }>>(() => {
+    const saved = initialData?.room_pricing
+    if (!saved || Object.keys(saved).length === 0) return {}
+    const out: Record<string, { material: string; labor: string }> = {}
+    Object.entries(saved).forEach(([k, v]) => {
+      if (v && typeof v === 'object') {
+        out[k] = { material: String(v.material), labor: String(v.labor) }
+      }
+    })
+    return out
+  })
+
+  function setRoomRate(roomKey: string, kind: 'material' | 'labor', value: string) {
+    setRoomPricing(prev => ({
+      ...prev,
+      [roomKey]: { ...(prev[roomKey] || { material: '', labor: '' }), [kind]: value },
+    }))
+  }
 
   function setSectionFlooringType(section: string, type: FlooringType) {
     setSectionFlooring(prev => ({ ...prev, [section]: type }))
@@ -440,12 +465,22 @@ export default function QuoteForm({
   }, [rooms, sections])
 
   const wasteFactor = 1 + n(wastePct) / 100
-  const materialTotalOverride = measurementType === 'rooms'
-    ? sections.reduce((sum, sec) => sum + (sectionSqftMap[sec] || 0) * wasteFactor * n(sectionPricing[sec]?.material || '0'), 0)
-    : baseSqft * wasteFactor * n(sectionPricing[firstSection]?.material || '0')
-  const laborTotalOverride = measurementType === 'rooms'
-    ? sections.reduce((sum, sec) => sum + (sectionSqftMap[sec] || 0) * wasteFactor * n(sectionPricing[sec]?.labor || '0'), 0)
-    : baseSqft * wasteFactor * n(sectionPricing[firstSection]?.labor || '0')
+  const materialTotalOverride = pricingMode === 'room' && measurementType === 'rooms'
+    ? rooms.reduce((sum, r, idx) => {
+        const rp = roomPricing[r.name.trim() || `__${idx}`]
+        return sum + roomSqft(r) * wasteFactor * n(rp?.material || '0')
+      }, 0)
+    : measurementType === 'rooms'
+      ? sections.reduce((sum, sec) => sum + (sectionSqftMap[sec] || 0) * wasteFactor * n(sectionPricing[sec]?.material || '0'), 0)
+      : baseSqft * wasteFactor * n(sectionPricing[firstSection]?.material || '0')
+  const laborTotalOverride = pricingMode === 'room' && measurementType === 'rooms'
+    ? rooms.reduce((sum, r, idx) => {
+        const rp = roomPricing[r.name.trim() || `__${idx}`]
+        return sum + roomSqft(r) * wasteFactor * n(rp?.labor || '0')
+      }, 0)
+    : measurementType === 'rooms'
+      ? sections.reduce((sum, sec) => sum + (sectionSqftMap[sec] || 0) * wasteFactor * n(sectionPricing[sec]?.labor || '0'), 0)
+      : baseSqft * wasteFactor * n(sectionPricing[firstSection]?.labor || '0')
 
   const extrasObj: QuoteExtras = {
     subfloor_prep: n(subfloorPrep),
@@ -700,6 +735,15 @@ export default function QuoteForm({
     const extrasJson: Record<string, number> = {}
     Object.entries(extrasObj).forEach(([k, v]) => { if (v && v > 0) extrasJson[k] = v })
 
+    const roomPricingForApi: Record<string, { material: number; labor: number }> = {}
+    if (pricingMode === 'room') {
+      rooms.filter(r => roomSqft(r) > 0).forEach((r, idx) => {
+        const key = r.name.trim() || `__${idx}`
+        const rp = roomPricing[key]
+        if (rp) roomPricingForApi[key] = { material: n(rp.material), labor: n(rp.labor) }
+      })
+    }
+
     const statusForCreate = mode === 'estimate' ? 'pending' : 'measurement'
 
     const payload = {
@@ -746,6 +790,8 @@ export default function QuoteForm({
       valid_days: n(validDays) || 30,
       extras_json: extrasJson,
       job_options: jobOptions,
+      pricing_mode: pricingMode,
+      room_pricing: Object.keys(roomPricingForApi).length > 0 ? roomPricingForApi : null,
       rooms: roomsForApi,
       line_items: lineItems
         .filter(li => li.description.trim() || n(li.qty) > 0 || n(li.unit_price) > 0)
@@ -905,35 +951,6 @@ export default function QuoteForm({
                     </optgroup>
                   </select>
                 </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Pricing ($/sqft)</label>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="flex items-center rounded-md bg-white overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
-                      <span className="px-3 py-2 text-sm border-r text-gray-600" style={{ borderColor: '#E5E7EB', background: '#FAFAFA' }}>$</span>
-                      <input
-                        type="number"
-                        inputMode="decimal"
-                        value={sectionPricing[firstSection]?.material || ''}
-                        onChange={e => setSectionPricing(prev => ({ ...prev, [firstSection]: { ...(prev[firstSection] || { material: '', labor: '' }), material: e.target.value } }))}
-                        placeholder="5.00"
-                        className="flex-1 min-w-0 px-3 py-2 text-sm focus:outline-none bg-transparent text-gray-900"
-                      />
-                      <span className="px-2 py-2 text-[10px] font-medium border-l text-gray-400" style={{ borderColor: '#E5E7EB', background: '#FAFAFA' }}>MAT</span>
-                    </div>
-                    <div className="flex items-center rounded-md bg-white overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
-                      <span className="px-3 py-2 text-sm border-r text-gray-600" style={{ borderColor: '#E5E7EB', background: '#FAFAFA' }}>$</span>
-                      <input
-                        type="number"
-                        inputMode="decimal"
-                        value={sectionPricing[firstSection]?.labor || ''}
-                        onChange={e => setSectionPricing(prev => ({ ...prev, [firstSection]: { ...(prev[firstSection] || { material: '', labor: '' }), labor: e.target.value } }))}
-                        placeholder="3.00"
-                        className="flex-1 min-w-0 px-3 py-2 text-sm focus:outline-none bg-transparent text-gray-900"
-                      />
-                      <span className="px-2 py-2 text-[10px] font-medium border-l text-gray-400" style={{ borderColor: '#E5E7EB', background: '#FAFAFA' }}>LAB</span>
-                    </div>
-                  </div>
-                </div>
               </div>
             ) : (
               <div className="space-y-4">
@@ -1073,29 +1090,6 @@ export default function QuoteForm({
                             </optgroup>
                           </select>
 
-                          {/* Per-section pricing */}
-                          <div className="grid grid-cols-2 gap-2 mt-2">
-                            {(['material', 'labor'] as const).map(kind => (
-                              <div key={kind} className="flex items-center rounded-md bg-white overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
-                                <span className="px-2.5 py-2 text-sm border-r text-gray-600" style={{ borderColor: '#E5E7EB', background: '#FAFAFA' }}>$</span>
-                                <input
-                                  type="number"
-                                  inputMode="decimal"
-                                  value={sectionPricing[section]?.[kind] || ''}
-                                  onChange={e => setSectionPricing(prev => ({
-                                    ...prev,
-                                    [section]: { ...(prev[section] || { material: '', labor: '' }), [kind]: e.target.value }
-                                  }))}
-                                  placeholder={kind === 'material' ? '5.00' : '3.00'}
-                                  className="flex-1 min-w-0 px-2 py-2 text-sm focus:outline-none bg-transparent text-gray-900"
-                                />
-                                <span className="px-2 py-2 text-[10px] font-medium border-l whitespace-nowrap text-gray-400" style={{ borderColor: '#E5E7EB', background: '#FAFAFA' }}>
-                                  {kind === 'material' ? 'MAT' : 'LAB'}<br />
-                                  <span className="font-normal">/sqft</span>
-                                </span>
-                              </div>
-                            ))}
-                          </div>
                         </div>
 
                         {/* Room cards */}
@@ -1205,6 +1199,129 @@ export default function QuoteForm({
                     </div>
                   )}
                 </div>
+              </div>
+            )}
+          </Card>
+
+          {/* Pricing */}
+          <Card title="Pricing">
+            {/* Mode toggle — only meaningful for room-based measurements */}
+            {measurementType === 'rooms' && (
+              <div className="mb-5">
+                <label className="block text-xs font-medium text-gray-500 mb-1.5">Pricing method</label>
+                <div className="flex rounded-md p-1 gap-1 bg-gray-100">
+                  {(['section', 'room'] as const).map(mode => (
+                    <button
+                      key={mode}
+                      type="button"
+                      onClick={() => setPricingMode(mode)}
+                      className={`flex-1 py-1.5 text-sm font-medium rounded transition-all ${
+                        pricingMode === mode ? 'bg-white text-gray-900' : 'text-gray-500 hover:text-gray-700'
+                      }`}
+                      style={pricingMode === mode ? { boxShadow: '0 1px 2px rgba(0,0,0,0.04)' } : undefined}
+                    >
+                      {mode === 'section' ? 'Per section' : 'Per room'}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs mt-1.5 text-gray-400">
+                  {pricingMode === 'section'
+                    ? 'One material + labor rate applies to all rooms in a section.'
+                    : 'Each room gets its own material + labor rate.'}
+                </p>
+              </div>
+            )}
+
+            {/* Per-section rates */}
+            {(measurementType === 'manual' || pricingMode === 'section') && (
+              <div className="space-y-3">
+                {(measurementType === 'manual' ? [firstSection] : sections).map(sec => (
+                  <div key={sec}>
+                    {measurementType === 'rooms' && sections.length > 1 && (
+                      <p className="text-xs font-medium text-gray-500 mb-1.5">{sec}</p>
+                    )}
+                    <div className="grid grid-cols-2 gap-2">
+                      {(['material', 'labor'] as const).map(kind => (
+                        <div key={kind} className="flex items-center rounded-md bg-white overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
+                          <span className="px-2.5 py-2 text-sm border-r text-gray-600" style={{ borderColor: '#E5E7EB', background: '#FAFAFA' }}>$</span>
+                          <input
+                            type="number"
+                            inputMode="decimal"
+                            value={sectionPricing[sec]?.[kind] || ''}
+                            onChange={e => setSectionPricing(prev => ({
+                              ...prev,
+                              [sec]: { ...(prev[sec] || { material: '', labor: '' }), [kind]: e.target.value },
+                            }))}
+                            placeholder={kind === 'material' ? '5.00' : '3.00'}
+                            className="flex-1 min-w-0 px-2 py-2 text-sm focus:outline-none bg-transparent text-gray-900"
+                          />
+                          <span className="px-2 py-2 text-[10px] font-medium border-l whitespace-nowrap text-gray-400" style={{ borderColor: '#E5E7EB', background: '#FAFAFA' }}>
+                            {kind === 'material' ? 'MAT' : 'LAB'}<br />
+                            <span className="font-normal">/sqft</span>
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Per-room rates */}
+            {measurementType === 'rooms' && pricingMode === 'room' && (
+              <div className="space-y-4">
+                {sections.map(sec => {
+                  const secRooms = rooms.filter(r => r.section === sec && roomSqft(r) > 0)
+                  if (secRooms.length === 0) return null
+                  return (
+                    <div key={sec}>
+                      {sections.length > 1 && (
+                        <p className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">{sec}</p>
+                      )}
+                      <div className="space-y-2">
+                        {secRooms.map((room, idx) => {
+                          const sqft = roomSqft(room)
+                          const key = room.name.trim() || `__${rooms.indexOf(room)}`
+                          const rp = roomPricing[key]
+                          return (
+                            <div key={room.id} className="rounded-md p-3 bg-gray-50" style={{ border: '1px solid #F1F1F4' }}>
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-sm font-medium text-gray-800">
+                                  {room.name.trim() || `Room ${idx + 1}`}
+                                </span>
+                                {sqft > 0 && (
+                                  <span className="text-xs text-gray-400">{sqft.toFixed(1)} sqft</span>
+                                )}
+                              </div>
+                              <div className="grid grid-cols-2 gap-2">
+                                {(['material', 'labor'] as const).map(kind => (
+                                  <div key={kind} className="flex items-center rounded-md bg-white overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
+                                    <span className="px-2.5 py-2 text-sm border-r text-gray-600" style={{ borderColor: '#E5E7EB', background: '#FAFAFA' }}>$</span>
+                                    <input
+                                      type="number"
+                                      inputMode="decimal"
+                                      value={rp?.[kind] || ''}
+                                      onChange={e => setRoomRate(key, kind, e.target.value)}
+                                      placeholder={kind === 'material' ? '5.00' : '3.00'}
+                                      className="flex-1 min-w-0 px-2 py-2 text-sm focus:outline-none bg-transparent text-gray-900"
+                                    />
+                                    <span className="px-2 py-2 text-[10px] font-medium border-l whitespace-nowrap text-gray-400" style={{ borderColor: '#E5E7EB', background: '#FAFAFA' }}>
+                                      {kind === 'material' ? 'MAT' : 'LAB'}<br />
+                                      <span className="font-normal">/sqft</span>
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )
+                })}
+                {rooms.filter(r => roomSqft(r) > 0).length === 0 && (
+                  <p className="text-sm text-gray-400 text-center py-2">Add rooms with dimensions above to set per-room rates.</p>
+                )}
               </div>
             )}
           </Card>
