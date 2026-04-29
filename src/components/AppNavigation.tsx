@@ -97,7 +97,7 @@ export default function AppNavigation({
       {/* Brand */}
       <div style={{ padding: '18px 16px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
         <Image src="/logo.png" alt="FloorQuote Pro" width={30} height={30} style={{ borderRadius: 9, flexShrink: 0 }} />
-        <span style={{ fontSize: 15, fontWeight: 800, color: '#1d1d1f', letterSpacing: '-0.02em', flex: 1 }}>FloorQuote Pro</span>
+        <span style={{ fontSize: 14, fontWeight: 800, color: '#1d1d1f', letterSpacing: '-0.02em', flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>FloorQuote Pro</span>
         <button
           className="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg"
           style={{ color: '#6e6e73', background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0 }}
