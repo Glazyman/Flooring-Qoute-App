@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { CheckCircle } from 'lucide-react'
+import { Check } from 'lucide-react'
 
 export default function ApproveMeasurementButton({ quoteId, onApprove }: { quoteId: string; onApprove?: () => void }) {
   const router = useRouter()
@@ -28,7 +28,7 @@ export default function ApproveMeasurementButton({ quoteId, onApprove }: { quote
   if (done) {
     return (
       <span className="flex items-center gap-1.5 text-xs" style={{ color: '#10B981' }}>
-        <CheckCircle className="w-3.5 h-3.5" /> Approved
+        <Check className="w-3.5 h-3.5" /> Approved
       </span>
     )
   }
@@ -40,7 +40,7 @@ export default function ApproveMeasurementButton({ quoteId, onApprove }: { quote
       className="flex items-center gap-1.5 text-white text-sm font-medium px-3.5 py-2 rounded-md transition-colors disabled:opacity-60 whitespace-nowrap"
       style={{ background: 'var(--button-dark)' }}
     >
-      <CheckCircle className="w-3.5 h-3.5" />
+      <Check className="w-3.5 h-3.5" />
       {loading ? 'Approving…' : 'Approve'}
     </button>
   )
