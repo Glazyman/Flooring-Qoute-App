@@ -720,6 +720,53 @@ export default function QuoteForm({
     if (f !== customerPhone) setCustomerPhone(f)
   }
 
+  // ── Pre-fill rooms from Take-Off Calculator (sessionStorage) ──────────────
+  useEffect(() => {
+    if (isEditing || isDraftEdit) return
+    try {
+      const raw = sessionStorage.getItem('takeoff_rooms')
+      if (!raw) return
+      sessionStorage.removeItem('takeoff_rooms')
+      const imported: Array<{
+        name: string; section: string
+        lengthFt: number; lengthIn: number
+        widthFt: number; widthIn: number
+        sqft: number
+      }> = JSON.parse(raw)
+      if (!Array.isArray(imported) || imported.length === 0) return
+
+      const seenSections: string[] = []
+      const mapped: Room[] = imported.map(r => {
+        const sec = r.section?.trim() || firstSection
+        if (!seenSections.includes(sec)) seenSections.push(sec)
+        return {
+          id: crypto.randomUUID(),
+          name: r.name || '',
+          section: sec,
+          lengthFt: String(r.lengthFt || 0),
+          lengthIn: String(r.lengthIn || 0),
+          widthFt: String(r.widthFt || 0),
+          widthIn: String(r.widthIn || 0),
+        }
+      })
+
+      const newSections = seenSections.filter(s => !sections.includes(s))
+      if (newSections.length) {
+        setSections(prev => [...prev, ...newSections])
+        setSectionFlooring(prev => {
+          const next = { ...prev }
+          newSections.forEach(s => { if (!next[s]) next[s] = flooringType })
+          return next
+        })
+      }
+      setRooms(mapped)
+      setMeasurementType('rooms')
+    } catch {
+      // ignore malformed data
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   // ── Auto-draft: debounced save for new quotes and open drafts ──────────────
   useEffect(() => {
     if ((isEditing && !isDraftEdit) || isSubmittingRef.current) return

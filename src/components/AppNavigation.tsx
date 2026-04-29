@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import {
   LayoutDashboard, FileText, Settings,
-  LogOut, CreditCard, Menu, X, HelpCircle, Users, Receipt, Ruler, Plus, FileEdit,
+  LogOut, CreditCard, Menu, X, HelpCircle, Users, Receipt, Ruler, Plus, FileEdit, ScanLine,
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -20,6 +20,7 @@ const navItems: NavItem[] = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/quotes', label: 'Estimates', icon: FileText },
   { href: '/measurements', label: 'Measurements', icon: Ruler },
+  { href: '/take-off', label: 'Take-Off Calculator', icon: ScanLine },
   { href: '/invoices', label: 'Import', icon: Receipt },
   { href: '/contacts', label: 'Contacts', icon: Users },
 ]

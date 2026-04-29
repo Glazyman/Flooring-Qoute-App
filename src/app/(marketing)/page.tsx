@@ -11,8 +11,8 @@ const FEATURES = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z" />
       </svg>
     ),
-    title: 'Auto-calculated estimates',
-    desc: 'Material, labor, waste, markup, tax, and deposit — all computed live as you type. Zero math.',
+    title: 'Instant Take-Off Calculations',
+    desc: 'Enter your room dimensions and the app handles material quantities, waste factor, labor, markup, tax, and deposit automatically. No spreadsheets.',
   },
   {
     icon: (
@@ -20,8 +20,8 @@ const FEATURES = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
       </svg>
     ),
-    title: 'Branded PDF in one tap',
-    desc: 'Your logo, contact info, line-item breakdown, deposit terms, and validity date — download-ready instantly.',
+    title: 'Branded Estimate PDF',
+    desc: 'Your logo, license number, contact info, itemized pricing, deposit terms, and validity date. Email it or hand it to the homeowner on the spot.',
   },
   {
     icon: (
@@ -29,8 +29,8 @@ const FEATURES = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
       </svg>
     ),
-    title: 'Works on any phone',
-    desc: 'Built for the jobsite. Large tap targets, numeric keyboards, and full offline-friendly drafts.',
+    title: 'Built for the Jobsite',
+    desc: 'Pull it up on your phone while you walk the job. Large buttons, numeric keyboards, and auto-saved drafts so you never lose your work.',
   },
   {
     icon: (
@@ -38,8 +38,8 @@ const FEATURES = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
       </svg>
     ),
-    title: 'Multi-room & multi-section',
-    desc: 'Add unlimited rooms across sections — hardwood upstairs, LVT in the basement, tile in the kitchen. One quote.',
+    title: 'Multi-Area Projects',
+    desc: 'Price hardwood on the main floor, LVT in the basement, and tile in the kitchen all in one estimate. Each area gets its own material and labor rate.',
   },
   {
     icon: (
@@ -47,8 +47,8 @@ const FEATURES = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
       </svg>
     ),
-    title: 'Job scope checklist',
-    desc: 'Check off finish type, sanding system, removal, transitions, and installs — so nothing gets forgotten on the quote.',
+    title: 'Job Scope Checklist',
+    desc: 'Check off sand and finish, glue down, nail down, floating, removal, subfloor prep, and transitions so nothing is missed on the write-up.',
   },
   {
     icon: (
@@ -56,8 +56,8 @@ const FEATURES = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     ),
-    title: 'Every extra included',
-    desc: 'Stairs, quarter round, transitions, underlayment, disposal, furniture moving — each line-item priced and totalled.',
+    title: 'All the Add-Ons Priced In',
+    desc: 'Stairs, quarter round, reducers, transitions, underlayment, furniture moving, disposal fees. Every line item on the estimate so there are no surprises.',
   },
   {
     icon: (
@@ -65,8 +65,8 @@ const FEATURES = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
       </svg>
     ),
-    title: 'Pipeline dashboard',
-    desc: 'See all your measurements, pending estimates, accepted jobs, and total revenue at a glance.',
+    title: 'Track Your Pipeline',
+    desc: 'See every open measurement, pending estimate, and closed job on one dashboard. Know your revenue at a glance without digging through emails.',
   },
   {
     icon: (
@@ -74,8 +74,8 @@ const FEATURES = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
       </svg>
     ),
-    title: 'Duplicate any quote',
-    desc: 'Repeat customer? Similar job? Clone an existing estimate in one tap and adjust only what changed.',
+    title: 'Duplicate and Reuse',
+    desc: 'Same customer, similar house? Clone any past estimate in one tap, update the rooms, and send. Half the time on repeat jobs.',
   },
   {
     icon: (
@@ -83,16 +83,16 @@ const FEATURES = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
       </svg>
     ),
-    title: 'Your defaults, saved',
-    desc: 'Set your rates, markup, deposit %, and waste once — every new project starts pre-filled.',
+    title: 'Your Rates Always Ready',
+    desc: 'Set your material and labor rates by flooring type once. Every new project loads your numbers so you start estimating immediately.',
   },
 ]
 
 const PAIN_POINTS = [
-  { before: 'Scribbling numbers on a napkin', after: 'Structured digital quote in 2 min' },
-  { before: 'Forgot to add stairs or disposal', after: 'Every extra has its own line item' },
-  { before: 'Emailing a blurry spreadsheet', after: 'Clean branded PDF with your logo' },
-  { before: 'Losing track of which jobs you quoted', after: 'Dashboard shows your full pipeline' },
+  { before: 'Hand-writing numbers at the kitchen table after the walkthrough', after: 'Estimate finished before you leave the driveway' },
+  { before: 'Forgetting stairs, disposal, or quarter round on the write-up', after: 'Every add-on has its own line item so nothing gets missed' },
+  { before: 'Sending a rough number by text and hoping they remember it', after: 'Professional branded PDF in the homeowner\'s inbox in minutes' },
+  { before: 'Losing track of which jobs you measured and what you quoted', after: 'Full pipeline on one screen from measurement to closed job' },
 ]
 
 export default async function HomePage({
@@ -118,16 +118,16 @@ export default async function HomePage({
       <section className="max-w-5xl mx-auto px-5 pt-14 pb-12 sm:pt-20 sm:pb-16 text-center">
         <div className="inline-flex items-center gap-2 border border-gray-200 text-gray-500 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-6 sm:mb-8">
           <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--primary)' }} />
-          3 free quotes — no credit card needed
+          3 free quotes. No credit card needed.
         </div>
 
         <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-gray-900 leading-[1.08] tracking-tight mb-5 sm:mb-6">
-          Floor estimates.<br />
-          <span style={{ color: 'var(--primary)' }}>Done in 2 minutes.</span>
+          Flooring estimates.<br />
+          <span style={{ color: 'var(--primary)' }}>Done at the walkthrough.</span>
         </h1>
 
         <p className="text-base sm:text-xl text-gray-500 max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed">
-          FloorQuote Pro lets flooring contractors quote fast, look professional, and win more jobs — straight from your phone on the jobsite.
+          FloorQuote Pro is built for flooring contractors. Do your take-off, price the job, and hand the homeowner a professional estimate before you pull out of the driveway.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
@@ -148,7 +148,7 @@ export default async function HomePage({
             Sign In
           </Link>
         </div>
-        <p className="text-sm text-gray-400">No credit card · Cancel anytime</p>
+        <p className="text-sm text-gray-400">No credit card. Cancel anytime.</p>
       </section>
 
       {/* ── Live estimate mockup ── */}
@@ -160,7 +160,7 @@ export default async function HomePage({
               {[
                 { label: 'Customer', value: 'John Smith' },
                 { label: 'Address',  value: '274 Cornwall Rd' },
-                { label: 'Flooring', value: 'Hardwood · Red Oak' },
+                { label: 'Flooring', value: 'Hardwood, Red Oak' },
                 { label: 'Area',     value: '1,247 sqft (10% waste)' },
               ].map(({ label, value }) => (
                 <div key={label} className="bg-white rounded-2xl px-4 py-3 border border-gray-100 flex justify-between items-center gap-3">
@@ -210,17 +210,17 @@ export default async function HomePage({
                 Pro Feature
               </div>
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-[1.1] tracking-tight mb-5">
-                Snap a blueprint.<br />Get your measurements.
+                Snap the floor plan.<br />Skip the manual take-off.
               </h2>
               <p className="text-teal-100 text-base sm:text-lg leading-relaxed mb-8">
-                Walk into a job, take a photo of the floor plan, and our AI reads every room&apos;s dimensions automatically. No tape measure. No manual entry. No mistakes.
+                Walk the job, take a photo of the blueprint or floor plan, and the AI pulls every room dimension automatically. Your take-off is done before you finish the walkthrough.
               </p>
               <ul className="space-y-3 mb-8">
                 {[
-                  'Works on any phone camera',
-                  'Reads handwritten & printed plans',
-                  'Rooms populate instantly into your quote',
-                  'Review and edit before saving',
+                  'Works with any phone camera on site',
+                  'Reads builder blueprints and hand-drawn plans',
+                  'Room dimensions load straight into your estimate',
+                  'Review and adjust before saving',
                 ].map(item => (
                   <li key={item} className="flex items-center gap-3 text-white text-sm font-medium">
                     <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
@@ -307,7 +307,7 @@ export default async function HomePage({
       <section className="max-w-5xl mx-auto px-5 mb-16 sm:mb-24">
         <div className="text-center mb-10 sm:mb-14">
           <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--primary)' }}>Sound familiar?</p>
-          <h2 className="text-2xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">Stop quoting the old way</h2>
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">Stop leaving money on the table</h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           {PAIN_POINTS.map(({ before, after }) => (
@@ -337,13 +337,13 @@ export default async function HomePage({
       <section className="max-w-5xl mx-auto px-5 mb-16 sm:mb-24">
         <div className="text-center mb-10 sm:mb-14">
           <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--primary)' }}>How it works</p>
-          <h2 className="text-2xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">Three steps to a winning quote</h2>
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">From walkthrough to signed estimate in minutes</h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
-            { n: '1', title: 'Enter customer & measurements', desc: 'Add room dimensions by hand or upload a blueprint photo — AI reads it for you.' },
-            { n: '2', title: 'Set your pricing', desc: 'Material cost, labor, extras, tax, and markup are auto-calculated live as you type.' },
-            { n: '3', title: 'Download & send the PDF', desc: 'A branded estimate with your logo and deposit terms — ready in under 2 minutes.' },
+            { n: '1', title: 'Do your take-off on site', desc: 'Enter room dimensions by hand or snap a photo of the blueprint. The AI reads the floor plan and fills in every room for you.' },
+            { n: '2', title: 'Price the job your way', desc: 'Material, labor, waste, stairs, add-ons, markup, and tax all calculate live. Your saved rates load automatically on every new job.' },
+            { n: '3', title: 'Send a professional estimate', desc: 'Download a branded PDF with your logo, itemized pricing, and deposit terms. Email it or show it on your phone right there.' },
           ].map(({ n, title, desc }) => (
             <div key={n} className="bg-white rounded-2xl sm:rounded-xl border border-gray-100 p-5 sm:p-6 flex gap-4 sm:block" style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
               <div className="w-10 h-10 rounded-2xl flex-shrink-0 flex items-center justify-center text-white font-extrabold text-base sm:mb-5" style={{ background: 'var(--primary)' }}>
@@ -362,8 +362,8 @@ export default async function HomePage({
       <section className="max-w-5xl mx-auto px-5 mb-16 sm:mb-24">
         <div className="text-center mb-10 sm:mb-14">
           <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--primary)' }}>Features</p>
-          <h2 className="text-2xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">Everything a flooring pro needs</h2>
-          <p className="text-base sm:text-lg text-gray-400 mt-3 max-w-xl mx-auto">No complicated software. No training. Just fast, accurate quotes.</p>
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">Everything a flooring contractor needs</h2>
+          <p className="text-base sm:text-lg text-gray-400 mt-3 max-w-xl mx-auto">No complicated software. No training required. Just fast, accurate flooring estimates.</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {FEATURES.map(({ icon, title, desc }) => (
@@ -386,7 +386,7 @@ export default async function HomePage({
           <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--primary)' }}>The finished product</p>
           <h2 className="text-2xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">What your client receives</h2>
           <p className="text-base sm:text-lg text-gray-400 mt-3 max-w-xl mx-auto">
-            A branded, itemized PDF — ready to email or print on the spot.
+            A branded, itemized estimate PDF ready to email or hand over on the spot.
           </p>
         </div>
 
@@ -416,7 +416,7 @@ export default async function HomePage({
                 <div style={{ width: 48, height: 48, borderRadius: 8, background: 'var(--primary)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 800, fontSize: 14 }}>FP</div>
                 <div>
                   <p style={{ fontWeight: 700, color: '#0f172a', fontSize: 13, margin: '0 0 2px' }}>Premier Flooring Solutions</p>
-                  <p style={{ color: '#64748b', fontSize: 10, margin: '0 0 1px' }}>123 Trade Street, Suite 4 · Chicago, IL 60601</p>
+                  <p style={{ color: '#64748b', fontSize: 10, margin: '0 0 1px' }}>123 Trade Street, Suite 4, Chicago, IL 60601</p>
                   <p style={{ color: '#64748b', fontSize: 10, margin: '0 0 1px' }}><b style={{ color: '#334155' }}>Office:</b> (312) 555-0182</p>
                   <p style={{ color: '#64748b', fontSize: 10, margin: 0 }}><b style={{ color: '#334155' }}>Email:</b> info@premierfloors.com</p>
                 </div>
@@ -437,7 +437,7 @@ export default async function HomePage({
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, padding: '12px 24px' }}>
               {[
                 { title: 'Client Information:', rows: [['Name:', 'John & Sarah Williams'], ['Address:', '274 Cornwall Rd, Naperville IL'], ['Phone:', '(630) 555-0194'], ['Email:', 'jwilliams@email.com']] },
-                { title: 'Project Details:', rows: [['Flooring:', 'Hardwood + LVT/Vinyl'], ['Main Floor:', '981 sqft · Hardwood'], ['Basement:', '451 sqft · LVT'], ['Color/Style:', 'Natural Oak, Matte']] },
+                { title: 'Project Details:', rows: [['Flooring:', 'Hardwood and LVT/Vinyl'], ['Main Floor:', '981 sqft Hardwood'], ['Basement:', '451 sqft LVT'], ['Color/Style:', 'Natural Oak, Matte']] },
               ].map(({ title, rows }) => (
                 <div key={title} style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '10px 12px' }}>
                   <p style={{ fontWeight: 700, fontSize: 11, color: '#0f172a', margin: '0 0 6px' }}>{title}</p>
@@ -547,7 +547,7 @@ export default async function HomePage({
             </div>
             <div>
               <p className="text-xs font-bold text-gray-900">Download PDF</p>
-              <p className="text-[10px] text-gray-400">One tap · Instant</p>
+              <p className="text-[10px] text-gray-400">One tap. Instant.</p>
             </div>
           </div>
         </div>
@@ -562,9 +562,9 @@ export default async function HomePage({
           <div className="flex justify-center mb-6">
             <Image src="/logo.png" alt="FloorQuote Pro" width={60} height={60} className="rounded-2xl shadow-lg" />
           </div>
-          <h2 className="text-2xl sm:text-4xl font-extrabold text-gray-900 tracking-tight mb-3">Ready to quote faster?</h2>
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-gray-900 tracking-tight mb-3">Start estimating like a pro</h2>
           <p className="text-base sm:text-lg text-gray-500 mb-8 max-w-lg mx-auto">
-            Join flooring contractors already using FloorQuote Pro to close more jobs and spend less time on paperwork.
+            Flooring contractors use FloorQuote Pro to finish their take-offs faster, send better-looking estimates, and close more jobs.
           </p>
           <Link
             href="/signup"
@@ -576,7 +576,7 @@ export default async function HomePage({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
           </Link>
-          <p className="text-sm text-gray-400 mt-4">No credit card · 3 free quotes to start</p>
+          <p className="text-sm text-gray-400 mt-4">No credit card. 3 free estimates to start.</p>
         </div>
       </section>
 
