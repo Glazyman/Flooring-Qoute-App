@@ -1901,20 +1901,6 @@ export default function QuoteDetailCard({
               textStyle={{ whiteSpace: 'pre-wrap', lineHeight: '1.7', fontSize: 13, color: '#334155' }}
             />
           </div>
-          <div className="mb-1 pl-2.5" style={{ borderLeft: '3px solid #e2e8f0' }}>
-            <p className="mb-1" style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#94a3b8' }}>Qualifications</p>
-            <EditableField
-              fieldKey="qualifications"
-              value={qualifications}
-              editing={editing}
-              saved={saved}
-              onEdit={onEdit}
-              onSave={handleSave}
-              multiline
-              placeholder={`Add qualifications (e.g. Price is valid for ${validDays || 30} days from date of proposal…)`}
-              textStyle={{ whiteSpace: 'pre-wrap', lineHeight: '1.7', fontSize: 13, color: '#334155' }}
-            />
-          </div>
         </div>
       )}
 
