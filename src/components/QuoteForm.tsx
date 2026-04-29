@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback, useMemo } from 'react'
+import { useState, useRef, useCallback, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { calculateQuote, fmt, type QuoteExtras } from '@/lib/calculations'
 import type { CompanySettings, FlooringType, MeasurementType } from '@/lib/types'
@@ -364,6 +364,55 @@ export default function QuoteForm({
       return next
     })
   }
+
+  // Auto-sync: room names → "Rooms involved" checkboxes (additive only — never removes manual ticks)
+  const ROOM_KEYWORD_MAP: Array<{ re: RegExp; key: string }> = [
+    { re: /kitchen/i, key: 'kitchen' },
+    { re: /foyer|entry|entrance/i, key: 'foyer' },
+    { re: /mud[\s-]?room|mudroom/i, key: 'mud_room' },
+    { re: /stair/i, key: 'stairs' },
+    { re: /basement|concrete/i, key: 'basement_concrete' },
+  ]
+  useEffect(() => {
+    const detected = new Set<string>()
+    rooms.forEach(r => {
+      ROOM_KEYWORD_MAP.forEach(({ re, key }) => { if (re.test(r.name)) detected.add(key) })
+    })
+    if (detected.size === 0) return
+    setJobOptions(prev => {
+      const next = { ...prev }
+      detected.forEach(k => { next[k] = true })
+      return next
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rooms])
+
+  // Auto-sync: primary flooring type → wood-type checkbox (replaces previous auto-set key)
+  const FLOORING_TO_WOOD: Partial<Record<FlooringType, string>> = {
+    unfinished: 'unfinished',
+    prefinished: 'pre_finished',
+    engineered: 'engineered_unfinished',
+    prefinished_engineered: 'engineered_finished',
+    unfinished_engineered: 'engineered_unfinished',
+    vinyl: 'lvt',
+  }
+  const prevAutoWoodKey = useRef<string | null>(null)
+  useEffect(() => {
+    const primaryType = sectionFlooring[firstSection]
+    const newKey = FLOORING_TO_WOOD[primaryType] ?? null
+    if (newKey === prevAutoWoodKey.current) return
+    setJobOptions(prev => {
+      const next = { ...prev }
+      // Remove the previously auto-set key (only if user hasn't changed it)
+      if (prevAutoWoodKey.current && next[prevAutoWoodKey.current] === true) {
+        delete next[prevAutoWoodKey.current]
+      }
+      if (newKey) next[newKey] = true
+      prevAutoWoodKey.current = newKey
+      return next
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [firstSection, sectionFlooring])
 
   // Default tax behavior:
   // - if editing and quote already has tax_enabled => keep
@@ -823,6 +872,47 @@ export default function QuoteForm({
   const totalLabel = `${fmt(calcs.final_total)} • Material+Labor`
   const expirationLabel = formatExpiration(n(validDays) || 0)
 
+  // Reusable checklist block (wood type, finish, sheen, sanding, install, rooms, trim, removals, plank width)
+  const specGroups = JOB_OPTION_GROUPS.filter(g => g.id !== 'scope')
+  const jobSpecChecklist = (
+    <div className="mt-4 pt-4 space-y-4" style={{ borderTop: '1px solid #F1F1F4' }}>
+      {specGroups.map(group => (
+        <div key={group.id}>
+          <div className="flex items-baseline gap-2 mb-2">
+            <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">{group.label}</span>
+            {group.description && <p className="text-xs text-gray-400">{group.description}</p>}
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2">
+            {group.options.map(opt => {
+              const checked = jobOptions[opt.key] === true
+              return (
+                <label key={opt.key} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer select-none hover:text-gray-900 transition-colors">
+                  <input
+                    type={group.exclusive ? 'radio' : 'checkbox'}
+                    name={group.exclusive ? `job-opt-${group.id}` : undefined}
+                    checked={checked}
+                    onChange={() => group.exclusive ? setExclusiveJobOption(group.id, opt.key) : toggleJobOption(opt.key)}
+                    className="w-4 h-4 cursor-pointer flex-shrink-0"
+                    style={{ accentColor: 'var(--primary)' }}
+                  />
+                  <span>{opt.label}</span>
+                </label>
+              )
+            })}
+          </div>
+        </div>
+      ))}
+      <div className="pt-2" style={{ borderTop: '1px solid #F1F1F4' }}>
+        <Input
+          label="Plank width"
+          value={(jobOptions.width as string | undefined) ?? ''}
+          onChange={(v) => setJobOptionValue('width', v)}
+          placeholder='e.g. 5"'
+        />
+      </div>
+    </div>
+  )
+
   return (
     <form onSubmit={(e) => handleSubmit(e, isEditing ? 'update' : 'measurement')} className="space-y-5 pb-24 lg:pb-0">
       {error && (
@@ -981,6 +1071,7 @@ export default function QuoteForm({
                     </optgroup>
                   </select>
                 </div>
+                {jobSpecChecklist}
               </div>
             ) : (
               <div className="space-y-4">
@@ -1229,50 +1320,9 @@ export default function QuoteForm({
                     </div>
                   )}
                 </div>
+                {jobSpecChecklist}
               </div>
             )}
-
-            {/* Job specification details — wood, finish, install method, trim, etc. */}
-            <div className="mt-5 pt-5 space-y-4" style={{ borderTop: '1px solid #F1F1F4' }}>
-              {JOB_OPTION_GROUPS.filter(g => g.id !== 'scope').map(group => (
-                <div key={group.id}>
-                  <div className="flex items-baseline gap-2 mb-2">
-                    <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">{group.label}</span>
-                    {group.description && <p className="text-xs text-gray-400">{group.description}</p>}
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2">
-                    {group.options.map(opt => {
-                      const checked = jobOptions[opt.key] === true
-                      return (
-                        <label key={opt.key} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer select-none hover:text-gray-900 transition-colors">
-                          <input
-                            type={group.exclusive ? 'radio' : 'checkbox'}
-                            name={group.exclusive ? `job-opt-${group.id}` : undefined}
-                            checked={checked}
-                            onChange={() =>
-                              group.exclusive
-                                ? setExclusiveJobOption(group.id, opt.key)
-                                : toggleJobOption(opt.key)
-                            }
-                            className="w-4 h-4 cursor-pointer flex-shrink-0"
-                            style={{ accentColor: 'var(--primary)' }}
-                          />
-                          <span>{opt.label}</span>
-                        </label>
-                      )
-                    })}
-                  </div>
-                </div>
-              ))}
-              <div className="pt-2" style={{ borderTop: '1px solid #F1F1F4' }}>
-                <Input
-                  label="Plank width"
-                  value={(jobOptions.width as string | undefined) ?? ''}
-                  onChange={(v) => setJobOptionValue('width', v)}
-                  placeholder='e.g. 5"'
-                />
-              </div>
-            </div>
           </Card>
 
           {/* Pricing */}
@@ -1442,48 +1492,6 @@ export default function QuoteForm({
                 Charged as a flat total. To bill per step, divide and enter total here — or enter # of stairs and the per-step rate to auto-compute.
               </p>
             </div>
-
-            {/* Hardwood-specific fields */}
-            {showFinishFields && (
-              <div className="mt-4 pt-4 grid grid-cols-2 gap-3" style={{ borderTop: '1px solid #F1F1F4' }}>
-                <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Finish type</label>
-                  <select
-                    value={finishType}
-                    onChange={(e) => setFinishType(e.target.value)}
-                    className="w-full px-3 py-2 rounded-md text-sm bg-white focus:outline-none text-gray-900"
-                    style={{ border: '1px solid #E5E7EB' }}
-                  >
-                    <option value="">Select finish…</option>
-                    <option>Waterbase</option>
-                    <option>Oil-based Poly</option>
-                    <option>High Gloss</option>
-                    <option>Semi Gloss</option>
-                    <option>Satin</option>
-                    <option>Screen Coat</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Wood species</label>
-                  <select
-                    value={woodSpecies}
-                    onChange={(e) => setWoodSpecies(e.target.value)}
-                    className="w-full px-3 py-2 rounded-md text-sm bg-white focus:outline-none text-gray-900"
-                    style={{ border: '1px solid #E5E7EB' }}
-                  >
-                    <option value="">Select species…</option>
-                    <option>Red Oak</option>
-                    <option>White Oak</option>
-                    <option>Maple</option>
-                    <option>Hickory</option>
-                    <option>Pine</option>
-                    <option>Cherry</option>
-                    <option>Walnut</option>
-                    <option>Other</option>
-                  </select>
-                </div>
-              </div>
-            )}
 
             {/* Material description */}
             <div className="mt-4 pt-4" style={{ borderTop: '1px solid #F1F1F4' }}>
