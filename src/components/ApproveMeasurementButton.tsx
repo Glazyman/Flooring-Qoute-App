@@ -9,7 +9,9 @@ export default function ApproveMeasurementButton({ quoteId, onApprove }: { quote
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
 
-  async function handleApprove() {
+  async function handleApprove(e: React.MouseEvent) {
+    e.preventDefault()
+    e.stopPropagation()
     setLoading(true)
     await fetch(`/api/quotes/${quoteId}/status`, {
       method: 'PATCH',

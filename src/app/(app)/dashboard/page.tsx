@@ -184,9 +184,7 @@ export default async function DashboardPage() {
                         {[typeLabel, sqft, date].filter(Boolean).join(' · ')}
                       </p>
                     </div>
-                    <div onClick={e => e.preventDefault()}>
-                      <ApproveMeasurementButton quoteId={m.id} />
-                    </div>
+                    <ApproveMeasurementButton quoteId={m.id} />
                   </Link>
                 )
               })}
