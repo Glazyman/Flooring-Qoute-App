@@ -352,6 +352,7 @@ export default function QuoteDetailCard({
   const [customFeeLabel, setCustomFeeLabel] = useState(q.custom_fee_label ?? '')
 
   // Fixed fee description overrides (local only — no persistence)
+  const [laborDesc, setLaborDesc] = useState('Labor / installation')
   const [removalFeeDesc, setRemovalFeeDesc] = useState('Removal of existing flooring')
   const [furnitureFeeDesc, setFurnitureFeeDesc] = useState('Furniture moving')
   const [stairsFeeDesc, setStairsFeeDesc] = useState(stairCount ? `Stairs (${stairCount})` : 'Stairs')
@@ -1223,7 +1224,15 @@ export default function QuoteDetailCard({
                 >
                   <span className="pr-3 flex items-center">
                     <RowCheckbox rowKey="row-labor" />
-                    Labor / installation
+                    <EditableCell
+                      fieldKey="labor_desc"
+                      value={laborDesc}
+                      editing={editing}
+                      saved={saved}
+                      onEdit={onEdit}
+                      onSave={(key, val) => handleLocalDescSave(setLaborDesc, key, val)}
+                      align="left"
+                    />
                   </span>
                   <span className="text-right tabular-nums">{fmtQty(adjustedSqft)}</span>
                   <span className="text-right tabular-nums">SF</span>
