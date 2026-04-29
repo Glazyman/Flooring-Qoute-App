@@ -3,10 +3,10 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { fmt } from '@/lib/calculations'
-import { flooringTypeLabel } from '@/lib/flooringLabels'
+import { flooringTypeLabel, FLOORING_LABEL } from '@/lib/flooringLabels'
 import type { Quote, QuoteStatus } from '@/lib/types'
 import {
-  Search, X, Plus, SlidersHorizontal, ArrowUpDown, MoreHorizontal,
+  Search, X, SlidersHorizontal, ArrowUpDown, MoreHorizontal,
   Calendar, ChevronLeft, ChevronRight, Trash2, Check,
 } from 'lucide-react'
 
@@ -35,6 +35,17 @@ const ICON_BTN_BASE =
 const ICON_BTN_ACTIVE =
   'w-8 h-8 flex items-center justify-center rounded-md transition-colors flex-shrink-0 bg-gray-200 text-gray-900'
 
+// Flooring type options shown in the filter (exclude legacy 'hardwood')
+const FLOORING_FILTER_OPTIONS = Object.entries(FLOORING_LABEL).filter(([k]) => k !== 'hardwood')
+
+// Date preset helpers
+const DATE_PRESETS = [
+  { label: 'Today',      days: 0 },
+  { label: 'Last 7 days', days: 7 },
+  { label: 'Last 30 days', days: 30 },
+  { label: 'Last 90 days', days: 90 },
+]
+
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
@@ -49,11 +60,40 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
   // Filter state
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
+  const [typeFilters, setTypeFilters] = useState<Set<string>>(new Set())
+  const [dateDays, setDateDays] = useState<number | null>(null)
+  const [minArea, setMinArea] = useState('')
+  const [maxArea, setMaxArea] = useState('')
+  const [minTotal, setMinTotal] = useState('')
+  const [maxTotal, setMaxTotal] = useState('')
   const [showFilterMenu, setShowFilterMenu] = useState(false)
   const filterBtnRef = useRef<HTMLDivElement>(null)
 
   // Sort state
   const [sortNewest, setSortNewest] = useState(true)
+
+  const activeFilterCount = (statusFilter !== 'all' ? 1 : 0) +
+    (typeFilters.size > 0 ? 1 : 0) +
+    (dateDays !== null ? 1 : 0) +
+    (minArea || maxArea ? 1 : 0) +
+    (minTotal || maxTotal ? 1 : 0)
+
+  function clearAllFilters() {
+    setStatusFilter('all')
+    setTypeFilters(new Set())
+    setDateDays(null)
+    setMinArea(''); setMaxArea('')
+    setMinTotal(''); setMaxTotal('')
+  }
+
+  function toggleTypeFilter(type: string) {
+    setTypeFilters(prev => {
+      const next = new Set(prev)
+      if (next.has(type)) next.delete(type)
+      else next.add(type)
+      return next
+    })
+  }
 
   // Bulk select state — checkboxes are persistent
   const [selected, setSelected] = useState<Set<string>>(new Set())
@@ -159,18 +199,49 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
+    const now = Date.now()
     return localQuotes.filter(quote => {
+      // Status
       if (statusFilter !== 'all' && quote.status !== statusFilter) return false
-      if (!q) return true
-      const label = flooringTypeLabel(quote.flooring_type, quote.section_flooring_types).toLowerCase()
-      return (
-        quote.customer_name.toLowerCase().includes(q) ||
-        (quote.job_address || '').toLowerCase().includes(q) ||
-        label.includes(q) ||
-        (quote.flooring_type || '').toLowerCase().includes(q)
-      )
+      // Flooring type
+      if (typeFilters.size > 0) {
+        const types = quote.section_flooring_types
+          ? Object.values(quote.section_flooring_types)
+          : [quote.flooring_type]
+        const match = types.some(t => typeFilters.has(t))
+        if (!match) return false
+      }
+      // Date
+      if (dateDays !== null) {
+        const created = new Date(quote.created_at).getTime()
+        const cutoff = now - dateDays * 24 * 60 * 60 * 1000
+        if (dateDays === 0) {
+          // Today only
+          const today = new Date().toDateString()
+          if (new Date(quote.created_at).toDateString() !== today) return false
+        } else if (created < cutoff) return false
+      }
+      // Area
+      const area = quote.adjusted_sqft ?? 0
+      if (minArea && area < parseFloat(minArea)) return false
+      if (maxArea && area > parseFloat(maxArea)) return false
+      // Total
+      const total = quote.final_total ?? 0
+      if (minTotal && total < parseFloat(minTotal)) return false
+      if (maxTotal && total > parseFloat(maxTotal)) return false
+      // Search text
+      if (q) {
+        const label = flooringTypeLabel(quote.flooring_type, quote.section_flooring_types).toLowerCase()
+        return (
+          quote.customer_name.toLowerCase().includes(q) ||
+          (quote.job_address || '').toLowerCase().includes(q) ||
+          label.includes(q) ||
+          (quote.flooring_type || '').toLowerCase().includes(q)
+        )
+      }
+      return true
     })
-  }, [localQuotes, search, statusFilter])
+  }, [localQuotes, search, statusFilter, typeFilters, dateDays, minArea, maxArea, minTotal, maxTotal])
 
   const sorted = useMemo(() => {
     return [...filtered].sort((a, b) => {
@@ -184,7 +255,7 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
   useEffect(() => {
     if (page > totalPages) setPage(1)
   }, [page, totalPages])
-  useEffect(() => { setPage(1) }, [search, statusFilter, sortNewest])
+  useEffect(() => { setPage(1) }, [search, statusFilter, typeFilters, dateDays, minArea, maxArea, minTotal, maxTotal, sortNewest])
 
   const paginated = useMemo(
     () => sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
@@ -299,31 +370,159 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
             <div className="relative" ref={filterBtnRef}>
               <button
                 onClick={() => setShowFilterMenu(v => !v)}
-                className={statusFilter !== 'all' ? ICON_BTN_ACTIVE : ICON_BTN_BASE}
+                className={activeFilterCount > 0 ? ICON_BTN_ACTIVE : ICON_BTN_BASE}
                 title="Filter quotes"
                 aria-label="Filter"
               >
                 <SlidersHorizontal className="w-4 h-4" />
+                {activeFilterCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center text-white" style={{ background: '#1d1d1f' }}>
+                    {activeFilterCount}
+                  </span>
+                )}
               </button>
               {showFilterMenu && (
                 <div
-                  className="absolute left-0 top-10 z-20 bg-white rounded-xl py-1 min-w-[160px]"
+                  className="absolute left-0 top-10 z-20 bg-white rounded-xl w-72"
                   style={{ border: '1px solid #E5E7EB', boxShadow: 'var(--shadow-popover)' }}
                 >
-                  {(['all', 'pending', 'accepted', 'lost'] as StatusFilter[]).map(fm => (
+                  {/* Header */}
+                  <div className="flex items-center justify-between px-4 py-2.5" style={{ borderBottom: '1px solid #F1F1F4' }}>
+                    <span className="text-xs font-semibold text-gray-700">Filters</span>
+                    {activeFilterCount > 0 && (
+                      <button onClick={clearAllFilters} className="text-xs text-gray-400 hover:text-gray-700 transition-colors">Clear all</button>
+                    )}
+                  </div>
+
+                  <div className="p-3 space-y-4">
+                    {/* Status */}
+                    <div>
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400 mb-1.5">Status</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {(['all', 'pending', 'accepted', 'lost'] as StatusFilter[]).map(fm => (
+                          <button
+                            key={fm}
+                            onClick={() => setStatusFilter(fm)}
+                            className="text-xs px-2.5 py-1 rounded-full border transition-colors capitalize"
+                            style={{
+                              background: statusFilter === fm ? '#1d1d1f' : 'white',
+                              color: statusFilter === fm ? 'white' : '#374151',
+                              borderColor: statusFilter === fm ? '#1d1d1f' : '#E5E7EB',
+                            }}
+                          >
+                            {fm === 'all' ? 'All' : fm}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Flooring type */}
+                    <div>
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400 mb-1.5">Flooring type</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {FLOORING_FILTER_OPTIONS.map(([key, label]) => (
+                          <button
+                            key={key}
+                            onClick={() => toggleTypeFilter(key)}
+                            className="text-xs px-2.5 py-1 rounded-full border transition-colors"
+                            style={{
+                              background: typeFilters.has(key) ? '#1d1d1f' : 'white',
+                              color: typeFilters.has(key) ? 'white' : '#374151',
+                              borderColor: typeFilters.has(key) ? '#1d1d1f' : '#E5E7EB',
+                            }}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Date */}
+                    <div>
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400 mb-1.5">Date created</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {DATE_PRESETS.map(p => (
+                          <button
+                            key={p.days}
+                            onClick={() => setDateDays(dateDays === p.days ? null : p.days)}
+                            className="text-xs px-2.5 py-1 rounded-full border transition-colors"
+                            style={{
+                              background: dateDays === p.days ? '#1d1d1f' : 'white',
+                              color: dateDays === p.days ? 'white' : '#374151',
+                              borderColor: dateDays === p.days ? '#1d1d1f' : '#E5E7EB',
+                            }}
+                          >
+                            {p.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Area */}
+                    <div>
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400 mb-1.5">Area (sqft)</p>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          placeholder="Min"
+                          value={minArea}
+                          onChange={e => setMinArea(e.target.value)}
+                          className="w-full px-2.5 py-1.5 text-sm rounded-md focus:outline-none text-gray-800"
+                          style={{ border: '1px solid #E5E7EB' }}
+                        />
+                        <span className="text-gray-400 text-xs flex-shrink-0">–</span>
+                        <input
+                          type="number"
+                          placeholder="Max"
+                          value={maxArea}
+                          onChange={e => setMaxArea(e.target.value)}
+                          className="w-full px-2.5 py-1.5 text-sm rounded-md focus:outline-none text-gray-800"
+                          style={{ border: '1px solid #E5E7EB' }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Total */}
+                    <div>
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400 mb-1.5">Total ($)</p>
+                      <div className="flex items-center gap-2">
+                        <div className="relative flex-1">
+                          <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-gray-400">$</span>
+                          <input
+                            type="number"
+                            placeholder="Min"
+                            value={minTotal}
+                            onChange={e => setMinTotal(e.target.value)}
+                            className="w-full pl-6 pr-2.5 py-1.5 text-sm rounded-md focus:outline-none text-gray-800"
+                            style={{ border: '1px solid #E5E7EB' }}
+                          />
+                        </div>
+                        <span className="text-gray-400 text-xs flex-shrink-0">–</span>
+                        <div className="relative flex-1">
+                          <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-gray-400">$</span>
+                          <input
+                            type="number"
+                            placeholder="Max"
+                            value={maxTotal}
+                            onChange={e => setMaxTotal(e.target.value)}
+                            className="w-full pl-6 pr-2.5 py-1.5 text-sm rounded-md focus:outline-none text-gray-800"
+                            style={{ border: '1px solid #E5E7EB' }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Footer */}
+                  <div className="px-3 pb-3">
                     <button
-                      key={fm}
-                      onClick={() => { setStatusFilter(fm); setShowFilterMenu(false) }}
-                      className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors flex items-center gap-2 capitalize"
-                      style={{ color: statusFilter === fm ? '#111827' : '#374151', fontWeight: statusFilter === fm ? 600 : 400 }}
+                      onClick={() => setShowFilterMenu(false)}
+                      className="w-full text-sm font-medium py-2 rounded-md text-white transition-colors"
+                      style={{ background: '#1d1d1f' }}
                     >
-                      {statusFilter === fm
-                        ? <Check className="w-3.5 h-3.5 flex-shrink-0" />
-                        : <span className="w-3.5 h-3.5 flex-shrink-0" />
-                      }
-                      {fm === 'all' ? 'All quotes' : fm}
+                      Apply
                     </button>
-                  ))}
+                  </div>
                 </div>
               )}
             </div>
