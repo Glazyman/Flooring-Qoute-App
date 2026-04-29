@@ -86,6 +86,12 @@ h1, h2, h3, h4 {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 10px; }
 
+/* Topbar New Quote hover */
+.topbar-new-quote:hover { opacity: 0.82; }
+
+/* Dashboard recent quote row hover */
+.dashboard-recent-row:hover { background: #f9f9fb !important; }
+
 .safe-bottom {
   padding-bottom: max(1rem, env(safe-area-inset-bottom));
 }

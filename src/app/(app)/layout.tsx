@@ -177,15 +177,15 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           {/* New Quote pill — right */}
           <Link
             href="/quotes/new"
+            className="topbar-new-quote"
             style={{
               display: 'inline-flex', alignItems: 'center', gap: 5,
               background: '#1d1d1f', color: 'white',
               borderRadius: 100, padding: '7px 16px',
               fontSize: 13, fontWeight: 600, textDecoration: 'none',
               boxShadow: '0 1px 4px rgba(0,0,0,0.12)',
+              transition: 'opacity 0.15s',
             }}
-            onMouseEnter={e => (e.currentTarget as HTMLElement).style.opacity = '0.82'}
-            onMouseLeave={e => (e.currentTarget as HTMLElement).style.opacity = '1'}
           >
             <Plus size={13} strokeWidth={2.5} color="white" />
             New Quote

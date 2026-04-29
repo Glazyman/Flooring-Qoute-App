@@ -138,13 +138,12 @@ export default async function DashboardPage() {
                 <Link
                   key={q.id}
                   href={`/quotes/${q.id}`}
+                  className="dashboard-recent-row"
                   style={{
                     display: 'flex', alignItems: 'center', gap: 12,
                     padding: '12px 20px', borderBottom: '1px solid rgba(0,0,0,0.04)',
                     textDecoration: 'none', transition: 'background 0.12s',
                   }}
-                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#f9f9fb'}
-                  onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
                 >
                   <div
                     style={{
