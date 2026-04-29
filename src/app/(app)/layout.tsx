@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Search, Plus } from 'lucide-react'
+import { Search, Plus, Upload } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import AppNavigation from '@/components/AppNavigation'
 import TrialBanner from '@/components/TrialBanner'
@@ -174,7 +174,23 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             />
           </div>
 
-          {/* New Quote pill — right */}
+          {/* Import pill */}
+          <Link
+            href="/invoices"
+            className="topbar-import"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              background: 'rgba(0,0,0,0.05)', color: '#1d1d1f',
+              borderRadius: 100, padding: '7px 16px',
+              fontSize: 13, fontWeight: 500, textDecoration: 'none',
+              transition: 'background 0.12s',
+            }}
+          >
+            <Upload size={13} strokeWidth={2} color="#1d1d1f" />
+            Import
+          </Link>
+
+          {/* New Quote pill */}
           <Link
             href="/quotes/new"
             className="topbar-new-quote"

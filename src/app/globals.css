@@ -86,8 +86,9 @@ h1, h2, h3, h4 {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 10px; }
 
-/* Topbar New Quote hover */
+/* Topbar pill hovers */
 .topbar-new-quote:hover { opacity: 0.82; }
+.topbar-import:hover { background: rgba(0,0,0,0.08) !important; }
 
 /* Dashboard recent quote row hover */
 .dashboard-recent-row:hover { background: #f9f9fb !important; }
