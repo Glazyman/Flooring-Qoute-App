@@ -119,64 +119,36 @@ const styles = StyleSheet.create({
   box: {
     flex: 1,
     borderWidth: 1,
-    borderColor: FRAME_BORDER_COLOR,
-    borderRadius: 4,
+    borderColor: '#e2e8f0',
+    borderRadius: 8,
+    padding: 12,
   },
-  boxHeader: {
-    backgroundColor: BAND_BG,
-    paddingVertical: 5,
-    paddingHorizontal: 8,
-    borderTopLeftRadius: 4,
-    borderTopRightRadius: 4,
-  },
-  boxHeaderText: {
+  boxTitle: {
     fontFamily: 'Helvetica-Bold',
-    fontSize: 9.5,
-    color: BAND_TEXT,
-  },
-  boxBody: {
-    padding: 8,
-    minHeight: 50,
-  },
-  boxBodyText: {
-    fontSize: 9.5,
+    fontSize: 11,
     color: BODY_COLOR,
-    marginBottom: 2,
-    lineHeight: 1.35,
+    marginBottom: 6,
   },
   boxFieldRow: {
     flexDirection: 'row',
-    marginBottom: 2,
+    marginBottom: 3,
   },
-  boxFieldLabelSm: {
+  boxFieldLabel: {
     fontSize: 8.5,
     fontFamily: 'Helvetica-Bold',
-    color: MUTED_COLOR,
-    width: 45,
-    flexShrink: 0,
-  },
-  boxFieldLabelLg: {
-    fontSize: 8.5,
-    fontFamily: 'Helvetica-Bold',
-    color: MUTED_COLOR,
+    color: BODY_COLOR,
     width: 70,
     flexShrink: 0,
   },
   boxFieldValue: {
     fontSize: 8.5,
-    color: BODY_COLOR,
+    color: '#334155',
     flex: 1,
     flexShrink: 1,
   },
-  boxFieldValueBold: {
-    fontFamily: 'Helvetica-Bold',
-  },
   sectionTotalRow: {
     flexDirection: 'row',
-    marginBottom: 4,
-    paddingBottom: 2,
-    borderBottomWidth: 0.5,
-    borderBottomColor: ROW_BORDER_COLOR,
+    marginBottom: 3,
   },
 
   // ---- Cost Breakdown label ----
@@ -760,118 +732,110 @@ export function QuotePdfDocument({
         {/* ---- Customer / Project boxes ---- */}
         <View style={styles.boxesRow}>
           <View style={styles.box}>
-            <View style={styles.boxHeader}>
-              <Text style={styles.boxHeaderText}>Client Information:</Text>
-            </View>
-            <View style={styles.boxBody}>
-              {q.customer_name ? (
-                <View style={styles.boxFieldRow}>
-                  <Text style={styles.boxFieldLabelSm}>Name:</Text>
-                  <Text style={styles.boxFieldValue}>{q.customer_name}</Text>
-                </View>
-              ) : null}
-              {q.customer_phone ? (
-                <View style={styles.boxFieldRow}>
-                  <Text style={styles.boxFieldLabelSm}>Phone:</Text>
-                  <Text style={styles.boxFieldValue}>{q.customer_phone}</Text>
-                </View>
-              ) : null}
-              {q.customer_email ? (
-                <View style={styles.boxFieldRow}>
-                  <Text style={styles.boxFieldLabelSm}>Email:</Text>
-                  <Text style={styles.boxFieldValue}>{q.customer_email}</Text>
-                </View>
-              ) : null}
-              {q.job_address ? (
-                <View style={styles.boxFieldRow}>
-                  <Text style={styles.boxFieldLabelSm}>Address:</Text>
-                  <Text style={styles.boxFieldValue}>{q.job_address}</Text>
-                </View>
-              ) : null}
-            </View>
+            <Text style={styles.boxTitle}>Client Information:</Text>
+            {q.customer_name ? (
+              <View style={styles.boxFieldRow}>
+                <Text style={styles.boxFieldLabel}>Name:</Text>
+                <Text style={styles.boxFieldValue}>{q.customer_name}</Text>
+              </View>
+            ) : null}
+            {q.job_address ? (
+              <View style={styles.boxFieldRow}>
+                <Text style={styles.boxFieldLabel}>Address:</Text>
+                <Text style={styles.boxFieldValue}>{q.job_address}</Text>
+              </View>
+            ) : null}
+            {q.customer_phone ? (
+              <View style={styles.boxFieldRow}>
+                <Text style={styles.boxFieldLabel}>Phone:</Text>
+                <Text style={styles.boxFieldValue}>{q.customer_phone}</Text>
+              </View>
+            ) : null}
+            {q.customer_email ? (
+              <View style={styles.boxFieldRow}>
+                <Text style={styles.boxFieldLabel}>Email:</Text>
+                <Text style={styles.boxFieldValue}>{q.customer_email}</Text>
+              </View>
+            ) : null}
           </View>
           <View style={styles.box}>
-            <View style={styles.boxHeader}>
-              <Text style={styles.boxHeaderText}>Project Details:</Text>
-            </View>
-            <View style={styles.boxBody}>
-              {canRenderPerSection && sectionPricing ? (
-                <>
-                  {/* Total area (multi-section) */}
-                  <View style={styles.sectionTotalRow}>
-                    <Text style={styles.boxFieldLabelLg}>Total Area:</Text>
-                    <Text style={[styles.boxFieldValue, styles.boxFieldValueBold]}>
-                      {fmtQty(sectionKeys.reduce((s, k) => s + (roomsBySection[k] ?? 0) * wasteFactor, 0))} sqft
-                    </Text>
+            <Text style={styles.boxTitle}>Project Details:</Text>
+            {canRenderPerSection && sectionPricing ? (
+              <>
+                {/* Total area (multi-section) */}
+                <View style={styles.sectionTotalRow}>
+                  <Text style={styles.boxFieldLabel}>Total Area:</Text>
+                  <Text style={styles.boxFieldValue}>
+                    {fmtQty(sectionKeys.reduce((s, k) => s + (roomsBySection[k] ?? 0) * wasteFactor, 0))} sqft
+                  </Text>
+                </View>
+                {/* Per-section breakdown */}
+                {sectionKeys.map((sec) => {
+                  const secType = q.section_flooring_types?.[sec]
+                  const secLabel = secType
+                    ? FLOORING_LABEL[secType] || secType
+                    : flooringLabel
+                  const adjSqft = (roomsBySection[sec] ?? 0) * wasteFactor
+                  return (
+                    <View key={sec} style={styles.boxFieldRow}>
+                      <Text style={styles.boxFieldLabel}>{sec}:</Text>
+                      <Text style={styles.boxFieldValue}>{secLabel} — {fmtQty(adjSqft)} sqft</Text>
+                    </View>
+                  )
+                })}
+                {q.wood_species ? (
+                  <View style={styles.boxFieldRow}>
+                    <Text style={styles.boxFieldLabel}>Wood Species:</Text>
+                    <Text style={styles.boxFieldValue}>{q.wood_species}</Text>
                   </View>
-                  {/* Per-section breakdown */}
-                  {sectionKeys.map((sec) => {
-                    const secType = q.section_flooring_types?.[sec]
-                    const secLabel = secType
-                      ? FLOORING_LABEL[secType] || secType
-                      : flooringLabel
-                    const adjSqft = (roomsBySection[sec] ?? 0) * wasteFactor
-                    return (
-                      <View key={sec} style={styles.boxFieldRow}>
-                        <Text style={styles.boxFieldLabelLg}>{sec}:</Text>
-                        <Text style={styles.boxFieldValue}>{secLabel} — {fmtQty(adjSqft)} sqft</Text>
-                      </View>
-                    )
-                  })}
-                  {q.wood_species ? (
-                    <View style={styles.boxFieldRow}>
-                      <Text style={styles.boxFieldLabelLg}>Wood Species:</Text>
-                      <Text style={styles.boxFieldValue}>{q.wood_species}</Text>
-                    </View>
-                  ) : null}
-                  {q.material_description ? (
-                    <View style={styles.boxFieldRow}>
-                      <Text style={styles.boxFieldLabelLg}>Color / Style:</Text>
-                      <Text style={styles.boxFieldValue}>{q.material_description}</Text>
-                    </View>
-                  ) : null}
-                  {q.additional_details ? (
-                    <View style={styles.boxFieldRow}>
-                      <Text style={styles.boxFieldLabelLg}>Notes:</Text>
-                      <Text style={styles.boxFieldValue}>{q.additional_details}</Text>
-                    </View>
-                  ) : null}
-                </>
-              ) : (
-                <>
-                  {adjustedSqft > 0 ? (
-                    <View style={styles.boxFieldRow}>
-                      <Text style={styles.boxFieldLabelLg}>Total Area:</Text>
-                      <Text style={styles.boxFieldValue}>{fmtQty(adjustedSqft)} sqft</Text>
-                    </View>
-                  ) : null}
-                  {q.flooring_type ? (
-                    <View style={styles.boxFieldRow}>
-                      <Text style={styles.boxFieldLabelLg}>Flooring Type:</Text>
-                      <Text style={styles.boxFieldValue}>{flooringLabel}</Text>
-                    </View>
-                  ) : null}
-                  {q.wood_species ? (
-                    <View style={styles.boxFieldRow}>
-                      <Text style={styles.boxFieldLabelLg}>Wood Species:</Text>
-                      <Text style={styles.boxFieldValue}>{q.wood_species}</Text>
-                    </View>
-                  ) : null}
-                  {q.material_description ? (
-                    <View style={styles.boxFieldRow}>
-                      <Text style={styles.boxFieldLabelLg}>Color / Style:</Text>
-                      <Text style={styles.boxFieldValue}>{q.material_description}</Text>
-                    </View>
-                  ) : null}
-                  {q.additional_details ? (
-                    <View style={styles.boxFieldRow}>
-                      <Text style={styles.boxFieldLabelLg}>Notes:</Text>
-                      <Text style={styles.boxFieldValue}>{q.additional_details}</Text>
-                    </View>
-                  ) : null}
-                </>
-              )}
-            </View>
+                ) : null}
+                {q.material_description ? (
+                  <View style={styles.boxFieldRow}>
+                    <Text style={styles.boxFieldLabel}>Color / Style:</Text>
+                    <Text style={styles.boxFieldValue}>{q.material_description}</Text>
+                  </View>
+                ) : null}
+                {q.additional_details ? (
+                  <View style={styles.boxFieldRow}>
+                    <Text style={styles.boxFieldLabel}>Notes:</Text>
+                    <Text style={styles.boxFieldValue}>{q.additional_details}</Text>
+                  </View>
+                ) : null}
+              </>
+            ) : (
+              <>
+                {q.flooring_type ? (
+                  <View style={styles.boxFieldRow}>
+                    <Text style={styles.boxFieldLabel}>Flooring Type:</Text>
+                    <Text style={styles.boxFieldValue}>{flooringLabel}</Text>
+                  </View>
+                ) : null}
+                {adjustedSqft > 0 ? (
+                  <View style={styles.boxFieldRow}>
+                    <Text style={styles.boxFieldLabel}>Area:</Text>
+                    <Text style={styles.boxFieldValue}>{fmtQty(adjustedSqft)} sqft</Text>
+                  </View>
+                ) : null}
+                {q.wood_species ? (
+                  <View style={styles.boxFieldRow}>
+                    <Text style={styles.boxFieldLabel}>Wood Species:</Text>
+                    <Text style={styles.boxFieldValue}>{q.wood_species}</Text>
+                  </View>
+                ) : null}
+                {q.material_description ? (
+                  <View style={styles.boxFieldRow}>
+                    <Text style={styles.boxFieldLabel}>Color / Style:</Text>
+                    <Text style={styles.boxFieldValue}>{q.material_description}</Text>
+                  </View>
+                ) : null}
+                {q.additional_details ? (
+                  <View style={styles.boxFieldRow}>
+                    <Text style={styles.boxFieldLabel}>Notes:</Text>
+                    <Text style={styles.boxFieldValue}>{q.additional_details}</Text>
+                  </View>
+                ) : null}
+              </>
+            )}
           </View>
         </View>
 
