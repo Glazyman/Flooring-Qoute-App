@@ -523,7 +523,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
           </div>
 
           {/* Right: dark search input */}
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg ml-auto" style={{ background: 'rgba(255,255,255,0.08)', minWidth: 200 }}>
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg flex-1 min-w-[140px]" style={{ background: 'rgba(255,255,255,0.08)' }}>
             <Search className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'rgba(255,255,255,0.4)' }} />
             <input
               type="text"
@@ -579,10 +579,10 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
           </div>
         ) : (
           <div className="overflow-x-auto">
-            {/* Column header row */}
+            {/* Column header row — desktop only */}
             <div
-              style={{ display: 'grid', gridTemplateColumns: COL_TEMPLATE }}
-              className="bg-gray-50 border-b border-gray-200 px-4"
+              style={{ gridTemplateColumns: COL_TEMPLATE }}
+              className="hidden lg:grid bg-gray-50 border-b border-gray-200 px-4"
             >
               {/* Checkbox header */}
               <div className="flex items-center">
@@ -624,62 +624,52 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
               )
 
               return (
-                <div
-                  key={c.id}
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: COL_TEMPLATE,
-                    background: isSelected ? '#F0FDFA' : undefined,
-                  }}
-                  className="px-4 border-b border-gray-100 hover:bg-gray-50 transition-colors py-3 items-center last:border-b-0"
-                >
-                  {/* Checkbox */}
-                  <div className="flex items-center">
+                <div key={c.id}>
+                  {/* Mobile card row — hidden on lg+ */}
+                  <div
+                    className="lg:hidden flex items-center gap-3 px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                    style={{ background: isSelected ? '#F0FDFA' : undefined }}
+                  >
                     {selecting && (
                       <input
                         type="checkbox"
                         checked={isSelected}
                         onChange={() => toggleSelect(c.id)}
-                        className="w-3.5 h-3.5 rounded cursor-pointer"
+                        className="w-3.5 h-3.5 rounded cursor-pointer flex-shrink-0"
                         style={{ accentColor: '#1C1C1E' }}
                       />
                     )}
-                  </div>
-
-                  {/* Name + email */}
-                  <div className="min-w-0 pr-2">
-                    {mode === 'page' && !selecting ? (
-                      <Link href={`/contacts/${c.id}`} className="block min-w-0">
-                        {nameCell}
-                      </Link>
-                    ) : (
-                      nameCell
-                    )}
-                  </div>
-
-                  {/* Phone */}
-                  <div className="text-sm text-gray-600 truncate pr-2">
-                    {c.phone || <span className="text-gray-300">—</span>}
-                  </div>
-
-                  {/* Address */}
-                  <div className="text-sm text-gray-500 truncate pr-2">
-                    {c.address || <span className="text-gray-300">—</span>}
-                  </div>
-
-                  {/* Date Added */}
-                  <div className="text-xs text-gray-400">
-                    {formatDate(c.created_at)}
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex items-center gap-0.5">
+                    <div
+                      className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
+                      style={{ background: '#1C1C1E' }}
+                    >
+                      {initials}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      {mode === 'page' && !selecting ? (
+                        <Link href={`/contacts/${c.id}`} className="block min-w-0">
+                          <p className="text-sm font-semibold text-gray-900 truncate">{c.name}</p>
+                          <p className="text-xs text-gray-400 truncate">
+                            {[c.email, c.phone].filter(Boolean).join(' · ') || '—'}
+                          </p>
+                          {c.address && <p className="text-xs text-gray-400 truncate">{c.address}</p>}
+                        </Link>
+                      ) : (
+                        <>
+                          <p className="text-sm font-semibold text-gray-900 truncate">{c.name}</p>
+                          <p className="text-xs text-gray-400 truncate">
+                            {[c.email, c.phone].filter(Boolean).join(' · ') || '—'}
+                          </p>
+                          {c.address && <p className="text-xs text-gray-400 truncate">{c.address}</p>}
+                        </>
+                      )}
+                    </div>
                     {!selecting && (
-                      <>
+                      <div className="flex items-center gap-1 flex-shrink-0">
                         {mode === 'picker' && onSelectContact && (
                           <button
                             onClick={() => onSelectContact({ name: c.name, phone: c.phone || '', email: c.email || '', address: c.address || '' })}
-                            className="text-white font-semibold px-2.5 py-1.5 rounded-lg text-xs active:scale-95 mr-1"
+                            className="text-white font-semibold px-2.5 py-1.5 rounded-lg text-xs active:scale-95"
                             style={{ background: 'var(--button-dark)' }}
                           >
                             Select
@@ -704,8 +694,92 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
                             </button>
                           </>
                         )}
-                      </>
+                      </div>
                     )}
+                  </div>
+
+                  {/* Desktop grid row — hidden on mobile */}
+                  <div
+                    style={{
+                      gridTemplateColumns: COL_TEMPLATE,
+                      background: isSelected ? '#F0FDFA' : undefined,
+                    }}
+                    className="hidden lg:grid px-4 border-b border-gray-100 hover:bg-gray-50 transition-colors py-3 items-center last:border-b-0"
+                  >
+                    {/* Checkbox */}
+                    <div className="flex items-center">
+                      {selecting && (
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleSelect(c.id)}
+                          className="w-3.5 h-3.5 rounded cursor-pointer"
+                          style={{ accentColor: '#1C1C1E' }}
+                        />
+                      )}
+                    </div>
+
+                    {/* Name + email */}
+                    <div className="min-w-0 pr-2">
+                      {mode === 'page' && !selecting ? (
+                        <Link href={`/contacts/${c.id}`} className="block min-w-0">
+                          {nameCell}
+                        </Link>
+                      ) : (
+                        nameCell
+                      )}
+                    </div>
+
+                    {/* Phone */}
+                    <div className="text-sm text-gray-600 truncate pr-2">
+                      {c.phone || <span className="text-gray-300">—</span>}
+                    </div>
+
+                    {/* Address */}
+                    <div className="text-sm text-gray-500 truncate pr-2">
+                      {c.address || <span className="text-gray-300">—</span>}
+                    </div>
+
+                    {/* Date Added */}
+                    <div className="text-xs text-gray-400">
+                      {formatDate(c.created_at)}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-0.5">
+                      {!selecting && (
+                        <>
+                          {mode === 'picker' && onSelectContact && (
+                            <button
+                              onClick={() => onSelectContact({ name: c.name, phone: c.phone || '', email: c.email || '', address: c.address || '' })}
+                              className="text-white font-semibold px-2.5 py-1.5 rounded-lg text-xs active:scale-95 mr-1"
+                              style={{ background: 'var(--button-dark)' }}
+                            >
+                              Select
+                            </button>
+                          )}
+                          {mode === 'page' && (
+                            <>
+                              <button
+                                onClick={() => startEdit(c)}
+                                className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                                title="Edit contact"
+                              >
+                                <Pencil className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                onClick={() => handleDelete(c.id)}
+                                disabled={deletingId === c.id}
+                                className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-40"
+                                title="Delete contact"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </>
+                          )}
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
               )
