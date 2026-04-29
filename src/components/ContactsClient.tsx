@@ -2,7 +2,10 @@
 
 import { useState, useMemo, useRef } from 'react'
 import Link from 'next/link'
-import { Pencil, Trash2, X, Check, Search, UserPlus, Upload, AlertCircle, Square, CheckSquare } from 'lucide-react'
+import {
+  Pencil, Trash2, X, Check, Search, Upload, AlertCircle,
+  Plus, SlidersHorizontal, ArrowUpDown,
+} from 'lucide-react'
 
 interface Customer {
   id: string
@@ -64,6 +67,15 @@ function parseQuickBooksCSV(text: string): ImportPreviewRow[] {
     return { name, phone, email, address }
   }).filter(r => r.name)
 }
+
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
+const COL_TEMPLATE = '40px 100px 1fr 140px 1fr 110px 72px'
+
+const ICON_BTN = 'flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors flex-shrink-0'
+const COL_HEAD = 'text-xs font-semibold text-gray-500 uppercase tracking-wide py-2.5'
 
 export default function ContactsClient({ initialCustomers, onSelectContact, mode = 'page' }: Props) {
   const [customers, setCustomers] = useState<Customer[]>(initialCustomers)
@@ -217,7 +229,6 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
     if (!res.ok) { setImportError(data.error || 'Import failed'); return }
     setImportDone(true)
     setImportRows([])
-    // Reload the page to get fresh list
     window.location.reload()
   }
 
@@ -226,7 +237,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
 
   return (
     <div className="space-y-4">
-      {/* Confirm bulk delete */}
+      {/* Confirm bulk delete modal */}
       {confirmBulkDelete && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
           <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm">
@@ -245,57 +256,6 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
           </div>
         </div>
       )}
-
-      {/* Search + Actions */}
-      <div className="flex gap-2">
-        <div className="flex-1 flex items-center gap-2 bg-white rounded-xl px-3.5 py-2.5" style={{ border: '1px solid var(--border)' }}>
-          <Search className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--text-3)' }} />
-          <input
-            type="text"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Search contacts…"
-            className="flex-1 text-sm focus:outline-none bg-transparent"
-            style={{ color: 'var(--text)' }}
-          />
-          {search && (
-            <button onClick={() => setSearch('')} className="text-gray-300 hover:text-gray-500">
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
-        </div>
-        {mode === 'page' && customers.length > 0 && (
-          <button
-            onClick={() => selecting ? exitSelect() : setSelecting(true)}
-            className={`flex items-center gap-1.5 font-medium px-3 py-2 rounded-xl text-sm flex-shrink-0 border transition-colors ${
-              selecting
-                ? 'bg-gray-100 border-gray-300 text-gray-600'
-                : 'border-gray-200 text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'
-            }`}
-          >
-            <CheckSquare className="w-3.5 h-3.5" />
-            <span>{selecting ? 'Cancel' : 'Select'}</span>
-          </button>
-        )}
-        {mode === 'page' && (
-          <button
-            onClick={() => { setShowImport(v => !v); setImportRows([]); setImportError(''); setImportDone(false) }}
-            className="flex items-center justify-center w-9 h-9 border border-gray-200 text-gray-500 rounded-xl flex-shrink-0 hover:bg-gray-50 hover:text-gray-700 transition-colors"
-            title="Import from QuickBooks"
-          >
-            <Upload className="w-4 h-4" />
-          </button>
-        )}
-        <button
-          onClick={startAdd}
-          className="flex items-center justify-center w-9 h-9 text-white rounded-xl flex-shrink-0 active:scale-95"
-          style={{ background: 'var(--button-dark)' }}
-          title="Add Contact"
-        >
-          <UserPlus className="w-4 h-4" />
-        </button>
-      </div>
-
 
       {/* QuickBooks CSV Import Panel */}
       {showImport && mode === 'page' && (
@@ -440,118 +400,247 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
         </div>
       )}
 
-      {/* Contact List */}
-      {filtered.length === 0 ? (
-        <div className="bg-white rounded-xl p-12 text-center" style={{ border: '1px solid var(--border)' }}>
-          <p className="text-sm font-medium mb-1" style={{ color: 'var(--text-2)' }}>
-            {search ? 'No contacts match your search' : 'No contacts yet'}
-          </p>
-          {!search && (
-            <button onClick={startAdd} className="text-sm font-semibold mt-1" style={{ color: 'var(--primary)' }}>
-              Add your first contact →
+      {/* Table Card */}
+      <div className="bg-white rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+
+        {/* Toolbar */}
+        <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-100">
+          {/* Left: action icon buttons */}
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={startAdd}
+              className={ICON_BTN}
+              title="Add contact"
+            >
+              <Plus className="w-4 h-4" />
             </button>
-          )}
-        </div>
-      ) : (
-        <div className="bg-white rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
-          {/* Inline select/bulk bar */}
-          {selecting && (
-            <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 border-b border-gray-100">
-              <button onClick={toggleAll} className="text-sm font-medium text-gray-500 hover:text-gray-700 px-3 py-2 rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors">
-                {allSelected ? 'Deselect all' : 'Select all'}
-              </button>
-              {selCount > 0 && (
-                <>
-                  <span className="text-xs text-gray-400 font-medium">{selCount} selected</span>
-                  <div className="ml-auto flex items-center gap-2">
-                    <button
-                      onClick={() => setConfirmBulkDelete(true)}
-                      disabled={bulkWorking}
-                      className="text-xs font-medium text-red-600 hover:text-red-700 px-3 py-1.5 rounded-lg border border-red-200 hover:bg-red-50 transition-colors disabled:opacity-50"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
-          {filtered.map((c, idx) => {
-            const isSelected = selected.has(c.id)
-            const meta = [c.phone, c.email, c.address].filter(Boolean).join(' · ')
-
-            const rowContent = (
+            {mode === 'page' && (
               <>
-                <p className="text-sm font-semibold truncate" style={{ color: 'var(--text)' }}>{c.name}</p>
-                {meta && <p className="text-xs truncate mt-0.5" style={{ color: 'var(--text-2)' }}>{meta}</p>}
-                {c.notes && <p className="text-xs truncate mt-0.5 italic" style={{ color: 'var(--text-3)' }}>{c.notes}</p>}
+                <button className={ICON_BTN} title="Filter" aria-label="Filter">
+                  <SlidersHorizontal className="w-4 h-4" />
+                </button>
+                <button className={ICON_BTN} title="Sort" aria-label="Sort">
+                  <ArrowUpDown className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => { setShowImport(v => !v); setImportRows([]); setImportError(''); setImportDone(false) }}
+                  className={ICON_BTN}
+                  title="Import from QuickBooks"
+                >
+                  <Upload className="w-4 h-4" />
+                </button>
               </>
-            )
-
-            // Not in selecting/picker mode: row content links to detail page.
-            const linkable = !selecting && mode === 'page'
-
-            return (
-              <div
-                key={c.id}
-                className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-gray-50"
-                style={{
-                  borderBottom: idx < filtered.length - 1 ? '1px solid var(--border)' : 'none',
-                  background: isSelected ? '#F0FDFA' : undefined,
-                }}
+            )}
+            {mode === 'page' && customers.length > 0 && (
+              <button
+                onClick={() => selecting ? exitSelect() : setSelecting(true)}
+                className={`${ICON_BTN} ${selecting ? 'bg-gray-100 border-gray-300 text-gray-700' : ''}`}
+                title={selecting ? 'Cancel selection' : 'Select contacts'}
               >
+                {selecting ? <X className="w-4 h-4" /> : <Check className="w-4 h-4" />}
+              </button>
+            )}
+          </div>
+
+          {/* Spacer */}
+          <div className="flex-1" />
+
+          {/* Right: search */}
+          <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-1.5 max-w-xs w-full border border-gray-200">
+            <Search className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+            <input
+              type="text"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search contacts..."
+              className="flex-1 text-sm focus:outline-none bg-transparent text-gray-700 min-w-0"
+            />
+            {search && (
+              <button onClick={() => setSearch('')} className="text-gray-300 hover:text-gray-500">
+                <X className="w-3 h-3" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Bulk action bar */}
+        {selecting && (
+          <div className="bg-gray-50 border-b border-gray-200 px-4 py-2 flex items-center gap-3">
+            <span className="text-xs font-medium text-gray-500">
+              {selCount > 0 ? `${selCount} selected` : 'Select rows with checkboxes'}
+            </span>
+            {selCount > 0 && (
+              <button
+                onClick={() => setConfirmBulkDelete(true)}
+                disabled={bulkWorking}
+                className="text-xs font-semibold text-red-600 hover:text-red-700 px-3 py-1.5 rounded-lg border border-red-200 hover:bg-red-50 transition-colors disabled:opacity-50"
+              >
+                Delete {selCount}
+              </button>
+            )}
+            <button
+              onClick={exitSelect}
+              className="ml-auto text-xs text-gray-400 hover:text-gray-600"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+
+        {/* Empty state */}
+        {filtered.length === 0 ? (
+          <div className="p-12 text-center">
+            <p className="text-sm font-medium mb-1 text-gray-500">
+              {search ? 'No contacts match your search' : 'No contacts yet'}
+            </p>
+            {!search && (
+              <button onClick={startAdd} className="text-sm font-semibold mt-1" style={{ color: 'var(--primary)' }}>
+                Add your first contact →
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            {/* Column header row */}
+            <div
+              style={{ display: 'grid', gridTemplateColumns: COL_TEMPLATE }}
+              className="bg-gray-50 border-b border-gray-200 px-4"
+            >
+              {/* Checkbox header */}
+              <div className="flex items-center">
                 {selecting && (
-                  <button onClick={() => toggleSelect(c.id)} className="flex-shrink-0 w-9 h-9 flex items-center justify-center -ml-1">
-                    {isSelected
-                      ? <CheckSquare className="w-4 h-4 text-teal-600" />
-                      : <Square className="w-4 h-4 text-gray-300" />
-                    }
-                  </button>
-                )}
-                {linkable ? (
-                  <Link
-                    href={`/contacts/${c.id}`}
-                    className="flex-1 min-w-0 -my-3 py-3 -ml-1 pl-1 pr-2 hover:bg-transparent"
-                  >
-                    {rowContent}
-                  </Link>
-                ) : (
-                  <div className="flex-1 min-w-0">{rowContent}</div>
-                )}
-                {!selecting && (
-                  <div className="flex items-center gap-0.5 flex-shrink-0">
-                    {mode === 'picker' && onSelectContact && (
-                      <button
-                        onClick={() => onSelectContact({ name: c.name, phone: c.phone || '', email: c.email || '', address: c.address || '' })}
-                        className="text-white font-semibold px-3 py-1.5 rounded-lg text-xs active:scale-95 mr-1"
-                        style={{ background: 'var(--button-dark)' }}
-                      >
-                        Select
-                      </button>
-                    )}
-                    <button
-                      onClick={() => startEdit(c)}
-                      className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-                      title="Edit contact"
-                    >
-                      <Pencil className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(c.id)}
-                      disabled={deletingId === c.id}
-                      className="p-1.5 text-gray-300 hover:text-red-500 transition-colors rounded disabled:opacity-40"
-                      title="Delete contact"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
+                  <input
+                    type="checkbox"
+                    checked={allSelected}
+                    onChange={toggleAll}
+                    className="w-3.5 h-3.5 rounded cursor-pointer"
+                    style={{ accentColor: '#1C1C1E' }}
+                  />
                 )}
               </div>
-            )
-          })}
-        </div>
-      )}
+              <div className={COL_HEAD}>Contact ID</div>
+              <div className={COL_HEAD}>Name</div>
+              <div className={COL_HEAD}>Phone</div>
+              <div className={COL_HEAD}>Address</div>
+              <div className={COL_HEAD}>Date Added</div>
+              <div className={COL_HEAD}>Actions</div>
+            </div>
 
+            {/* Data rows */}
+            {filtered.map(c => {
+              const isSelected = selected.has(c.id)
+              const initials = c.name.charAt(0).toUpperCase()
+
+              const nameCell = (
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold text-white"
+                    style={{ background: '#1C1C1E' }}
+                  >
+                    {initials}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-gray-900 truncate">{c.name}</p>
+                    {c.email && <p className="text-xs text-gray-400 truncate">{c.email}</p>}
+                  </div>
+                </div>
+              )
+
+              return (
+                <div
+                  key={c.id}
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: COL_TEMPLATE,
+                    background: isSelected ? '#F0FDFA' : undefined,
+                  }}
+                  className="px-4 border-b border-gray-100 hover:bg-gray-50 transition-colors py-3 items-center last:border-b-0"
+                >
+                  {/* Checkbox */}
+                  <div className="flex items-center">
+                    {selecting && (
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleSelect(c.id)}
+                        className="w-3.5 h-3.5 rounded cursor-pointer"
+                        style={{ accentColor: '#1C1C1E' }}
+                      />
+                    )}
+                  </div>
+
+                  {/* Contact ID */}
+                  <div className="text-xs font-mono text-gray-400">
+                    #{c.id.slice(0, 6).toUpperCase()}
+                  </div>
+
+                  {/* Name + email */}
+                  <div className="min-w-0 pr-2">
+                    {mode === 'page' && !selecting ? (
+                      <Link href={`/contacts/${c.id}`} className="block min-w-0">
+                        {nameCell}
+                      </Link>
+                    ) : (
+                      nameCell
+                    )}
+                  </div>
+
+                  {/* Phone */}
+                  <div className="text-sm text-gray-600 truncate pr-2">
+                    {c.phone || <span className="text-gray-300">—</span>}
+                  </div>
+
+                  {/* Address */}
+                  <div className="text-sm text-gray-500 truncate pr-2">
+                    {c.address || <span className="text-gray-300">—</span>}
+                  </div>
+
+                  {/* Date Added */}
+                  <div className="text-xs text-gray-400">
+                    {formatDate(c.created_at)}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-0.5">
+                    {!selecting && (
+                      <>
+                        {mode === 'picker' && onSelectContact && (
+                          <button
+                            onClick={() => onSelectContact({ name: c.name, phone: c.phone || '', email: c.email || '', address: c.address || '' })}
+                            className="text-white font-semibold px-2.5 py-1.5 rounded-lg text-xs active:scale-95 mr-1"
+                            style={{ background: 'var(--button-dark)' }}
+                          >
+                            Select
+                          </button>
+                        )}
+                        {mode === 'page' && (
+                          <>
+                            <button
+                              onClick={() => startEdit(c)}
+                              className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                              title="Edit contact"
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(c.id)}
+                              disabled={deletingId === c.id}
+                              className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-40"
+                              title="Delete contact"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
