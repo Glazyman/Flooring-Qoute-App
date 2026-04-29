@@ -62,6 +62,8 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [typeFilters, setTypeFilters] = useState<Set<string>>(new Set())
   const [dateDays, setDateDays] = useState<number | null>(null)
+  const [customDateFrom, setCustomDateFrom] = useState('')
+  const [customDateTo, setCustomDateTo] = useState('')
   const [minArea, setMinArea] = useState('')
   const [maxArea, setMaxArea] = useState('')
   const [minTotal, setMinTotal] = useState('')
@@ -74,7 +76,7 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
 
   const activeFilterCount = (statusFilter !== 'all' ? 1 : 0) +
     (typeFilters.size > 0 ? 1 : 0) +
-    (dateDays !== null ? 1 : 0) +
+    (dateDays !== null || customDateFrom || customDateTo ? 1 : 0) +
     (minArea || maxArea ? 1 : 0) +
     (minTotal || maxTotal ? 1 : 0)
 
@@ -82,6 +84,7 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
     setStatusFilter('all')
     setTypeFilters(new Set())
     setDateDays(null)
+    setCustomDateFrom(''); setCustomDateTo('')
     setMinArea(''); setMaxArea('')
     setMinTotal(''); setMaxTotal('')
   }
@@ -211,15 +214,24 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
         const match = types.some(t => typeFilters.has(t))
         if (!match) return false
       }
-      // Date
-      if (dateDays !== null) {
+      // Date — custom range takes priority over preset
+      if (customDateFrom || customDateTo) {
+        const created = new Date(quote.created_at)
+        if (customDateFrom && created < new Date(customDateFrom)) return false
+        if (customDateTo) {
+          const to = new Date(customDateTo)
+          to.setHours(23, 59, 59, 999)
+          if (created > to) return false
+        }
+      } else if (dateDays !== null) {
         const created = new Date(quote.created_at).getTime()
-        const cutoff = now - dateDays * 24 * 60 * 60 * 1000
         if (dateDays === 0) {
-          // Today only
           const today = new Date().toDateString()
           if (new Date(quote.created_at).toDateString() !== today) return false
-        } else if (created < cutoff) return false
+        } else {
+          const cutoff = now - dateDays * 24 * 60 * 60 * 1000
+          if (created < cutoff) return false
+        }
       }
       // Area
       const area = quote.adjusted_sqft ?? 0
@@ -241,7 +253,7 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
       }
       return true
     })
-  }, [localQuotes, search, statusFilter, typeFilters, dateDays, minArea, maxArea, minTotal, maxTotal])
+  }, [localQuotes, search, statusFilter, typeFilters, dateDays, customDateFrom, customDateTo, minArea, maxArea, minTotal, maxTotal])
 
   const sorted = useMemo(() => {
     return [...filtered].sort((a, b) => {
@@ -255,7 +267,7 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
   useEffect(() => {
     if (page > totalPages) setPage(1)
   }, [page, totalPages])
-  useEffect(() => { setPage(1) }, [search, statusFilter, typeFilters, dateDays, minArea, maxArea, minTotal, maxTotal, sortNewest])
+  useEffect(() => { setPage(1) }, [search, statusFilter, typeFilters, dateDays, customDateFrom, customDateTo, minArea, maxArea, minTotal, maxTotal, sortNewest])
 
   const paginated = useMemo(
     () => sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
@@ -355,16 +367,11 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
         </div>
       )}
 
-      {/* Table Card */}
+      {/* Toolbar — lives OUTSIDE overflow-hidden so filter panel can drop down freely */}
       <div
-        className="bg-white rounded-xl overflow-hidden"
-        style={{ border: '1px solid #E5E7EB' }}
+        className="bg-white rounded-t-xl flex flex-wrap items-center gap-2 px-4 py-2.5"
+        style={{ border: '1px solid #E5E7EB', borderBottom: '1px solid #F1F1F4', background: '#FAFAFA' }}
       >
-        {/* Toolbar */}
-        <div
-          className="flex flex-wrap items-center gap-2 px-4 py-2.5"
-          style={{ background: '#FAFAFA', borderBottom: '1px solid #F1F1F4' }}
-        >
           <div className="flex items-center gap-1">
             {/* Filter */}
             <div className="relative" ref={filterBtnRef}>
@@ -383,18 +390,18 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
               </button>
               {showFilterMenu && (
                 <div
-                  className="absolute left-0 top-10 z-20 bg-white rounded-xl w-72"
-                  style={{ border: '1px solid #E5E7EB', boxShadow: 'var(--shadow-popover)' }}
+                  className="absolute left-0 top-10 z-30 bg-white rounded-xl w-80 flex flex-col"
+                  style={{ border: '1px solid #E5E7EB', boxShadow: '0 8px 32px rgba(0,0,0,0.12)', maxHeight: '80vh' }}
                 >
                   {/* Header */}
-                  <div className="flex items-center justify-between px-4 py-2.5" style={{ borderBottom: '1px solid #F1F1F4' }}>
+                  <div className="flex items-center justify-between px-4 py-2.5 flex-shrink-0" style={{ borderBottom: '1px solid #F1F1F4' }}>
                     <span className="text-xs font-semibold text-gray-700">Filters</span>
                     {activeFilterCount > 0 && (
                       <button onClick={clearAllFilters} className="text-xs text-gray-400 hover:text-gray-700 transition-colors">Clear all</button>
                     )}
                   </div>
 
-                  <div className="p-3 space-y-4">
+                  <div className="p-3 space-y-4 overflow-y-auto flex-1">
                     {/* Status */}
                     <div>
                       <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400 mb-1.5">Status</p>
@@ -440,21 +447,42 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
                     {/* Date */}
                     <div>
                       <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400 mb-1.5">Date created</p>
-                      <div className="flex flex-wrap gap-1.5">
+                      <div className="flex flex-wrap gap-1.5 mb-2">
                         {DATE_PRESETS.map(p => (
                           <button
                             key={p.days}
-                            onClick={() => setDateDays(dateDays === p.days ? null : p.days)}
+                            onClick={() => {
+                              setDateDays(dateDays === p.days ? null : p.days)
+                              setCustomDateFrom(''); setCustomDateTo('')
+                            }}
                             className="text-xs px-2.5 py-1 rounded-full border transition-colors"
                             style={{
-                              background: dateDays === p.days ? '#1d1d1f' : 'white',
-                              color: dateDays === p.days ? 'white' : '#374151',
-                              borderColor: dateDays === p.days ? '#1d1d1f' : '#E5E7EB',
+                              background: dateDays === p.days && !customDateFrom && !customDateTo ? '#1d1d1f' : 'white',
+                              color: dateDays === p.days && !customDateFrom && !customDateTo ? 'white' : '#374151',
+                              borderColor: dateDays === p.days && !customDateFrom && !customDateTo ? '#1d1d1f' : '#E5E7EB',
                             }}
                           >
                             {p.label}
                           </button>
                         ))}
+                      </div>
+                      <p className="text-[10px] text-gray-400 mb-1">Custom range</p>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="date"
+                          value={customDateFrom}
+                          onChange={e => { setCustomDateFrom(e.target.value); setDateDays(null) }}
+                          className="flex-1 px-2.5 py-1.5 text-xs rounded-md focus:outline-none text-gray-800"
+                          style={{ border: '1px solid #E5E7EB' }}
+                        />
+                        <span className="text-gray-400 text-xs flex-shrink-0">–</span>
+                        <input
+                          type="date"
+                          value={customDateTo}
+                          onChange={e => { setCustomDateTo(e.target.value); setDateDays(null) }}
+                          className="flex-1 px-2.5 py-1.5 text-xs rounded-md focus:outline-none text-gray-800"
+                          style={{ border: '1px solid #E5E7EB' }}
+                        />
                       </div>
                     </div>
 
@@ -561,7 +589,13 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
               </button>
             )}
           </div>
-        </div>
+      </div>
+
+      {/* Table body card */}
+      <div
+        className="bg-white rounded-b-xl overflow-hidden"
+        style={{ border: '1px solid #E5E7EB', borderTop: 'none' }}
+      >
 
         {/* Bulk action bar */}
         {selCount > 0 && (
