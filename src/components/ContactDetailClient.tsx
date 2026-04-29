@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Pencil, Mail, Phone, MapPin, FileText, Building2, X, Check } from 'lucide-react'
+import { Pencil, Mail, Phone, MapPin, FileText, Building2, X, Check, User } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
 import { fmt } from '@/lib/calculations'
 import { formatPhone } from '@/lib/format'
@@ -219,6 +219,9 @@ export default function ContactDetailClient({
         {hasDetails ? (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {customer.name && (
+                <DetailRow icon={<User className="w-3.5 h-3.5" />} label="Name" value={customer.name} />
+              )}
               {customer.phone && (
                 <DetailRow icon={<Phone className="w-3.5 h-3.5" />} label="Phone" value={formatPhone(customer.phone)} />
               )}
