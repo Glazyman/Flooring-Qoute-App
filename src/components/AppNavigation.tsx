@@ -113,7 +113,7 @@ export default function AppNavigation({
           {/* Avatar with gradient ring */}
           <div style={{
             width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
-            background: 'linear-gradient(135deg,#f97316 0%,#ec4899 50%,#8b5cf6 100%)',
+            background: 'linear-gradient(135deg,#1d1d1f 0%,#3a3a3c 100%)',
             padding: 2, display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
             {logoUrl ? (
