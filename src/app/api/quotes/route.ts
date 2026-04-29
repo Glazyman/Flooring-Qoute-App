@@ -2,6 +2,58 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { syncCustomerFromQuote } from '@/lib/customerSync'
 
+// Columns the client may write at create time. Anything else is dropped so a
+// stale field in the form payload doesn't surface as a "column does not exist"
+// 500.
+const ALLOWED_QUOTE_FIELDS = new Set<string>([
+  'customer_name',
+  'customer_phone',
+  'customer_email',
+  'job_address',
+  'quote_number',
+  'flooring_type',
+  'measurement_type',
+  'base_sqft',
+  'waste_pct',
+  'adjusted_sqft',
+  'material_cost_per_sqft',
+  'labor_cost_per_sqft',
+  'removal_fee',
+  'furniture_fee',
+  'stairs_fee',
+  'stair_count',
+  'delivery_fee',
+  'quarter_round_fee',
+  'reducers_fee',
+  'finish_type',
+  'wood_species',
+  'custom_fee_label',
+  'custom_fee_amount',
+  'tax_enabled',
+  'tax_pct',
+  'markup_pct',
+  'deposit_pct',
+  'material_total',
+  'labor_total',
+  'extras_total',
+  'subtotal',
+  'tax_amount',
+  'markup_amount',
+  'final_total',
+  'deposit_amount',
+  'status',
+  'notes',
+  'scope_of_work',
+  'material_description',
+  'valid_days',
+  'section_flooring_types',
+  'section_pricing',
+  'extras_json',
+  'inclusions',
+  'exclusions',
+  'qualifications',
+])
+
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
   const {
@@ -78,7 +130,13 @@ export async function POST(request: NextRequest) {
   void isOnPro
 
   const body = await request.json()
-  const { rooms, line_items, ...quoteData } = body
+  const { rooms, line_items, ...rest } = body
+
+  // Whitelist columns
+  const quoteData: Record<string, unknown> = {}
+  for (const [k, v] of Object.entries(rest)) {
+    if (ALLOWED_QUOTE_FIELDS.has(k)) quoteData[k] = v
+  }
 
   // Auto-generate quote number from settings prefix + counter when none provided.
   const incomingQuoteNumber = typeof quoteData.quote_number === 'string' ? quoteData.quote_number.trim() : ''

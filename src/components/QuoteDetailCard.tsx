@@ -133,6 +133,84 @@ function EditableField({
   )
 }
 
+// ---- Editable select (dropdown) — shows a label, edits as a <select> ----
+interface EditableSelectProps {
+  fieldKey: string
+  value: string
+  options: { value: string; label: string }[]
+  editing: string | null
+  saved: string | null
+  onEdit: (key: string) => void
+  onSave: (key: string, rawValue: string) => void
+  textClassName?: string
+  textStyle?: React.CSSProperties
+  placeholder?: string
+}
+
+function EditableSelect({
+  fieldKey,
+  value,
+  options,
+  editing,
+  saved,
+  onEdit,
+  onSave,
+  textClassName = '',
+  textStyle = {},
+  placeholder = 'Select…',
+}: EditableSelectProps) {
+  const isEditing = editing === fieldKey
+  const isSaved = saved === fieldKey
+  const labelForValue = options.find(o => o.value === value)?.label ?? value
+
+  if (isEditing) {
+    return (
+      <select
+        autoFocus
+        defaultValue={value}
+        onChange={e => onSave(fieldKey, e.target.value)}
+        onBlur={() => onEdit('')}
+        style={{
+          width: '100%',
+          border: 'none',
+          borderBottom: `1px solid ${TEAL}`,
+          outline: 'none',
+          background: 'transparent',
+          fontFamily: 'inherit',
+          fontSize: 'inherit',
+          color: 'inherit',
+          padding: 0,
+        }}
+      >
+        {options.map(o => (
+          <option key={o.value} value={o.value}>{o.label}</option>
+        ))}
+      </select>
+    )
+  }
+
+  return (
+    <span
+      onClick={() => onEdit(fieldKey)}
+      className={textClassName}
+      style={{
+        cursor: 'pointer',
+        display: 'inline-block',
+        width: '100%',
+        borderRadius: 2,
+        transition: 'background 0.1s',
+        ...textStyle,
+      }}
+      onMouseEnter={e => (e.currentTarget.style.background = HOVER_BG)}
+      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+      title="Click to change"
+    >
+      {labelForValue || <span style={{ opacity: 0.35, fontStyle: 'italic' }}>{placeholder}</span>}
+      {isSaved && <span style={{ color: TEAL, marginLeft: 4, fontSize: '0.75em' }}>✓</span>}
+    </span>
+  )
+}
+
 // ---- Editable table cell ----
 interface EditableCellProps {
   fieldKey: string
@@ -248,8 +326,10 @@ export default function QuoteDetailCard({
   // Editable quote fields
   const [customerName, setCustomerName] = useState(q.customer_name)
   const [customerPhone, setCustomerPhone] = useState(q.customer_phone ?? '')
+  const [customerEmail, setCustomerEmail] = useState(q.customer_email ?? '')
   const [jobAddress, setJobAddress] = useState(q.job_address ?? '')
   const [quoteNumber, setQuoteNumber] = useState(q.quote_number ?? '')
+  const [flooringType, setFlooringType] = useState<string>(q.flooring_type ?? '')
   const [materialDescription, setMaterialDescription] = useState(q.material_description ?? '')
   const [scopeOfWork, setScopeOfWork] = useState(q.scope_of_work ?? '')
   const [notesValue, setNotesValue] = useState(q.notes ?? '')
@@ -428,7 +508,7 @@ export default function QuoteDetailCard({
     // Handle extras_json fields via a dedicated path
     if (field.startsWith('extras_')) {
       const extrasKey = field.slice('extras_'.length)
-      const newValue = parseFloat(rawValue) || 0
+      const newValue = parseFloat(String(rawValue).replace(/,/g, '')) || 0
       const newExtras = { ...extrasJson, [extrasKey]: newValue }
       setExtrasJson(newExtras)
       setEditing(null)
@@ -445,27 +525,31 @@ export default function QuoteDetailCard({
       'removal_fee', 'furniture_fee', 'stairs_fee', 'quarter_round_fee',
       'reducers_fee', 'delivery_fee', 'custom_fee_amount',
     ]
-    const apiValue = numericFields.includes(field) ? parseFloat(rawValue) || 0 : rawValue
+    // Strip thousands-separators (commas) so values like "1,234.50" parse correctly.
+    const parseNumeric = (v: string) => parseFloat(String(v).replace(/,/g, '')) || 0
+    const apiValue = numericFields.includes(field) ? parseNumeric(rawValue) : rawValue
 
     // Optimistic update
     switch (field) {
       case 'customer_name': setCustomerName(rawValue); break
       case 'customer_phone': setCustomerPhone(rawValue); break
+      case 'customer_email': setCustomerEmail(rawValue); break
       case 'job_address': setJobAddress(rawValue); break
       case 'quote_number': setQuoteNumber(rawValue); break
+      case 'flooring_type': setFlooringType(rawValue); break
       case 'material_description': setMaterialDescription(rawValue); break
       case 'scope_of_work': setScopeOfWork(rawValue); break
       case 'notes': setNotesValue(rawValue); break
-      case 'material_cost_per_sqft': setMaterialRate(parseFloat(rawValue) || 0); break
-      case 'labor_cost_per_sqft': setLaborRate(parseFloat(rawValue) || 0); break
-      case 'adjusted_sqft': setAdjustedSqft(parseFloat(rawValue) || 0); break
-      case 'removal_fee': setRemovalFee(parseFloat(rawValue) || 0); break
-      case 'furniture_fee': setFurnitureFee(parseFloat(rawValue) || 0); break
-      case 'stairs_fee': setStairsFee(parseFloat(rawValue) || 0); break
-      case 'quarter_round_fee': setQuarterRoundFee(parseFloat(rawValue) || 0); break
-      case 'reducers_fee': setReducersFee(parseFloat(rawValue) || 0); break
-      case 'delivery_fee': setDeliveryFee(parseFloat(rawValue) || 0); break
-      case 'custom_fee_amount': setCustomFeeAmount(parseFloat(rawValue) || 0); break
+      case 'material_cost_per_sqft': setMaterialRate(parseNumeric(rawValue)); break
+      case 'labor_cost_per_sqft': setLaborRate(parseNumeric(rawValue)); break
+      case 'adjusted_sqft': setAdjustedSqft(parseNumeric(rawValue)); break
+      case 'removal_fee': setRemovalFee(parseNumeric(rawValue)); break
+      case 'furniture_fee': setFurnitureFee(parseNumeric(rawValue)); break
+      case 'stairs_fee': setStairsFee(parseNumeric(rawValue)); break
+      case 'quarter_round_fee': setQuarterRoundFee(parseNumeric(rawValue)); break
+      case 'reducers_fee': setReducersFee(parseNumeric(rawValue)); break
+      case 'delivery_fee': setDeliveryFee(parseNumeric(rawValue)); break
+      case 'custom_fee_amount': setCustomFeeAmount(parseNumeric(rawValue)); break
       case 'custom_fee_label': setCustomFeeLabel(rawValue); break
       case 'inclusions': setInclusions(rawValue); break
       case 'exclusions': setExclusions(rawValue); break
@@ -483,7 +567,7 @@ export default function QuoteDetailCard({
 
   // Save stairs rate (rate × count → stairs_fee total)
   function handleStairsRateSave(key: string, rawValue: string) {
-    const newRate = parseFloat(rawValue) || 0
+    const newRate = parseFloat(String(rawValue).replace(/,/g, '')) || 0
     const cnt = q.stair_count && q.stair_count > 0 ? q.stair_count : 1
     const newTotal = newRate * cnt
     setStairsFee(newTotal)
@@ -511,14 +595,15 @@ export default function QuoteDetailCard({
     const item = items.find(li => li.id === id)
     if (!item) return
 
+    const cleanNum = (v: string) => parseFloat(String(v).replace(/,/g, '')) || 0
     const newItem = { ...item }
     if (field === 'description') {
       newItem.description = rawValue
     } else if (field === 'qty') {
-      newItem.qty = parseFloat(rawValue) || 0
+      newItem.qty = cleanNum(rawValue)
       newItem.total = newItem.qty * newItem.unit_price
     } else if (field === 'unit_price') {
-      newItem.unit_price = parseFloat(rawValue) || 0
+      newItem.unit_price = cleanNum(rawValue)
       newItem.total = newItem.qty * newItem.unit_price
     }
 
@@ -658,6 +743,10 @@ export default function QuoteDetailCard({
     flashSaved(`section-lab-desc-${sectionName}`)
   }
 
+  // ---- Material row description (declared before live-totals block so it can use these) ----
+  const flooringLabel = flooringTypeLabel(flooringType, q.section_flooring_types) || 'flooring'
+  const wasteFactor = 1 + (Number(q.waste_pct) || 0) / 100
+
   // ---- Live totals (always computed from state — never from stale q.* props) ----
   const currentLineItemsSum = items.reduce((s, li) => s + li.total, 0)
 
@@ -693,10 +782,6 @@ export default function QuoteDetailCard({
   const showSubtotal = (q.tax_enabled && displayTax > 0) || displayMarkup > 0
   const showDeposit = q.deposit_pct > 0 && displayDeposit > 0
   const remainingBalance = displayFinalTotal - displayDeposit
-
-  // ---- Material row description ----
-  const flooringLabel = flooringTypeLabel(q.flooring_type, q.section_flooring_types) || 'flooring'
-  const wasteFactor = 1 + (Number(q.waste_pct) || 0) / 100
 
   // Shared grid columns (5 cols: desc | sqft | uom | rate | total)
   const GRID_COLS = '5fr 70px 60px 80px 90px'
@@ -822,7 +907,7 @@ export default function QuoteDetailCard({
             </div>
             <div className="flex gap-1 mb-0.5">
               <span className="font-semibold text-xs w-14 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Email:</span>
-              <EditableField fieldKey="customer_email" value={q.customer_email || ''} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="Email address" />
+              <EditableField fieldKey="customer_email" value={customerEmail} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="Email address" />
             </div>
             <div className="flex gap-1">
               <span className="font-semibold text-xs w-14 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Address:</span>
@@ -863,11 +948,20 @@ export default function QuoteDetailCard({
               <>
                 <div className="flex gap-1 mb-0.5">
                   <span className="font-semibold text-xs w-28 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Flooring Type:</span>
-                  <EditableField fieldKey="flooring_type" value={flooringLabel} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="e.g. Hardwood" />
+                  <EditableSelect
+                    fieldKey="flooring_type"
+                    value={flooringType}
+                    options={Object.entries(FLOORING_LABEL).map(([value, label]) => ({ value, label }))}
+                    editing={editing}
+                    saved={saved}
+                    onEdit={onEdit}
+                    onSave={handleSave}
+                    placeholder="Select flooring type"
+                  />
                 </div>
                 <div className="flex gap-1 mb-0.5">
                   <span className="font-semibold text-xs w-28 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Area (sq ft):</span>
-                  <EditableField fieldKey="adjusted_sqft" value={adjustedSqft > 0 ? fmtQty(adjustedSqft) : ''} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="0" />
+                  <EditableField fieldKey="adjusted_sqft" value={adjustedSqft > 0 ? String(adjustedSqft) : ''} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="0" />
                 </div>
                 <div className="flex gap-1">
                   <span className="font-semibold text-xs w-28 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Color / Style:</span>
