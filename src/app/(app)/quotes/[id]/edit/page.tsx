@@ -93,10 +93,10 @@ export default async function EditQuotePage({
   return (
     <div>
       <div className="mb-5">
-        <h1 className="text-base font-semibold text-gray-900">{isMeasurement ? 'Edit measurement' : 'Edit quote'}</h1>
-        <p className="text-xs text-gray-400 mt-0.5">{q.customer_name}</p>
+        <h1 className="text-base font-semibold text-gray-900">{isMeasurement ? 'Edit measurement' : q.status === 'draft' ? 'Continue draft' : 'Edit quote'}</h1>
+        <p className="text-xs text-gray-400 mt-0.5">{q.customer_name || 'Unnamed draft'}</p>
       </div>
-      <QuoteForm settings={settings} initialData={initialData} quoteId={id} isPro={!!isOnPro} />
+      <QuoteForm settings={settings} initialData={initialData} quoteId={id} initialStatus={q.status} isPro={!!isOnPro} />
     </div>
   )
 }

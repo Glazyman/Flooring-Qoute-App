@@ -210,14 +210,17 @@ export default function QuoteForm({
   settings,
   initialData,
   quoteId,
+  initialStatus,
   isPro = false,
 }: {
   settings: CompanySettings | null
   initialData?: QuoteInitialData
   quoteId?: string
+  initialStatus?: string
   isPro?: boolean
 }) {
-  const isEditing = !!quoteId
+  const isEditing = !!quoteId && initialStatus !== 'draft'
+  const isDraftEdit = !!quoteId && initialStatus === 'draft'
   const router = useRouter()
   const [saving, setSaving] = useState(false)
   const [savingMode, setSavingMode] = useState<'measurement' | 'estimate' | null>(null)
@@ -460,8 +463,8 @@ export default function QuoteForm({
   const [checklistOpen, setChecklistOpen] = useState(false)
   const [confirmRemoveSection, setConfirmRemoveSection] = useState<string | null>(null)
 
-  // Auto-draft state (new quotes only)
-  const draftIdRef = useRef<string | null>(null)
+  // Auto-draft state (new quotes and draft edits)
+  const draftIdRef = useRef<string | null>(isDraftEdit ? (quoteId ?? null) : null)
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isSubmittingRef = useRef(false)
   const [draftStatus, setDraftStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
@@ -717,9 +720,9 @@ export default function QuoteForm({
     if (f !== customerPhone) setCustomerPhone(f)
   }
 
-  // ── Auto-draft: debounced save for new quotes ──────────────────────────────
+  // ── Auto-draft: debounced save for new quotes and open drafts ──────────────
   useEffect(() => {
-    if (isEditing || isSubmittingRef.current) return
+    if ((isEditing && !isDraftEdit) || isSubmittingRef.current) return
 
     if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current)
 
@@ -849,7 +852,7 @@ export default function QuoteForm({
 
     return () => { if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current) }
   }, [
-    isEditing, customerName, customerPhone, customerEmail, jobAddress,
+    isEditing, isDraftEdit, customerName, customerPhone, customerEmail, jobAddress,
     measurementType, manualSqft, rooms, sections, sectionFlooring, sectionPricing,
     wastePct, pricingMode, roomPricing,
     removalFee, furnitureFee, stairsFee, stairCount, deliveryFee, quarterRoundFee, reducersFee,
@@ -961,14 +964,17 @@ export default function QuoteForm({
         })),
     }
 
-    // If a draft was auto-saved, promote it via PATCH (preserves the ID and skips quota double-count)
-    const hasDraft = !isEditing && draftIdRef.current !== null
+    // If a draft was auto-saved (new form) or we're editing an existing draft, promote via PATCH
+    const hasDraft = !isEditing && !isDraftEdit && draftIdRef.current !== null
     const url = isEditing
       ? `/api/quotes/${quoteId}`
-      : hasDraft
+      : isDraftEdit
         ? `/api/quotes/${draftIdRef.current}`
-        : '/api/quotes'
-    const method = isEditing || hasDraft ? 'PATCH' : 'POST'
+        : hasDraft
+          ? `/api/quotes/${draftIdRef.current}`
+          : '/api/quotes'
+    const method = isEditing || hasDraft || isDraftEdit ? 'PATCH' : 'POST'
+    const needsQuoteNumber = hasDraft || isDraftEdit
 
     const res = await fetch(url, {
       method,
@@ -976,7 +982,7 @@ export default function QuoteForm({
       body: JSON.stringify({
         ...payload,
         // Ask the PATCH route to assign a quote number when promoting from draft
-        ...(hasDraft ? { _assign_quote_number: true } : {}),
+        ...(needsQuoteNumber ? { _assign_quote_number: true } : {}),
       }),
     })
 
@@ -988,8 +994,8 @@ export default function QuoteForm({
       setSavingMode(null)
       return
     }
-    // Navigate to the final quote — for draft promotions the PATCH returns { id }
-    const finalId = isEditing ? quoteId : (hasDraft ? draftIdRef.current : data.id)
+    // Navigate to the final quote
+    const finalId = (isEditing || isDraftEdit) ? (quoteId ?? draftIdRef.current) : (hasDraft ? draftIdRef.current : data.id)
     router.push(`/quotes/${finalId}`)
     router.refresh()
   }
