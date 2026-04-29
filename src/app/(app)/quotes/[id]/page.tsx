@@ -120,7 +120,7 @@ export default async function QuoteDetailPage({
   })
 
   return (
-    <div className="max-w-3xl space-y-5">
+    <div className="space-y-5">
       {/* Measurement approval banner */}
       {q.status === 'measurement' && (
         <div className="print-hide flex items-center justify-between gap-4 bg-white rounded-xl px-4 py-3" style={{ border: '1px solid var(--border)' }}>

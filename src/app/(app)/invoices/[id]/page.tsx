@@ -46,7 +46,7 @@ export default async function InvoiceDetailPage({
   const cfg = STATUS_DOT[inv.status] || { color: '#9CA3AF', label: inv.status }
 
   return (
-    <div className="max-w-2xl space-y-5">
+    <div className="space-y-5">
       {/* Header */}
       <div>
         <div className="flex items-start justify-between gap-3 flex-wrap">

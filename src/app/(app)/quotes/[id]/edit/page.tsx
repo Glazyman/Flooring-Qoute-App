@@ -88,7 +88,7 @@ export default async function EditQuotePage({
   const isMeasurement = q.status === 'measurement'
 
   return (
-    <div className="max-w-3xl">
+    <div>
       <div className="mb-5">
         <h1 className="text-base font-semibold text-gray-900">{isMeasurement ? 'Edit measurement' : 'Edit quote'}</h1>
         <p className="text-xs text-gray-400 mt-0.5">{q.customer_name}</p>

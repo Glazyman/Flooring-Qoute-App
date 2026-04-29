@@ -229,7 +229,7 @@ function AccountTab() {
   if (loading) return <p className="text-sm text-gray-500">Loading…</p>
 
   return (
-    <form onSubmit={saveProfile} className="space-y-5 max-w-2xl">
+    <form onSubmit={saveProfile} className="space-y-5">
       <Card title="Account">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Input label="Full name" value={user.full_name} onChange={(v) => setUser(u => ({ ...u, full_name: v }))} placeholder="Your name" />
@@ -327,7 +327,7 @@ function EmailTab() {
   }
 
   return (
-    <div className="space-y-5 max-w-2xl">
+    <div className="space-y-5">
       <Card title="Email sending" description="Connect your Gmail account so quote emails are sent from your own address. If no account is connected, quotes are sent from FloorQuote's shared sender.">
         {loading ? (
           <p className="text-sm text-gray-500">Loading…</p>
@@ -529,7 +529,7 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5 max-w-2xl pb-24">
+    <form onSubmit={handleSubmit} className="space-y-5 pb-24">
       <Tabs tab={tab} setTab={switchTab} />
 
       {success && !isDirty && (
