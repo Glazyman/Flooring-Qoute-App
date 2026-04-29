@@ -96,7 +96,13 @@ export default function AppNavigation({
   draftCount?: number
 }) {
   const router = useRouter()
+  const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
+
+  // Show Drafts sub-link only while the user is inside the Estimates section
+  const showDrafts =
+    pathname === '/quotes' ||
+    (pathname.startsWith('/quotes/') && pathname !== '/quotes/new')
 
   async function handleLogout() {
     const supabase = createClient()
@@ -198,8 +204,8 @@ export default function AppNavigation({
                 onClick={() => setMobileOpen(false)}
                 badge={item.href === '/measurements' ? pendingMeasurements : undefined}
               />
-              {/* Drafts sub-item under Estimates */}
-              {item.href === '/quotes' && (
+              {/* Drafts sub-item — only visible while in the Estimates section */}
+              {item.href === '/quotes' && showDrafts && (
                 <NavLink
                   item={{ href: '/quotes/drafts', label: 'Drafts', icon: FileEdit }}
                   onClick={() => setMobileOpen(false)}
