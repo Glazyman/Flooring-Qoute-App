@@ -840,45 +840,40 @@ export default function QuoteDetailCard({
             Project Details:
           </div>
           <div className="p-4 min-h-[90px] text-sm" style={{ color: '#0f172a' }}>
-            {/* Flooring type(s) */}
             {canRenderPerSection && sectionKeys.length > 0 ? (
-              sectionKeys.map(sec => {
-                const secType = q.section_flooring_types?.[sec]
-                const secLabel = secType ? (FLOORING_LABEL[secType] || secType) : flooringLabel
-                const baseSqft = roomsBySection[sec] ?? 0
-                const adjSqft = baseSqft * wasteFactor
-                return (
-                  <div key={sec} className="flex gap-1 mb-0.5">
-                    <span className="font-semibold text-xs flex-shrink-0" style={{ color: '#475569', paddingTop: 1, minWidth: '4rem' }}>{sec}:</span>
-                    <span>{secLabel} — {fmtQty(adjSqft)} sqft</span>
-                  </div>
-                )
-              })
+              <>
+                {sectionKeys.map(sec => {
+                  const secType = q.section_flooring_types?.[sec]
+                  const secLabel = secType ? (FLOORING_LABEL[secType] || secType) : flooringLabel
+                  const baseSqft = roomsBySection[sec] ?? 0
+                  const adjSqft = baseSqft * wasteFactor
+                  return (
+                    <div key={sec} className="flex gap-1 mb-0.5">
+                      <span className="font-semibold text-xs flex-shrink-0" style={{ color: '#475569', paddingTop: 1, minWidth: '4.5rem' }}>{sec}:</span>
+                      <span>{secLabel} — {fmtQty(adjSqft)} sqft</span>
+                    </div>
+                  )
+                })}
+                <div className="flex gap-1 mt-0.5">
+                  <span className="font-semibold text-xs w-28 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Color / Style:</span>
+                  <EditableField fieldKey="material_description" value={materialDescription} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="Color or style name" />
+                </div>
+              </>
             ) : (
               <>
                 <div className="flex gap-1 mb-0.5">
                   <span className="font-semibold text-xs w-28 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Flooring Type:</span>
-                  <span>{flooringLabel}</span>
+                  <EditableField fieldKey="flooring_type" value={flooringLabel} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="e.g. Hardwood" />
                 </div>
                 <div className="flex gap-1 mb-0.5">
                   <span className="font-semibold text-xs w-28 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Area (sq ft):</span>
-                  <span>{fmtQty(adjustedSqft)} sqft</span>
+                  <EditableField fieldKey="adjusted_sqft" value={adjustedSqft > 0 ? fmtQty(adjustedSqft) : ''} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="0" />
+                </div>
+                <div className="flex gap-1">
+                  <span className="font-semibold text-xs w-28 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Color / Style:</span>
+                  <EditableField fieldKey="material_description" value={materialDescription} editing={editing} saved={saved} onEdit={onEdit} onSave={handleSave} placeholder="Color or style name" />
                 </div>
               </>
-            )}
-            {/* Material description if set */}
-            {q.material_description?.trim() && (
-              <div className="flex gap-1 mb-0.5">
-                <span className="font-semibold text-xs w-28 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Material:</span>
-                <span>{q.material_description}</span>
-              </div>
-            )}
-            {/* Waste % if non-zero */}
-            {Number(q.waste_pct) > 0 && (
-              <div className="flex gap-1">
-                <span className="font-semibold text-xs w-28 flex-shrink-0" style={{ color: '#475569', paddingTop: 1 }}>Waste %:</span>
-                <span>{q.waste_pct}%</span>
-              </div>
             )}
           </div>
         </div>
