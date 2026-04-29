@@ -71,7 +71,7 @@ export default async function DashboardPage() {
         {/* Dark header */}
         <div className="flex items-center justify-between px-5 py-3.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
           <p className="font-semibold text-sm" style={{ color: 'rgba(255,255,255,0.85)' }}>Recent Estimates</p>
-          <Link href="/quotes" className="text-xs font-semibold px-2.5 py-1 rounded-lg transition-colors" style={{ color: 'var(--primary)', background: 'rgba(13,148,136,0.12)' }}>See all</Link>
+          <Link href="/quotes" className="text-xs font-semibold px-2.5 py-1 rounded-lg transition-colors" style={{ color: 'var(--button-dark)', background: 'var(--button-dark-light)' }}>See all</Link>
         </div>
 
         {/* White list body */}

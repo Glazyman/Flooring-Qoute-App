@@ -159,7 +159,7 @@ export default function ContactModal({
                 type="submit"
                 disabled={status === 'sending'}
                 className="w-full text-white font-bold py-4 rounded-2xl text-base transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
-                style={{ background: 'var(--primary)' }}
+                style={{ background: 'var(--button-dark)' }}
               >
                 {status === 'sending' ? (
                   <>

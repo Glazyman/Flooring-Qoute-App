@@ -11,6 +11,11 @@
   --primary-hover: #0B7D73;
   --primary-light: #F0FDFA;
 
+  /* Neutral dark — primary buttons (matches sidebar) */
+  --button-dark: #1C1C1E;
+  --button-dark-hover: #2C2C2E;
+  --button-dark-light: rgba(28,28,30,0.08);
+
   --accent: #f97316;
   --accent-light: #fff7ed;
   --text: #1C1C1E;

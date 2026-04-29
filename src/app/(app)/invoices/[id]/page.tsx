@@ -86,7 +86,7 @@ export default async function InvoiceDetailPage({
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 text-sm font-semibold px-3.5 py-2 rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors flex-shrink-0"
-            style={{ color: 'var(--primary)' }}
+            style={{ color: 'var(--button-dark)' }}
           >
             <ExternalLink className="w-3.5 h-3.5" />
             View

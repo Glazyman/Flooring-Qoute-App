@@ -100,7 +100,7 @@ export default function EmailInvoiceButton({ invoiceId, customerEmail }: Props) 
               onClick={handleSend}
               disabled={status === 'sending'}
               className="flex-1 flex items-center justify-center gap-1.5 text-white font-semibold px-4 py-2.5 rounded-2xl text-sm active:scale-95 disabled:opacity-70"
-              style={{ background: 'var(--primary)' }}
+              style={{ background: 'var(--button-dark)' }}
             >
               {status === 'sending' ? (
                 <>

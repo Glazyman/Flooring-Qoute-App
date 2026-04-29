@@ -154,7 +154,7 @@ export default function ContactForm({ prefill }: { prefill: Prefill }) {
       <button
         type="submit"
         disabled={status === 'sending'}
-        className="w-full bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white font-bold py-3.5 rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
+        className="w-full bg-[#1C1C1E] hover:bg-[#2C2C2E] disabled:opacity-60 text-white font-bold py-3.5 rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
       >
         {status === 'sending' ? (
           <>

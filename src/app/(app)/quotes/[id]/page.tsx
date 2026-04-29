@@ -136,7 +136,7 @@ export default async function QuoteDetailPage({
           <Link
             href={`/quotes/${id}/edit`}
             className="flex items-center justify-center gap-1.5 text-white font-semibold px-4 py-3 sm:py-2.5 rounded-2xl text-sm active:scale-95 transition-transform focus:outline-none focus:ring-0"
-            style={{ background: 'var(--primary)' }}
+            style={{ background: 'var(--button-dark)' }}
           >
             <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
@@ -154,7 +154,7 @@ export default async function QuoteDetailPage({
             href={`/api/quotes/${id}/pdf`}
             target="_blank"
             className="flex items-center justify-center gap-1.5 text-white font-semibold px-4 py-3 sm:py-2.5 rounded-2xl text-sm active:scale-95"
-            style={{ background: 'var(--primary)' }}
+            style={{ background: 'var(--button-dark)' }}
           >
             <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path

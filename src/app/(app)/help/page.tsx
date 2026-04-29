@@ -165,7 +165,7 @@ export default function HelpPage() {
             <button
               type="submit" disabled={status === 'sending'}
               className="w-full text-white font-bold py-3 rounded-xl text-sm transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
-              style={{ background: 'var(--primary)' }}
+              style={{ background: 'var(--button-dark)' }}
             >
               {status === 'sending' ? (
                 <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Sending…</>

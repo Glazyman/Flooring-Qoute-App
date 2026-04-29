@@ -180,8 +180,8 @@ export default function BillingSetupPage() {
             <button
               onClick={() => handleSubscribe('pro')}
               disabled={loadingPlan !== null}
-              className="w-full bg-white hover:bg-teal-50 disabled:opacity-50 font-bold py-3 px-4 rounded-2xl text-sm transition-colors"
-              style={{ color: 'var(--primary)' }}
+              className="w-full bg-white hover:bg-gray-50 disabled:opacity-50 font-bold py-3 px-4 rounded-2xl text-sm transition-colors"
+              style={{ color: 'var(--button-dark)' }}
             >
               {loadingPlan === 'pro' ? 'Redirecting…' : 'Subscribe to Pro'}
             </button>

@@ -373,7 +373,7 @@ export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'for
             <button
               onClick={() => setLineItems(prev => [...prev, emptyItem()])}
               className="flex items-center gap-1.5 text-sm font-medium mt-1 px-3 py-2 rounded-xl hover:bg-gray-50 transition-colors"
-              style={{ color: 'var(--primary)' }}
+              style={{ color: 'var(--button-dark)' }}
             >
               <Plus className="w-4 h-4" /> Add Line Item
             </button>
@@ -419,7 +419,7 @@ export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'for
             onClick={handleSubmitForm}
             disabled={saving}
             className="w-full text-white font-bold py-4 rounded-2xl text-sm disabled:opacity-60 active:scale-[0.99] transition-all"
-            style={{ background: 'var(--primary)', boxShadow: '0 2px 12px rgba(13,148,136,0.3)' }}
+            style={{ background: 'var(--button-dark)', boxShadow: '0 2px 12px rgba(28,28,30,0.3)' }}
           >
             {saving ? 'Saving…' : 'Save Invoice'}
           </button>
@@ -495,7 +495,7 @@ export default function InvoiceForm({ defaultTab = 'form' }: { defaultTab?: 'for
             onClick={handleUpload}
             disabled={uploading || !uploadFile}
             className="w-full text-white font-bold py-4 rounded-2xl text-sm disabled:opacity-60 active:scale-[0.99] transition-all"
-            style={{ background: 'var(--primary)', boxShadow: '0 2px 12px rgba(13,148,136,0.3)' }}
+            style={{ background: 'var(--button-dark)', boxShadow: '0 2px 12px rgba(28,28,30,0.3)' }}
           >
             {uploading ? 'Uploading…' : 'Save Invoice'}
           </button>

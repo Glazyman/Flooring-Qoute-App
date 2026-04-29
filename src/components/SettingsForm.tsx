@@ -242,7 +242,7 @@ function AccountTab() {
           type="submit"
           disabled={saving}
           className="px-5 py-2.5 text-sm font-bold text-white rounded-xl transition-colors disabled:opacity-50"
-          style={{ background: 'var(--primary)' }}
+          style={{ background: 'var(--button-dark)' }}
         >
           {saving ? 'Saving…' : 'Save Changes'}
         </button>
@@ -351,7 +351,7 @@ function EmailTab() {
             <a
               href="/api/email/oauth/google/start"
               className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white rounded-xl transition-colors"
-              style={{ background: 'var(--primary)' }}
+              style={{ background: 'var(--button-dark)' }}
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4.236-8 5.143-8-5.143V6l8 5.143L20 6z" />
@@ -564,7 +564,8 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
                 <button
                   type="button"
                   onClick={() => logoInputRef.current?.click()}
-                  className="w-full text-sm font-semibold text-teal-600 border border-teal-200 bg-teal-50 hover:bg-teal-100 py-2 px-3 rounded-xl transition-colors"
+                  className="w-full text-sm font-semibold py-2 px-3 rounded-xl transition-colors"
+                  style={{ color: 'var(--button-dark)', background: 'var(--button-dark-light)', border: '1px solid var(--border)' }}
                 >
                   {logoUploading ? 'Uploading…' : form.logo_url ? 'Replace logo' : 'Upload logo'}
                 </button>
@@ -720,7 +721,7 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
             type="submit"
             disabled={saving}
             className="px-5 py-2 text-sm font-bold text-white rounded-xl transition-colors disabled:opacity-50"
-            style={{ background: 'var(--primary)' }}
+            style={{ background: 'var(--button-dark)' }}
           >
             {saving ? 'Saving…' : 'Save Changes'}
           </button>

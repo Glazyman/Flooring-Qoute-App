@@ -192,7 +192,7 @@ export default function SignupPage() {
           type="submit"
           disabled={loading || !passwordsMatch}
           className="w-full text-white font-bold py-2.5 px-4 rounded-xl text-sm transition-colors mt-1 focus:outline-none disabled:opacity-60"
-          style={{ background: 'var(--primary)' }}
+          style={{ background: 'var(--button-dark)' }}
         >
           {loading ? 'Creating account…' : 'Create free account'}
         </button>

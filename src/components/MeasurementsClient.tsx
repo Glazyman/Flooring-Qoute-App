@@ -159,7 +159,8 @@ export default function MeasurementsClient({ initialMeasurements }: { initialMea
                     <button
                       onClick={bulkApprove}
                       disabled={working}
-                      className="text-xs font-medium text-teal-700 hover:text-teal-800 px-3 py-1.5 rounded-lg border border-teal-200 hover:bg-teal-50 transition-colors disabled:opacity-50"
+                      className="text-xs font-medium px-3 py-1.5 rounded-lg border transition-colors disabled:opacity-50 hover:opacity-80"
+                      style={{ color: 'var(--button-dark)', background: 'var(--button-dark-light)', borderColor: 'var(--border)' }}
                     >
                       Approve
                     </button>

@@ -41,7 +41,7 @@ export default function InvoiceStatusButton({
       onClick={handleUpdate}
       disabled={loading}
       className="text-white font-semibold px-4 py-2 rounded-2xl text-sm disabled:opacity-60 active:scale-95 transition-all"
-      style={{ background: 'var(--primary)' }}
+      style={{ background: 'var(--button-dark)' }}
     >
       {loading ? 'Updating…' : action.label}
     </button>

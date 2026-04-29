@@ -289,7 +289,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
         <button
           onClick={startAdd}
           className="flex items-center justify-center w-9 h-9 text-white rounded-xl flex-shrink-0 active:scale-95"
-          style={{ background: 'var(--primary)' }}
+          style={{ background: 'var(--button-dark)' }}
           title="Add Contact"
         >
           <UserPlus className="w-4 h-4" />
@@ -363,7 +363,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
                   onClick={handleImportConfirm}
                   disabled={importing}
                   className="flex items-center gap-1.5 text-white font-semibold px-4 py-2.5 rounded-2xl text-sm disabled:opacity-60 active:scale-95"
-                  style={{ background: 'var(--primary)' }}
+                  style={{ background: 'var(--button-dark)' }}
                 >
                   <Check className="w-4 h-4" />
                   {importing ? 'Importing…' : `Import ${importRows.length} Contacts`}
@@ -428,7 +428,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
               onClick={handleSave}
               disabled={saving}
               className="flex items-center gap-1.5 text-white font-semibold px-4 py-2.5 rounded-2xl text-sm active:scale-95 disabled:opacity-60"
-              style={{ background: 'var(--primary)' }}
+              style={{ background: 'var(--button-dark)' }}
             >
               <Check className="w-4 h-4" />
               {saving ? 'Saving…' : 'Save Contact'}
@@ -524,7 +524,7 @@ export default function ContactsClient({ initialCustomers, onSelectContact, mode
                       <button
                         onClick={() => onSelectContact({ name: c.name, phone: c.phone || '', email: c.email || '', address: c.address || '' })}
                         className="text-white font-semibold px-3 py-1.5 rounded-lg text-xs active:scale-95 mr-1"
-                        style={{ background: 'var(--primary)' }}
+                        style={{ background: 'var(--button-dark)' }}
                       >
                         Select
                       </button>

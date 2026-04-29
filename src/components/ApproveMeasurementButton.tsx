@@ -38,7 +38,7 @@ export default function ApproveMeasurementButton({ quoteId, onApprove }: { quote
       onClick={handleApprove}
       disabled={loading}
       className="flex items-center gap-1.5 text-white font-semibold px-3.5 py-2 rounded-2xl text-xs disabled:opacity-60 active:scale-95 transition-all whitespace-nowrap"
-      style={{ background: 'var(--primary)' }}
+      style={{ background: 'var(--button-dark)' }}
     >
       <CheckCircle className="w-3.5 h-3.5" />
       {loading ? 'Approving…' : 'Approve'}

@@ -766,7 +766,7 @@ export default function QuoteDetailCard({
           <button
             onClick={() => setSelectMode(true)}
             className="text-xs font-medium px-2.5 py-1 rounded-lg transition-colors"
-            style={{ background: 'rgba(13,148,136,0.08)', color: '#0D9488' }}
+            style={{ background: 'var(--button-dark-light)', color: 'var(--button-dark)' }}
           >
             Select
           </button>
@@ -782,7 +782,7 @@ export default function QuoteDetailCard({
             <button
               onClick={handleSelectAll}
               className="text-xs font-medium px-2.5 py-1 rounded-lg"
-              style={{ background: 'rgba(13,148,136,0.08)', color: '#0D9488' }}
+              style={{ background: 'var(--button-dark-light)', color: 'var(--button-dark)' }}
             >
               Select All
             </button>
@@ -1436,7 +1436,7 @@ export default function QuoteDetailCard({
               onClick={addLineItem}
               disabled={addingRow}
               className="flex items-center gap-1.5 text-xs font-semibold py-1 px-2 rounded-lg transition-colors disabled:opacity-50"
-              style={{ color: TEAL, background: 'rgba(13,148,136,0.06)' }}
+              style={{ color: 'var(--button-dark)', background: 'var(--button-dark-light)' }}
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />

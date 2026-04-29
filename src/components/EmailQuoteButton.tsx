@@ -38,7 +38,7 @@ export default function EmailQuoteButton({ quoteId, customerEmail, emailConnecte
       <Link
         href="/settings?tab=email"
         className="flex items-center justify-center gap-1.5 text-white font-semibold px-4 py-3 sm:py-2.5 rounded-2xl text-sm active:scale-95 transition-transform focus:outline-none"
-        style={{ background: 'var(--primary)', boxShadow: '0 2px 8px rgba(13,148,136,0.25)' }}
+        style={{ background: 'var(--button-dark)', boxShadow: '0 2px 8px rgba(28,28,30,0.25)' }}
         title="Connect a Gmail account in Settings to send quotes"
       >
         {emailIcon}
@@ -104,7 +104,7 @@ export default function EmailQuoteButton({ quoteId, customerEmail, emailConnecte
       onClick={handleSend}
       disabled={status === 'sending'}
       className="flex items-center justify-center gap-1.5 text-white font-semibold px-4 py-3 sm:py-2.5 rounded-2xl text-sm active:scale-95 transition-transform focus:outline-none disabled:opacity-70"
-      style={{ background: 'var(--primary)', boxShadow: '0 2px 8px rgba(13,148,136,0.25)' }}
+      style={{ background: 'var(--button-dark)', boxShadow: '0 2px 8px rgba(28,28,30,0.25)' }}
     >
       {status === 'sending' ? (
         <>

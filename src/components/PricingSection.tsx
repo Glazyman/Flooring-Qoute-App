@@ -129,8 +129,8 @@ export default function PricingSection() {
           </ul>
           <Link
             href="/signup"
-            className="block text-center bg-white font-bold py-3.5 rounded-2xl text-sm transition-colors hover:bg-teal-50"
-            style={{ color: 'var(--primary)' }}
+            className="block text-center bg-white font-bold py-3.5 rounded-2xl text-sm transition-colors hover:bg-gray-50"
+            style={{ color: 'var(--button-dark)' }}
           >
             Start Free
           </Link>

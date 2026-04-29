@@ -123,7 +123,7 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
           <Link
             href="/invoices/new"
             className="flex items-center gap-2 text-white font-semibold px-4 py-2 rounded-xl text-sm active:scale-95"
-            style={{ background: 'var(--primary)' }}
+            style={{ background: 'var(--button-dark)' }}
           >
             <Upload className="w-4 h-4" />
             <span>Import</span>
@@ -144,14 +144,16 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
                 <button
                   onClick={() => bulkSetStatus('sent')}
                   disabled={working}
-                  className="text-xs font-medium text-teal-700 hover:text-teal-800 px-3 py-1.5 rounded-lg border border-teal-200 hover:bg-teal-50 transition-colors disabled:opacity-50"
+                  className="text-xs font-medium px-3 py-1.5 rounded-lg border transition-colors disabled:opacity-50 hover:opacity-80"
+                  style={{ color: 'var(--button-dark)', background: 'var(--button-dark-light)', borderColor: 'var(--border)' }}
                 >
                   Mark Sent
                 </button>
                 <button
                   onClick={() => bulkSetStatus('paid')}
                   disabled={working}
-                  className="text-xs font-medium text-teal-700 hover:text-teal-800 px-3 py-1.5 rounded-lg border border-teal-200 hover:bg-teal-50 transition-colors disabled:opacity-50"
+                  className="text-xs font-medium px-3 py-1.5 rounded-lg border transition-colors disabled:opacity-50 hover:opacity-80"
+                  style={{ color: 'var(--button-dark)', background: 'var(--button-dark-light)', borderColor: 'var(--border)' }}
                 >
                   Mark Paid
                 </button>
@@ -179,7 +181,7 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
             <Link
               href="/invoices/new"
               className="inline-flex items-center gap-2 text-white font-semibold px-5 py-2.5 rounded-xl text-sm"
-              style={{ background: 'var(--primary)' }}
+              style={{ background: 'var(--button-dark)' }}
             >
               <Upload className="w-4 h-4" /> Import CSV
             </Link>
