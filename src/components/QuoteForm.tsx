@@ -19,6 +19,7 @@ import {
   Copy,
   ChevronDown,
   ChevronRight,
+  Check,
 } from 'lucide-react'
 
 interface LineItemRow {
@@ -824,37 +825,39 @@ export default function QuoteForm({
   const totalLabel = `${fmt(calcs.final_total)} • Material+Labor`
   const expirationLabel = formatExpiration(n(validDays) || 0)
 
-  // Reusable checklist block (wood type, finish, sheen, sanding, install, rooms, trim, removals, plank width)
+  // Reusable checklist block — pill/chip buttons for easy mobile tapping
   const specGroups = JOB_OPTION_GROUPS.filter(g => g.id !== 'scope')
   const jobSpecChecklist = (
-    <div className="mt-4 pt-4 space-y-4" style={{ borderTop: '1px solid #F1F1F4' }}>
+    <div className="mt-4 pt-4 space-y-5" style={{ borderTop: '1px solid #F1F1F4' }}>
       {specGroups.map(group => (
         <div key={group.id}>
-          <div className="flex items-baseline gap-2 mb-2">
+          <div className="flex items-baseline gap-2 mb-3">
             <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">{group.label}</span>
             {group.description && <p className="text-xs text-gray-400">{group.description}</p>}
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2">
+          <div className="flex flex-wrap gap-2">
             {group.options.map(opt => {
               const checked = jobOptions[opt.key] === true
               return (
-                <label key={opt.key} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer select-none hover:text-gray-900 transition-colors">
-                  <input
-                    type={group.exclusive ? 'radio' : 'checkbox'}
-                    name={group.exclusive ? `job-opt-${group.id}` : undefined}
-                    checked={checked}
-                    onChange={() => group.exclusive ? setExclusiveJobOption(group.id, opt.key) : toggleJobOption(opt.key)}
-                    className="w-4 h-4 cursor-pointer flex-shrink-0"
-                    style={{ accentColor: 'var(--primary)' }}
-                  />
-                  <span>{opt.label}</span>
-                </label>
+                <button
+                  key={opt.key}
+                  type="button"
+                  onClick={() => group.exclusive ? setExclusiveJobOption(group.id, opt.key) : toggleJobOption(opt.key)}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium transition-all select-none"
+                  style={checked
+                    ? { background: '#1d1d1f', color: 'white', border: '1.5px solid #1d1d1f' }
+                    : { background: 'white', color: '#374151', border: '1.5px solid #E5E7EB' }
+                  }
+                >
+                  {checked && <Check className="w-3.5 h-3.5 flex-shrink-0" />}
+                  {opt.label}
+                </button>
               )
             })}
           </div>
         </div>
       ))}
-      <div className="pt-2" style={{ borderTop: '1px solid #F1F1F4' }}>
+      <div className="pt-3" style={{ borderTop: '1px solid #F1F1F4' }}>
         <Input
           label="Plank width"
           value={(jobOptions.width as string | undefined) ?? ''}
@@ -958,24 +961,27 @@ export default function QuoteForm({
               const scopeGroup = JOB_OPTION_GROUPS.find(g => g.id === 'scope')!
               return (
                 <div className="mb-5 pb-5" style={{ borderBottom: '1px solid #F1F1F4' }}>
-                  <div className="flex items-baseline gap-2 mb-2">
+                  <div className="flex items-baseline gap-2 mb-3">
                     <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">{scopeGroup.label}</span>
                     {scopeGroup.description && <p className="text-xs text-gray-400">{scopeGroup.description}</p>}
                   </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2">
+                  <div className="flex flex-wrap gap-2">
                     {scopeGroup.options.map(opt => {
                       const checked = jobOptions[opt.key] === true
                       return (
-                        <label key={opt.key} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer select-none hover:text-gray-900 transition-colors">
-                          <input
-                            type="checkbox"
-                            checked={checked}
-                            onChange={() => toggleJobOption(opt.key)}
-                            className="w-4 h-4 cursor-pointer flex-shrink-0"
-                            style={{ accentColor: 'var(--primary)' }}
-                          />
-                          <span>{opt.label}</span>
-                        </label>
+                        <button
+                          key={opt.key}
+                          type="button"
+                          onClick={() => toggleJobOption(opt.key)}
+                          className="flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium transition-all select-none"
+                          style={checked
+                            ? { background: '#1d1d1f', color: 'white', border: '1.5px solid #1d1d1f' }
+                            : { background: 'white', color: '#374151', border: '1.5px solid #E5E7EB' }
+                          }
+                        >
+                          {checked && <Check className="w-3.5 h-3.5 flex-shrink-0" />}
+                          {opt.label}
+                        </button>
                       )
                     })}
                   </div>
