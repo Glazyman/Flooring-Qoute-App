@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback, useMemo } from 'react'
+import { useState, useRef, useCallback, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { calculateQuote, fmt, type QuoteExtras } from '@/lib/calculations'
 import type { CompanySettings, FlooringType, MeasurementType } from '@/lib/types'
@@ -460,6 +460,12 @@ export default function QuoteForm({
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [confirmRemoveSection, setConfirmRemoveSection] = useState<string | null>(null)
 
+  // Auto-draft state (new quotes only)
+  const draftIdRef = useRef<string | null>(null)
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isSubmittingRef = useRef(false)
+  const [draftStatus, setDraftStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+
   const roomsSqft = rooms.reduce((sum, r) => sum + roomSqft(r), 0)
   const baseSqft = measurementType === 'manual' ? n(manualSqft) : roomsSqft
 
@@ -711,11 +717,156 @@ export default function QuoteForm({
     if (f !== customerPhone) setCustomerPhone(f)
   }
 
+  // ── Auto-draft: debounced save for new quotes ──────────────────────────────
+  useEffect(() => {
+    if (isEditing || isSubmittingRef.current) return
+
+    if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current)
+
+    autoSaveTimerRef.current = setTimeout(async () => {
+      // Only persist once the user has entered something meaningful
+      const hasData = customerName.trim() !== '' || baseSqft > 0
+      if (!hasData) return
+
+      setDraftStatus('saving')
+
+      // Build rooms payload
+      const roomsForDraft = measurementType === 'rooms'
+        ? rooms.filter(r => roomSqft(r) > 0).map(r => ({
+            name: r.name || null, section: r.section,
+            length: n(r.lengthFt) + n(r.lengthIn) / 12,
+            width: n(r.widthFt) + n(r.widthIn) / 12,
+            sqft: roomSqft(r),
+          }))
+        : []
+
+      const sectionPricingForDraft: Record<string, { material: number; labor: number }> = {}
+      sections.forEach(sec => {
+        const sp = sectionPricing[sec]
+        if (sp) sectionPricingForDraft[sec] = { material: n(sp.material), labor: n(sp.labor) }
+      })
+
+      const extrasJsonDraft: Record<string, number> = {}
+      Object.entries({
+        subfloor_prep: n(subfloorPrep), underlayment_per_sqft: n(underlaymentPerSqft),
+        transition_qty: n(transitionQty), transition_unit: n(transitionUnit),
+        floor_protection: n(floorProtection), disposal_fee: n(disposalFee),
+      }).forEach(([k, v]) => { if (v && v > 0) extrasJsonDraft[k] = v })
+
+      const roomPricingForDraft: Record<string, { material: number; labor: number }> = {}
+      if (pricingMode === 'room') {
+        rooms.filter(r => roomSqft(r) > 0).forEach((r, idx) => {
+          const key = r.name.trim() || `__${idx}`
+          const rp = roomPricing[key]
+          if (rp) roomPricingForDraft[key] = { material: n(rp.material), labor: n(rp.labor) }
+        })
+      }
+
+      const draftPayload = {
+        status: 'draft',
+        customer_name: customerName.trim() || null,
+        customer_phone: formatPhone(customerPhone) || null,
+        customer_email: customerEmail || null,
+        job_address: jobAddress || null,
+        flooring_type: flooringType,
+        section_flooring_types: sectionFlooring,
+        section_pricing: sectionPricingForDraft,
+        measurement_type: measurementType,
+        base_sqft: baseSqft,
+        waste_pct: n(wastePct),
+        adjusted_sqft: calcs.adjusted_sqft,
+        material_cost_per_sqft: n(sectionPricing[firstSection]?.material || '0'),
+        labor_cost_per_sqft: n(sectionPricing[firstSection]?.labor || '0'),
+        removal_fee: n(removalFee),
+        furniture_fee: n(furnitureFee),
+        stairs_fee: n(stairsFee),
+        stair_count: n(stairCount) || null,
+        delivery_fee: n(deliveryFee),
+        quarter_round_fee: n(quarterRoundFee),
+        reducers_fee: n(reducersFee),
+        finish_type: showFinishFields ? (finishType || null) : null,
+        wood_species: showFinishFields ? (woodSpecies || null) : null,
+        custom_fee_label: customFeeLabel || null,
+        custom_fee_amount: n(customFeeAmount),
+        tax_enabled: taxEnabled,
+        tax_pct: n(taxPct),
+        markup_pct: n(markupPct),
+        deposit_pct: n(depositPct),
+        material_total: calcs.material_total,
+        labor_total: calcs.labor_total,
+        extras_total: calcs.extras_total,
+        subtotal: calcs.subtotal,
+        tax_amount: calcs.tax_amount,
+        markup_amount: calcs.markup_amount,
+        final_total: calcs.final_total,
+        deposit_amount: calcs.deposit_amount,
+        notes: [notes, blueprintNotes].filter(Boolean).join('\n\n') || null,
+        scope_of_work: scopeOfWork.trim() || null,
+        material_description: materialDescription.trim() || null,
+        valid_days: n(validDays) || 30,
+        extras_json: extrasJsonDraft,
+        job_options: jobOptions,
+        pricing_mode: pricingMode,
+        room_pricing: Object.keys(roomPricingForDraft).length > 0 ? roomPricingForDraft : null,
+        rooms: roomsForDraft,
+        line_items: lineItems
+          .filter(li => li.description.trim() || n(li.qty) > 0 || n(li.unit_price) > 0)
+          .map((li, i) => ({
+            position: i,
+            description: li.description.trim() || null,
+            qty: n(li.qty),
+            unit_price: n(li.unit_price),
+            total: +(n(li.qty) * n(li.unit_price)).toFixed(2),
+          })),
+      }
+
+      try {
+        if (draftIdRef.current) {
+          const res = await fetch(`/api/quotes/${draftIdRef.current}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(draftPayload),
+          })
+          setDraftStatus(res.ok ? 'saved' : 'error')
+        } else {
+          const res = await fetch('/api/quotes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(draftPayload),
+          })
+          if (res.ok) {
+            const data = await res.json()
+            draftIdRef.current = data.id
+            setDraftStatus('saved')
+          } else {
+            setDraftStatus('error')
+          }
+        }
+      } catch {
+        setDraftStatus('error')
+      }
+    }, 2500)
+
+    return () => { if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current) }
+  }, [
+    isEditing, customerName, customerPhone, customerEmail, jobAddress,
+    measurementType, manualSqft, rooms, sections, sectionFlooring, sectionPricing,
+    wastePct, pricingMode, roomPricing,
+    removalFee, furnitureFee, stairsFee, stairCount, deliveryFee, quarterRoundFee, reducersFee,
+    customFeeLabel, customFeeAmount, taxEnabled, taxPct, markupPct, depositPct,
+    notes, blueprintNotes, scopeOfWork, materialDescription, validDays,
+    jobOptions, lineItems,
+    subfloorPrep, underlaymentPerSqft, transitionQty, transitionUnit, floorProtection, disposalFee,
+    finishType, woodSpecies, baseSqft, calcs, firstSection, showFinishFields, flooringType,
+  ])
+  // ── End auto-draft ─────────────────────────────────────────────────────────
+
   async function handleSubmit(e: React.FormEvent, mode: 'measurement' | 'estimate' | 'update') {
     e.preventDefault()
     if (!customerName.trim()) { setError('Customer name is required'); return }
     if (baseSqft <= 0) { setError('Please enter square footage'); return }
 
+    isSubmittingRef.current = true
     setSaving(true)
     setSavingMode(mode === 'estimate' ? 'estimate' : 'measurement')
     setError('')
@@ -810,18 +961,36 @@ export default function QuoteForm({
         })),
     }
 
-    const url = isEditing ? `/api/quotes/${quoteId}` : '/api/quotes'
-    const method = isEditing ? 'PATCH' : 'POST'
+    // If a draft was auto-saved, promote it via PATCH (preserves the ID and skips quota double-count)
+    const hasDraft = !isEditing && draftIdRef.current !== null
+    const url = isEditing
+      ? `/api/quotes/${quoteId}`
+      : hasDraft
+        ? `/api/quotes/${draftIdRef.current}`
+        : '/api/quotes'
+    const method = isEditing || hasDraft ? 'PATCH' : 'POST'
 
     const res = await fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({
+        ...payload,
+        // Ask the PATCH route to assign a quote number when promoting from draft
+        ...(hasDraft ? { _assign_quote_number: true } : {}),
+      }),
     })
 
     const data = await res.json()
-    if (!res.ok) { setError(data.error || 'Failed to save quote'); setSaving(false); setSavingMode(null); return }
-    router.push(`/quotes/${isEditing ? quoteId : data.id}`)
+    if (!res.ok) {
+      isSubmittingRef.current = false
+      setError(data.error || 'Failed to save quote')
+      setSaving(false)
+      setSavingMode(null)
+      return
+    }
+    // Navigate to the final quote — for draft promotions the PATCH returns { id }
+    const finalId = isEditing ? quoteId : (hasDraft ? draftIdRef.current : data.id)
+    router.push(`/quotes/${finalId}`)
     router.refresh()
   }
 
@@ -874,6 +1043,21 @@ export default function QuoteForm({
 
   return (
     <form onSubmit={(e) => handleSubmit(e, isEditing ? 'update' : 'measurement')} className="space-y-5 pb-24 lg:pb-0">
+      {/* Draft save indicator */}
+      {!isEditing && draftStatus !== 'idle' && (
+        <div className="flex items-center gap-1.5 text-xs text-gray-400 h-4">
+          {draftStatus === 'saving' && (
+            <><Loader2 className="w-3 h-3 animate-spin" /> Saving draft…</>
+          )}
+          {draftStatus === 'saved' && (
+            <><Check className="w-3 h-3 text-green-500" /> Draft saved</>
+          )}
+          {draftStatus === 'error' && (
+            <span className="text-amber-600">Draft not saved — check connection</span>
+          )}
+        </div>
+      )}
+
       {error && (
         <div className="bg-red-50 text-red-700 px-3.5 py-2.5 rounded-md text-sm" style={{ border: '1px solid #FECACA' }}>{error}</div>
       )}

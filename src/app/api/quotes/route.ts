@@ -74,6 +74,19 @@ export async function POST(request: NextRequest) {
 
   if (!membership) return NextResponse.json({ error: 'No company' }, { status: 404 })
 
+  // Parse body early so we can check status before quota enforcement
+  const body = await request.json()
+  const { rooms, line_items, ...rest } = body
+
+  // Whitelist columns
+  const quoteData: Record<string, unknown> = {}
+  for (const [k, v] of Object.entries(rest)) {
+    if (ALLOWED_QUOTE_FIELDS.has(k)) quoteData[k] = v
+  }
+
+  // Drafts don't count toward plan limits — quota is only checked on real submissions
+  const isDraftSave = quoteData.status === 'draft'
+
   // Check subscription tier and enforce quote limits
   const { data: company } = await supabase
     .from('companies')
@@ -99,52 +112,48 @@ export async function POST(request: NextRequest) {
   const isOnStarter = isSubscribed && companyPriceId !== null && starterPriceIds.has(companyPriceId)
   const isOnPro = isSubscribed && companyPriceId !== null && proPriceIds.has(companyPriceId)
 
-  if (!isSubscribed) {
-    // Free trial: 3 quotes total
-    const { count } = await supabase
-      .from('quotes')
-      .select('*', { count: 'exact', head: true })
-      .eq('company_id', membership.company_id)
+  if (!isDraftSave) {
+    if (!isSubscribed) {
+      // Free trial: 3 non-draft quotes total
+      const { count } = await supabase
+        .from('quotes')
+        .select('*', { count: 'exact', head: true })
+        .eq('company_id', membership.company_id)
+        .neq('status', 'draft')
 
-    if ((count ?? 0) >= 3) {
-      return NextResponse.json(
-        { error: 'Free trial limit reached. Please subscribe to create more quotes.' },
-        { status: 403 }
-      )
-    }
-  } else if (isOnStarter) {
-    // Starter: 25 quotes per calendar month
-    const now = new Date()
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+      if ((count ?? 0) >= 3) {
+        return NextResponse.json(
+          { error: 'Free trial limit reached. Please subscribe to create more quotes.' },
+          { status: 403 }
+        )
+      }
+    } else if (isOnStarter) {
+      // Starter: 25 quotes per calendar month (excluding drafts)
+      const now = new Date()
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
 
-    const { count } = await supabase
-      .from('quotes')
-      .select('*', { count: 'exact', head: true })
-      .eq('company_id', membership.company_id)
-      .gte('created_at', monthStart)
+      const { count } = await supabase
+        .from('quotes')
+        .select('*', { count: 'exact', head: true })
+        .eq('company_id', membership.company_id)
+        .neq('status', 'draft')
+        .gte('created_at', monthStart)
 
-    if ((count ?? 0) >= 25) {
-      return NextResponse.json(
-        { error: 'Monthly quote limit reached (25/month on Starter). Upgrade to Pro for unlimited quotes.', upgrade: true },
-        { status: 403 }
-      )
+      if ((count ?? 0) >= 25) {
+        return NextResponse.json(
+          { error: 'Monthly quote limit reached (25/month on Starter). Upgrade to Pro for unlimited quotes.', upgrade: true },
+          { status: 403 }
+        )
+      }
     }
   }
   // Pro or higher: unlimited — no check needed
   void isOnPro
 
-  const body = await request.json()
-  const { rooms, line_items, ...rest } = body
-
-  // Whitelist columns
-  const quoteData: Record<string, unknown> = {}
-  for (const [k, v] of Object.entries(rest)) {
-    if (ALLOWED_QUOTE_FIELDS.has(k)) quoteData[k] = v
-  }
-
   // Auto-generate quote number from settings prefix + counter when none provided.
+  // Drafts get no quote number — it's assigned only when the draft is actually submitted.
   const incomingQuoteNumber = typeof quoteData.quote_number === 'string' ? quoteData.quote_number.trim() : ''
-  if (!incomingQuoteNumber) {
+  if (!incomingQuoteNumber && !isDraftSave) {
     try {
       const { data: settings } = await supabase
         .from('company_settings')

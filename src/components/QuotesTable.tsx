@@ -17,6 +17,7 @@ interface QuotesTableProps {
 const STATUS_OPTIONS: QuoteStatus[] = ['pending', 'accepted', 'lost']
 
 const STATUS_DOT: Record<QuoteStatus, { color: string; label: string }> = {
+  draft:       { color: '#9CA3AF', label: 'Draft' },
   measurement: { color: '#0071e3', label: 'Measurement' },
   pending:     { color: '#ff9f0a', label: 'Pending' },
   accepted:    { color: '#30d158', label: 'Accepted' },
@@ -689,6 +690,8 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
               const initials = (q.customer_name || '?').charAt(0).toUpperCase()
               const cfg = STATUS_DOT[q.status] || { color: '#9CA3AF', label: q.status }
               const rowBg = isSelected ? 'rgba(239, 246, 255, 0.4)' : undefined
+              // Drafts open in the edit form so the user can continue filling them out
+              const rowHref = q.status === 'draft' ? `/quotes/${q.id}/edit` : `/quotes/${q.id}`
 
               const nameCell = (
                 <div className="flex items-center gap-2.5 min-w-0">
@@ -728,7 +731,7 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
                     >
                       {initials}
                     </div>
-                    <button onClick={() => router.push(`/quotes/${q.id}`)} className="flex-1 min-w-0 text-left">
+                    <button onClick={() => router.push(rowHref)} className="flex-1 min-w-0 text-left">
                       <p className="text-sm font-normal text-gray-800 truncate">{q.customer_name}</p>
                       <p className="text-xs text-gray-400 truncate">
                         {flooringTypeLabel(q.flooring_type, q.section_flooring_types)} · {Math.round(q.adjusted_sqft).toLocaleString()} sqft
@@ -762,7 +765,7 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
                       />
                     </div>
                     <button
-                      onClick={() => router.push(`/quotes/${q.id}`)}
+                      onClick={() => router.push(rowHref)}
                       className="min-w-0 pr-2 text-left"
                     >
                       {nameCell}

@@ -73,12 +73,43 @@ export async function PATCH(
   if (!membership) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await request.json()
-  const { rooms, line_items, ...rest } = body
+  const { rooms, line_items, _assign_quote_number, ...rest } = body
 
   // Whitelist quote columns
   const quoteData: Record<string, unknown> = {}
   for (const [k, v] of Object.entries(rest)) {
     if (ALLOWED_QUOTE_FIELDS.has(k)) quoteData[k] = v
+  }
+
+  // When promoting a draft to a real quote, assign the next quote number if not already set
+  if (_assign_quote_number) {
+    const { data: existing } = await supabase
+      .from('quotes')
+      .select('quote_number')
+      .eq('id', id)
+      .eq('company_id', membership.company_id)
+      .single()
+
+    if (!existing?.quote_number) {
+      try {
+        const { data: settings } = await supabase
+          .from('company_settings')
+          .select('quote_number_prefix, next_quote_number')
+          .eq('company_id', membership.company_id)
+          .single()
+
+        const prefix = (settings?.quote_number_prefix ?? '').trim()
+        const next = settings?.next_quote_number ?? 1
+        quoteData.quote_number = prefix ? `${prefix}-${next}` : String(next)
+
+        await supabase
+          .from('company_settings')
+          .update({ next_quote_number: next + 1 })
+          .eq('company_id', membership.company_id)
+      } catch {
+        // Non-fatal — proceed without assigning a number
+      }
+    }
   }
 
   // Only run the update query if there are actual quote fields to update.
