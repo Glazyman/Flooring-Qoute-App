@@ -380,6 +380,208 @@ export default async function HomePage({
         </div>
       </section>
 
+      {/* ── Sample Quote PDF mockup ── */}
+      <section className="max-w-5xl mx-auto px-5 mb-16 sm:mb-28">
+        <div className="text-center mb-10 sm:mb-14">
+          <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--primary)' }}>The finished product</p>
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">What your client receives</h2>
+          <p className="text-base sm:text-lg text-gray-400 mt-3 max-w-xl mx-auto">
+            A branded, itemized PDF — ready to email or print on the spot.
+          </p>
+        </div>
+
+        {/* Paper document */}
+        <div className="relative mx-auto" style={{ maxWidth: 720 }}>
+          {/* Drop shadow layers for depth */}
+          <div className="absolute inset-0 translate-y-3 translate-x-2 rounded-lg opacity-10" style={{ background: '#1e293b', filter: 'blur(12px)' }} />
+          <div className="relative bg-white rounded-lg overflow-hidden text-[10px] sm:text-[11px] leading-snug" style={{ border: '1px solid #e2e8f0', boxShadow: '0 8px 40px rgba(0,0,0,0.12)' }}>
+
+            {/* ── HEADER: logo + company info (left) · title + meta (right) ── */}
+            <div className="flex justify-between items-start gap-4 px-6 pt-6 pb-4" style={{ borderBottom: '1px solid #e2e8f0' }}>
+              {/* Left: company */}
+              <div className="flex items-start gap-3 flex-1 min-w-0">
+                <div className="w-11 h-11 rounded-md flex-shrink-0 flex items-center justify-center text-white font-extrabold text-base" style={{ background: 'var(--primary)' }}>
+                  FP
+                </div>
+                <div>
+                  <p className="font-bold text-gray-900 text-xs sm:text-sm">Premier Flooring Solutions</p>
+                  <p className="text-gray-500 text-[10px] mt-0.5">123 Trade Street, Suite 4</p>
+                  <p className="text-gray-500 text-[10px]">Chicago, IL 60601</p>
+                  <p className="text-gray-500 text-[10px]"><span className="font-semibold text-gray-700">Office:</span> (312) 555-0182</p>
+                  <p className="text-gray-500 text-[10px]"><span className="font-semibold text-gray-700">Email:</span> info@premierfloors.com</p>
+                </div>
+              </div>
+              {/* Right: title */}
+              <div className="text-right flex-shrink-0">
+                <p className="font-extrabold leading-none" style={{ fontSize: 28, color: '#1e293b' }}>Flooring</p>
+                <p className="font-bold text-gray-400" style={{ fontSize: 14 }}>Estimate</p>
+                <div className="mt-2 space-y-0.5">
+                  {[
+                    { label: 'Estimate Date:', value: 'Apr 29, 2026' },
+                    { label: 'Estimate #:', value: 'EST-1042' },
+                    { label: 'Valid For:', value: '30 days' },
+                  ].map(({ label, value }) => (
+                    <div key={label} className="flex items-center justify-end gap-1.5" style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: 2 }}>
+                      <span className="font-semibold text-gray-800 text-[10px]">{label}</span>
+                      <span className="text-gray-500 text-[10px]">{value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* ── CLIENT + PROJECT BOXES ── */}
+            <div className="grid grid-cols-2 gap-3 px-6 py-4">
+              <div className="rounded-lg p-3" style={{ border: '1px solid #e2e8f0' }}>
+                <p className="font-bold text-gray-800 text-[11px] mb-2">Client Information:</p>
+                {[
+                  { l: 'Name:', v: 'John & Sarah Williams' },
+                  { l: 'Address:', v: '274 Cornwall Rd, Naperville IL' },
+                  { l: 'Phone:', v: '(630) 555-0194' },
+                  { l: 'Email:', v: 'jwilliams@email.com' },
+                ].map(({ l, v }) => (
+                  <div key={l} className="flex gap-2 mb-1">
+                    <span className="font-semibold text-gray-700 text-[10px] w-14 flex-shrink-0">{l}</span>
+                    <span className="text-gray-600 text-[10px]">{v}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="rounded-lg p-3" style={{ border: '1px solid #e2e8f0' }}>
+                <p className="font-bold text-gray-800 text-[11px] mb-2">Project Details:</p>
+                {[
+                  { l: 'Flooring:', v: 'Hardwood + LVT' },
+                  { l: 'Main Floor:', v: 'Hardwood — 892 sqft' },
+                  { l: 'Basement:', v: 'LVT/Vinyl — 410 sqft' },
+                  { l: 'Color/Style:', v: 'Natural Oak, Matte finish' },
+                ].map(({ l, v }) => (
+                  <div key={l} className="flex gap-2 mb-1">
+                    <span className="font-semibold text-gray-700 text-[10px] w-16 flex-shrink-0">{l}</span>
+                    <span className="text-gray-600 text-[10px]">{v}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ── COST BREAKDOWN TABLE ── */}
+            <div className="px-6 pb-4">
+              <p className="font-bold text-[11px] mb-1.5" style={{ color: '#1e293b' }}>Cost Breakdown</p>
+              <div className="rounded" style={{ border: '1px solid #cbd5e1', overflow: 'hidden' }}>
+                {/* Table header */}
+                <div className="grid text-white font-semibold text-[10px] px-3 py-2" style={{ gridTemplateColumns: '46% 13% 11% 14% 16%', background: '#1e293b' }}>
+                  <span>Item Description</span>
+                  <span className="text-right">Quantity</span>
+                  <span className="text-right">UoM</span>
+                  <span className="text-right">Unit Price</span>
+                  <span className="text-right">Total</span>
+                </div>
+                {/* Rows */}
+                {[
+                  { desc: 'Main Floor: supply Hardwood', qty: '981.2', uom: 'SF', rate: '$5.20', total: '$5,102.24' },
+                  { desc: 'Main Floor: labor / installation', qty: '981.2', uom: 'SF', rate: '$3.50', total: '$3,434.20' },
+                  { desc: 'Basement: supply LVT/Vinyl', qty: '451.0', uom: 'SF', rate: '$3.80', total: '$1,713.80' },
+                  { desc: 'Basement: labor / installation', qty: '451.0', uom: 'SF', rate: '$2.75', total: '$1,240.25' },
+                  { desc: 'Removal of existing flooring', qty: '', uom: 'LS', rate: '$450.00', total: '$450.00' },
+                  { desc: 'Stairs (12)', qty: '12', uom: 'EA', rate: '$35.00', total: '$420.00' },
+                  { desc: 'Quarter round / moldings', qty: '', uom: 'LS', rate: '$280.00', total: '$280.00' },
+                  { desc: 'Subfloor prep', qty: '', uom: 'LS', rate: '$200.00', total: '$200.00' },
+                ].map((row, i) => (
+                  <div key={i} className="grid px-3 py-1.5 text-gray-700 text-[10px]" style={{ gridTemplateColumns: '46% 13% 11% 14% 16%', borderBottom: '0.5px solid #e2e8f0' }}>
+                    <span className="text-gray-800">{row.desc}</span>
+                    <span className="text-right">{row.qty}</span>
+                    <span className="text-right text-gray-500">{row.uom}</span>
+                    <span className="text-right">{row.rate}</span>
+                    <span className="text-right font-semibold">{row.total}</span>
+                  </div>
+                ))}
+                {/* Signature area */}
+                <div className="px-3 py-3" style={{ borderBottom: '0.5px solid #e2e8f0' }}>
+                  <p className="font-bold text-gray-700 text-[10px] mb-0.5">READ CAREFULLY — SIGN &amp; EMAIL BACK</p>
+                  <p className="text-gray-500 text-[9px] mb-3">You are authorized to do work as is specified above.</p>
+                  <div className="flex gap-6">
+                    <div className="flex-1">
+                      <div style={{ borderBottom: '1px solid #374151', height: 16, marginBottom: 2 }} />
+                      <p className="text-gray-400 text-[8px] uppercase tracking-wide">Authorized Signature</p>
+                    </div>
+                    <div style={{ width: 100 }}>
+                      <div style={{ borderBottom: '1px solid #374151', height: 16, marginBottom: 2 }} />
+                      <p className="text-gray-400 text-[8px] uppercase tracking-wide">Date</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* ── BOTTOM ROW: notes (left) + totals (right) ── */}
+            <div className="grid grid-cols-2 gap-4 px-6 pb-5">
+              {/* Left: scope */}
+              <div>
+                <p className="text-gray-700 text-[10px] leading-relaxed mb-2">
+                  Work includes full prep of subfloor, installation, all transitions, and final cleanup. All material and labor warranted for 1 year against defects.
+                </p>
+                <p className="text-gray-400 text-[9px] leading-relaxed italic">
+                  Prices subject to change without notice after 30 days. A 50% deposit is required to schedule. Balance due upon completion.
+                </p>
+              </div>
+              {/* Right: totals */}
+              <div>
+                {[
+                  { l: 'Subtotal', v: '$12,840.49' },
+                  { l: 'Tax (8.5%)', v: '$1,091.44' },
+                ].map(({ l, v }) => (
+                  <div key={l} className="flex justify-between py-1 text-[10px] text-gray-700">
+                    <span>{l}</span><span>{v}</span>
+                  </div>
+                ))}
+                <div className="flex justify-between items-center my-2">
+                  <span className="font-bold text-gray-900 text-sm italic">Total</span>
+                  <div className="px-3 py-1 font-bold text-gray-900 text-xs" style={{ border: '1px solid #cbd5e1', minWidth: 90, textAlign: 'right' }}>$13,931.93</div>
+                </div>
+                {[
+                  { l: 'Deposit Due (50%)', v: '$6,965.97' },
+                  { l: 'Remaining Balance', v: '$6,965.96' },
+                ].map(({ l, v }) => (
+                  <div key={l} className="flex justify-between py-1 text-[10px] text-gray-700">
+                    <span>{l}</span><span>{v}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ── INCLUSIONS / EXCLUSIONS ── */}
+            <div className="px-6 pb-4 grid grid-cols-2 gap-4">
+              <div>
+                <p className="font-bold text-gray-500 text-[9px] uppercase tracking-widest mb-1">Inclusions</p>
+                <p className="text-gray-700 text-[10px] leading-relaxed">Supply & install all flooring materials, transitions, quarter round, subfloor prep, stairs, and removal of existing flooring.</p>
+              </div>
+              <div>
+                <p className="font-bold text-gray-500 text-[9px] uppercase tracking-widest mb-1">Exclusions</p>
+                <p className="text-gray-700 text-[10px] leading-relaxed">Painting, baseboards, appliance moving, or any work outside the scope above.</p>
+              </div>
+            </div>
+
+            {/* ── FOOTER BAR ── */}
+            <div className="px-6 py-2.5 text-center" style={{ background: '#1e293b' }}>
+              <p className="text-white text-[10px]">
+                For any questions, contact: <span className="font-bold">info@premierfloors.com</span> or <span className="font-bold">(312) 555-0182</span>
+              </p>
+            </div>
+          </div>
+
+          {/* Download badge overlay */}
+          <div className="absolute -bottom-4 -right-2 sm:-right-6 flex items-center gap-2 bg-white rounded-2xl px-4 py-2.5 shadow-xl" style={{ border: '1px solid #e2e8f0' }}>
+            <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'rgba(13,148,136,0.1)' }}>
+              <svg className="w-3.5 h-3.5" style={{ color: 'var(--primary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-xs font-bold text-gray-900">Download PDF</p>
+              <p className="text-[10px] text-gray-400">One tap · Instant</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── Pricing ── */}
       <PricingSection />
 
