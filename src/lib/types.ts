@@ -69,6 +69,11 @@ export interface CompanyMember {
 export interface CompanySettings {
   company_id: string
   company_name: string
+  address_line1?: string | null
+  address_line2?: string | null
+  city?: string | null
+  state?: string | null
+  zip?: string | null
   phone: string | null
   email: string | null
   logo_url: string | null
@@ -89,6 +94,9 @@ export interface CompanySettings {
   terms_validity: string | null
   terms_scheduling: string | null
   terms_scope: string | null
+  default_inclusions?: string | null
+  default_exclusions?: string | null
+  default_qualifications?: string | null
 }
 
 export interface QuoteRoom {
@@ -109,6 +117,7 @@ export interface QuoteLineItem {
   qty: number
   unit_price: number
   total: number
+  uom?: string
   created_at: string
 }
 
@@ -157,6 +166,9 @@ export interface Quote {
   section_flooring_types: Record<string, FlooringType> | null
   extras_json: Record<string, number> | null
   quote_number: string | null
+  inclusions?: string | null
+  exclusions?: string | null
+  qualifications?: string | null
   created_at: string
   updated_at: string
 }

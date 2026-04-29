@@ -33,6 +33,11 @@ const FLOORING_LABELS: Record<string, string> = {
 
 interface FormState {
   company_name: string
+  address_line1: string
+  address_line2: string
+  city: string
+  state: string
+  zip: string
   phone: string
   email: string
   logo_url: string
@@ -59,6 +64,11 @@ const DEFAULT_TERMS_SCOPE = 'Any additional work will be priced and billed separ
 function buildInitialForm(initial: CompanySettings): FormState {
   return {
     company_name: initial.company_name || '',
+    address_line1: initial.address_line1 || '',
+    address_line2: initial.address_line2 || '',
+    city: initial.city || '',
+    state: initial.state || '',
+    zip: initial.zip || '',
     phone: initial.phone || '',
     email: initial.email || '',
     logo_url: initial.logo_url || '',
@@ -538,6 +548,25 @@ export default function SettingsForm({ settings: initial }: { settings: CompanyS
           </div>
           <Input label="Phone" value={form.phone} onChange={(v) => set('phone', v)} onBlur={blurPhone} type="tel" placeholder="(555) 000-0000" />
           <Input label="Email" value={form.email} onChange={(v) => set('email', v)} type="email" placeholder="contact@company.com" />
+          <div className="sm:col-span-2">
+            <Input label="Address Line 1" value={form.address_line1} onChange={(v) => set('address_line1', v)} placeholder="123 Main St" />
+          </div>
+          <div className="sm:col-span-2">
+            <Input label="Address Line 2" value={form.address_line2} onChange={(v) => set('address_line2', v)} placeholder="Suite 100 (optional)" />
+          </div>
+          <div className="sm:col-span-2">
+            <div className="flex gap-3">
+              <div className="flex-1">
+                <Input label="City" value={form.city} onChange={(v) => set('city', v)} placeholder="New York" />
+              </div>
+              <div style={{ width: '6rem' }}>
+                <Input label="State" value={form.state} onChange={(v) => set('state', v)} placeholder="NJ" />
+              </div>
+              <div style={{ width: '7rem' }}>
+                <Input label="ZIP" value={form.zip} onChange={(v) => set('zip', v)} placeholder="07601" />
+              </div>
+            </div>
+          </div>
           <div className="sm:col-span-2">
             <label className="block text-xs font-medium text-gray-500 mb-1">Logo</label>
             <div className="flex gap-3 items-start">

@@ -282,6 +282,11 @@ export default function QuoteDetailCard({
   const [items, setItems] = useState<QuoteLineItem[]>(initialLineItems)
   const [addingRow, setAddingRow] = useState(false)
 
+  // Inclusions / Exclusions / Qualifications
+  const [inclusions, setInclusions] = useState(q.inclusions ?? '')
+  const [exclusions, setExclusions] = useState(q.exclusions ?? '')
+  const [qualifications, setQualifications] = useState(q.qualifications ?? '')
+
   // Edit/save state
   const [editing, setEditing] = useState<string | null>(null)
   const [saved, setSaved] = useState<string | null>(null)
@@ -425,6 +430,9 @@ export default function QuoteDetailCard({
       case 'delivery_fee': setDeliveryFee(parseFloat(rawValue) || 0); break
       case 'custom_fee_amount': setCustomFeeAmount(parseFloat(rawValue) || 0); break
       case 'custom_fee_label': setCustomFeeLabel(rawValue); break
+      case 'inclusions': setInclusions(rawValue); break
+      case 'exclusions': setExclusions(rawValue); break
+      case 'qualifications': setQualifications(rawValue); break
     }
 
     setEditing(null)
@@ -619,8 +627,8 @@ export default function QuoteDetailCard({
   const flooringLabel = flooringTypeLabel(q.flooring_type, q.section_flooring_types) || 'flooring'
   const wasteFactor = 1 + (Number(q.waste_pct) || 0) / 100
 
-  // Shared grid columns (4 cols: desc | sqft | rate | total)
-  const GRID_COLS = '5fr 80px 90px 90px'
+  // Shared grid columns (5 cols: desc | sqft | uom | rate | total)
+  const GRID_COLS = '5fr 70px 60px 80px 90px'
 
   // Helper: row checkbox for selectable rows
   function RowCheckbox({ rowKey }: { rowKey: string }) {
@@ -672,6 +680,17 @@ export default function QuoteDetailCard({
             {settings?.website ? (
               <p className="text-xs" style={{ color: '#334155' }}>{settings.website}</p>
             ) : null}
+            {settings?.address_line1 && (
+              <p style={{ fontSize: 11, color: '#64748b', marginTop: 1 }}>
+                {settings.address_line1}
+                {settings.address_line2 ? `, ${settings.address_line2}` : ''}
+              </p>
+            )}
+            {(settings?.city || settings?.state || settings?.zip) && (
+              <p style={{ fontSize: 11, color: '#64748b' }}>
+                {[settings?.city, settings?.state, settings?.zip].filter(Boolean).join(', ')}
+              </p>
+            )}
           </div>
         </div>
 
@@ -820,6 +839,7 @@ export default function QuoteDetailCard({
           >
             <span>Description</span>
             <span className="text-right">Sqft</span>
+            <span className="text-right">UoM</span>
             <span className="text-right">Rate</span>
             <span className="text-right">Total</span>
           </div>
@@ -847,10 +867,11 @@ export default function QuoteDetailCard({
                   color: '#0f172a',
                 }}
               >
-                <span className="pr-3 break-words whitespace-pre-wrap">
+                    <span className="pr-3 break-words whitespace-pre-wrap">
                   {baseDesc ? `${sectionName} — ${baseDesc}` : `${sectionName}: supply ${sectionLabel}`}
                     </span>
                     <span className="text-right tabular-nums">{fmtQty(adjSqft)}</span>
+                    <span className="text-right tabular-nums">SF</span>
                     <span className="text-right tabular-nums">{fmtNumber(matRate, 2)}</span>
                     <span className="text-right tabular-nums font-semibold">{fmtNumber(adjSqft * matRate, 2)}</span>
                   </div>
@@ -865,6 +886,7 @@ export default function QuoteDetailCard({
                     >
                       <span className="pr-3">{sectionName}: labor / installation</span>
                       <span className="text-right tabular-nums">{fmtQty(adjSqft)}</span>
+                      <span className="text-right tabular-nums">SF</span>
                       <span className="text-right tabular-nums">{fmtNumber(labRate, 2)}</span>
                       <span className="text-right tabular-nums font-semibold">{fmtNumber(adjSqft * labRate, 2)}</span>
                     </div>

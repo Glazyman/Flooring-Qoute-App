@@ -25,6 +25,11 @@ export async function PUT(request: NextRequest) {
       {
         company_id: membership.company_id,
         company_name: body.company_name,
+        address_line1: body.address_line1 || null,
+        address_line2: body.address_line2 || null,
+        city: body.city || null,
+        state: body.state || null,
+        zip: body.zip || null,
         phone: body.phone || null,
         email: body.email || null,
         logo_url: body.logo_url || null,
@@ -43,6 +48,9 @@ export async function PUT(request: NextRequest) {
         terms_validity: body.terms_validity ?? null,
         terms_scheduling: body.terms_scheduling ?? null,
         terms_scope: body.terms_scope ?? null,
+        default_inclusions: body.default_inclusions ?? null,
+        default_exclusions: body.default_exclusions ?? null,
+        default_qualifications: body.default_qualifications ?? null,
         updated_at: new Date().toISOString(),
       },
       { onConflict: 'company_id' }
