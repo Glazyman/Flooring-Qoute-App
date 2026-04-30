@@ -1301,7 +1301,7 @@ export default function QuoteForm({
                           <Loader2 className="w-5 h-5 animate-spin" style={{ color: 'var(--primary)' }} />
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-gray-800">Analyzing with AI</p>
+                          <p className="text-sm font-semibold text-gray-800">Analyzing…</p>
                           <p className="text-xs text-gray-400 mt-0.5">Usually 10 to 20 seconds per image</p>
                         </div>
                         <div className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full" style={{ color: 'var(--primary)', background: 'rgba(13,148,136,0.08)' }}>
