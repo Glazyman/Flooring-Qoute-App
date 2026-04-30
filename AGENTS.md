@@ -32,3 +32,5 @@ Without real Supabase/Stripe credentials the server starts and pages render, but
 - The `eslint` config uses Next.js 16-specific rules; expect `react-hooks/set-state-in-effect` errors from existing code.
 - Stripe webhook testing locally requires `stripe listen --forward-to localhost:3000/api/stripe/webhook` (Stripe CLI).
 - `.env.local.example` is referenced in README but not committed; create `.env.local` manually.
+- After changing `.env.local`, delete `.next/` (`rm -rf .next`) before restarting the dev server to avoid stale cached environment values.
+- The app requires login to access any gated page. Use the Desktop pane to log in interactively, or provide Supabase credentials via environment secrets.
