@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { Upload, Loader2, Check, X, Sparkles, Image as ImageIcon } from 'lucide-react'
+import { Upload, Loader2, Check, X, Sparkles, Image as ImageIcon, ChevronDown } from 'lucide-react'
 
 export interface RawRoom {
   name: string
@@ -93,6 +93,7 @@ export default function BlueprintPagePicker({ onRoomsExtracted, compact = false,
   const [extracting, setExtracting] = useState(false)
   const [analyzing, setAnalyzing] = useState(false)
   const [error, setError] = useState('')
+  const [collapsed, setCollapsed] = useState(false)
 
   const selectedCount = pages.filter(p => p.selected).length
   const busy = extracting || analyzing
@@ -202,6 +203,7 @@ export default function BlueprintPagePicker({ onRoomsExtracted, compact = false,
     if (skipped.length) msgs.push(`Skipped: ${skipped.join(', ')}`)
     if (msgs.length) setError(msgs.join(' · '))
     setAnalyzing(false)
+    setCollapsed(true)
   }
 
   const statusBadge = (p: PageEntry) => {
@@ -275,16 +277,30 @@ export default function BlueprintPagePicker({ onRoomsExtracted, compact = false,
         <div className="rounded-xl border border-gray-200 overflow-hidden bg-white" style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
 
           {/* Header */}
-          <div className="flex items-center justify-between gap-2 px-3 py-2.5 border-b border-gray-100 bg-gray-50/60">
+          <button
+            type="button"
+            onClick={() => setCollapsed(v => !v)}
+            className="w-full flex items-center justify-between gap-2 px-3 py-2.5 bg-gray-50/60 hover:bg-gray-100/60 transition-colors"
+            style={{ borderBottom: collapsed ? 'none' : '1px solid #f3f4f6' }}
+          >
             <div className="flex items-center gap-2 min-w-0">
               <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(13,148,136,0.08)' }}>
                 <ImageIcon className="w-3.5 h-3.5" style={{ color: 'var(--primary)' }} />
               </div>
-              <div className="min-w-0">
-                <p className="text-xs font-semibold text-gray-800">{pages.length} pages — {pdfName ? <span className="truncate text-gray-400 font-normal">{pdfName}</span> : null}</p>
+              <div className="min-w-0 text-left">
+                <p className="text-xs font-semibold text-gray-800">
+                  {pages.length} pages
+                  {pages.some(p => p.status !== 'idle') && (
+                    <span className="ml-1.5 font-normal text-gray-400">
+                      · {pages.filter(p => p.status === 'analyzed').length} analyzed
+                      {pages.filter(p => p.status === 'skipped').length > 0 && `, ${pages.filter(p => p.status === 'skipped').length} skipped`}
+                    </span>
+                  )}
+                  {pdfName && <span className="ml-1.5 truncate text-gray-400 font-normal">{pdfName}</span>}
+                </p>
               </div>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
@@ -295,8 +311,14 @@ export default function BlueprintPagePicker({ onRoomsExtracted, compact = false,
               <button type="button" onClick={clearPicker} className="p-1.5 rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors">
                 <X className="w-3.5 h-3.5" />
               </button>
+              <div className="p-1.5 rounded-md text-gray-400">
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${collapsed ? '' : 'rotate-180'}`} />
+              </div>
             </div>
-          </div>
+          </button>
+
+          {/* Collapsible body */}
+          {!collapsed && <>
 
           {/* Quick select bar */}
           <div className="flex items-center gap-1.5 px-3 py-2 border-b border-gray-100">
@@ -381,6 +403,8 @@ export default function BlueprintPagePicker({ onRoomsExtracted, compact = false,
               </span>
             )}
           </div>
+
+          </>}
         </div>
       )}
     </div>
