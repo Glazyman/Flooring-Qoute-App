@@ -119,7 +119,7 @@ export default function TakeOffCalculator({ isPro }: { isPro: boolean }) {
       const fullCanvas = document.createElement('canvas')
       fullCanvas.width = fullViewport.width
       fullCanvas.height = fullViewport.height
-      await page.render({ canvasContext: fullCanvas.getContext('2d')! as unknown as Parameters<typeof page.render>[0]['canvasContext'], viewport: fullViewport, canvas: fullCanvas }).promise
+      await page.render({ canvasContext: fullCanvas.getContext('2d')! as unknown as Parameters<typeof page.render>[0]['canvasContext'], viewport: fullViewport }).promise
       const fullBlob = await new Promise<Blob>(r => fullCanvas.toBlob(b => r(b!), 'image/jpeg', 0.85))
       const analysisFile = new File([fullBlob], `${file.name}-page${i}.jpg`, { type: 'image/jpeg' })
 
@@ -128,7 +128,7 @@ export default function TakeOffCalculator({ isPro }: { isPro: boolean }) {
       const thumbCanvas = document.createElement('canvas')
       thumbCanvas.width = thumbViewport.width
       thumbCanvas.height = thumbViewport.height
-      await page.render({ canvasContext: thumbCanvas.getContext('2d')! as unknown as Parameters<typeof page.render>[0]['canvasContext'], viewport: thumbViewport, canvas: thumbCanvas }).promise
+      await page.render({ canvasContext: thumbCanvas.getContext('2d')! as unknown as Parameters<typeof page.render>[0]['canvasContext'], viewport: thumbViewport }).promise
       const thumbUrl = thumbCanvas.toDataURL('image/jpeg', 0.7)
 
       entries.push({

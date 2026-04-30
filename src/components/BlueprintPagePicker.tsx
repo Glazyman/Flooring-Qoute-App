@@ -49,7 +49,7 @@ async function pdfToPageEntries(file: File): Promise<PageEntry[]> {
     const fullCanvas = document.createElement('canvas')
     fullCanvas.width = fullVp.width
     fullCanvas.height = fullVp.height
-    await page.render({ canvasContext: fullCanvas.getContext('2d')! as unknown as Parameters<typeof page.render>[0]['canvasContext'], viewport: fullVp, canvas: fullCanvas }).promise
+    await page.render({ canvasContext: fullCanvas.getContext('2d')! as unknown as Parameters<typeof page.render>[0]['canvasContext'], viewport: fullVp }).promise
     const fullBlob = await new Promise<Blob>(r => fullCanvas.toBlob(b => r(b!), 'image/jpeg', 0.85))
     const analysisFile = new File([fullBlob], `${file.name}-page${i}.jpg`, { type: 'image/jpeg' })
 
@@ -58,7 +58,7 @@ async function pdfToPageEntries(file: File): Promise<PageEntry[]> {
     const thumbCanvas = document.createElement('canvas')
     thumbCanvas.width = thumbVp.width
     thumbCanvas.height = thumbVp.height
-    await page.render({ canvasContext: thumbCanvas.getContext('2d')! as unknown as Parameters<typeof page.render>[0]['canvasContext'], viewport: thumbVp, canvas: thumbCanvas }).promise
+    await page.render({ canvasContext: thumbCanvas.getContext('2d')! as unknown as Parameters<typeof page.render>[0]['canvasContext'], viewport: thumbVp }).promise
     const thumbUrl = thumbCanvas.toDataURL('image/jpeg', 0.7)
 
     entries.push({ id: crypto.randomUUID(), file: analysisFile, label: `Page ${i}`, thumbUrl, selected: true, status: 'idle', roomCount: 0 })
