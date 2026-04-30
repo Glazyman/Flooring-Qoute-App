@@ -45,7 +45,7 @@ async function pdfToPageEntries(file: File): Promise<PageEntry[]> {
     const page = await pdf.getPage(i)
 
     // Full-res for analysis
-    const fullVp = page.getViewport({ scale: 2 })
+    const fullVp = page.getViewport({ scale: 2.75 })
     const fullCanvas = document.createElement('canvas')
     fullCanvas.width = fullVp.width
     fullCanvas.height = fullVp.height

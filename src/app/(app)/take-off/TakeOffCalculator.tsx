@@ -115,7 +115,7 @@ export default function TakeOffCalculator({ isPro }: { isPro: boolean }) {
       const page = await pdf.getPage(i)
 
       // Full-resolution analysis image (2x scale)
-      const fullViewport = page.getViewport({ scale: 2 })
+      const fullViewport = page.getViewport({ scale: 2.75 })
       const fullCanvas = document.createElement('canvas')
       fullCanvas.width = fullViewport.width
       fullCanvas.height = fullViewport.height

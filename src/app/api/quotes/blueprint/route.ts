@@ -4,7 +4,7 @@ import { openai } from '@ai-sdk/openai'
 import { generateText } from 'ai'
 import { isAdminUser } from '@/lib/admin'
 
-export const maxDuration = 60
+export const maxDuration = 120
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
@@ -70,6 +70,12 @@ export async function POST(request: NextRequest) {
 
     const { text } = await generateText({
       model: openai('o4-mini'),
+      maxOutputTokens: 16384,
+      providerOptions: {
+        openai: {
+          reasoningEffort: 'high',
+        },
+      },
       messages: [
         {
           role: 'user',
@@ -80,50 +86,50 @@ export async function POST(request: NextRequest) {
             },
             {
               type: 'text',
-              text: `You are a FLOORING estimator. You will be shown a single page from a construction document set.
+              text: `You are an expert flooring take-off estimator. You receive ONE raster image (one PDF page): a floor plan, finish schedule, or measurement sheet.
 
-STEP 1 — DETERMINE RELEVANCE:
-First decide if this page is relevant to FLOORING work. A page IS relevant if it shows:
-- A floor plan with room dimensions (room outlines with feet/inches measurements)
-- A measurement/take-off sheet listing rooms with dimensions or sqft
-- Material schedules that reference flooring (hardwood, LVT/LVP, vinyl, tile, carpet, laminate, engineered, etc.)
-- Pages with headers like "FLOORING PLAN", "FINISH SCHEDULE", "ROOM FINISH", "HARDWOOD", "FLOOR FINISH"
-- ANY floor plan showing spaces — including bathrooms, powder rooms, laundry rooms, closets, hallways, etc. ALL of these have floors and MUST be extracted.
+STEP 1 — IS THIS PAGE RELEVANT TO FLOORING?
+Relevant YES if ANY of:
+- Architectural floor plan with room outlines (dimensions optional but preferred)
+- Room/finish schedule TABLE listing rooms with sq ft or dimensions
+- Flooring material notes tied to numbered rooms or labels
 
-IMPORTANT: A floor plan that includes bathrooms or utility rooms is still a FLOORING page. Do NOT skip it because it shows a bathroom — bathrooms have tile/LVT floors. Only skip a page if it is exclusively about a non-flooring trade (e.g. a page showing ONLY electrical wiring, ONLY HVAC ducts, ONLY roof structure, etc. with no room layout or dimensions).
+Relevant YES even if many small rooms (baths, closets, halls) or if the sheet mixes bedroom + bath blocks.
 
-A page is NOT relevant (and you must return zero rooms) if it shows:
-- Roofing plans, framing/structural drawings, electrical wiring diagrams, HVAC/plumbing schematics (not floor plans), fence layouts, exterior elevations,
-  site plans, foundation plans, demolition plans, painting schedules, cabinet/millwork elevations, landscaping,
-  cover sheets, index/sheet list pages, or general notes only with no room dimensions.
+Relevant NO only for non-layout trades with no enumerable rooms: pure roof/framing/HVAC schematic, electrical-only, site plan, fence detail, elevation with no floor areas, cover sheet/index, notes-only.
 
-If the page is NOT a flooring page: return { "rooms": [], "totalSqft": 0, "notes": "", "isFlooringPage": false, "pageType": "<short description, e.g. 'Roofing plan' or 'Cover sheet'>" }
+If NOT relevant: return exactly: { "rooms": [], "totalSqft": 0, "notes": "", "isFlooringPage": false, "pageType": "<short label>" }
 
-STEP 2 — EXTRACT ROOMS (only if relevant):
-- Measurements are in feet and inches. Superscript/raised numbers are inches (e.g. "17³" = 17 ft 3 in, "7x4⁶" = 7 ft × 4 ft 6 in).
-- Calculate sqft as: (lengthFt + lengthIn/12) × (widthFt + widthIn/12), round to 1 decimal.
-- Extract EVERY space shown: living rooms, bedrooms, kitchens, bathrooms, powder rooms, half baths, laundry rooms, closets, hallways, foyers, utility rooms, garages — everything with dimensions.
-- Do NOT skip any room. If a space has a dimension label, include it.
-- For the "section" field: use the column headers or floor level shown on the sheet (e.g. UPSTAIRS, DOWNSTAIRS, MAIN FLOOR, BASEMENT). If no clear section is shown, infer from context. Use "Main Floor" as the default section if uncertain.
-- If you see explicit column headers like UPSTAIRS, DOWNSTAIRS, KITCHEN, BATHROOMS on the sheet, use those exactly.
+STEP 2 — EXTRACT EVERY ROOM-SIZED SPACE (critical)
+Goal: completeness. Missing a bathroom or half-bath on a residential plan is a failure.
 
-Return ONLY valid JSON in this exact format (no markdown, no code block):
+Procedure (do this mentally before writing JSON):
+A) Scan the image in a grid (top-left to bottom-right). List every DISTINCT space that has OR should have flooring: BR, BDRM, MASTER, SUITE, KIT, LR, DR, FAM, DEN, OFFICE, LAUNDRY, MECH, UTILITY, HALL, FOYER, ENTRY, PANTRY, WIC, CLOSET, STOR, MUDROOM, GAR (if interior finish implied), decks only if labeled as finished interior (usually skip exterior decks).
+B) Bathrooms — NEVER skip these. Match ANY label: BATH, FULL BATH, SHR (shower room), POWDER, 1/2 BATH, HALF BATH, WC, REST, ENS, ENSUITE, PR, MASTER BATH, HALL BATH, JACK & JILL (split into separate bath entries if two closed toilet/bath zones with different dimensions; if one shared wet area, one row is OK but prefer separate if dimensions differ).
+C) Nested spaces: If "MASTER SUITE" encloses bedroom + bathroom polygons, output ONE row per closed polygon that has its own label OR its own rectangular outline, not one combined row unless only a single dimension covers the whole suite.
+D) Dimensions: US plans use feet + inches. Superscripts and small raised numbers are INCHES (e.g. 12'6" x 10'3" → lengthFt 12 lengthIn 6, widthFt 10 widthIn 3). Dimension strings along one wall often apply to that segment; infer the perpendicular from opposite wall if shown. If ONLY one L×W pair exists inside a labeled room bubble, use it for that room.
+E) Tables: If a ROOM SCHEDULE / FINISH PLAN table exists, add one JSON room per DATA ROW (merge with plan if same name; if table has sqft only, convert to equivalent L×W only if implied, else use rough square assumption: sqrt(sqft) for both dimensions in feet as last resort and note in "notes").
+F) sqft field: (lengthFt + lengthIn/12) * (widthFt + widthIn/12), rounded to one decimal. totalSqft = sum of room sqfts you output.
+
+SELF-CHECK before returning: Count labeled bedrooms and bathrooms visible. Your "rooms" array should include AT LEAST every full bath and half bath you can see boundaries or labels for. If you listed 3 baths visually and only output 2, fix it.
+
+Return ONLY valid JSON (no markdown, no code fences):
 {
   "isFlooringPage": true,
   "pageType": "Floor plan",
   "rooms": [
     {
-      "name": "Room name or empty string",
-      "section": "Main Floor",
-      "lengthFt": 17,
-      "lengthIn": 3,
-      "widthFt": 17,
-      "widthIn": 3,
-      "sqft": 297.0
+      "name": "string (use plan label e.g. Hall Bath, Powder Room)",
+      "section": "Main Floor or Upstairs etc.",
+      "lengthFt": 0,
+      "lengthIn": 0,
+      "widthFt": 0,
+      "widthIn": 0,
+      "sqft": 0.0
     }
   ],
-  "totalSqft": 297.0,
-  "notes": "Any notes from the sheet, or empty string"
+  "totalSqft": 0.0,
+  "notes": "string"
 }`,
             },
           ],
