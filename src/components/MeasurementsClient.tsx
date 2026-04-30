@@ -237,52 +237,24 @@ export default function MeasurementsClient({ initialMeasurements }: { initialMea
 
               return (
                 <div key={m.id}>
-                  {/* Mobile card — hidden sm+ */}
+                  {/* Mobile row — hidden sm+ */}
                   <div
-                    className="sm:hidden cursor-pointer"
-                    style={{
-                      borderBottom: '1px solid #F5F5F7',
-                      background: isSelected ? 'rgba(239,246,255,0.4)' : undefined,
-                    }}
+                    className="sm:hidden flex items-center gap-3 px-4 py-3 cursor-pointer"
+                    style={{ borderBottom: '1px solid #F5F5F7', background: isSelected ? 'rgba(239,246,255,0.4)' : undefined }}
                     onClick={() => router.push(`/quotes/${m.id}`)}
                   >
-                    <div className="flex items-center gap-3 px-4 py-3.5">
-                      {/* Checkbox */}
-                      <div onClick={e => e.stopPropagation()}>
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => toggleSelect(m.id)}
-                          className="w-3.5 h-3.5 flex-shrink-0 cursor-pointer"
-                          style={{ accentColor: '#1C1C1E' }}
-                          aria-label={`Select ${m.customer_name}`}
-                        />
-                      </div>
+                    {/* Name */}
+                    <p className="flex-1 min-w-0 text-sm font-semibold text-gray-900 truncate">{m.customer_name || '—'}</p>
 
-                      {/* Avatar */}
-                      <div
-                        className="w-9 h-9 rounded-full flex items-center justify-center text-gray-700 text-sm font-semibold flex-shrink-0"
-                        style={{ background: '#E5E7EB' }}
-                      >
-                        {initials}
-                      </div>
+                    {/* Price */}
+                    <p className="text-sm font-semibold text-gray-900 tabular-nums flex-shrink-0">{fmt(m.final_total)}</p>
 
-                      {/* Main info — grows to fill */}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-gray-900 truncate leading-snug">{m.customer_name}</p>
-                        <p className="text-xs text-gray-400 truncate mt-0.5 leading-snug">
-                          {[m.flooring_type, m.adjusted_sqft ? `${m.adjusted_sqft.toFixed(0)} sqft` : null, fmtDate(m.created_at)].filter(Boolean).join(' · ')}
-                        </p>
-                      </div>
-
-                      {/* Right: total + approve stacked, right-aligned */}
-                      <div className="flex flex-col items-end gap-1.5 flex-shrink-0" onClick={e => e.stopPropagation()}>
-                        <p className="text-sm font-semibold text-gray-900 leading-snug">{fmt(m.final_total)}</p>
-                        <ApproveMeasurementButton
-                          quoteId={m.id}
-                          onApprove={() => setItems(prev => prev.filter(i => i.id !== m.id))}
-                        />
-                      </div>
+                    {/* Approve */}
+                    <div onClick={e => e.stopPropagation()} className="flex-shrink-0">
+                      <ApproveMeasurementButton
+                        quoteId={m.id}
+                        onApprove={() => setItems(prev => prev.filter(i => i.id !== m.id))}
+                      />
                     </div>
                   </div>
 
