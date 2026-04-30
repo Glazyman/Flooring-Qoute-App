@@ -142,22 +142,18 @@ export default function MeasurementsClient({ initialMeasurements }: { initialMea
       <div className="bg-white rounded-xl overflow-hidden" style={{ border: '1px solid #F1F1F4' }}>
 
         {/* Toolbar */}
-        <div className="flex items-center justify-between px-4 py-2.5" style={{ borderBottom: '1px solid #F5F5F7' }}>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-400">
-              {items.length} measurement{items.length !== 1 ? 's' : ''}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            {items.length > 0 && (
-              <button
-                onClick={toggleSelectAllVisible}
-                className="text-xs text-gray-500 hover:text-gray-700 transition-colors"
-              >
-                {allVisibleSelected ? 'Deselect all' : 'Select all'}
-              </button>
-            )}
-          </div>
+        <div className="flex items-center gap-3 px-4 py-2.5" style={{ borderBottom: '1px solid #F5F5F7' }}>
+          {items.length > 0 && (
+            <button
+              onClick={toggleSelectAllVisible}
+              className="text-xs text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              {allVisibleSelected ? 'Deselect all' : 'Select all'}
+            </button>
+          )}
+          <span className="text-xs text-gray-400 ml-auto">
+            {items.length} measurement{items.length !== 1 ? 's' : ''}
+          </span>
         </div>
 
         {/* Bulk action bar */}
