@@ -21,6 +21,7 @@ import {
   ChevronRight,
   Check,
 } from 'lucide-react'
+import BlueprintPagePicker, { type RawRoom as BlueprintRawRoom } from '@/components/BlueprintPagePicker'
 
 interface LineItemRow {
   id: string
@@ -449,10 +450,7 @@ export default function QuoteForm({
   }
 
   // Blueprint
-  const [blueprintLoading, setBlueprintLoading] = useState(false)
-  const [blueprintError, setBlueprintError] = useState('')
   const [blueprintNotes, setBlueprintNotes] = useState('')
-  const fileRef = useRef<HTMLInputElement>(null)
 
   // Section editing UI state (per-section X/edit confirm)
   const [editingSection, setEditingSection] = useState<string | null>(null)
@@ -622,92 +620,49 @@ export default function QuoteForm({
     setRooms(prev => prev.map(r => r.section === oldName ? { ...r, section: newName } : r))
   }
 
-  async function handleBlueprintUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files || [])
-    if (!files.length) return
-
-    setBlueprintLoading(true)
-    setBlueprintError('')
-
-    const allExtracted: Room[] = []
-    const allNotes: string[] = []
-    const errors: string[] = []
+  function handlePickerRooms(rawRooms: BlueprintRawRoom[], notes: string) {
+    if (!rawRooms.length) return
     const seenSections = new Set<string>()
+    const extracted: Room[] = rawRooms.map(r => {
+      const sec = r.section && r.section.trim() ? r.section.trim() : firstSection
+      seenSections.add(sec)
+      return {
+        id: crypto.randomUUID(),
+        name: r.name,
+        section: sec,
+        lengthFt: String(r.lengthFt),
+        lengthIn: String(r.lengthIn || 0),
+        widthFt: String(r.widthFt),
+        widthIn: String(r.widthIn || 0),
+      }
+    })
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i]
-      const fd = new FormData()
-      fd.append('image', file)
-
-      try {
-        const res = await fetch('/api/quotes/blueprint', { method: 'POST', body: fd })
-        const data = await res.json()
-
-        if (!res.ok) {
-          errors.push(`${file.name}: ${data.error || 'Failed'}`)
-          continue
-        }
-
-        const extracted: Room[] = (data.rooms || []).map((r: {
-          name: string; section: string; lengthFt: number; lengthIn: number
-          widthFt: number; widthIn: number
-        }) => {
-          // Map blueprint sections to our dynamic list, fall back to first section.
-          const sec = r.section && typeof r.section === 'string' && r.section.trim()
-            ? r.section.trim()
-            : firstSection
-          seenSections.add(sec)
-          return {
-            id: crypto.randomUUID(),
-            name: r.name,
-            section: sec,
-            lengthFt: String(r.lengthFt),
-            lengthIn: String(r.lengthIn || 0),
-            widthFt: String(r.widthFt),
-            widthIn: String(r.widthIn || 0),
+    const newSections = Array.from(seenSections).filter(s => !sections.includes(s))
+    if (newSections.length) {
+      setSections(prev => [...prev, ...newSections])
+      setSectionFlooring(prev => {
+        const next = { ...prev }
+        newSections.forEach(s => { next[s] = next[firstSection] || 'unfinished' })
+        return next
+      })
+      setSectionPricing(prev => {
+        const next = { ...prev }
+        newSections.forEach(s => {
+          next[s] = next[firstSection] || {
+            material: String(settings?.default_material_cost ?? 5),
+            labor: String(settings?.default_labor_cost ?? 3),
           }
         })
-        allExtracted.push(...extracted)
-        if (data.notes) allNotes.push(data.notes)
-      } catch {
-        errors.push(`${file.name}: Failed to analyze`)
-      }
-    }
-
-    if (errors.length) setBlueprintError(errors.join(' | '))
-
-    if (allExtracted.length > 0) {
-      // Make sure any new sections from blueprint exist in our list
-      const newSections = Array.from(seenSections).filter(s => !sections.includes(s))
-      if (newSections.length) {
-        setSections(prev => [...prev, ...newSections])
-        setSectionFlooring(prev => {
-          const next = { ...prev }
-          newSections.forEach(s => { next[s] = next[firstSection] || 'unfinished' })
-          return next
-        })
-        setSectionPricing(prev => {
-          const next = { ...prev }
-          newSections.forEach(s => {
-            next[s] = next[firstSection] || {
-              material: String(settings?.default_material_cost ?? 5),
-              labor: String(settings?.default_labor_cost ?? 3),
-            }
-          })
-          return next
-        })
-      }
-
-      setMeasurementType('rooms')
-      setRooms(prev => {
-        const hasEmpty = prev.length === 1 && !prev[0].lengthFt && !prev[0].widthFt
-        return hasEmpty ? allExtracted : [...prev, ...allExtracted]
+        return next
       })
-      if (allNotes.length) setBlueprintNotes(prev => [prev, ...allNotes].filter(Boolean).join('\n'))
     }
 
-    setBlueprintLoading(false)
-    if (fileRef.current) fileRef.current.value = ''
+    setMeasurementType('rooms')
+    setRooms(prev => {
+      const hasEmpty = prev.length === 1 && !prev[0].lengthFt && !prev[0].widthFt
+      return hasEmpty ? extracted : [...prev, ...extracted]
+    })
+    if (notes) setBlueprintNotes(prev => [prev, notes].filter(Boolean).join('\n'))
   }
 
   const activeSections = sections.filter(s => rooms.some(r => r.section === s))
@@ -1286,41 +1241,7 @@ export default function QuoteForm({
               <div className="space-y-4">
                 {/* Blueprint upload (Pro tier only) */}
                 {isPro ? (
-                  <div
-                    className="rounded-xl text-center transition-all"
-                    style={{
-                      border: '2px dashed',
-                      borderColor: blueprintLoading ? 'var(--primary)' : '#e5e7eb',
-                      background: blueprintLoading ? 'rgba(13,148,136,0.03)' : 'transparent',
-                    }}
-                  >
-                    <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleBlueprintUpload} />
-                    {blueprintLoading ? (
-                      <div className="flex flex-col items-center gap-3 py-6 px-4">
-                        <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(13,148,136,0.1)' }}>
-                          <Loader2 className="w-5 h-5 animate-spin" style={{ color: 'var(--primary)' }} />
-                        </div>
-                        <div>
-                          <p className="text-sm font-semibold text-gray-800">Analyzing…</p>
-                          <p className="text-xs text-gray-400 mt-0.5">Usually 10 to 20 seconds per image</p>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full" style={{ color: 'var(--primary)', background: 'rgba(13,148,136,0.08)' }}>
-                          <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: 'var(--primary)' }} />
-                          Reading room dimensions
-                        </div>
-                      </div>
-                    ) : (
-                      <button type="button" onClick={() => fileRef.current?.click()} className="flex flex-col items-center gap-2.5 w-full py-5 px-4 hover:bg-gray-50 rounded-xl transition-colors">
-                        <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'rgba(13,148,136,0.08)' }}>
-                          <Upload className="w-4 h-4" style={{ color: 'var(--primary)' }} />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-700">Upload blueprint or measurement sheet</p>
-                          <p className="text-xs mt-0.5 text-gray-400">Select multiple images — one per floor is fine</p>
-                        </div>
-                      </button>
-                    )}
-                  </div>
+                  <BlueprintPagePicker compact onRoomsExtracted={handlePickerRooms} />
                 ) : (
                   <a
                     href="/billing/setup"
@@ -1340,12 +1261,6 @@ export default function QuoteForm({
                       </div>
                     </div>
                   </a>
-                )}
-
-                {blueprintError && (
-                  <div className="bg-red-50 text-red-700 px-3 py-2 rounded-md text-xs" style={{ border: '1px solid #FECACA' }}>
-                    {blueprintError}
-                  </div>
                 )}
 
                 {blueprintNotes && (

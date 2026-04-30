@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 :root {
+  --sidebar-w: 216px;
   /* Brand — teal, matches logo */
   --primary: #0d9488;
   --primary-hover: #0f766e;
@@ -128,4 +129,18 @@ a, button { transition: background 0.12s ease, color 0.12s ease, opacity 0.12s e
 .quote-rows > div:nth-child(even):not([style*="rgba"]) { background-color: #f9fafb; }
 
 .marketing-page { background: #ffffff; color: #1d1d1f; }
+
+/* Sidebar collapse */
+[data-sidebar-collapsed="true"] { --sidebar-w: 64px; }
+.sidebar-main {
+  transition: margin-left 0.22s cubic-bezier(0.4,0,0.2,1);
+}
+@media (min-width: 1024px) {
+  .sidebar-main { margin-left: var(--sidebar-w); }
+}
+.sidebar-aside {
+  width: var(--sidebar-w);
+  transition: width 0.22s cubic-bezier(0.4,0,0.2,1);
+  overflow: hidden;
+}
 

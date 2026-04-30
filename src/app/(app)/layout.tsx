@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Plus, Upload } from 'lucide-react'
+import { Suspense } from 'react'
+import { Plus, ScanLine } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import AppNavigation from '@/components/AppNavigation'
 import TrialBanner from '@/components/TrialBanner'
@@ -151,16 +152,18 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--bg)' }}>
-      <AppNavigation
-        companyName={company.name}
-        logoUrl={settingsResult.data?.logo_url ?? null}
-        website={settingsResult.data?.website ?? null}
-        trialExhausted={trialExhausted}
-        planLabel={planLabel}
-        pendingMeasurements={pendingMeasurementCount}
-        draftCount={draftCount}
-      />
-      <main className="lg:ml-[216px] pt-14 lg:pt-0 flex flex-col min-h-screen">
+      <Suspense fallback={null}>
+        <AppNavigation
+          companyName={company.name}
+          logoUrl={settingsResult.data?.logo_url ?? null}
+          website={settingsResult.data?.website ?? null}
+          trialExhausted={trialExhausted}
+          planLabel={planLabel}
+          pendingMeasurements={pendingMeasurementCount}
+          draftCount={draftCount}
+        />
+      </Suspense>
+      <main className="sidebar-main pt-14 lg:pt-0 flex flex-col min-h-screen">
         <header
           className="hidden lg:flex sticky top-0 z-30 h-[52px] items-center px-6 gap-4"
           style={{
@@ -178,9 +181,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           {/* Search — center */}
           <GlobalSearch />
 
-          {/* Import pill */}
+          {/* Take-Off Calculator pill */}
           <Link
-            href="/invoices"
+            href="/take-off"
             className="topbar-import"
             style={{
               display: 'inline-flex', alignItems: 'center', gap: 6,
@@ -190,8 +193,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               transition: 'background 0.12s',
             }}
           >
-            <Upload size={13} strokeWidth={2} color="#1d1d1f" />
-            Import
+            <ScanLine size={13} strokeWidth={2} color="#1d1d1f" />
+            Calculator
           </Link>
 
           {/* New Project pill */}

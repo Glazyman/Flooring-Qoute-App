@@ -4,6 +4,8 @@ import { openai } from '@ai-sdk/openai'
 import { generateText } from 'ai'
 import { isAdminUser } from '@/lib/admin'
 
+export const maxDuration = 60
+
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -59,7 +61,7 @@ export async function POST(request: NextRequest) {
     const file = formData.get('image') as File | null
 
     if (!file) {
-      return NextResponse.json({ error: 'No image provided' }, { status: 400 })
+      return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     }
 
     const bytes = await file.arrayBuffer()
@@ -78,9 +80,23 @@ export async function POST(request: NextRequest) {
             },
             {
               type: 'text',
-              text: `You are a flooring estimator. Analyze this image (floor plan or measurement sheet) and extract all room dimensions.
+              text: `You are a FLOORING estimator. You will be shown a single page from a construction document set.
 
-RULES:
+STEP 1 — DETERMINE RELEVANCE:
+First decide if this page is relevant to FLOORING work. A page IS relevant if it shows:
+- A floor plan with room dimensions (room outlines with feet/inches measurements)
+- A measurement/take-off sheet listing rooms with dimensions or sqft
+- Material schedules that reference flooring (hardwood, LVT/LVP, vinyl, tile, carpet, laminate, engineered, etc.)
+- Pages with headers like "FLOORING PLAN", "FINISH SCHEDULE", "ROOM FINISH", "HARDWOOD", "FLOOR FINISH"
+
+A page is NOT relevant (and you must return zero rooms) if it shows:
+- Roofing plans, framing/structural drawings, electrical/plumbing/HVAC, fence layouts, exterior elevations,
+  site plans, foundation plans, demolition plans, painting schedules, cabinet/millwork, landscaping,
+  cover sheets, index/sheet list pages, general notes only, or any non-flooring trade.
+
+If the page is NOT a flooring page: return { "rooms": [], "totalSqft": 0, "notes": "", "isFlooringPage": false, "pageType": "<short description, e.g. 'Roofing plan' or 'Cover sheet'>" }
+
+STEP 2 — EXTRACT ROOMS (only if relevant):
 - Measurements are in feet and inches. Superscript/raised numbers are inches (e.g. "17³" = 17 ft 3 in, "7x4⁶" = 7 ft × 4 ft 6 in).
 - Calculate sqft as: (lengthFt + lengthIn/12) × (widthFt + widthIn/12), round to 1 decimal.
 - Group rooms by area: Upstairs, Downstairs, Kitchen, Foyer, or Other.
@@ -88,6 +104,8 @@ RULES:
 
 Return ONLY valid JSON in this exact format (no markdown, no code block):
 {
+  "isFlooringPage": true,
+  "pageType": "Floor plan",
   "rooms": [
     {
       "name": "Room name or empty string",

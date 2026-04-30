@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
   Upload, Loader2, Plus, Trash2, ChevronRight, AlertCircle,
-  Info, ScanLine, Save, BookOpen, X, Check, FolderOpen,
+  Info, ScanLine, Save, BookOpen, X, Check, FolderOpen, Image as ImageIcon, Sparkles,
 } from 'lucide-react'
 
 interface Room {
@@ -16,6 +16,21 @@ interface Room {
   widthFt: number
   widthIn: number
   sqft: number
+  pageId?: string
+}
+
+type PageStatus = 'idle' | 'analyzing' | 'analyzed' | 'skipped' | 'error'
+
+interface PageEntry {
+  id: string
+  file: File
+  label: string
+  thumbUrl: string
+  selected: boolean
+  status: PageStatus
+  rooms: Room[]
+  pageType?: string
+  errorMsg?: string
 }
 
 interface SavedCalc {
@@ -62,6 +77,11 @@ export default function TakeOffCalculator({ isPro }: { isPro: boolean }) {
   const [loadingCalcs, setLoadingCalcs] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
+  // PDF/multi-page picker state
+  const [pages, setPages] = useState<PageEntry[]>([])
+  const [pdfName, setPdfName] = useState('')
+  const [extracting, setExtracting] = useState(false)
+
   const totalRaw = rooms.reduce((s, r) => s + roomSqft(r), 0)
   const totalWithWaste = totalRaw * (1 + wastePct / 100)
   const hasRooms = rooms.length > 0
@@ -83,43 +103,211 @@ export default function TakeOffCalculator({ isPro }: { isPro: boolean }) {
     fetchSaved()
   }, [fetchSaved])
 
-  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files || [])
-    if (!files.length) return
-    setLoading(true)
-    setError('')
+  async function pdfToPageEntries(file: File): Promise<PageEntry[]> {
+    const pdfjsLib = await import('pdfjs-dist')
+    pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs'
 
+    const arrayBuffer = await file.arrayBuffer()
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+    const entries: PageEntry[] = []
+
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i)
+
+      // Full-resolution analysis image (2x scale)
+      const fullViewport = page.getViewport({ scale: 2 })
+      const fullCanvas = document.createElement('canvas')
+      fullCanvas.width = fullViewport.width
+      fullCanvas.height = fullViewport.height
+      await page.render({ canvasContext: fullCanvas.getContext('2d')! as unknown as Parameters<typeof page.render>[0]['canvasContext'], viewport: fullViewport, canvas: fullCanvas }).promise
+      const fullBlob = await new Promise<Blob>(r => fullCanvas.toBlob(b => r(b!), 'image/jpeg', 0.85))
+      const analysisFile = new File([fullBlob], `${file.name}-page${i}.jpg`, { type: 'image/jpeg' })
+
+      // Thumbnail for the picker
+      const thumbViewport = page.getViewport({ scale: 0.4 })
+      const thumbCanvas = document.createElement('canvas')
+      thumbCanvas.width = thumbViewport.width
+      thumbCanvas.height = thumbViewport.height
+      await page.render({ canvasContext: thumbCanvas.getContext('2d')! as unknown as Parameters<typeof page.render>[0]['canvasContext'], viewport: thumbViewport, canvas: thumbCanvas }).promise
+      const thumbUrl = thumbCanvas.toDataURL('image/jpeg', 0.7)
+
+      entries.push({
+        id: crypto.randomUUID(),
+        file: analysisFile,
+        label: `Page ${i}`,
+        thumbUrl,
+        selected: true,
+        status: 'idle',
+        rooms: [],
+      })
+    }
+    return entries
+  }
+
+  async function analyzeFile(file: File): Promise<{ rooms: Room[]; notes: string; error?: string; skipped?: { reason: string } }> {
+    const fd = new FormData()
+    fd.append('image', file)
+    try {
+      const res = await fetch('/api/quotes/blueprint', { method: 'POST', body: fd })
+      const data = await res.json()
+      if (!res.ok) return { rooms: [], notes: '', error: data.error || 'Analysis failed' }
+      if (data.isFlooringPage === false) {
+        return { rooms: [], notes: '', skipped: { reason: data.pageType || 'Not a flooring page' } }
+      }
+      const rooms: Room[] = (data.rooms || []).map((r: {
+        name: string; section: string
+        lengthFt: number; lengthIn: number; widthFt: number; widthIn: number
+      }) => ({
+        name: r.name || '', section: r.section || 'Main Floor',
+        lengthFt: r.lengthFt || 0, lengthIn: r.lengthIn || 0,
+        widthFt: r.widthFt || 0, widthIn: r.widthIn || 0, sqft: 0,
+      })).map((r: Room) => ({ ...r, sqft: roomSqft(r) }))
+      return { rooms, notes: data.notes || '' }
+    } catch {
+      return { rooms: [], notes: '', error: 'Failed to analyze' }
+    }
+  }
+
+  // Analyze a single page image file directly and add its rooms (no picker)
+  async function analyzeAndAppend(filesWithLabels: { file: File; label: string }[]) {
     const allRooms: Room[] = []
     const allNotes: string[] = []
     const errors: string[] = []
+    const skipped: string[] = []
 
-    for (const file of files) {
-      const fd = new FormData()
-      fd.append('image', file)
-      try {
-        const res = await fetch('/api/quotes/blueprint', { method: 'POST', body: fd })
-        const data = await res.json()
-        if (!res.ok) { errors.push(`${file.name}: ${data.error || 'Analysis failed'}`); continue }
-        const extracted: Room[] = (data.rooms || []).map((r: {
-          name: string; section: string
-          lengthFt: number; lengthIn: number; widthFt: number; widthIn: number
-        }) => ({
-          name: r.name || '', section: r.section || 'Main Floor',
-          lengthFt: r.lengthFt || 0, lengthIn: r.lengthIn || 0,
-          widthFt: r.widthFt || 0, widthIn: r.widthIn || 0, sqft: 0,
-        })).map((r: Room) => ({ ...r, sqft: roomSqft(r) }))
-        allRooms.push(...extracted)
-        if (data.notes) allNotes.push(data.notes)
-      } catch { errors.push(`${file.name}: Failed to analyze`) }
+    for (const { file, label } of filesWithLabels) {
+      const { rooms, notes, error, skipped: skip } = await analyzeFile(file)
+      if (error) errors.push(`${label}: ${error}`)
+      if (skip) skipped.push(`${label} (${skip.reason})`)
+      allRooms.push(...rooms)
+      if (notes) allNotes.push(notes)
     }
 
-    if (errors.length) setError(errors.join(' · '))
+    const messages: string[] = []
+    if (errors.length) messages.push(errors.join(' · '))
+    if (skipped.length) messages.push(`Skipped non-flooring: ${skipped.join(', ')}`)
+    if (messages.length) setError(messages.join(' · '))
+
     if (allRooms.length) {
-      setRooms(prev => prev.length ? [...prev, ...allRooms] : allRooms)
+      setRooms(prev => [...prev, ...allRooms])
       if (allNotes.length) setNotes(prev => [prev, ...allNotes].filter(Boolean).join('\n'))
     }
+  }
+
+  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const rawFiles = Array.from(e.target.files || [])
+    if (!rawFiles.length) return
+    setError('')
+
+    const pdfs = rawFiles.filter(f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'))
+    const images = rawFiles.filter(f => !pdfs.includes(f))
+
+    // Single image (no PDF) — analyze immediately, no picker needed
+    if (pdfs.length === 0 && images.length > 0) {
+      setLoading(true)
+      try {
+        await analyzeAndAppend(images.map(f => ({ file: f, label: f.name })))
+      } finally {
+        setLoading(false)
+        if (fileRef.current) fileRef.current.value = ''
+      }
+      return
+    }
+
+    // PDF flow — extract pages and show picker
+    if (pdfs.length > 0) {
+      setExtracting(true)
+      setPages([])
+      setPdfName(pdfs.map(p => p.name).join(', '))
+      try {
+        const allEntries: PageEntry[] = []
+        for (const pdf of pdfs) {
+          try {
+            const entries = await pdfToPageEntries(pdf)
+            allEntries.push(...entries)
+          } catch (err) {
+            setError(`${pdf.name}: Could not read PDF — ${err instanceof Error ? err.message : 'unknown error'}`)
+          }
+        }
+        setPages(allEntries)
+      } finally {
+        setExtracting(false)
+        if (fileRef.current) fileRef.current.value = ''
+      }
+
+      // If images came along with PDFs, also process them
+      if (images.length) {
+        setLoading(true)
+        try {
+          await analyzeAndAppend(images.map(f => ({ file: f, label: f.name })))
+        } finally {
+          setLoading(false)
+        }
+      }
+    }
+  }
+
+  function togglePage(id: string) {
+    setPages(prev => prev.map(p => p.id === id ? { ...p, selected: !p.selected } : p))
+  }
+
+  function selectAllPages(selected: boolean) {
+    setPages(prev => prev.map(p => ({ ...p, selected })))
+  }
+
+  function selectOnlyUnanalyzed() {
+    setPages(prev => prev.map(p => ({ ...p, selected: p.status === 'idle' || p.status === 'error' })))
+  }
+
+  function clearPages() {
+    // Drop the picker and any rooms tied to its pages
+    const pageIds = new Set(pages.map(p => p.id))
+    setRooms(prev => prev.filter(r => !r.pageId || !pageIds.has(r.pageId)))
+    setPages([])
+    setPdfName('')
+  }
+
+  async function analyzeSelectedPages() {
+    const toRun = pages.filter(p => p.selected)
+    if (!toRun.length) return
+    setLoading(true)
+    setError('')
+
+    // Mark selected as analyzing
+    setPages(prev => prev.map(p => p.selected ? { ...p, status: 'analyzing' } : p))
+
+    // Remove any previously-extracted rooms for these pages so re-analysis replaces them
+    const ids = new Set(toRun.map(p => p.id))
+    setRooms(prev => prev.filter(r => !r.pageId || !ids.has(r.pageId)))
+
+    const skipped: string[] = []
+    const errors: string[] = []
+
+    for (const p of toRun) {
+      const { rooms: extracted, notes: pageNotes, error, skipped: skip } = await analyzeFile(p.file)
+
+      if (error) {
+        errors.push(`${p.label}: ${error}`)
+        setPages(prev => prev.map(x => x.id === p.id ? { ...x, status: 'error', errorMsg: error, rooms: [] } : x))
+        continue
+      }
+      if (skip) {
+        skipped.push(`${p.label} (${skip.reason})`)
+        setPages(prev => prev.map(x => x.id === p.id ? { ...x, status: 'skipped', pageType: skip.reason, rooms: [] } : x))
+        continue
+      }
+
+      const tagged = extracted.map(r => ({ ...r, pageId: p.id }))
+      setPages(prev => prev.map(x => x.id === p.id ? { ...x, status: 'analyzed', rooms: tagged, pageType: undefined } : x))
+      setRooms(prev => [...prev, ...tagged])
+      if (pageNotes) setNotes(prev => [prev, pageNotes].filter(Boolean).join('\n'))
+    }
+
+    const messages: string[] = []
+    if (errors.length) messages.push(errors.join(' · '))
+    if (skipped.length) messages.push(`Skipped non-flooring: ${skipped.join(', ')}`)
+    if (messages.length) setError(messages.join(' · '))
     setLoading(false)
-    if (fileRef.current) fileRef.current.value = ''
   }
 
   function removeRoom(idx: number) {
@@ -131,6 +319,8 @@ export default function TakeOffCalculator({ isPro }: { isPro: boolean }) {
     setNotes('')
     setError('')
     setSaveSuccess(false)
+    setPages([])
+    setPdfName('')
   }
 
   function startEstimate() {
@@ -347,25 +537,35 @@ export default function TakeOffCalculator({ isPro }: { isPro: boolean }) {
       {/* Upload zone */}
       {isPro ? (
         <>
-          <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleUpload} />
+          <input ref={fileRef} type="file" accept="image/*,application/pdf,.pdf" multiple className="hidden" onChange={handleUpload} />
           <div
-            onClick={() => !loading && fileRef.current?.click()}
+            onClick={() => !loading && !extracting && fileRef.current?.click()}
             className="rounded-2xl transition-all"
             style={{
               border: '2px dashed',
-              borderColor: loading ? 'var(--primary)' : '#d1d5db',
-              background: loading ? 'rgba(13,148,136,0.03)' : 'white',
-              cursor: loading ? 'default' : 'pointer',
+              borderColor: (loading || extracting) ? 'var(--primary)' : '#d1d5db',
+              background: (loading || extracting) ? 'rgba(13,148,136,0.03)' : 'white',
+              cursor: (loading || extracting) ? 'default' : 'pointer',
             }}
           >
-            {loading ? (
+            {extracting ? (
+              <div className="flex flex-col items-center gap-3 py-12 px-6 text-center">
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(13,148,136,0.1)' }}>
+                  <Loader2 className="w-7 h-7 animate-spin" style={{ color: 'var(--primary)' }} />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-800">Reading PDF pages…</p>
+                  <p className="text-xs text-gray-400 mt-1">Extracting page previews so you can pick which to analyze</p>
+                </div>
+              </div>
+            ) : loading ? (
               <div className="flex flex-col items-center gap-3 py-12 px-6 text-center">
                 <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(13,148,136,0.1)' }}>
                   <Loader2 className="w-7 h-7 animate-spin" style={{ color: 'var(--primary)' }} />
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-gray-800">Analyzing…</p>
-                  <p className="text-xs text-gray-400 mt-1">Usually 10 to 20 seconds per image</p>
+                  <p className="text-xs text-gray-400 mt-1">Usually 10–20 seconds per page</p>
                 </div>
                 <div className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full" style={{ color: 'var(--primary)', background: 'rgba(13,148,136,0.08)' }}>
                   <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: 'var(--primary)' }} />
@@ -381,7 +581,7 @@ export default function TakeOffCalculator({ isPro }: { isPro: boolean }) {
                   <p className="text-sm font-semibold text-gray-800">
                     {hasRooms ? 'Upload another page' : 'Upload your blueprint or floor plan'}
                   </p>
-                  <p className="text-xs text-gray-400 mt-1">JPG, PNG, or HEIC — upload multiple images for multi-floor jobs</p>
+                  <p className="text-xs text-gray-400 mt-1">JPG, PNG, HEIC, or PDF — pick which pages to analyze after upload</p>
                 </div>
                 <span className="text-xs font-semibold px-4 py-2 rounded-xl text-white" style={{ background: 'var(--primary)' }}>
                   Choose file
@@ -389,6 +589,122 @@ export default function TakeOffCalculator({ isPro }: { isPro: boolean }) {
               </div>
             )}
           </div>
+
+          {/* Page picker */}
+          {pages.length > 0 && (
+            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+              {/* Header */}
+              <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-gray-100">
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(13,148,136,0.08)' }}>
+                    <ImageIcon className="w-4 h-4" style={{ color: 'var(--primary)' }} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-gray-900 truncate">
+                      {pages.length} page{pages.length !== 1 ? 's' : ''} found
+                    </p>
+                    {pdfName && <p className="text-xs text-gray-400 truncate">{pdfName}</p>}
+                  </div>
+                </div>
+                <button
+                  onClick={clearPages}
+                  className="text-xs text-gray-400 hover:text-red-500 transition-colors flex items-center gap-1 px-2 py-1.5"
+                  title="Remove PDF and all extracted rooms"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              {/* Quick selectors */}
+              <div className="flex items-center gap-2 flex-wrap px-4 py-2.5 border-b border-gray-100 bg-gray-50/50">
+                <span className="text-xs font-semibold text-gray-500">Select:</span>
+                <button onClick={() => selectAllPages(true)} className="text-xs font-medium text-gray-700 hover:text-gray-900 px-2 py-1 rounded-md hover:bg-white transition-colors">All</button>
+                <button onClick={() => selectAllPages(false)} className="text-xs font-medium text-gray-700 hover:text-gray-900 px-2 py-1 rounded-md hover:bg-white transition-colors">None</button>
+                <button onClick={selectOnlyUnanalyzed} className="text-xs font-medium text-gray-700 hover:text-gray-900 px-2 py-1 rounded-md hover:bg-white transition-colors">Unanalyzed</button>
+                <span className="text-xs text-gray-400 ml-auto">
+                  {pages.filter(p => p.selected).length} of {pages.length} selected
+                </span>
+              </div>
+
+              {/* Page grid */}
+              <div className="p-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                {pages.map(p => {
+                  const statusBadge = (() => {
+                    if (p.status === 'analyzing') return { label: 'Analyzing…', color: 'var(--primary)', bg: 'rgba(13,148,136,0.1)' }
+                    if (p.status === 'analyzed') return { label: `${p.rooms.length} room${p.rooms.length !== 1 ? 's' : ''}`, color: '#16a34a', bg: 'rgba(22,163,74,0.08)' }
+                    if (p.status === 'skipped') return { label: p.pageType || 'Skipped', color: '#a16207', bg: 'rgba(161,98,7,0.08)' }
+                    if (p.status === 'error') return { label: 'Error', color: '#dc2626', bg: 'rgba(220,38,38,0.08)' }
+                    return null
+                  })()
+                  return (
+                    <button
+                      key={p.id}
+                      onClick={() => togglePage(p.id)}
+                      className="relative rounded-xl border-2 transition-all overflow-hidden text-left bg-white hover:shadow-md"
+                      style={{
+                        borderColor: p.selected ? 'var(--primary)' : '#e5e7eb',
+                        background: p.selected ? 'rgba(13,148,136,0.02)' : 'white',
+                      }}
+                    >
+                      {/* Thumbnail */}
+                      <div className="relative aspect-[3/4] bg-gray-50 overflow-hidden">
+                        <img src={p.thumbUrl} alt={p.label} className="w-full h-full object-contain" />
+                        {/* Checkbox overlay */}
+                        <div
+                          className="absolute top-2 left-2 w-5 h-5 rounded-md flex items-center justify-center"
+                          style={{
+                            background: p.selected ? 'var(--primary)' : 'rgba(255,255,255,0.95)',
+                            border: '1.5px solid',
+                            borderColor: p.selected ? 'var(--primary)' : '#d1d5db',
+                          }}
+                        >
+                          {p.selected && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
+                        </div>
+                        {p.status === 'analyzing' && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-white/60">
+                            <Loader2 className="w-6 h-6 animate-spin" style={{ color: 'var(--primary)' }} />
+                          </div>
+                        )}
+                      </div>
+                      {/* Footer */}
+                      <div className="px-2 py-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-xs font-semibold text-gray-700">{p.label}</span>
+                          {statusBadge && (
+                            <span
+                              className="text-[10px] font-bold px-1.5 py-0.5 rounded truncate"
+                              style={{ color: statusBadge.color, background: statusBadge.bg, maxWidth: '70%' }}
+                              title={statusBadge.label}
+                            >
+                              {statusBadge.label}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+
+              {/* Action bar */}
+              <div className="flex items-center gap-2 px-4 py-3 border-t border-gray-100 bg-gray-50/50">
+                <button
+                  onClick={analyzeSelectedPages}
+                  disabled={loading || pages.filter(p => p.selected).length === 0}
+                  className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl text-white transition-opacity hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+                  style={{ background: 'var(--primary)' }}
+                >
+                  {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                  {loading ? 'Analyzing…' : `Analyze ${pages.filter(p => p.selected).length} page${pages.filter(p => p.selected).length !== 1 ? 's' : ''}`}
+                </button>
+                {pages.some(p => p.status === 'analyzed' || p.status === 'skipped' || p.status === 'error') && (
+                  <span className="text-xs text-gray-400 ml-auto">
+                    {pages.filter(p => p.status === 'analyzed').length} analyzed · {pages.filter(p => p.status === 'skipped').length} skipped
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
         </>
       ) : (
         <Link

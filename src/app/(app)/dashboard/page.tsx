@@ -178,7 +178,7 @@ export default async function DashboardPage() {
                 const sqft = m.adjusted_sqft ? `${Math.round(m.adjusted_sqft as number).toLocaleString()} sqft` : null
                 const total = m.final_total ? fmt(m.final_total as number) : null
                 return (
-                  <Link key={m.id} href={`/quotes/${m.id}`} className="dashboard-recent-row"
+                  <Link key={m.id} href={`/quotes/${m.id}?ref=measurements`} className="dashboard-recent-row"
                     style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 18px', borderBottom: '1px solid rgba(0,0,0,0.04)', textDecoration: 'none', transition: 'background 0.12s' }}>
                     <div style={{ width: 32, height: 32, borderRadius: '50%', flexShrink: 0, background: '#f2f2f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 600, color: '#6e6e73' }}>
                       {initials}

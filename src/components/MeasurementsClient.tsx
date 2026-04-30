@@ -19,6 +19,7 @@ export default function MeasurementsClient({ initialMeasurements }: { initialMea
   const router = useRouter()
   const [items, setItems] = useState(initialMeasurements)
   const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [selectMode, setSelectMode] = useState(false)
   const [working, setWorking] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [page, setPage] = useState(1)
@@ -32,6 +33,11 @@ export default function MeasurementsClient({ initialMeasurements }: { initialMea
     })
   }
 
+  function exitSelectMode() {
+    setSelectMode(false)
+    setSelected(new Set())
+  }
+
   async function bulkApprove() {
     setWorking(true)
     await Promise.all(Array.from(selected).map(id =>
@@ -43,6 +49,7 @@ export default function MeasurementsClient({ initialMeasurements }: { initialMea
     ))
     setItems(prev => prev.filter(i => !selected.has(i.id)))
     setSelected(new Set())
+    setSelectMode(false)
     setWorking(false)
     router.refresh()
   }
@@ -54,6 +61,7 @@ export default function MeasurementsClient({ initialMeasurements }: { initialMea
     ))
     setItems(prev => prev.filter(i => !selected.has(i.id)))
     setSelected(new Set())
+    setSelectMode(false)
     setConfirmDelete(false)
     setWorking(false)
     router.refresh()
@@ -143,13 +151,31 @@ export default function MeasurementsClient({ initialMeasurements }: { initialMea
 
         {/* Toolbar */}
         <div className="flex items-center gap-3 px-4 py-2.5" style={{ borderBottom: '1px solid #F5F5F7' }}>
-          {items.length > 0 && (
+          {items.length > 0 && !selectMode && (
             <button
-              onClick={toggleSelectAllVisible}
-              className="text-xs text-gray-500 hover:text-gray-700 transition-colors"
+              onClick={() => setSelectMode(true)}
+              className="text-xs font-medium text-gray-500 hover:text-gray-800 transition-colors"
             >
-              {allVisibleSelected ? 'Deselect all' : 'Select all'}
+              Select
             </button>
+          )}
+          {selectMode && (
+            <>
+              <button
+                onClick={toggleSelectAllVisible}
+                className="text-xs font-semibold transition-colors"
+                style={{ color: 'var(--primary)' }}
+              >
+                {allVisibleSelected ? 'Deselect all' : 'Select all'}
+              </button>
+              <span className="text-xs text-gray-300">·</span>
+              <button
+                onClick={exitSelectMode}
+                className="text-xs font-medium text-gray-400 hover:text-gray-700 transition-colors"
+              >
+                Cancel
+              </button>
+            </>
           )}
           <span className="text-xs text-gray-400 ml-auto">
             {items.length} measurement{items.length !== 1 ? 's' : ''}
@@ -237,21 +263,35 @@ export default function MeasurementsClient({ initialMeasurements }: { initialMea
                   <div
                     className="sm:hidden flex items-center gap-3 px-4 py-3 cursor-pointer"
                     style={{ borderBottom: '1px solid #F5F5F7', background: isSelected ? 'rgba(239,246,255,0.4)' : undefined }}
-                    onClick={() => router.push(`/quotes/${m.id}`)}
+                    onClick={() => selectMode ? toggleSelect(m.id) : router.push(`/quotes/${m.id}?ref=measurements`)}
                   >
+                    {/* Checkbox — only in select mode */}
+                    {selectMode && (
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleSelect(m.id)}
+                        onClick={e => e.stopPropagation()}
+                        className="w-4 h-4 flex-shrink-0 cursor-pointer rounded"
+                        style={{ accentColor: '#1C1C1E' }}
+                      />
+                    )}
+
                     {/* Name */}
                     <p className="flex-1 min-w-0 text-sm font-semibold text-gray-900 truncate">{m.customer_name || '—'}</p>
 
                     {/* Price */}
                     <p className="text-sm font-semibold text-gray-900 tabular-nums flex-shrink-0">{fmt(m.final_total)}</p>
 
-                    {/* Approve */}
-                    <div onClick={e => e.stopPropagation()} className="flex-shrink-0">
-                      <ApproveMeasurementButton
-                        quoteId={m.id}
-                        onApprove={() => setItems(prev => prev.filter(i => i.id !== m.id))}
-                      />
-                    </div>
+                    {/* Approve — hidden in select mode */}
+                    {!selectMode && (
+                      <div onClick={e => e.stopPropagation()} className="flex-shrink-0">
+                        <ApproveMeasurementButton
+                          quoteId={m.id}
+                          onApprove={() => setItems(prev => prev.filter(i => i.id !== m.id))}
+                        />
+                      </div>
+                    )}
                   </div>
 
                   {/* Desktop grid row — hidden on mobile */}
@@ -262,7 +302,7 @@ export default function MeasurementsClient({ initialMeasurements }: { initialMea
                       borderBottom: '1px solid #F5F5F7',
                       background: isSelected ? 'rgba(239,246,255,0.4)' : undefined,
                     }}
-                    onClick={() => router.push(`/quotes/${m.id}`)}
+                    onClick={() => router.push(`/quotes/${m.id}?ref=measurements`)}
                   >
                     {/* Checkbox */}
                     <div onClick={e => e.stopPropagation()}>

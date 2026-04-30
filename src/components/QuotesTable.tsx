@@ -101,9 +101,15 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
 
   // Bulk select state — checkboxes are persistent
   const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [selectMode, setSelectMode] = useState(false)
   const [bulkWorking, setBulkWorking] = useState(false)
   const [confirmBulkDelete, setConfirmBulkDelete] = useState(false)
   const [bulkStatusPicker, setBulkStatusPicker] = useState(false)
+
+  function exitSelectMode() {
+    setSelectMode(false)
+    setSelected(new Set())
+  }
 
   // Per-row More menu (open id) and pagination
   const [openMenuId, setOpenMenuId] = useState<string | null>(null)
@@ -181,6 +187,7 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
     ))
     setLocalQuotes(prev => prev.filter(q => !selected.has(q.id)))
     setSelected(new Set())
+    setSelectMode(false)
     setConfirmBulkDelete(false)
     setBulkWorking(false)
     router.refresh()
@@ -197,6 +204,7 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
     ))
     setLocalQuotes(prev => prev.map(q => selected.has(q.id) ? { ...q, status } : q))
     setSelected(new Set())
+    setSelectMode(false)
     setBulkStatusPicker(false)
     setBulkWorking(false)
   }
@@ -599,6 +607,40 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
         style={{ border: '1px solid #E5E7EB', borderTop: 'none' }}
       >
 
+        {/* Mobile select toolbar */}
+        {sorted.length > 0 && (
+          <div className="sm:hidden flex items-center gap-3 px-4 py-2.5" style={{ borderBottom: '1px solid #F5F5F7' }}>
+            {!selectMode ? (
+              <button
+                onClick={() => setSelectMode(true)}
+                className="text-xs font-medium text-gray-500 hover:text-gray-800 transition-colors"
+              >
+                Select
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={toggleSelectAllVisible}
+                  className="text-xs font-semibold transition-colors"
+                  style={{ color: 'var(--primary)' }}
+                >
+                  {allVisibleSelected ? 'Deselect all' : 'Select all'}
+                </button>
+                <span className="text-xs text-gray-300">·</span>
+                <button
+                  onClick={exitSelectMode}
+                  className="text-xs font-medium text-gray-400 hover:text-gray-700 transition-colors"
+                >
+                  Cancel
+                </button>
+              </>
+            )}
+            <span className="text-xs text-gray-400 ml-auto">
+              {sorted.length} estimate{sorted.length !== 1 ? 's' : ''}
+            </span>
+          </div>
+        )}
+
         {/* Bulk action bar */}
         {selCount > 0 && (
           <div
@@ -644,7 +686,7 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
               </>
             )}
             <button
-              onClick={() => { setSelected(new Set()); setBulkStatusPicker(false) }}
+              onClick={() => { setSelected(new Set()); setSelectMode(false); setBulkStatusPicker(false) }}
               className="ml-auto text-gray-400 hover:text-gray-600"
             >
               Clear
@@ -717,17 +759,18 @@ export default function QuotesTable({ quotes }: QuotesTableProps) {
                   <div
                     className="sm:hidden flex items-center gap-3 px-4 py-3 hover:bg-gray-50/60 transition-colors cursor-pointer"
                     style={{ borderBottom: '1px solid #F5F5F7', background: rowBg }}
-                    onClick={() => router.push(rowHref)}
+                    onClick={() => selectMode ? toggleSelect(q.id) : router.push(rowHref)}
                   >
-                    <div onClick={e => e.stopPropagation()}>
+                    {selectMode && (
                       <input
                         type="checkbox"
                         checked={isSelected}
                         onChange={() => toggleSelect(q.id)}
-                        className="w-3.5 h-3.5 cursor-pointer flex-shrink-0"
+                        onClick={e => e.stopPropagation()}
+                        className="w-4 h-4 cursor-pointer flex-shrink-0 rounded"
                         style={{ accentColor: '#1C1C1E' }}
                       />
-                    </div>
+                    )}
                     <div
                       className="w-8 h-8 rounded-full flex items-center justify-center text-gray-700 text-xs font-semibold flex-shrink-0"
                       style={{ background: '#E5E7EB' }}

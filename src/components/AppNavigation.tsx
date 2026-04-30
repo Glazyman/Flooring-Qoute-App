@@ -2,13 +2,13 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import {
   LayoutDashboard, FileText, Settings,
-  LogOut, CreditCard, Menu, X, HelpCircle, Users, Receipt, Ruler, Plus, FileEdit, ScanLine,
+  LogOut, CreditCard, Menu, X, HelpCircle, Users, Receipt, Ruler, Plus, FileEdit, ScanLine, PanelLeft, ChevronsRight,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 interface NavItem {
   href: string
@@ -30,14 +30,21 @@ const bottomNavItems: NavItem[] = [
   { href: '/help', label: 'Help & Support', icon: HelpCircle },
 ]
 
-function NavLink({ item, onClick, badge, sub }: { item: NavItem; onClick?: () => void; badge?: number; sub?: boolean }) {
+function NavLink({ item, onClick, badge, sub, collapsed }: { item: NavItem; onClick?: () => void; badge?: number; sub?: boolean; collapsed?: boolean }) {
   const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const fromMeasurements = searchParams.get('ref') === 'measurements'
+
   const isActive = (() => {
     if (item.href === '/quotes/new') return pathname === '/quotes/new'
     if (item.href === '/quotes') {
-      // Active on /quotes and /quotes/[id] but NOT /quotes/drafts or /quotes/new
+      if (fromMeasurements && pathname.startsWith('/quotes/') && !pathname.startsWith('/quotes/drafts') && pathname !== '/quotes/new') return false
       return pathname === '/quotes' ||
         (pathname.startsWith('/quotes/') && !pathname.startsWith('/quotes/drafts') && pathname !== '/quotes/new')
+    }
+    if (item.href === '/measurements') {
+      if (fromMeasurements && pathname.startsWith('/quotes/')) return true
+      return pathname === '/measurements'
     }
     if (item.href === '/quotes/drafts') return pathname.startsWith('/quotes/drafts')
     if (item.href === '/dashboard') return pathname === '/dashboard'
@@ -45,16 +52,17 @@ function NavLink({ item, onClick, badge, sub }: { item: NavItem; onClick?: () =>
   })()
 
   const fontSize = sub ? 12 : 13
-  const paddingLeft = sub ? 28 : 11
+  const padding = collapsed ? '8px 0' : sub ? '6px 8px 6px 28px' : '7px 8px 7px 11px'
 
   return (
     <Link
       href={item.href}
       onClick={onClick}
+      title={collapsed ? item.label : undefined}
       className={sub ? 'nav-link-sub' : 'nav-link'}
       style={isActive
-        ? { background: '#f2f2f7', color: '#1d1d1f', fontWeight: 600, borderRadius: 10, display: 'flex', alignItems: 'center', gap: 10, paddingLeft, fontSize, textDecoration: 'none' }
-        : { background: 'transparent', color: '#6e6e73', fontWeight: 400, borderRadius: 10, display: 'flex', alignItems: 'center', gap: 10, paddingLeft, fontSize, textDecoration: 'none' }
+        ? { background: '#f2f2f7', color: '#1d1d1f', fontWeight: 600, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : undefined, gap: collapsed ? 0 : 10, padding, fontSize, textDecoration: 'none', width: '100%' }
+        : { background: 'transparent', color: '#6e6e73', fontWeight: 400, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : undefined, gap: collapsed ? 0 : 10, padding, fontSize, textDecoration: 'none', width: '100%' }
       }
       onMouseEnter={e => {
         if (!isActive) {
@@ -69,18 +77,37 @@ function NavLink({ item, onClick, badge, sub }: { item: NavItem; onClick?: () =>
         }
       }}
     >
-      <item.icon size={sub ? 13 : 15} strokeWidth={isActive ? 2 : 1.7} color={isActive ? '#1d1d1f' : '#aeaeb2'} />
-      <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.label}</span>
-      {badge != null && badge > 0 && (
-        <span style={{
-          minWidth: 18, height: 18, borderRadius: 9, padding: '0 5px',
-          background: '#1d1d1f', color: 'white',
-          fontSize: 10, fontWeight: 700,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          flexShrink: 0,
-        }}>
-          {badge > 99 ? '99+' : badge}
-        </span>
+      <div style={{ position: 'relative', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <item.icon size={sub ? 13 : 15} strokeWidth={isActive ? 2 : 1.7} color={isActive ? '#1d1d1f' : '#aeaeb2'} />
+        {/* Badge — offset to top-right corner, outside the icon area */}
+        {collapsed && badge != null && badge > 0 && (
+          <span style={{
+            position: 'absolute', top: -7, right: -10,
+            minWidth: 16, height: 16, borderRadius: 8, padding: '0 4px',
+            background: '#1d1d1f', color: 'white',
+            fontSize: 9, fontWeight: 700,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            border: '2px solid white',
+          }}>
+            {badge > 99 ? '99+' : badge}
+          </span>
+        )}
+      </div>
+      {!collapsed && (
+        <>
+          <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.label}</span>
+          {badge != null && badge > 0 && (
+            <span style={{
+              minWidth: 18, height: 18, borderRadius: 9, padding: '0 5px',
+              background: '#1d1d1f', color: 'white',
+              fontSize: 10, fontWeight: 700,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
+            }}>
+              {badge > 99 ? '99+' : badge}
+            </span>
+          )}
+        </>
       )}
     </Link>
   )
@@ -100,6 +127,18 @@ export default function AppNavigation({
   const router = useRouter()
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState(false)
+
+  // Persist collapsed state and sync CSS variable
+  useEffect(() => {
+    const saved = localStorage.getItem('sidebar-collapsed')
+    if (saved === 'true') setCollapsed(true)
+  }, [])
+
+  useEffect(() => {
+    document.documentElement.dataset.sidebarCollapsed = collapsed ? 'true' : 'false'
+    localStorage.setItem('sidebar-collapsed', String(collapsed))
+  }, [collapsed])
 
   // Show Drafts sub-link only while the user is inside the Estimates section
   const showDrafts =
@@ -130,16 +169,51 @@ export default function AppNavigation({
 
   const initials = companyName.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2)
 
-  const sidebarContent = (
+  const buildSidebarContent = (isCollapsed: boolean) => (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflowY: 'auto', flex: 1 }}>
 
       {/* Brand */}
-      <div style={{ padding: '18px 16px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
-        <Image src="/logo.png" alt="FloorQuote Pro" width={30} height={30} style={{ borderRadius: 9, flexShrink: 0 }} />
-        <span style={{ fontSize: 14, fontWeight: 800, color: '#1d1d1f', letterSpacing: '-0.02em', flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>FloorQuote Pro</span>
+      <div style={{
+        padding: '14px 12px 12px',
+        display: 'flex', alignItems: 'center',
+        justifyContent: isCollapsed ? 'center' : undefined,
+        gap: 10, minWidth: 0, position: 'relative',
+      }}>
+        {isCollapsed ? (
+          /* Collapsed: just the toggle button — no logo */
+          <button
+            className="hidden lg:flex items-center justify-center"
+            onClick={() => setCollapsed(false)}
+            title="Expand sidebar"
+            style={{
+              width: 32, height: 32, borderRadius: 9, border: '1px solid #E5E7EB',
+              background: 'white', cursor: 'pointer', color: '#6e6e73', flexShrink: 0,
+            }}
+          >
+            <ChevronsRight size={15} strokeWidth={1.8} />
+          </button>
+        ) : (
+          <>
+            <Image src="/logo.png" alt="FloorQuote Pro" width={30} height={30} style={{ borderRadius: 9, flexShrink: 0 }} />
+            <span style={{ fontSize: 14, fontWeight: 800, color: '#1d1d1f', letterSpacing: '-0.02em', flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>FloorQuote Pro</span>
+            {/* Collapse button — same style as expand */}
+            <button
+              className="hidden lg:flex items-center justify-center flex-shrink-0"
+              onClick={() => setCollapsed(true)}
+              title="Collapse sidebar"
+              style={{
+                width: 32, height: 32, borderRadius: 9, border: '1px solid #E5E7EB',
+                background: 'white', cursor: 'pointer', color: '#6e6e73',
+              }}
+            >
+              <ChevronsRight size={15} strokeWidth={1.8} style={{ transform: 'rotate(180deg)' }} />
+            </button>
+          </>
+        )}
+        {/* Mobile close */}
         <button
-          className="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg"
-          style={{ color: '#6e6e73', background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0 }}
+          className="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg absolute right-2 top-3"
+          style={{ color: '#6e6e73', background: 'none', border: 'none', cursor: 'pointer' }}
           onClick={() => setMobileOpen(false)}
         >
           <X className="w-4 h-4" />
@@ -147,7 +221,7 @@ export default function AppNavigation({
       </div>
 
       {/* User / Company section */}
-      <div style={{ padding: '12px 14px', borderTop: '1px solid rgba(0,0,0,0.04)' }}>
+      <div style={{ padding: '12px 14px', borderTop: '1px solid rgba(0,0,0,0.04)', display: isCollapsed ? 'none' : undefined }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
           {/* Avatar with gradient ring */}
           <div style={{
@@ -177,7 +251,7 @@ export default function AppNavigation({
       </div>
 
       {/* New Project CTA */}
-      <div style={{ padding: '12px 12px 8px' }}>
+      <div style={{ padding: '12px 12px 8px', display: isCollapsed ? 'none' : undefined }}>
         <Link
           href={trialExhausted ? '/billing/setup' : '/quotes/new'}
           onClick={() => setMobileOpen(false)}
@@ -196,8 +270,8 @@ export default function AppNavigation({
       </div>
 
       {/* Main nav */}
-      <div style={{ padding: '6px 10px' }}>
-        <p style={{ fontSize: 10, fontWeight: 700, color: '#aeaeb2', textTransform: 'uppercase', letterSpacing: '0.09em', margin: '0 0 4px 2px' }}>MAIN</p>
+      <div style={{ padding: isCollapsed ? '6px 8px' : '6px 10px' }}>
+        {!isCollapsed && <p style={{ fontSize: 10, fontWeight: 700, color: '#aeaeb2', textTransform: 'uppercase', letterSpacing: '0.09em', margin: '0 0 4px 2px' }}>MAIN</p>}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           {navItems.map((item) => (
             <div key={item.href}>
@@ -205,14 +279,16 @@ export default function AppNavigation({
                 item={item}
                 onClick={() => setMobileOpen(false)}
                 badge={item.href === '/measurements' ? pendingMeasurements : undefined}
+                collapsed={isCollapsed}
               />
-              {/* Drafts sub-item — only visible while in the Estimates section */}
-              {item.href === '/quotes' && showDrafts && (
+              {/* Drafts sub-item — only visible while in the Estimates section and not collapsed */}
+              {!isCollapsed && item.href === '/quotes' && showDrafts && (
                 <NavLink
                   item={{ href: '/quotes/drafts', label: 'Drafts', icon: FileEdit }}
                   onClick={() => setMobileOpen(false)}
                   badge={draftCount > 0 ? draftCount : undefined}
                   sub
+                  collapsed={false}
                 />
               )}
             </div>
@@ -221,47 +297,53 @@ export default function AppNavigation({
       </div>
 
       {/* Bottom nav */}
-      <div style={{ marginTop: 'auto', padding: '4px 10px 6px', borderTop: '1px solid rgba(0,0,0,0.04)' }}>
+      <div style={{ marginTop: 'auto', padding: isCollapsed ? '4px 8px 6px' : '4px 10px 6px', borderTop: '1px solid rgba(0,0,0,0.04)' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           {bottomNavItems.map((item) => (
-            <NavLink key={item.href} item={item} onClick={() => setMobileOpen(false)} />
+            <NavLink key={item.href} item={item} onClick={() => setMobileOpen(false)} collapsed={isCollapsed} />
           ))}
           <button
             onClick={handleBillingPortal}
+            title={isCollapsed ? 'Billing' : undefined}
             style={{
               background: 'transparent', color: '#6e6e73', fontWeight: 400, borderRadius: 9,
-              display: 'flex', alignItems: 'center', gap: 8, padding: '7px 11px', fontSize: 13,
+              display: 'flex', alignItems: 'center', justifyContent: isCollapsed ? 'center' : undefined,
+              gap: 8, padding: isCollapsed ? '8px 0' : '7px 11px', fontSize: 13,
               border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left',
             }}
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#fafafa'; (e.currentTarget as HTMLElement).style.color = '#1d1d1f' }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#6e6e73' }}
           >
             <CreditCard size={14} strokeWidth={1.7} color="#aeaeb2" />
-            Billing
+            {!isCollapsed && 'Billing'}
           </button>
           <button
             onClick={handleLogout}
+            title={isCollapsed ? 'Sign Out' : undefined}
             style={{
               background: 'transparent', color: '#ff453a', fontWeight: 400, borderRadius: 9,
-              display: 'flex', alignItems: 'center', gap: 8, padding: '7px 11px', fontSize: 13,
+              display: 'flex', alignItems: 'center', justifyContent: isCollapsed ? 'center' : undefined,
+              gap: 8, padding: isCollapsed ? '8px 0' : '7px 11px', fontSize: 13,
               border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left',
             }}
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#fff5f5' }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
           >
             <LogOut size={14} strokeWidth={1.7} color="#ff453a" />
-            Sign Out
+            {!isCollapsed && 'Sign Out'}
           </button>
         </div>
       </div>
 
       {/* Footer */}
-      <div style={{ padding: '8px 16px 12px', borderTop: '1px solid rgba(0,0,0,0.04)' }}>
-        <p style={{ fontSize: 11, color: '#aeaeb2', margin: 0 }}>© 2026 FloorQuote Pro</p>
-      </div>
+      {!isCollapsed && (
+        <div style={{ padding: '8px 16px 12px', borderTop: '1px solid rgba(0,0,0,0.04)' }}>
+          <p style={{ fontSize: 11, color: '#aeaeb2', margin: 0 }}>© 2026 FloorQuote Pro</p>
+        </div>
+      )}
 
       {/* Trial upgrade banner */}
-      {trialExhausted && (
+      {trialExhausted && !isCollapsed && (
         <div style={{ margin: '0 10px 10px' }}>
           <Link
             href="/billing/setup"
@@ -289,7 +371,7 @@ export default function AppNavigation({
     <>
       {/* Desktop sidebar */}
       <aside
-        className="hidden lg:flex flex-col w-[216px] h-screen fixed left-0 top-0"
+        className="sidebar-aside hidden lg:flex flex-col h-screen fixed left-0 top-0"
         style={{
           background: 'rgba(255,255,255,0.95)',
           backdropFilter: 'blur(20px)',
@@ -297,7 +379,7 @@ export default function AppNavigation({
           borderRight: '1px solid rgba(0,0,0,0.07)',
         }}
       >
-        {sidebarContent}
+        {buildSidebarContent(collapsed)}
       </aside>
 
       {/* Mobile header */}
@@ -337,7 +419,7 @@ export default function AppNavigation({
               paddingTop: 'env(safe-area-inset-top)',
             }}
           >
-            <div className="flex-1 overflow-y-auto">{sidebarContent}</div>
+            <div className="flex-1 overflow-y-auto">{buildSidebarContent(false)}</div>
           </aside>
         </div>
       )}
