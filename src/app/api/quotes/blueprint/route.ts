@@ -88,19 +88,24 @@ First decide if this page is relevant to FLOORING work. A page IS relevant if it
 - A measurement/take-off sheet listing rooms with dimensions or sqft
 - Material schedules that reference flooring (hardwood, LVT/LVP, vinyl, tile, carpet, laminate, engineered, etc.)
 - Pages with headers like "FLOORING PLAN", "FINISH SCHEDULE", "ROOM FINISH", "HARDWOOD", "FLOOR FINISH"
+- ANY floor plan showing spaces — including bathrooms, powder rooms, laundry rooms, closets, hallways, etc. ALL of these have floors and MUST be extracted.
+
+IMPORTANT: A floor plan that includes bathrooms or utility rooms is still a FLOORING page. Do NOT skip it because it shows a bathroom — bathrooms have tile/LVT floors. Only skip a page if it is exclusively about a non-flooring trade (e.g. a page showing ONLY electrical wiring, ONLY HVAC ducts, ONLY roof structure, etc. with no room layout or dimensions).
 
 A page is NOT relevant (and you must return zero rooms) if it shows:
-- Roofing plans, framing/structural drawings, electrical/plumbing/HVAC, fence layouts, exterior elevations,
-  site plans, foundation plans, demolition plans, painting schedules, cabinet/millwork, landscaping,
-  cover sheets, index/sheet list pages, general notes only, or any non-flooring trade.
+- Roofing plans, framing/structural drawings, electrical wiring diagrams, HVAC/plumbing schematics (not floor plans), fence layouts, exterior elevations,
+  site plans, foundation plans, demolition plans, painting schedules, cabinet/millwork elevations, landscaping,
+  cover sheets, index/sheet list pages, or general notes only with no room dimensions.
 
 If the page is NOT a flooring page: return { "rooms": [], "totalSqft": 0, "notes": "", "isFlooringPage": false, "pageType": "<short description, e.g. 'Roofing plan' or 'Cover sheet'>" }
 
 STEP 2 — EXTRACT ROOMS (only if relevant):
 - Measurements are in feet and inches. Superscript/raised numbers are inches (e.g. "17³" = 17 ft 3 in, "7x4⁶" = 7 ft × 4 ft 6 in).
 - Calculate sqft as: (lengthFt + lengthIn/12) × (widthFt + widthIn/12), round to 1 decimal.
-- Group rooms by area: Upstairs, Downstairs, Kitchen, Foyer, or Other.
-- If you see column headers like UPSTAIRS, DOWNSTAIRS, KITCHEN on the sheet, use those.
+- Extract EVERY space shown: living rooms, bedrooms, kitchens, bathrooms, powder rooms, half baths, laundry rooms, closets, hallways, foyers, utility rooms, garages — everything with dimensions.
+- Do NOT skip any room. If a space has a dimension label, include it.
+- For the "section" field: use the column headers or floor level shown on the sheet (e.g. UPSTAIRS, DOWNSTAIRS, MAIN FLOOR, BASEMENT). If no clear section is shown, infer from context. Use "Main Floor" as the default section if uncertain.
+- If you see explicit column headers like UPSTAIRS, DOWNSTAIRS, KITCHEN, BATHROOMS on the sheet, use those exactly.
 
 Return ONLY valid JSON in this exact format (no markdown, no code block):
 {
@@ -109,7 +114,7 @@ Return ONLY valid JSON in this exact format (no markdown, no code block):
   "rooms": [
     {
       "name": "Room name or empty string",
-      "section": "Upstairs",
+      "section": "Main Floor",
       "lengthFt": 17,
       "lengthIn": 3,
       "widthFt": 17,
