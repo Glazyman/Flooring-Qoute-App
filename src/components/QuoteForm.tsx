@@ -1286,18 +1286,33 @@ export default function QuoteForm({
               <div className="space-y-4">
                 {/* Blueprint upload (Pro tier only) */}
                 {isPro ? (
-                  <div className="border border-dashed rounded-md p-4 text-center transition-colors hover:bg-gray-50" style={{ borderColor: '#E5E7EB' }}>
+                  <div
+                    className="rounded-xl text-center transition-all"
+                    style={{
+                      border: '2px dashed',
+                      borderColor: blueprintLoading ? 'var(--primary)' : '#e5e7eb',
+                      background: blueprintLoading ? 'rgba(13,148,136,0.03)' : 'transparent',
+                    }}
+                  >
                     <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleBlueprintUpload} />
                     {blueprintLoading ? (
-                      <div className="flex flex-col items-center gap-2 py-2">
-                        <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
-                        <p className="text-sm font-medium text-gray-700">Analyzing with AI…</p>
-                        <p className="text-xs text-gray-400">~10–20 seconds per image</p>
+                      <div className="flex flex-col items-center gap-3 py-6 px-4">
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(13,148,136,0.1)' }}>
+                          <Loader2 className="w-5 h-5 animate-spin" style={{ color: 'var(--primary)' }} />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-800">Analyzing with AI</p>
+                          <p className="text-xs text-gray-400 mt-0.5">Usually 10 to 20 seconds per image</p>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full" style={{ color: 'var(--primary)', background: 'rgba(13,148,136,0.08)' }}>
+                          <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: 'var(--primary)' }} />
+                          Reading room dimensions
+                        </div>
                       </div>
                     ) : (
-                      <button type="button" onClick={() => fileRef.current?.click()} className="flex flex-col items-center gap-2 w-full py-2">
-                        <div className="w-9 h-9 rounded-md flex items-center justify-center bg-gray-50">
-                          <Upload className="w-4 h-4 text-gray-400" />
+                      <button type="button" onClick={() => fileRef.current?.click()} className="flex flex-col items-center gap-2.5 w-full py-5 px-4 hover:bg-gray-50 rounded-xl transition-colors">
+                        <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'rgba(13,148,136,0.08)' }}>
+                          <Upload className="w-4 h-4" style={{ color: 'var(--primary)' }} />
                         </div>
                         <div>
                           <p className="text-sm font-medium text-gray-700">Upload blueprint or measurement sheet</p>
