@@ -4,7 +4,7 @@ import { openai } from '@ai-sdk/openai'
 import { generateText } from 'ai'
 import { isAdminUser } from '@/lib/admin'
 
-export const maxDuration = 60
+export const maxDuration = 120
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
     const mimeType = file.type || 'image/jpeg'
 
     const { text } = await generateText({
-      model: openai('gpt-4o'),
+      model: openai('o3'),
       messages: [
         {
           role: 'user',
