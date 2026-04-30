@@ -37,10 +37,10 @@ export default async function QuotesPage() {
         <h1 className="text-base font-semibold text-gray-900">Estimates</h1>
         <Link
           href="/quotes/new"
-          className="lg:hidden inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-md text-white flex-shrink-0"
+          className="lg:hidden inline-flex items-center gap-2 text-sm font-bold px-4 py-2.5 rounded-2xl text-white flex-shrink-0"
           style={{ background: 'var(--button-dark)' }}
         >
-          <Plus className="w-3.5 h-3.5" />
+          <Plus className="w-4 h-4" />
           New project
         </Link>
       </div>
